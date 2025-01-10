@@ -34,15 +34,11 @@ type JobPosting struct {
 	StartDate                  time.Time              `json:"start_date" gorm:"type:date;not null"`
 	EndDate                    time.Time              `json:"end_date" gorm:"type:date;not null"`
 	Status                     JobPostingStatus       `json:"status" gorm:"default:'DRAFT'"`
-	RequiredQualification      string                 `json:"required_qualification" gorm:"type:text;default:null"`
-	Certificate                string                 `json:"certificate" gorm:"type:text;default:null"`
-	ComputerSkill              string                 `json:"computer_skill" gorm:"type:text;default:null"`
-	LanguageSkill              string                 `json:"language_skill" gorm:"type:text;default:null"`
-	OtherSkill                 string                 `json:"other_skill" gorm:"type:text;default:null"`
-	Jobdesc                    string                 `json:"jobdesc" gorm:"type:text;not null"`
 	SalaryMin                  string                 `json:"salary_min" gorm:"type:varchar(255);not null"`
 	SalaryMax                  string                 `json:"salary_max" gorm:"type:varchar(255);not null"`
-	Decription                 string                 `json:"decription" gorm:"type:text;default:null"`
+	ContentDescription         string                 `json:"content_description" gorm:"type:text;default:null"`
+	OrganizationLogo           string                 `json:"organization_logo" gorm:"type:text;default:null"`
+	Poster                     string                 `json:"poster" gorm:"type:text;default:null"`
 	Link                       string                 `json:"link" gorm:"type:text;default:null"`
 
 	ProjectRecruitmentHeader ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

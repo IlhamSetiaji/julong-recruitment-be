@@ -39,7 +39,8 @@ type ProjectRecruitmentHeader struct {
 	EndDate            time.Time                      `json:"end_date" gorm:"type:date;not null"`
 	Status             ProjectRecruitmentHeaderStatus `json:"status" gorm:"default:'DRAFT'"`
 
-	JobPostings []JobPosting `json:"job_postings" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	JobPostings             []JobPosting             `json:"job_postings" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectRecruitmentLines []ProjectRecruitmentLine `json:"project_recruitment_lines" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (prh *ProjectRecruitmentHeader) BeforeCreate(tx *gorm.DB) (err error) {

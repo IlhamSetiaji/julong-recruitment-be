@@ -7,6 +7,7 @@ import (
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
@@ -104,6 +105,60 @@ func handleMsg(docMsg *request.RabbitMQRequest, log *logrus.Logger, viper *viper
 	case "reply":
 		log.Printf("INFO: received reply message")
 		return
+	case "send_mail":
+		to, ok := docMsg.MessageData["to"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'to'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'to'").Error(),
+			}
+			break
+		}
+		subject, ok := docMsg.MessageData["subject"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'subject'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'subject'").Error(),
+			}
+			break
+		}
+		body, ok := docMsg.MessageData["body"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'body'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'body'").Error(),
+			}
+			break
+		}
+		from, ok := docMsg.MessageData["from"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'from'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'from'").Error(),
+			}
+			break
+		}
+
+		mailService := service.MailServiceFactory(log, viper)
+		err := mailService.SendMail(service.MailData{
+			From:    from,
+			To:      []string{to},
+			Subject: subject,
+			Body:    body,
+		})
+		if err != nil {
+			log.Errorf("ERROR: fail send mail: %s", err.Error())
+			msgData = map[string]interface{}{
+				"error": err.Error(),
+			}
+			break
+		} else {
+			log.Printf("INFO: success send mail")
+		}
+
+		msgData = map[string]interface{}{
+			"message": "success",
+		}
 	default:
 		log.Printf("Unknown message type, please recheck your type: %s", docMsg.MessageType)
 

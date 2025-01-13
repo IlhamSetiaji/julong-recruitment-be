@@ -8,6 +8,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase.go"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
@@ -154,6 +155,34 @@ func handleMsg(docMsg *request.RabbitMQRequest, log *logrus.Logger, viper *viper
 			break
 		} else {
 			log.Printf("INFO: success send mail")
+		}
+
+		msgData = map[string]interface{}{
+			"message": "success",
+		}
+	case "clone_mp_request":
+		mprCloneID, ok := docMsg.MessageData["mpr_clone_id"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'mpr_clone_id'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'mpr_clone_id'").Error(),
+			}
+			break
+		}
+
+		uc := usecase.MPRequestUseCaseFactory(log)
+		_, err := uc.CreateMPRequest(&request.CreateMPRequest{
+			MPRCloneID: mprCloneID,
+		})
+
+		if err != nil {
+			log.Errorf("ERROR: fail create mp request: %s", err.Error())
+			msgData = map[string]interface{}{
+				"error": err.Error(),
+			}
+			break
+		} else {
+			log.Printf("INFO: success create mp request")
 		}
 
 		msgData = map[string]interface{}{

@@ -1,6 +1,7 @@
 package route
 
 import (
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/handler"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -8,10 +9,11 @@ import (
 )
 
 type RouteConfig struct {
-	App            *gin.Engine
-	Log            *logrus.Logger
-	Viper          *viper.Viper
-	AuthMiddleware gin.HandlerFunc
+	App              *gin.Engine
+	Log              *logrus.Logger
+	Viper            *viper.Viper
+	AuthMiddleware   gin.HandlerFunc
+	MPRequestHandler handler.IMPRequestHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -29,6 +31,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 	{
 		apiRoute.Use(c.AuthMiddleware)
 		{
+			// mp requests
+			mpRequestRoute := apiRoute.Group("/mp-requests")
+			{
+				mpRequestRoute.GET("", c.MPRequestHandler.FindAllPaginated)
+			}
 		}
 	}
 }
@@ -36,10 +43,12 @@ func (c *RouteConfig) SetupAPIRoutes() {
 func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *RouteConfig {
 	// factory middleware
 	authMiddleware := middleware.NewAuth(viper)
+	mpRequestHandler := handler.MPRequestHandlerFactory(log, viper)
 	return &RouteConfig{
-		App:            app,
-		Log:            log,
-		Viper:          viper,
-		AuthMiddleware: authMiddleware,
+		App:              app,
+		Log:              log,
+		Viper:            viper,
+		AuthMiddleware:   authMiddleware,
+		MPRequestHandler: mpRequestHandler,
 	}
 }

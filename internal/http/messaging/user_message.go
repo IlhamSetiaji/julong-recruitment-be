@@ -78,7 +78,7 @@ func (m *UserMessage) SendGetUserMe(req request.SendFindUserByIDMessageRequest) 
 		ID:          uuid.New().String(),
 		MessageType: "get_user_me",
 		MessageData: payload,
-		ReplyTo:     "julong_manpower",
+		ReplyTo:     "julong_recruitment",
 	}
 
 	log.Printf("INFO: document message: %v", docMsg)

@@ -6,8 +6,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type MPRequestPaginatedResponse struct {
+	MPRequestHeader []MPRequestHeaderResponse `json:"mp_request_header"`
+	Total           int64                     `json:"total"`
+}
+
 type MPRequestHeaderResponse struct {
 	ID                         uuid.UUID  `json:"id"`
+	MPRCloneID                 *uuid.UUID `json:"mpr_clone_id"`
 	OrganizationID             uuid.UUID  `json:"organization_id"`
 	OrganizationLocationID     uuid.UUID  `json:"organization_location_id"`
 	ForOrganizationID          uuid.UUID  `json:"for_organization_id"`

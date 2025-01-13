@@ -11,6 +11,7 @@ import (
 
 type IMPRequestRepository interface {
 	Create(ent *entity.MPRequest) (*entity.MPRequest, error)
+	FindAllPaginated(page int, pageSize int, search string, filter map[string]interface{}) (*[]entity.MPRequest, int64, error)
 }
 
 type MPRequestRepository struct {
@@ -43,4 +44,31 @@ func (r *MPRequestRepository) Create(ent *entity.MPRequest) (*entity.MPRequest, 
 	}
 
 	return ent, nil
+}
+
+func (r *MPRequestRepository) FindAllPaginated(page int, pageSize int, search string, filter map[string]interface{}) (*[]entity.MPRequest, int64, error) {
+	var mpRequests []entity.MPRequest
+	var total int64
+	var whereStatus string
+
+	query := r.DB.Model(&entity.MPRequest{})
+
+	if filter != nil {
+		if _, ok := filter["status"]; ok {
+			whereStatus = "status = ?"
+			query = query.Where(whereStatus, filter["status"])
+		}
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		r.Log.Errorf("[MPRequestRepository.FindAllPaginated] error when count mp request headers: %v", err)
+		return nil, 0, errors.New("[MPRequestRepository.FindAllPaginated] error when count mp request headers " + err.Error())
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&mpRequests).Error; err != nil {
+		r.Log.Errorf("[MPRequestRepository.FindAllPaginated] error when find mp request headers: %v", err)
+		return nil, 0, errors.New("[MPRequestRepository.FindAllPaginated] error when find mp request headers " + err.Error())
+	}
+
+	return &mpRequests, total, nil
 }

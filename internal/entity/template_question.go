@@ -14,11 +14,25 @@ const (
 	TEMPLATE_QUESTION_STATUS_INACTIVE TemplateQuestionStatus = "INACTIVE"
 )
 
+type TemplateQuestionFormType string
+
+const (
+	TQ_FORM_TYPE_ADMINISTRATIVE_SELECTION TemplateQuestionFormType = "ADMINISTRATIVE_SELECTION"
+	TQ_FORM_TYPE_TEST                     TemplateQuestionFormType = "TEST"
+	TQ_FORM_TYPE_INTERVIEW                TemplateQuestionFormType = "INTERVIEW"
+	TQ_FORM_TYPE_FGD                      TemplateQuestionFormType = "FGD"
+	TQ_FORM_TYPE_FINAL_INTERVIEW          TemplateQuestionFormType = "FINAL_INTERVIEW"
+	TQ_FORM_TYPE_OFFERING_LETTER          TemplateQuestionFormType = "OFFERING_LETTER"
+	TQ_FORM_TYPE_CONTRACT_DOCUMENT        TemplateQuestionFormType = "CONTRACT_DOCUMENT"
+	TQ_FORM_TYPE_DOCUMENT_CHECKING        TemplateQuestionFormType = "DOCUMENT_CHECKING"
+)
+
 type TemplateQuestion struct {
 	gorm.Model      `json:"-"`
 	ID              uuid.UUID              `json:"id" gorm:"type:char(36);primaryKey;"`
-	DocumentSetupID uuid.UUID              `json:"document_setup_id" gorm:"type:char(36);not null"`
-	FormType        string                 `json:"form_type" gorm:"type:varchar(255);not null"`
+	DocumentSetupID *uuid.UUID             `json:"document_setup_id" gorm:"type:char(36);default:null"`
+	Name            string                 `json:"name" gorm:"type:varchar(255);not null"`
+	FormType        string                 `json:"form_type" gorm:"type:varchar(255);default:null"`
 	Description     string                 `json:"description" gorm:"type:text;default:null"`
 	Duration        int                    `json:"duration" gorm:"not null"`
 	Status          TemplateQuestionStatus `json:"status" gorm:"default:'ACTIVE'"`

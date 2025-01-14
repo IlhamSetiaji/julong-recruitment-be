@@ -9,12 +9,13 @@ import (
 )
 
 type RouteConfig struct {
-	App                    *gin.Engine
-	Log                    *logrus.Logger
-	Viper                  *viper.Viper
-	AuthMiddleware         gin.HandlerFunc
-	MPRequestHandler       handler.IMPRequestHandler
-	RecruitmentTypeHandler handler.IRecruitmentTypeHandler
+	App                     *gin.Engine
+	Log                     *logrus.Logger
+	Viper                   *viper.Viper
+	AuthMiddleware          gin.HandlerFunc
+	MPRequestHandler        handler.IMPRequestHandler
+	RecruitmentTypeHandler  handler.IRecruitmentTypeHandler
+	TemplateQuestionHandler handler.ITemplateQuestionHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -42,21 +43,27 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				recruitmentTypeRoute.GET("", c.RecruitmentTypeHandler.FindAll)
 			}
+			// template questions
+			templateQuestionRoute := apiRoute.Group("/template-questions")
+			{
+				templateQuestionRoute.POST("", c.TemplateQuestionHandler.CreateTemplateQuestion)
+			}
 		}
 	}
 }
 
 func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *RouteConfig {
-	// factory middleware
 	authMiddleware := middleware.NewAuth(viper)
 	mpRequestHandler := handler.MPRequestHandlerFactory(log, viper)
 	recruitmentTypeHandler := handler.RecruitmentTypeHandlerFactory(log, viper)
+	templateQuestionHandler := handler.TemplateQuestionHandlerFactory(log, viper)
 	return &RouteConfig{
-		App:                    app,
-		Log:                    log,
-		Viper:                  viper,
-		AuthMiddleware:         authMiddleware,
-		MPRequestHandler:       mpRequestHandler,
-		RecruitmentTypeHandler: recruitmentTypeHandler,
+		App:                     app,
+		Log:                     log,
+		Viper:                   viper,
+		AuthMiddleware:          authMiddleware,
+		MPRequestHandler:        mpRequestHandler,
+		RecruitmentTypeHandler:  recruitmentTypeHandler,
+		TemplateQuestionHandler: templateQuestionHandler,
 	}
 }

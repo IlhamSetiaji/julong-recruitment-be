@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
@@ -20,8 +21,18 @@ func main() {
 	viper := config.NewViper()
 	log := config.NewLogrus(viper)
 
-	go rabbitmq.InitConsumer(viper, log)
-	go rabbitmq.InitProducer(viper, log)
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		rabbitmq.InitConsumer(viper, log)
+	}()
+
+	go func() {
+		defer wg.Done()
+		rabbitmq.InitProducer(viper, log)
+	}()
 
 	app := gin.Default()
 	app.Static("/storage", "./storage")
@@ -66,6 +77,8 @@ func main() {
 	if err != nil {
 		log.Panicf("Failed to start server: %v", err)
 	}
+
+	wg.Wait()
 }
 
 func shouldExcludeFromCSRF(path string) bool {

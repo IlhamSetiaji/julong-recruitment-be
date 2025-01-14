@@ -9,11 +9,12 @@ import (
 )
 
 type RouteConfig struct {
-	App              *gin.Engine
-	Log              *logrus.Logger
-	Viper            *viper.Viper
-	AuthMiddleware   gin.HandlerFunc
-	MPRequestHandler handler.IMPRequestHandler
+	App                    *gin.Engine
+	Log                    *logrus.Logger
+	Viper                  *viper.Viper
+	AuthMiddleware         gin.HandlerFunc
+	MPRequestHandler       handler.IMPRequestHandler
+	RecruitmentTypeHandler handler.IRecruitmentTypeHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -36,6 +37,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				mpRequestRoute.GET("", c.MPRequestHandler.FindAllPaginated)
 			}
+			// recruitment types
+			recruitmentTypeRoute := apiRoute.Group("/recruitment-types")
+			{
+				recruitmentTypeRoute.GET("", c.RecruitmentTypeHandler.FindAll)
+			}
 		}
 	}
 }
@@ -44,11 +50,13 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	// factory middleware
 	authMiddleware := middleware.NewAuth(viper)
 	mpRequestHandler := handler.MPRequestHandlerFactory(log, viper)
+	recruitmentTypeHandler := handler.RecruitmentTypeHandlerFactory(log, viper)
 	return &RouteConfig{
-		App:              app,
-		Log:              log,
-		Viper:            viper,
-		AuthMiddleware:   authMiddleware,
-		MPRequestHandler: mpRequestHandler,
+		App:                    app,
+		Log:                    log,
+		Viper:                  viper,
+		AuthMiddleware:         authMiddleware,
+		MPRequestHandler:       mpRequestHandler,
+		RecruitmentTypeHandler: recruitmentTypeHandler,
 	}
 }

@@ -11,8 +11,19 @@ func main() {
 	db := config.NewDatabase()
 
 	// migrate the schema
-	err := db.AutoMigrate(&entity.MPRequest{}, &entity.TemplateActivity{}, &entity.TemplateActivityLine{},
-		&entity.ProjectRecruitmentHeader{}, &entity.ProjectRecruitmentLine{}, &entity.JobPosting{})
+	err := db.AutoMigrate(
+		&entity.MPRequest{},
+		&entity.TemplateActivity{},
+		&entity.TemplateActivityLine{},
+		&entity.ProjectRecruitmentHeader{},
+		&entity.ProjectRecruitmentLine{},
+		&entity.JobPosting{},
+		&entity.AnswerType{},
+		&entity.TemplateQuestion{},
+		&entity.Question{},
+		&entity.QuestionOption{},
+		&entity.QuestionResponse{},
+	)
 	if err != nil {
 		log.Fatal(err)
 	} else {

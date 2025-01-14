@@ -14,8 +14,10 @@ type Question struct {
 	AnswerTypeID       uuid.UUID `json:"answer_type_id" gorm:"type:char(36);not null"`
 	Name               string    `json:"name" gorm:"type:varchar(255);not null"`
 
-	TemplateQuestion *TemplateQuestion `json:"template_question" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	AnswerType       *AnswerType       `json:"answer_type" gorm:"foreignKey:AnswerTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TemplateQuestion  *TemplateQuestion  `json:"template_question" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	AnswerType        *AnswerType        `json:"answer_type" gorm:"foreignKey:AnswerTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	QuestionOptions   []QuestionOption   `json:"question_options" gorm:"foreignKey:QuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	QuestionResponses []QuestionResponse `json:"question_responses" gorm:"foreignKey:QuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (q *Question) BeforeCreate(tx *gorm.DB) (err error) {

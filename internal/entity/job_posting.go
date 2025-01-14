@@ -27,7 +27,6 @@ type JobPosting struct {
 	JobID                      *uuid.UUID             `json:"job_id" gorm:"type:char(36);not null"`
 	ForOrganizationID          *uuid.UUID             `json:"for_organization_id" gorm:"type:char(36);not null"`
 	ForOrganizationLocationID  *uuid.UUID             `json:"for_organization_location_id" gorm:"type:char(36);not null"`
-	RequestMajorID             *uuid.UUID             `json:"request_major_id" gorm:"type:char(36);not null"`
 	DocumentNumber             string                 `json:"document_number" gorm:"type:varchar(255);not null;unique"`
 	DocumentDate               time.Time              `json:"document_date" gorm:"type:date;not null"`
 	RecruitmentType            ProjectRecruitmentType `json:"recruitment_type" gorm:"not null"`
@@ -44,16 +43,10 @@ type JobPosting struct {
 	ProjectRecruitmentHeader ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	MPRequest                *MPRequest               `json:"mp_request" gorm:"foreignKey:MPRequestID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
-	OrganizationName         string `json:"organization_name" gorm:"-"`
-	OrganizationCategory     string `json:"organization_category" gorm:"-"`
-	OrganizationLocationName string `json:"organization_location_name" gorm:"-"`
 	ForOrganizationName      string `json:"for_organization_name" gorm:"-"`
 	ForOrganizationLocation  string `json:"for_organization_location" gorm:"-"`
 	ForOrganizationStructure string `json:"for_organization_structure" gorm:"-"`
 	JobName                  string `json:"job_name" gorm:"-"`
-	EmpOrganizationName      string `json:"emp_organization_name" gorm:"-"`
-	JobLevelName             string `json:"job_level_name" gorm:"-"`
-	JobLevel                 int    `json:"job_level" gorm:"-"`
 }
 
 func (jp *JobPosting) BeforeCreate(tx *gorm.DB) (err error) {

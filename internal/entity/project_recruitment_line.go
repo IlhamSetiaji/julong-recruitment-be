@@ -17,6 +17,7 @@ type ProjectRecruitmentLine struct {
 
 	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	TemplateActivity         *TemplateActivity         `json:"template_activity" gorm:"foreignKey:TemplateActivityID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectPics              []ProjectPic              `json:"project_pics" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (prl *ProjectRecruitmentLine) BeforeCreate(tx *gorm.DB) (err error) {

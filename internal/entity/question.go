@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -14,4 +16,20 @@ type Question struct {
 
 	TemplateQuestion *TemplateQuestion `json:"template_question" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	AnswerType       *AnswerType       `json:"answer_type" gorm:"foreignKey:AnswerTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+}
+
+func (q *Question) BeforeCreate(tx *gorm.DB) (err error) {
+	q.ID = uuid.New()
+	q.CreatedAt = time.Now()
+	q.UpdatedAt = time.Now()
+	return
+}
+
+func (q *Question) BeforeUpdate(tx *gorm.DB) (err error) {
+	q.UpdatedAt = time.Now()
+	return
+}
+
+func (Question) TableName() string {
+	return "questions"
 }

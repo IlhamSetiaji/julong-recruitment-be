@@ -13,6 +13,7 @@ import (
 type ITemplateQuestionUseCase interface {
 	CreateTemplateQuestion(req *request.CreateTemplateQuestion) (*response.TemplateQuestionResponse, error)
 	FindAllFormTypes() ([]*response.FormTypeResponse, error)
+	FindByID(id uuid.UUID) (*response.TemplateQuestionResponse, error)
 }
 
 type TemplateQuestionUseCase struct {
@@ -73,4 +74,14 @@ func (uc *TemplateQuestionUseCase) FindAllFormTypes() ([]*response.FormTypeRespo
 	}
 
 	return formTypeResponses, nil
+}
+
+func (uc *TemplateQuestionUseCase) FindByID(id uuid.UUID) (*response.TemplateQuestionResponse, error) {
+	templateQuestion, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Error("[TemplateQuestionUseCase.FindByID] Error finding template question by ID: ", err)
+		return nil, err
+	}
+
+	return uc.DTO.ConvertEntityToResponse(templateQuestion), nil
 }

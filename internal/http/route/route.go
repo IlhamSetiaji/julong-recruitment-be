@@ -50,6 +50,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				templateQuestionRoute.POST("", c.TemplateQuestionHandler.CreateTemplateQuestion)
 				templateQuestionRoute.GET("/form-types", c.TemplateQuestionHandler.FindAllFormTypes)
+				templateQuestionRoute.GET("/:id", c.TemplateQuestionHandler.FindByID)
 			}
 			// answer types
 			answerTypeRoute := apiRoute.Group("/answer-types")

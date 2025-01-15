@@ -19,6 +19,7 @@ type RouteConfig struct {
 	AnswerTypeHandler       handler.IAnswerTypeHandler
 	QuestionHandler         handler.IQuestionHandler
 	DocumentTypeHandler     handler.IDocumentTypeHandler
+	DocumentSetupHandler    handler.IDocumentSetupHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -71,6 +72,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				documentTypeRoute.GET("", c.DocumentTypeHandler.FindAll)
 			}
+			// document setup
+			documentSetupRoute := apiRoute.Group("/document-setup")
+			{
+				documentSetupRoute.POST("", c.DocumentSetupHandler.CreateDocumentSetup)
+			}
 		}
 	}
 }
@@ -83,6 +89,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	answerTypeHandler := handler.AnswerTypeHandlerFactory(log, viper)
 	questionHandler := handler.QuestionHandlerFactory(log, viper)
 	documentTypeHandler := handler.DocumentTypeHandlerFactory(log, viper)
+	documentSetupHandler := handler.DocumentSetupHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                     app,
 		Log:                     log,
@@ -94,5 +101,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		AnswerTypeHandler:       answerTypeHandler,
 		QuestionHandler:         questionHandler,
 		DocumentTypeHandler:     documentTypeHandler,
+		DocumentSetupHandler:    documentSetupHandler,
 	}
 }

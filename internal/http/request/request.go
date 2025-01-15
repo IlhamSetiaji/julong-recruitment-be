@@ -38,3 +38,18 @@ func TemplateQuestionStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func RecruitmentTypeValidation(fl validator.FieldLevel) bool {
+	recruitmentType := fl.Field().String()
+	if recruitmentType == "" {
+		return true
+	}
+	switch entity.ProjectRecruitmentType(recruitmentType) {
+	case entity.PROJECT_RECRUITMENT_TYPE_MT,
+		entity.PROJECT_RECRUITMENT_TYPE_PH,
+		entity.PROJECT_RECRUITMENT_TYPE_NS:
+		return true
+	default:
+		return false
+	}
+}

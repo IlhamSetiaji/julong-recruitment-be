@@ -10,5 +10,6 @@ func NewValidator(viper *viper.Viper) *validator.Validate {
 	validate := validator.New()
 	validate.RegisterValidation("form_type_validation", request.FormTypeValidation)
 	validate.RegisterValidation("template_question_status_validation", request.TemplateQuestionStatusValidation)
+	validate.RegisterValidation("recruitment_type_validation", request.RecruitmentTypeValidation)
 	return validate
 }

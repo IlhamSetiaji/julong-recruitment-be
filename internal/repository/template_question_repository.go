@@ -67,7 +67,11 @@ func (r *TemplateQuestionRepository) FindByID(id uuid.UUID) (*entity.TemplateQue
 		Preload("Questions").
 		First(&tq).
 		Error; err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
 	}
 
 	return &tq, nil

@@ -29,4 +29,20 @@ func main() {
 	} else {
 		log.Info("Migration success")
 	}
+
+	answerTypes := []entity.AnswerType{
+		{Name: "Text"},
+		{Name: "Dropdown"},
+		{Name: "Multiple Choice"},
+		{Name: "Checkbox"},
+		{Name: "Attachment"},
+	}
+
+	for _, answerType := range answerTypes {
+		err := db.Create(&answerType).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	log.Info("Seed AnswerType success")
 }

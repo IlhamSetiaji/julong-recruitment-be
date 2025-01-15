@@ -16,6 +16,8 @@ type RouteConfig struct {
 	MPRequestHandler        handler.IMPRequestHandler
 	RecruitmentTypeHandler  handler.IRecruitmentTypeHandler
 	TemplateQuestionHandler handler.ITemplateQuestionHandler
+	AnswerTypeHandler       handler.IAnswerTypeHandler
+	QuestionHandler         handler.IQuestionHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -48,6 +50,16 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				templateQuestionRoute.POST("", c.TemplateQuestionHandler.CreateTemplateQuestion)
 			}
+			// answer types
+			answerTypeRoute := apiRoute.Group("/answer-types")
+			{
+				answerTypeRoute.GET("", c.AnswerTypeHandler.FindAll)
+			}
+			// questions
+			questionRoute := apiRoute.Group("/questions")
+			{
+				questionRoute.POST("", c.QuestionHandler.CreateOrUpdateQuestions)
+			}
 		}
 	}
 }
@@ -57,6 +69,8 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	mpRequestHandler := handler.MPRequestHandlerFactory(log, viper)
 	recruitmentTypeHandler := handler.RecruitmentTypeHandlerFactory(log, viper)
 	templateQuestionHandler := handler.TemplateQuestionHandlerFactory(log, viper)
+	answerTypeHandler := handler.AnswerTypeHandlerFactory(log, viper)
+	questionHandler := handler.QuestionHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                     app,
 		Log:                     log,
@@ -65,5 +79,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		MPRequestHandler:        mpRequestHandler,
 		RecruitmentTypeHandler:  recruitmentTypeHandler,
 		TemplateQuestionHandler: templateQuestionHandler,
+		AnswerTypeHandler:       answerTypeHandler,
+		QuestionHandler:         questionHandler,
 	}
 }

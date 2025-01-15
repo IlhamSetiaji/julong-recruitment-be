@@ -49,8 +49,10 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			templateQuestionRoute := apiRoute.Group("/template-questions")
 			{
 				templateQuestionRoute.POST("", c.TemplateQuestionHandler.CreateTemplateQuestion)
+				templateQuestionRoute.PUT("/update", c.TemplateQuestionHandler.UpdateTemplateQuestion)
 				templateQuestionRoute.GET("/form-types", c.TemplateQuestionHandler.FindAllFormTypes)
 				templateQuestionRoute.GET("/:id", c.TemplateQuestionHandler.FindByID)
+				templateQuestionRoute.DELETE("/:id", c.TemplateQuestionHandler.DeleteTemplateQuestion)
 			}
 			// answer types
 			answerTypeRoute := apiRoute.Group("/answer-types")

@@ -14,6 +14,8 @@ type ITemplateQuestionUseCase interface {
 	CreateTemplateQuestion(req *request.CreateTemplateQuestion) (*response.TemplateQuestionResponse, error)
 	FindAllFormTypes() ([]*response.FormTypeResponse, error)
 	FindByID(id uuid.UUID) (*response.TemplateQuestionResponse, error)
+	UpdateTemplateQuestion(req *request.UpdateTemplateQuestion) (*response.TemplateQuestionResponse, error)
+	DeleteTemplateQuestion(id uuid.UUID) error
 }
 
 type TemplateQuestionUseCase struct {
@@ -84,4 +86,39 @@ func (uc *TemplateQuestionUseCase) FindByID(id uuid.UUID) (*response.TemplateQue
 	}
 
 	return uc.DTO.ConvertEntityToResponse(templateQuestion), nil
+}
+
+func (uc *TemplateQuestionUseCase) UpdateTemplateQuestion(req *request.UpdateTemplateQuestion) (*response.TemplateQuestionResponse, error) {
+	var documentSetupID *uuid.UUID
+	if req.DocumentSetupID != "" {
+		uuidValue := uuid.MustParse(req.DocumentSetupID)
+		documentSetupID = &uuidValue
+	} else {
+		documentSetupID = nil
+	}
+	updatedTemplateQuestion, err := uc.Repository.UpdateTemplateQuestion(&entity.TemplateQuestion{
+		ID:              uuid.MustParse(req.ID),
+		DocumentSetupID: documentSetupID,
+		Name:            req.Name,
+		FormType:        req.FormType,
+		Description:     req.Description,
+		Duration:        req.Duration,
+		Status:          entity.TemplateQuestionStatus(req.Status),
+	})
+	if err != nil {
+		uc.Log.Error("[TemplateQuestionUseCase.UpdateTemplateQuestion] Error updating template question: ", err)
+		return nil, err
+	}
+
+	return uc.DTO.ConvertEntityToResponse(updatedTemplateQuestion), nil
+}
+
+func (uc *TemplateQuestionUseCase) DeleteTemplateQuestion(id uuid.UUID) error {
+	err := uc.Repository.DeleteTemplateQuestion(id)
+	if err != nil {
+		uc.Log.Error("[TemplateQuestionUseCase.DeleteTemplateQuestion] Error deleting template question: ", err)
+		return err
+	}
+
+	return nil
 }

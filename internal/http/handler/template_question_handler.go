@@ -18,6 +18,8 @@ type ITemplateQuestionHandler interface {
 	CreateTemplateQuestion(ctx *gin.Context)
 	FindAllFormTypes(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	UpdateTemplateQuestion(ctx *gin.Context)
+	DeleteTemplateQuestion(ctx *gin.Context)
 }
 
 type TemplateQuestionHandler struct {
@@ -113,4 +115,77 @@ func (h *TemplateQuestionHandler) FindByID(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success", response)
+}
+
+func (h *TemplateQuestionHandler) UpdateTemplateQuestion(ctx *gin.Context) {
+	var payload request.UpdateTemplateQuestion
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Error("[TemplateQuestionHandler.UpdateTemplateQuestion] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Error("[TemplateQuestionHandler.UpdateTemplateQuestion] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	exist, err := h.UseCase.FindByID(uuid.MustParse(payload.ID))
+	if err != nil {
+		h.Log.Error("[TemplateQuestionHandler.UpdateTemplateQuestion] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	if exist == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "error not found", "template question not found")
+		return
+	}
+
+	response, err := h.UseCase.UpdateTemplateQuestion(&payload)
+	if err != nil {
+		h.Log.Error("[TemplateQuestionHandler.UpdateTemplateQuestion] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", response)
+}
+
+func (h *TemplateQuestionHandler) DeleteTemplateQuestion(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		h.Log.Error("[TemplateQuestionHandler.DeleteTemplateQuestion] id is required")
+		utils.BadRequestResponse(ctx, "bad request", "id is required")
+		return
+	}
+
+	templateQuestionID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[TemplateQuestionHandler.DeleteTemplateQuestion] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	exist, err := h.UseCase.FindByID(templateQuestionID)
+	if err != nil {
+		h.Log.Error("[TemplateQuestionHandler.DeleteTemplateQuestion] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	if exist == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "error not found", "template question not found")
+		return
+	}
+
+	err = h.UseCase.DeleteTemplateQuestion(templateQuestionID)
+	if err != nil {
+		h.Log.Error("[TemplateQuestionHandler.DeleteTemplateQuestion] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", nil)
 }

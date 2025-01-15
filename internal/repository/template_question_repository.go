@@ -14,6 +14,8 @@ type ITemplateQuestionRepository interface {
 	CreateTemplateQuestion(ent *entity.TemplateQuestion) (*entity.TemplateQuestion, error)
 	FindByID(id uuid.UUID) (*entity.TemplateQuestion, error)
 	GetAllFormTypes() ([]*entity.TemplateQuestionFormType, error)
+	UpdateTemplateQuestion(ent *entity.TemplateQuestion) (*entity.TemplateQuestion, error)
+	DeleteTemplateQuestion(id uuid.UUID) error
 }
 
 type TemplateQuestionRepository struct {
@@ -87,4 +89,54 @@ func (r *TemplateQuestionRepository) GetAllFormTypes() ([]*entity.TemplateQuesti
 	}
 
 	return formTypeResponses, nil
+}
+
+func (r *TemplateQuestionRepository) UpdateTemplateQuestion(ent *entity.TemplateQuestion) (*entity.TemplateQuestion, error) {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	if err := tx.Model(&entity.TemplateQuestion{}).Where("id = ?", ent.ID).Updates(ent).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.DB.Preload("Questions.AnswerType").First(ent, ent.ID).Error; err != nil {
+		return nil, errors.New("[TemplateQuestionRepository.UpdateTemplateQuestion] error when preloading associations " + err.Error())
+	}
+
+	return ent, nil
+}
+
+func (r *TemplateQuestionRepository) DeleteTemplateQuestion(id uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	var tq entity.TemplateQuestion
+
+	if err := tx.Where("id = ?", id).First(&tq).Error; err != nil {
+		tx.Rollback()
+		r.Log.Errorf("[TemplateQuestionRepository.DeleteTemplateQuestion] error when finding template question: %v", err.Error())
+		return err
+	}
+
+	if err := tx.Where("id = ?", id).Delete(&tq).Error; err != nil {
+		tx.Rollback()
+		r.Log.Errorf("[TemplateQuestionRepository.DeleteTemplateQuestion] error when deleting template question: %v", err.Error())
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		r.Log.Errorf("[TemplateQuestionRepository.Dele	teTemplateQuestion] error when committing transaction: %v", err.Error())
+		return err
+	}
+
+	return nil
 }

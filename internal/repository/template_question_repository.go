@@ -13,6 +13,7 @@ import (
 type ITemplateQuestionRepository interface {
 	CreateTemplateQuestion(ent *entity.TemplateQuestion) (*entity.TemplateQuestion, error)
 	FindByID(id uuid.UUID) (*entity.TemplateQuestion, error)
+	GetAllFormTypes() ([]*entity.TemplateQuestionFormType, error)
 }
 
 type TemplateQuestionRepository struct {
@@ -75,4 +76,14 @@ func (r *TemplateQuestionRepository) FindByID(id uuid.UUID) (*entity.TemplateQue
 	}
 
 	return &tq, nil
+}
+
+func (r *TemplateQuestionRepository) GetAllFormTypes() ([]*entity.TemplateQuestionFormType, error) {
+	formTypes := entity.GetAllFormTypes()
+	formTypeResponses := make([]*entity.TemplateQuestionFormType, 0)
+	for _, formType := range formTypes {
+		formTypeResponses = append(formTypeResponses, &formType)
+	}
+
+	return formTypeResponses, nil
 }

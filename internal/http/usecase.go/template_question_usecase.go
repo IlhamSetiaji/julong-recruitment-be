@@ -12,6 +12,7 @@ import (
 
 type ITemplateQuestionUseCase interface {
 	CreateTemplateQuestion(req *request.CreateTemplateQuestion) (*response.TemplateQuestionResponse, error)
+	FindAllFormTypes() ([]*response.FormTypeResponse, error)
 }
 
 type TemplateQuestionUseCase struct {
@@ -60,4 +61,16 @@ func (uc *TemplateQuestionUseCase) CreateTemplateQuestion(req *request.CreateTem
 	}
 
 	return uc.DTO.ConvertEntityToResponse(createdTemplateQuestion), nil
+}
+
+func (uc *TemplateQuestionUseCase) FindAllFormTypes() ([]*response.FormTypeResponse, error) {
+	formTypes := entity.GetAllFormTypes()
+	formTypeResponses := make([]*response.FormTypeResponse, 0)
+	for _, formType := range formTypes {
+		formTypeResponses = append(formTypeResponses, &response.FormTypeResponse{
+			Value: string(formType),
+		})
+	}
+
+	return formTypeResponses, nil
 }

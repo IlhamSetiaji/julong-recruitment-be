@@ -55,3 +55,16 @@ func (tq *TemplateQuestion) BeforeUpdate(tx *gorm.DB) (err error) {
 func (TemplateQuestion) TableName() string {
 	return "template_questions"
 }
+
+func GetAllFormTypes() []TemplateQuestionFormType {
+	return []TemplateQuestionFormType{
+		TQ_FORM_TYPE_ADMINISTRATIVE_SELECTION,
+		TQ_FORM_TYPE_TEST,
+		TQ_FORM_TYPE_INTERVIEW,
+		TQ_FORM_TYPE_FGD,
+		TQ_FORM_TYPE_FINAL_INTERVIEW,
+		TQ_FORM_TYPE_OFFERING_LETTER,
+		TQ_FORM_TYPE_CONTRACT_DOCUMENT,
+		TQ_FORM_TYPE_DOCUMENT_CHECKING,
+	}
+}

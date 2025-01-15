@@ -15,6 +15,7 @@ import (
 
 type ITemplateQuestionHandler interface {
 	CreateTemplateQuestion(ctx *gin.Context)
+	FindAllFormTypes(ctx *gin.Context)
 }
 
 type TemplateQuestionHandler struct {
@@ -69,4 +70,15 @@ func (h *TemplateQuestionHandler) CreateTemplateQuestion(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "success", response)
+}
+
+func (h *TemplateQuestionHandler) FindAllFormTypes(ctx *gin.Context) {
+	formTypes, err := h.UseCase.FindAllFormTypes()
+	if err != nil {
+		h.Log.Error("[TemplateQuestionHandler.FindAllFormTypes] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", formTypes)
 }

@@ -16,3 +16,7 @@ type TemplateQuestionResponse struct {
 
 	Questions *[]QuestionResponse `json:"questions"`
 }
+
+type FormTypeResponse struct {
+	Value string `json:"value"`
+}

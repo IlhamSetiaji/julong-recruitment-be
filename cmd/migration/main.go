@@ -36,6 +36,7 @@ func main() {
 		log.Info("Migration success")
 	}
 
+	// seed answer type
 	answerTypes := []entity.AnswerType{
 		{Name: "Text"},
 		{Name: "Dropdown"},
@@ -51,4 +52,23 @@ func main() {
 		}
 	}
 	log.Info("Seed AnswerType success")
+
+	// seed document type
+	documentTypes := []entity.DocumentType{
+		{Name: "Offering Letter"},
+		{Name: "PKWT"},
+		{Name: "PKWTT"},
+		{Name: "Surat Pengantar Masuk"},
+		{Name: "Surat Izin Orang Tua"},
+		{Name: "Document Checking"},
+		{Name: "Karyawan Tetap"},
+	}
+
+	for _, documentType := range documentTypes {
+		err := db.Create(&documentType).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	log.Info("Seed DocumentType success")
 }

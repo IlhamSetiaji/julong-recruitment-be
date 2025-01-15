@@ -62,13 +62,70 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 
 	// create or update questions
 	for _, question := range req.Questions {
-		exist, err := uc.Repository.FindByID(uuid.MustParse(question.ID))
-		if err != nil {
-			uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when finding question by id: %s", err.Error())
-			return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when finding question by id: " + err.Error())
-		}
+		if question.ID != "" && question.ID != uuid.Nil.String() {
+			exist, err := uc.Repository.FindByID(uuid.MustParse(question.ID))
+			if err != nil {
+				uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when finding question by id: %s", err.Error())
+				return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when finding question by id: " + err.Error())
+			}
 
-		if exist == nil {
+			if exist == nil {
+				createdQuestion, err := uc.Repository.CreateQuestion(&entity.Question{
+					TemplateQuestionID: tq.ID,
+					AnswerTypeID:       uuid.MustParse(question.AnswerTypeID),
+					Name:               question.Name,
+				})
+				if err != nil {
+					uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: %s", err.Error())
+					return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: " + err.Error())
+				}
+
+				if len(question.QuestionOptions) > 0 {
+					for _, questionOption := range question.QuestionOptions {
+						_, err := uc.QuestionOptionRepository.CreateQuestionOption(&entity.QuestionOption{
+							QuestionID: createdQuestion.ID,
+							OptionText: questionOption.OptionText,
+						})
+						if err != nil {
+							uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: %s", err.Error())
+							return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: " + err.Error())
+						}
+					}
+				}
+			} else {
+				updatedQuestion, err := uc.Repository.UpdateQuestion(&entity.Question{
+					ID:                 exist.ID,
+					TemplateQuestionID: tq.ID,
+					AnswerTypeID:       uuid.MustParse(question.AnswerTypeID),
+					Name:               question.Name,
+				})
+				if err != nil {
+					uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when updating question: %s", err.Error())
+					return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when updating question: " + err.Error())
+				}
+
+				// delete question options
+				err = uc.QuestionOptionRepository.DeleteQuestionOptionsByQuestionID(updatedQuestion.ID)
+				if err != nil {
+					uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question options: %s", err.Error())
+					return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question options: " + err.Error())
+				}
+
+				// create question options
+				if len(question.QuestionOptions) > 0 {
+					for _, questionOption := range question.QuestionOptions {
+						_, err := uc.QuestionOptionRepository.CreateQuestionOption(&entity.QuestionOption{
+							QuestionID: updatedQuestion.ID,
+							OptionText: questionOption.OptionText,
+						})
+						if err != nil {
+							uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: %s", err.Error())
+							return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: " + err.Error())
+						}
+					}
+				}
+			}
+		} else {
 			createdQuestion, err := uc.Repository.CreateQuestion(&entity.Question{
 				TemplateQuestionID: tq.ID,
 				AnswerTypeID:       uuid.MustParse(question.AnswerTypeID),
@@ -83,38 +140,6 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 				for _, questionOption := range question.QuestionOptions {
 					_, err := uc.QuestionOptionRepository.CreateQuestionOption(&entity.QuestionOption{
 						QuestionID: createdQuestion.ID,
-						OptionText: questionOption.OptionText,
-					})
-					if err != nil {
-						uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: %s", err.Error())
-						return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: " + err.Error())
-					}
-				}
-			}
-		} else {
-			updatedQuestion, err := uc.Repository.UpdateQuestion(&entity.Question{
-				ID:                 exist.ID,
-				TemplateQuestionID: tq.ID,
-				AnswerTypeID:       uuid.MustParse(question.AnswerTypeID),
-				Name:               question.Name,
-			})
-			if err != nil {
-				uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when updating question: %s", err.Error())
-				return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when updating question: " + err.Error())
-			}
-
-			// delete question options
-			err = uc.QuestionOptionRepository.DeleteQuestionOptionsByQuestionID(updatedQuestion.ID)
-			if err != nil {
-				uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question options: %s", err.Error())
-				return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question options: " + err.Error())
-			}
-
-			// create question options
-			if len(question.QuestionOptions) > 0 {
-				for _, questionOption := range question.QuestionOptions {
-					_, err := uc.QuestionOptionRepository.CreateQuestionOption(&entity.QuestionOption{
-						QuestionID: updatedQuestion.ID,
 						OptionText: questionOption.OptionText,
 					})
 					if err != nil {

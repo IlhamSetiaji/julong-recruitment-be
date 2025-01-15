@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -9,12 +10,17 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 type IDocumentSetupHandler interface {
 	CreateDocumentSetup(ctx *gin.Context)
+	FindAllPaginated(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
+	UpdateDocumentSetup(ctx *gin.Context)
+	DeleteDocumentSetup(ctx *gin.Context)
 }
 
 type DocumentSetupHandler struct {
@@ -69,4 +75,133 @@ func (h *DocumentSetupHandler) CreateDocumentSetup(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "success create document setup", documentSetup)
+}
+
+func (h *DocumentSetupHandler) FindAllPaginated(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	documentSetups, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		h.Log.Errorf("[DocumentSetupHandler.FindAllPaginated] error when getting document setups: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when getting document setups", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success find all document setups", gin.H{
+		"document_setups": documentSetups,
+		"total":           total,
+	})
+}
+
+func (h *DocumentSetupHandler) FindByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "invalid id", "invalid id")
+		return
+	}
+
+	documentSetup, err := h.UseCase.FindByID(parsedUUID)
+	if err != nil {
+		h.Log.Errorf("[DocumentSetupHandler.FindByID] error when getting document setup: %v", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when getting document setup", err.Error())
+		return
+	}
+
+	if documentSetup == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "document setup not found", "document setup not found")
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success find document setup", documentSetup)
+}
+
+func (h *DocumentSetupHandler) UpdateDocumentSetup(ctx *gin.Context) {
+	var payload request.UpdateDocumentSetupRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Errorf("[DocumentSetupHandler.UpdateDocumentSetup] error when binding request: %v", err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "error when binding request", err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Errorf("[DocumentSetupHandler.UpdateDocumentSetup] error when validating request: %v", err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "error when validating request", err.Error())
+		return
+	}
+
+	exist, err := h.UseCase.FindByID(uuid.MustParse(payload.ID))
+	if err != nil {
+		h.Log.Errorf("[DocumentSetupHandler.UpdateDocumentSetup] error when getting document setup: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when getting document setup", err.Error())
+		return
+	}
+
+	if exist == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "document setup not found", "document setup not found")
+		return
+	}
+
+	documentSetup, err := h.UseCase.UpdateDocumentSetup(&payload)
+	if err != nil {
+		h.Log.Errorf("[DocumentSetupHandler.UpdateDocumentSetup] error when updating document setup: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when updating document setup", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success update document setup", documentSetup)
+}
+
+func (h *DocumentSetupHandler) DeleteDocumentSetup(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "invalid id", "invalid id")
+		return
+	}
+
+	exist, err := h.UseCase.FindByID(parsedUUID)
+	if err != nil {
+		h.Log.Errorf("[DocumentSetupHandler.DeleteDocumentSetup] error when getting document setup: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when getting document setup", err.Error())
+		return
+	}
+
+	if exist == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "document setup not found", "document setup not found")
+		return
+	}
+
+	err = h.UseCase.DeleteDocumentSetup(parsedUUID)
+	if err != nil {
+		h.Log.Errorf("[DocumentSetupHandler.DeleteDocumentSetup] error when deleting document setup: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when deleting document setup", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success delete document setup", nil)
 }

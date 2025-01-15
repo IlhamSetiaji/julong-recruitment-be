@@ -75,7 +75,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// document setup
 			documentSetupRoute := apiRoute.Group("/document-setup")
 			{
+				documentSetupRoute.GET("", c.DocumentSetupHandler.FindAllPaginated)
+				documentSetupRoute.GET("/:id", c.DocumentSetupHandler.FindByID)
 				documentSetupRoute.POST("", c.DocumentSetupHandler.CreateDocumentSetup)
+				documentSetupRoute.PUT("/update", c.DocumentSetupHandler.UpdateDocumentSetup)
+				documentSetupRoute.DELETE("/:id", c.DocumentSetupHandler.DeleteDocumentSetup)
 			}
 		}
 	}

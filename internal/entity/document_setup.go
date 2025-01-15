@@ -10,6 +10,7 @@ import (
 type DocumentSetup struct {
 	gorm.Model      `json:"-"`
 	ID              uuid.UUID              `json:"id" gorm:"type:char(36);primaryKey;"`
+	Title           string                 `json:"title" gorm:"type:text;not null"`
 	DocumentTypeID  uuid.UUID              `json:"document_type_id" gorm:"type:char(36);not null"`
 	RecruitmentType ProjectRecruitmentType `json:"recruitment_type" gorm:"not null"`
 	Header          string                 `json:"header" gorm:"type:text;not null"`

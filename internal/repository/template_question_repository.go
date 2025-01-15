@@ -11,6 +11,7 @@ import (
 )
 
 type ITemplateQuestionRepository interface {
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateQuestion, int64, error)
 	CreateTemplateQuestion(ent *entity.TemplateQuestion) (*entity.TemplateQuestion, error)
 	FindByID(id uuid.UUID) (*entity.TemplateQuestion, error)
 	GetAllFormTypes() ([]*entity.TemplateQuestionFormType, error)
@@ -38,6 +39,30 @@ func TemplateQuestionRepositoryFactory(
 ) ITemplateQuestionRepository {
 	db := config.NewDatabase()
 	return NewTemplateQuestionRepository(log, db)
+}
+
+func (r *TemplateQuestionRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateQuestion, int64, error) {
+	var templateQuestions []entity.TemplateQuestion
+	var total int64
+
+	query := r.DB
+
+	if search != "" {
+		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
+	for key, value := range sort {
+		query = query.Order(key + " " + value.(string))
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&templateQuestions).Error; err != nil {
+		r.Log.Error("[TemplateQuestionRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, errors.New("[TemplateQuestionRepository.FindAllPaginated] " + err.Error())
+	}
+
+	query.Model(&entity.TemplateQuestion{}).Count(&total)
+
+	return &templateQuestions, total, nil
 }
 
 func (r *TemplateQuestionRepository) CreateTemplateQuestion(ent *entity.TemplateQuestion) (*entity.TemplateQuestion, error) {

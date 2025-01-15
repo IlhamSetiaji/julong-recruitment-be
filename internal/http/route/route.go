@@ -48,6 +48,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// template questions
 			templateQuestionRoute := apiRoute.Group("/template-questions")
 			{
+				templateQuestionRoute.GET("", c.TemplateQuestionHandler.FindAllPaginated)
 				templateQuestionRoute.POST("", c.TemplateQuestionHandler.CreateTemplateQuestion)
 				templateQuestionRoute.PUT("/update", c.TemplateQuestionHandler.UpdateTemplateQuestion)
 				templateQuestionRoute.GET("/form-types", c.TemplateQuestionHandler.FindAllFormTypes)

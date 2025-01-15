@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -15,6 +16,7 @@ import (
 )
 
 type ITemplateQuestionHandler interface {
+	FindAllPaginated(ctx *gin.Context)
 	CreateTemplateQuestion(ctx *gin.Context)
 	FindAllFormTypes(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
@@ -50,6 +52,44 @@ func TemplateQuestionHandlerFactory(
 	useCase := usecase.TemplateQuestionUseCaseFactory(log)
 	validate := config.NewValidator(viper)
 	return NewTemplateQuestionHandler(log, viper, validate, useCase)
+}
+
+func (h *TemplateQuestionHandler) FindAllPaginated(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	templateQuestions, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		h.Log.Error("[TemplateQuestionHandler.FindAllPaginated] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", gin.H{
+		"template_questions": templateQuestions,
+		"total":              total,
+	})
 }
 
 func (h *TemplateQuestionHandler) CreateTemplateQuestion(ctx *gin.Context) {

@@ -11,21 +11,21 @@ type IDocumentTypeRepository interface {
 	FindAll() ([]*entity.DocumentType, error)
 }
 
-type DocumentSetupRepository struct {
+type DocumentTypeRepository struct {
 	Log *logrus.Logger
 	DB  *gorm.DB
 }
 
-func NewDocumentSetupRepository(log *logrus.Logger, db *gorm.DB) *DocumentSetupRepository {
-	return &DocumentSetupRepository{Log: log, DB: db}
+func NewDocumentTypeRepository(log *logrus.Logger, db *gorm.DB) *DocumentTypeRepository {
+	return &DocumentTypeRepository{Log: log, DB: db}
 }
 
-func DocumentSetupRepositoryFactory(log *logrus.Logger) IDocumentTypeRepository {
+func DocumentTypeRepositoryFactory(log *logrus.Logger) IDocumentTypeRepository {
 	db := config.NewDatabase()
-	return NewDocumentSetupRepository(log, db)
+	return NewDocumentTypeRepository(log, db)
 }
 
-func (r *DocumentSetupRepository) FindAll() ([]*entity.DocumentType, error) {
+func (r *DocumentTypeRepository) FindAll() ([]*entity.DocumentType, error) {
 	var documentTypes []*entity.DocumentType
 	if err := r.DB.Find(&documentTypes).Error; err != nil {
 		return nil, err

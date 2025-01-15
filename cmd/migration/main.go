@@ -55,13 +55,13 @@ func main() {
 
 	// seed document type
 	documentTypes := []entity.DocumentType{
-		{Name: "Offering Letter"},
+		{Name: "OFFERING_LETTER"},
 		{Name: "PKWT"},
 		{Name: "PKWTT"},
-		{Name: "Surat Pengantar Masuk"},
-		{Name: "Surat Izin Orang Tua"},
-		{Name: "Document Checking"},
-		{Name: "Karyawan Tetap"},
+		{Name: "SURAT_PENGANTAR_MASUK"},
+		{Name: "SURAT_IZIN_ORANG_TUA"},
+		{Name: "DOCUMENT_CHECKING"},
+		{Name: "KARYAWAN_TETAP"},
 	}
 
 	for _, documentType := range documentTypes {

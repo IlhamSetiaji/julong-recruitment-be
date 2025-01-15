@@ -25,6 +25,10 @@ const (
 	TQ_FORM_TYPE_OFFERING_LETTER          TemplateQuestionFormType = "OFFERING_LETTER"
 	TQ_FORM_TYPE_CONTRACT_DOCUMENT        TemplateQuestionFormType = "CONTRACT_DOCUMENT"
 	TQ_FORM_TYPE_DOCUMENT_CHECKING        TemplateQuestionFormType = "DOCUMENT_CHECKING"
+	TQ_FORM_TYPE_SURAT_IZIN_ORTU          TemplateQuestionFormType = "SURAT_IZIN_ORANG_TUA"
+	TQ_FORM_TYPE_KARYAWAN_TETAP           TemplateQuestionFormType = "KARYAWAN_TETAP"
+	TQ_FORM_TYPE_PKWT                     TemplateQuestionFormType = "PKWT"
+	TQ_FORM_TYPE_PKWTT                    TemplateQuestionFormType = "PKWTT"
 )
 
 type TemplateQuestion struct {

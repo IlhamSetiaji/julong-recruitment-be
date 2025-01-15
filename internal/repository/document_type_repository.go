@@ -9,6 +9,7 @@ import (
 
 type IDocumentTypeRepository interface {
 	FindAll() ([]*entity.DocumentType, error)
+	FindByName(name string) (*entity.DocumentType, error)
 }
 
 type DocumentTypeRepository struct {
@@ -31,4 +32,12 @@ func (r *DocumentTypeRepository) FindAll() ([]*entity.DocumentType, error) {
 		return nil, err
 	}
 	return documentTypes, nil
+}
+
+func (r *DocumentTypeRepository) FindByName(name string) (*entity.DocumentType, error) {
+	var documentType entity.DocumentType
+	if err := r.DB.Where("name = ?", name).First(&documentType).Error; err != nil {
+		return nil, err
+	}
+	return &documentType, nil
 }

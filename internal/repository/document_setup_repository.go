@@ -16,6 +16,7 @@ type IDocumentSetupRepository interface {
 	FindByID(id uuid.UUID) (*entity.DocumentSetup, error)
 	UpdateDocumentSetup(ent *entity.DocumentSetup) (*entity.DocumentSetup, error)
 	DeleteDocumentSetup(id uuid.UUID) error
+	FindByDocumentTypeID(documentTypeID uuid.UUID) ([]*entity.DocumentSetup, error)
 }
 
 type DocumentSetupRepository struct {
@@ -163,4 +164,15 @@ func (r *DocumentSetupRepository) DeleteDocumentSetup(id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (r *DocumentSetupRepository) FindByDocumentTypeID(documentTypeID uuid.UUID) ([]*entity.DocumentSetup, error) {
+	var documentSetups []*entity.DocumentSetup
+
+	if err := r.DB.Preload("DocumentType").Where("document_type_id = ?", documentTypeID).Find(&documentSetups).Error; err != nil {
+		r.Log.Error("[DocumentSetupRepository.FindByDocumentTypeID] " + err.Error())
+		return nil, err
+	}
+
+	return documentSetups, nil
 }

@@ -76,6 +76,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			documentSetupRoute := apiRoute.Group("/document-setup")
 			{
 				documentSetupRoute.GET("", c.DocumentSetupHandler.FindAllPaginated)
+				documentSetupRoute.GET("/document-type", c.DocumentSetupHandler.FindByDocumentTypeName)
 				documentSetupRoute.GET("/:id", c.DocumentSetupHandler.FindByID)
 				documentSetupRoute.POST("", c.DocumentSetupHandler.CreateDocumentSetup)
 				documentSetupRoute.PUT("/update", c.DocumentSetupHandler.UpdateDocumentSetup)

@@ -21,6 +21,7 @@ type IDocumentSetupHandler interface {
 	FindByID(ctx *gin.Context)
 	UpdateDocumentSetup(ctx *gin.Context)
 	DeleteDocumentSetup(ctx *gin.Context)
+	FindByDocumentTypeName(ctx *gin.Context)
 }
 
 type DocumentSetupHandler struct {
@@ -204,4 +205,21 @@ func (h *DocumentSetupHandler) DeleteDocumentSetup(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success delete document setup", nil)
+}
+
+func (h *DocumentSetupHandler) FindByDocumentTypeName(ctx *gin.Context) {
+	name := ctx.Query("name")
+	if name == "" {
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "name is required", "name is required")
+		return
+	}
+
+	documentSetups, err := h.UseCase.FindByDocumentTypeName(name)
+	if err != nil {
+		h.Log.Errorf("[DocumentSetupHandler.FindByDocumentTypeName] error when getting document setups: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when getting document setups", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success find document setups by document type name", documentSetups)
 }

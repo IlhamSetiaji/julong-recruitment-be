@@ -16,30 +16,35 @@ type IDocumentSetupUseCase interface {
 	FindByID(id uuid.UUID) (*response.DocumentSetupResponse, error)
 	UpdateDocumentSetup(req *request.UpdateDocumentSetupRequest) (*response.DocumentSetupResponse, error)
 	DeleteDocumentSetup(id uuid.UUID) error
+	FindByDocumentTypeName(name string) ([]*response.DocumentSetupResponse, error)
 }
 
 type DocumentSetupUseCase struct {
-	Log        *logrus.Logger
-	Repository repository.IDocumentSetupRepository
-	DTO        dto.IDocumentSetupDTO
+	Log                    *logrus.Logger
+	Repository             repository.IDocumentSetupRepository
+	DTO                    dto.IDocumentSetupDTO
+	DocumentTypeRepository repository.IDocumentTypeRepository
 }
 
 func NewDocumentSetupUseCase(
 	log *logrus.Logger,
 	repo repository.IDocumentSetupRepository,
 	dto dto.IDocumentSetupDTO,
+	documentTypeRepository repository.IDocumentTypeRepository,
 ) IDocumentSetupUseCase {
 	return &DocumentSetupUseCase{
-		Log:        log,
-		Repository: repo,
-		DTO:        dto,
+		Log:                    log,
+		Repository:             repo,
+		DTO:                    dto,
+		DocumentTypeRepository: documentTypeRepository,
 	}
 }
 
 func DocumentSetupUseCaseFactory(log *logrus.Logger) IDocumentSetupUseCase {
 	repo := repository.DocumentSetupRepositoryFactory(log)
 	dto := dto.DocumentSetupDTOFactory(log)
-	return NewDocumentSetupUseCase(log, repo, dto)
+	documentTypeRepository := repository.DocumentTypeRepositoryFactory(log)
+	return NewDocumentSetupUseCase(log, repo, dto, documentTypeRepository)
 }
 
 func (uc *DocumentSetupUseCase) CreateDocumentSetup(req *request.CreateDocumentSetupRequest) (*response.DocumentSetupResponse, error) {
@@ -104,4 +109,29 @@ func (uc *DocumentSetupUseCase) UpdateDocumentSetup(req *request.UpdateDocumentS
 
 func (uc *DocumentSetupUseCase) DeleteDocumentSetup(id uuid.UUID) error {
 	return uc.Repository.DeleteDocumentSetup(id)
+}
+
+func (uc *DocumentSetupUseCase) FindByDocumentTypeName(name string) ([]*response.DocumentSetupResponse, error) {
+	documentType, err := uc.DocumentTypeRepository.FindByName(name)
+	if err != nil {
+		uc.Log.Error("[DocumentSetupUseCase.FindByDocumentTypeName] " + err.Error())
+		return nil, err
+	}
+
+	if documentType == nil {
+		return nil, nil
+	}
+
+	documentSetups, err := uc.Repository.FindByDocumentTypeID(documentType.ID)
+	if err != nil {
+		uc.Log.Error("[DocumentSetupUseCase.FindByDocumentTypeName] " + err.Error())
+		return nil, err
+	}
+
+	documentSetupResponses := make([]*response.DocumentSetupResponse, 0)
+	for _, documentSetup := range documentSetups {
+		documentSetupResponses = append(documentSetupResponses, uc.DTO.ConvertEntityToResponse(documentSetup))
+	}
+
+	return documentSetupResponses, nil
 }

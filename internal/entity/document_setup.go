@@ -17,8 +17,9 @@ type DocumentSetup struct {
 	Body            string                 `json:"body" gorm:"type:text;not null"`
 	Footer          string                 `json:"footer" gorm:"type:text;not null"`
 
-	DocumentType     *DocumentType     `json:"document_type" gorm:"foreignKey:DocumentTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	DocumentSendings []DocumentSending `json:"document_sendings" gorm:"foreignKey:DocumentSetupID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	DocumentType      *DocumentType      `json:"document_type" gorm:"foreignKey:DocumentTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	DocumentSendings  []DocumentSending  `json:"document_sendings" gorm:"foreignKey:DocumentSetupID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TemplateQuestions []TemplateQuestion `json:"template_questions" gorm:"foreignKey:DocumentSetupID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (ds *DocumentSetup) BeforeCreate(tx *gorm.DB) (err error) {

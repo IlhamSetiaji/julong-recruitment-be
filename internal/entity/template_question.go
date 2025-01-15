@@ -41,7 +41,8 @@ type TemplateQuestion struct {
 	Duration        int                    `json:"duration" gorm:"default:0"`
 	Status          TemplateQuestionStatus `json:"status" gorm:"default:'ACTIVE'"`
 
-	Questions []Question `json:"questions" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Questions     []Question     `json:"questions" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	DocumentSetup *DocumentSetup `json:"document_setup" gorm:"foreignKey:DocumentSetupID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (tq *TemplateQuestion) BeforeCreate(tx *gorm.DB) (err error) {

@@ -45,7 +45,7 @@ func (r *TemplateQuestionRepository) FindAllPaginated(page, pageSize int, search
 	var templateQuestions []entity.TemplateQuestion
 	var total int64
 
-	query := r.DB
+	query := r.DB.Preload("Questions.AnswerType").Preload("DocumentSetup")
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")
@@ -94,6 +94,7 @@ func (r *TemplateQuestionRepository) FindByID(id uuid.UUID) (*entity.TemplateQue
 		Where("id = ?", id).
 		Preload("Questions.AnswerType").
 		Preload("Questions.QuestionOptions").
+		Preload("DocumentSetup").
 		First(&tq).
 		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

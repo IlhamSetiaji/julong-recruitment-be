@@ -34,6 +34,7 @@ type ProjectRecruitmentHeader struct {
 	Name               string                         `json:"name" gorm:"type:varchar(255);not null"`
 	Description        string                         `json:"description" gorm:"type:text;default:null"`
 	DocumentDate       time.Time                      `json:"document_date" gorm:"type:date;not null"`
+	DocumentNumber     string                         `json:"document_number" gorm:"type:varchar(255);not null"`
 	RecruitmentType    ProjectRecruitmentType         `json:"recruitment_type" gorm:"not null"`
 	StartDate          time.Time                      `json:"start_date" gorm:"type:date;not null"`
 	EndDate            time.Time                      `json:"end_date" gorm:"type:date;not null"`
@@ -52,6 +53,24 @@ func (prh *ProjectRecruitmentHeader) BeforeCreate(tx *gorm.DB) (err error) {
 
 func (prh *ProjectRecruitmentHeader) BeforeUpdate(tx *gorm.DB) (err error) {
 	prh.UpdatedAt = time.Now()
+	return nil
+}
+
+func (prh *ProjectRecruitmentHeader) BeforeDelete(tx *gorm.DB) (err error) {
+	if prh.DeletedAt.Valid {
+		return nil
+	}
+
+	randomString := uuid.New().String()
+
+	prh.DocumentNumber = prh.DocumentNumber + "_deleted" + randomString
+
+	if err := tx.Model(&prh).Where("id = ?", prh.ID).Updates((map[string]interface{}{
+		"document_number": prh.DocumentNumber,
+	})).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 

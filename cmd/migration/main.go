@@ -18,11 +18,17 @@ func main() {
 		&entity.ProjectRecruitmentHeader{},
 		&entity.ProjectRecruitmentLine{},
 		&entity.JobPosting{},
+		&entity.ProjectPic{},
 		&entity.AnswerType{},
 		&entity.TemplateQuestion{},
 		&entity.Question{},
 		&entity.QuestionOption{},
 		&entity.QuestionResponse{},
+		&entity.Applicant{},
+		&entity.DocumentType{},
+		&entity.MailTemplate{},
+		&entity.DocumentSetup{},
+		&entity.DocumentSending{},
 	)
 	if err != nil {
 		log.Fatal(err)

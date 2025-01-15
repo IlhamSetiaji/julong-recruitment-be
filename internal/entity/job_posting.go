@@ -61,6 +61,24 @@ func (jp *JobPosting) BeforeUpdate(tx *gorm.DB) (err error) {
 	return nil
 }
 
+func (jp *JobPosting) BeforeDelete(tx *gorm.DB) (err error) {
+	if jp.DeletedAt.Valid {
+		return nil
+	}
+
+	randomString := uuid.New().String()
+
+	jp.DocumentNumber = jp.DocumentNumber + "_deleted" + randomString
+
+	if err := tx.Model(&jp).Where("id = ?", jp.ID).Updates((map[string]interface{}{
+		"document_number": jp.DocumentNumber,
+	})).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (JobPosting) TableName() string {
 	return "job_postings"
 }

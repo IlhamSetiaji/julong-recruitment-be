@@ -19,6 +19,8 @@ type ITemplateActivityHandler interface {
 	CreateTemplateActivity(ctx *gin.Context)
 	FindAllPaginated(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	UpdateTemplateActivity(ctx *gin.Context)
+	DeleteTemplateActivity(ctx *gin.Context)
 }
 
 type TemplateActivityHandler struct {
@@ -136,4 +138,48 @@ func (h *TemplateActivityHandler) FindByID(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success", templateActivity)
+}
+
+func (h *TemplateActivityHandler) UpdateTemplateActivity(ctx *gin.Context) {
+	var req request.UpdateTemplateActivityRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.Log.Error("[TemplateActivityHandler.UpdateTemplateActivity] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(req); err != nil {
+		h.Log.Error("[TemplateActivityHandler.UpdateTemplateActivity] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	resp, err := h.UseCase.UpdateTemplateActivity(&req)
+	if err != nil {
+		h.Log.Error("[TemplateActivityHandler.UpdateTemplateActivity] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", resp)
+}
+
+func (h *TemplateActivityHandler) DeleteTemplateActivity(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[TemplateActivityHandler.DeleteTemplateActivity] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "bad request", err.Error())
+		return
+	}
+
+	err = h.UseCase.DeleteTemplateActivity(parsedUUID)
+	if err != nil {
+		h.Log.Error("[TemplateActivityHandler.DeleteTemplateActivity] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", nil)
 }

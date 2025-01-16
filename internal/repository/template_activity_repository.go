@@ -14,6 +14,8 @@ type ITemplateActivityRepository interface {
 	CreateTemplateActivity(ent *entity.TemplateActivity) (*entity.TemplateActivity, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateActivity, int64, error)
 	FindByID(id uuid.UUID) (*entity.TemplateActivity, error)
+	UpdateTemplateActivity(ent *entity.TemplateActivity) (*entity.TemplateActivity, error)
+	DeleteTemplateActivity(id uuid.UUID) error
 }
 
 type TemplateActivityRepository struct {
@@ -108,4 +110,61 @@ func (r *TemplateActivityRepository) FindByID(id uuid.UUID) (*entity.TemplateAct
 	}
 
 	return &templateActivity, nil
+}
+
+func (r *TemplateActivityRepository) UpdateTemplateActivity(ent *entity.TemplateActivity) (*entity.TemplateActivity, error) {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[TemplateActivityRepository.UpdateTemplateActivity] " + tx.Error.Error())
+		return nil, tx.Error
+	}
+
+	if err := tx.Model(&entity.TemplateActivity{}).Where("id = ?", ent.ID).Updates(ent).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[TemplateActivityRepository.UpdateTemplateActivity] " + err.Error())
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[TemplateActivityRepository.UpdateTemplateActivity] " + err.Error())
+		return nil, err
+	}
+
+	if err := r.DB.Preload("TemplateActivityLines").First(ent, ent.ID).Error; err != nil {
+		r.Log.Error("[TemplateActivityRepository.UpdateTemplateActivity] " + err.Error())
+		return nil, err
+	}
+
+	return ent, nil
+}
+
+func (r *TemplateActivityRepository) DeleteTemplateActivity(id uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[TemplateActivityRepository.DeleteTemplateActivity] " + tx.Error.Error())
+		return tx.Error
+	}
+
+	var templateActivity entity.TemplateActivity
+
+	if err := tx.Where("id = ?", id).First(&templateActivity).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[TemplateActivityRepository.DeleteTemplateActivity] " + err.Error())
+		return err
+	}
+
+	if err := tx.Where("id = ?", id).Delete(&templateActivity).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[TemplateActivityRepository.DeleteTemplateActivity] " + err.Error())
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[TemplateActivityRepository.DeleteTemplateActivity] " + err.Error())
+		return err
+	}
+
+	return nil
 }

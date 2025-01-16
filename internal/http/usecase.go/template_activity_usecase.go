@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -14,6 +16,8 @@ type ITemplateActivityUseCase interface {
 	CreateTemplateActivity(req *request.CreateTemplateActivityRequest) (*response.TemplateActivityResponse, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TemplateActivityResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.TemplateActivityResponse, error)
+	UpdateTemplateActivity(req *request.UpdateTemplateActivityRequest) (*response.TemplateActivityResponse, error)
+	DeleteTemplateActivity(id uuid.UUID) error
 }
 
 type TemplateActivityUseCase struct {
@@ -83,4 +87,40 @@ func (uc *TemplateActivityUseCase) FindByID(id uuid.UUID) (*response.TemplateAct
 	}
 
 	return uc.DTO.ConvertEntityToResponse(ta), nil
+}
+
+func (uc *TemplateActivityUseCase) UpdateTemplateActivity(req *request.UpdateTemplateActivityRequest) (*response.TemplateActivityResponse, error) {
+	parsedUUID, err := uuid.Parse(req.ID)
+	if err != nil {
+		uc.Log.Error("[TemplateActivityUseCase.UpdateTemplateActivity] " + err.Error())
+		return nil, err
+	}
+
+	ta, err := uc.Repository.FindByID(parsedUUID)
+	if err != nil {
+		uc.Log.Error("[TemplateActivityUseCase.UpdateTemplateActivity] " + err.Error())
+		return nil, err
+	}
+
+	if ta == nil {
+		return nil, errors.New("template activity not found")
+	}
+
+	updatedTA, err := uc.Repository.UpdateTemplateActivity(&entity.TemplateActivity{
+		ID:              parsedUUID,
+		Name:            req.Name,
+		Description:     req.Description,
+		RecruitmentType: entity.ProjectRecruitmentType(req.RecruitmentType),
+		Status:          entity.TemplateActivityStatus(req.Status),
+	})
+	if err != nil {
+		uc.Log.Error("[TemplateActivityUseCase.UpdateTemplateActivity] " + err.Error())
+		return nil, err
+	}
+
+	return uc.DTO.ConvertEntityToResponse(updatedTA), nil
+}
+
+func (uc *TemplateActivityUseCase) DeleteTemplateActivity(id uuid.UUID) error {
+	return uc.Repository.DeleteTemplateActivity(id)
 }

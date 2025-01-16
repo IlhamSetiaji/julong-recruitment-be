@@ -100,6 +100,8 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				templateActivityRoute.GET("", c.TemplateActivityHandler.FindAllPaginated)
 				templateActivityRoute.GET("/:id", c.TemplateActivityHandler.FindByID)
 				templateActivityRoute.POST("", c.TemplateActivityHandler.CreateTemplateActivity)
+				templateActivityRoute.PUT("/update", c.TemplateActivityHandler.UpdateTemplateActivity)
+				templateActivityRoute.DELETE("/:id", c.TemplateActivityHandler.DeleteTemplateActivity)
 			}
 		}
 	}

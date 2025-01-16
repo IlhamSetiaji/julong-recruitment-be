@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -15,6 +16,7 @@ import (
 
 type ITemplateActivityHandler interface {
 	CreateTemplateActivity(ctx *gin.Context)
+	FindAllPaginated(ctx *gin.Context)
 }
 
 type TemplateActivityHandler struct {
@@ -69,4 +71,42 @@ func (h *TemplateActivityHandler) CreateTemplateActivity(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "success", resp)
+}
+
+func (h *TemplateActivityHandler) FindAllPaginated(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	templateActivities, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		h.Log.Error("[TemplateActivityHandler.FindAllPaginated] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", gin.H{
+		"template_activities": templateActivities,
+		"total":               total,
+	})
 }

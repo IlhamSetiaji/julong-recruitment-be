@@ -9,6 +9,7 @@ import (
 
 type ITemplateActivityRepository interface {
 	CreateTemplateActivity(ent *entity.TemplateActivity) (*entity.TemplateActivity, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateActivity, int64, error)
 }
 
 type TemplateActivityRepository struct {
@@ -58,4 +59,31 @@ func (r *TemplateActivityRepository) CreateTemplateActivity(ent *entity.Template
 	}
 
 	return ent, nil
+}
+
+func (r *TemplateActivityRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateActivity, int64, error) {
+	var templateActivities []entity.TemplateActivity
+	var total int64
+
+	query := r.DB.Preload("TemplateActivityLines")
+
+	if search != "" {
+		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
+	for key, value := range sort {
+		query = query.Order(key + " " + value.(string))
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&templateActivities).Error; err != nil {
+		r.Log.Error("[TemplateActivityRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		r.Log.Error("[TemplateActivityRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	return &templateActivities, total, nil
 }

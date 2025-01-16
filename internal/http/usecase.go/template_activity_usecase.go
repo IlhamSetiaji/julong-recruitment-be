@@ -11,6 +11,7 @@ import (
 
 type ITemplateActivityUseCase interface {
 	CreateTemplateActivity(req *request.CreateTemplateActivityRequest) (*response.TemplateActivityResponse, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TemplateActivityResponse, int64, error)
 }
 
 type TemplateActivityUseCase struct {
@@ -55,4 +56,19 @@ func (uc *TemplateActivityUseCase) CreateTemplateActivity(req *request.CreateTem
 	}
 
 	return uc.DTO.ConvertEntityToResponse(ta), nil
+}
+
+func (uc *TemplateActivityUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TemplateActivityResponse, int64, error) {
+	templateActivities, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		uc.Log.Error("[TemplateActivityUseCase.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	templateActivityResponses := make([]response.TemplateActivityResponse, 0)
+	for _, templateActivity := range *templateActivities {
+		templateActivityResponses = append(templateActivityResponses, *uc.DTO.ConvertEntityToResponse(&templateActivity))
+	}
+
+	return &templateActivityResponses, total, nil
 }

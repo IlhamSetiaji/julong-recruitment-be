@@ -60,7 +60,10 @@ func (r *TemplateQuestionRepository) FindAllPaginated(page, pageSize int, search
 		return nil, 0, errors.New("[TemplateQuestionRepository.FindAllPaginated] " + err.Error())
 	}
 
-	query.Model(&entity.TemplateQuestion{}).Count(&total)
+	if err := query.Count(&total).Error; err != nil {
+		r.Log.Error("[TemplateQuestionRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
 
 	return &templateQuestions, total, nil
 }

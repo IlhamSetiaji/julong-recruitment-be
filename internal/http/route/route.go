@@ -98,6 +98,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			templateActivityRoute := apiRoute.Group("/template-activities")
 			{
 				templateActivityRoute.GET("", c.TemplateActivityHandler.FindAllPaginated)
+				templateActivityRoute.GET("/:id", c.TemplateActivityHandler.FindByID)
 				templateActivityRoute.POST("", c.TemplateActivityHandler.CreateTemplateActivity)
 			}
 		}

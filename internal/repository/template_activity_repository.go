@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -10,6 +13,7 @@ import (
 type ITemplateActivityRepository interface {
 	CreateTemplateActivity(ent *entity.TemplateActivity) (*entity.TemplateActivity, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateActivity, int64, error)
+	FindByID(id uuid.UUID) (*entity.TemplateActivity, error)
 }
 
 type TemplateActivityRepository struct {
@@ -86,4 +90,22 @@ func (r *TemplateActivityRepository) FindAllPaginated(page, pageSize int, search
 	}
 
 	return &templateActivities, total, nil
+}
+
+func (r *TemplateActivityRepository) FindByID(id uuid.UUID) (*entity.TemplateActivity, error) {
+	var templateActivity entity.TemplateActivity
+
+	if err := r.DB.
+		Preload("TemplateActivityLines").
+		Where("id = ?", id).
+		First(&templateActivity).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			r.Log.Error("[TemplateActivityRepository.FindByID] " + err.Error())
+			return nil, err
+		}
+	}
+
+	return &templateActivity, nil
 }

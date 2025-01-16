@@ -10,6 +10,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -17,6 +18,7 @@ import (
 type ITemplateActivityHandler interface {
 	CreateTemplateActivity(ctx *gin.Context)
 	FindAllPaginated(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
 }
 
 type TemplateActivityHandler struct {
@@ -109,4 +111,29 @@ func (h *TemplateActivityHandler) FindAllPaginated(ctx *gin.Context) {
 		"template_activities": templateActivities,
 		"total":               total,
 	})
+}
+
+func (h *TemplateActivityHandler) FindByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[TemplateActivityHandler.FindByID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "bad request", err.Error())
+		return
+	}
+
+	templateActivity, err := h.UseCase.FindByID(parsedUUID)
+	if err != nil {
+		h.Log.Error("[TemplateActivityHandler.FindByID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error", err.Error())
+		return
+	}
+
+	if templateActivity == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "not found", "template activity not found")
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", templateActivity)
 }

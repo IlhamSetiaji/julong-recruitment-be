@@ -6,12 +6,14 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
 type ITemplateActivityUseCase interface {
 	CreateTemplateActivity(req *request.CreateTemplateActivityRequest) (*response.TemplateActivityResponse, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TemplateActivityResponse, int64, error)
+	FindByID(id uuid.UUID) (*response.TemplateActivityResponse, error)
 }
 
 type TemplateActivityUseCase struct {
@@ -71,4 +73,14 @@ func (uc *TemplateActivityUseCase) FindAllPaginated(page, pageSize int, search s
 	}
 
 	return &templateActivityResponses, total, nil
+}
+
+func (uc *TemplateActivityUseCase) FindByID(id uuid.UUID) (*response.TemplateActivityResponse, error) {
+	ta, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Error("[TemplateActivityUseCase.FindByID] " + err.Error())
+		return nil, err
+	}
+
+	return uc.DTO.ConvertEntityToResponse(ta), nil
 }

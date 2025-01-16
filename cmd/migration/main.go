@@ -12,23 +12,23 @@ func main() {
 
 	// migrate the schema
 	err := db.AutoMigrate(
-		// &entity.MPRequest{},
-		// &entity.TemplateActivity{},
-		// &entity.TemplateActivityLine{},
-		// &entity.ProjectRecruitmentHeader{},
-		// &entity.ProjectRecruitmentLine{},
-		// &entity.JobPosting{},
-		// &entity.ProjectPic{},
-		// &entity.AnswerType{},
-		// &entity.TemplateQuestion{},
-		// &entity.Question{},
-		// &entity.QuestionOption{},
-		// &entity.QuestionResponse{},
-		// &entity.Applicant{},
-		// &entity.DocumentType{},
-		// &entity.MailTemplate{},
-		// &entity.DocumentSetup{},
-		// &entity.DocumentSending{},
+		&entity.MPRequest{},
+		&entity.TemplateActivity{},
+		&entity.TemplateActivityLine{},
+		&entity.ProjectRecruitmentHeader{},
+		&entity.ProjectRecruitmentLine{},
+		&entity.JobPosting{},
+		&entity.ProjectPic{},
+		&entity.AnswerType{},
+		&entity.TemplateQuestion{},
+		&entity.Question{},
+		&entity.QuestionOption{},
+		&entity.QuestionResponse{},
+		&entity.Applicant{},
+		&entity.DocumentType{},
+		&entity.MailTemplate{},
+		&entity.DocumentSetup{},
+		&entity.DocumentSending{},
 		&entity.DocumentVerification{},
 	)
 	if err != nil {
@@ -38,38 +38,38 @@ func main() {
 	}
 
 	// seed answer type
-	// answerTypes := []entity.AnswerType{
-	// 	{Name: "Text"},
-	// 	{Name: "Dropdown"},
-	// 	{Name: "Multiple Choice"},
-	// 	{Name: "Checkbox"},
-	// 	{Name: "Attachment"},
-	// }
+	answerTypes := []entity.AnswerType{
+		{Name: "Text"},
+		{Name: "Dropdown"},
+		{Name: "Multiple Choice"},
+		{Name: "Checkbox"},
+		{Name: "Attachment"},
+	}
 
-	// for _, answerType := range answerTypes {
-	// 	err := db.Create(&answerType).Error
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	// log.Info("Seed AnswerType success")
+	for _, answerType := range answerTypes {
+		err := db.Create(&answerType).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	log.Info("Seed AnswerType success")
 
-	// // seed document type
-	// documentTypes := []entity.DocumentType{
-	// 	{Name: "OFFERING_LETTER"},
-	// 	{Name: "PKWT"},
-	// 	{Name: "PKWTT"},
-	// 	{Name: "SURAT_PENGANTAR_MASUK"},
-	// 	{Name: "SURAT_IZIN_ORANG_TUA"},
-	// 	{Name: "DOCUMENT_CHECKING"},
-	// 	{Name: "KARYAWAN_TETAP"},
-	// }
+	// seed document type
+	documentTypes := []entity.DocumentType{
+		{Name: "OFFERING_LETTER"},
+		{Name: "PKWT"},
+		{Name: "PKWTT"},
+		{Name: "SURAT_PENGANTAR_MASUK"},
+		{Name: "SURAT_IZIN_ORANG_TUA"},
+		{Name: "DOCUMENT_CHECKING"},
+		{Name: "KARYAWAN_TETAP"},
+	}
 
-	// for _, documentType := range documentTypes {
-	// 	err := db.Create(&documentType).Error
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-	// log.Info("Seed DocumentType success")
+	for _, documentType := range documentTypes {
+		err := db.Create(&documentType).Error
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	log.Info("Seed DocumentType success")
 }

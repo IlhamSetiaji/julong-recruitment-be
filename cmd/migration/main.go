@@ -29,6 +29,7 @@ func main() {
 		&entity.MailTemplate{},
 		&entity.DocumentSetup{},
 		&entity.DocumentSending{},
+		&entity.DocumentVerification{},
 	)
 	if err != nil {
 		log.Fatal(err)

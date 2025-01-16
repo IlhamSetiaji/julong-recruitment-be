@@ -6,13 +6,14 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
 type IQuestionUseCase interface {
-	CreateOrUpdateQuestions(req *request.CreateOrUpdateQuestions) error
+	CreateOrUpdateQuestions(req *request.CreateOrUpdateQuestions) (*response.TemplateQuestionResponse, error)
 }
 
 type QuestionUseCase struct {
@@ -21,6 +22,7 @@ type QuestionUseCase struct {
 	DTO                        dto.IQuestionDTO
 	QuestionOptionRepository   repository.IQuestionOptionRepository
 	TemplateQuestionRepository repository.ITemplateQuestionRepository
+	TemplateQuestionDTO        dto.ITemplateQuestionDTO
 }
 
 func NewQuestionUseCase(
@@ -29,6 +31,7 @@ func NewQuestionUseCase(
 	qDTO dto.IQuestionDTO,
 	qoRepository repository.IQuestionOptionRepository,
 	tqRepository repository.ITemplateQuestionRepository,
+	tqDTO dto.ITemplateQuestionDTO,
 ) IQuestionUseCase {
 	return &QuestionUseCase{
 		Log:                        log,
@@ -36,6 +39,7 @@ func NewQuestionUseCase(
 		DTO:                        qDTO,
 		QuestionOptionRepository:   qoRepository,
 		TemplateQuestionRepository: tqRepository,
+		TemplateQuestionDTO:        tqDTO,
 	}
 }
 
@@ -44,20 +48,21 @@ func QuestionUseCaseFactory(log *logrus.Logger) IQuestionUseCase {
 	qDTO := dto.QuestionDTOFactory(log)
 	qoRepository := repository.QuestionOptionRepositoryFactory(log)
 	tqRepository := repository.TemplateQuestionRepositoryFactory(log)
-	return NewQuestionUseCase(log, repo, qDTO, qoRepository, tqRepository)
+	tqDTO := dto.TemplateQuestionDTOFactory(log)
+	return NewQuestionUseCase(log, repo, qDTO, qoRepository, tqRepository, tqDTO)
 }
 
-func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQuestions) error {
+func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQuestions) (*response.TemplateQuestionResponse, error) {
 	// check if template question exist
 	tq, err := uc.TemplateQuestionRepository.FindByID(uuid.MustParse(req.TemplateQuestionID))
 	if err != nil {
 		uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when finding template question by id: %s", err.Error())
-		return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when finding template question by id: " + err.Error())
+		return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when finding template question by id: " + err.Error())
 	}
 
 	if tq == nil {
 		uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] template question with id %s not found", req.TemplateQuestionID)
-		return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] template question with id " + req.TemplateQuestionID + " not found")
+		return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] template question with id " + req.TemplateQuestionID + " not found")
 	}
 
 	// create or update questions
@@ -66,7 +71,7 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 			exist, err := uc.Repository.FindByID(uuid.MustParse(question.ID))
 			if err != nil {
 				uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when finding question by id: %s", err.Error())
-				return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when finding question by id: " + err.Error())
+				return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when finding question by id: " + err.Error())
 			}
 
 			if exist == nil {
@@ -77,7 +82,7 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 				})
 				if err != nil {
 					uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: %s", err.Error())
-					return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: " + err.Error())
+					return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: " + err.Error())
 				}
 
 				if len(question.QuestionOptions) > 0 {
@@ -88,7 +93,7 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 						})
 						if err != nil {
 							uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: %s", err.Error())
-							return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: " + err.Error())
+							return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: " + err.Error())
 						}
 					}
 				}
@@ -101,14 +106,14 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 				})
 				if err != nil {
 					uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when updating question: %s", err.Error())
-					return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when updating question: " + err.Error())
+					return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when updating question: " + err.Error())
 				}
 
 				// delete question options
 				err = uc.QuestionOptionRepository.DeleteQuestionOptionsByQuestionID(updatedQuestion.ID)
 				if err != nil {
 					uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question options: %s", err.Error())
-					return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question options: " + err.Error())
+					return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question options: " + err.Error())
 				}
 
 				// create question options
@@ -120,7 +125,7 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 						})
 						if err != nil {
 							uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: %s", err.Error())
-							return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: " + err.Error())
+							return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: " + err.Error())
 						}
 					}
 				}
@@ -133,7 +138,7 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 			})
 			if err != nil {
 				uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: %s", err.Error())
-				return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: " + err.Error())
+				return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: " + err.Error())
 			}
 
 			if len(question.QuestionOptions) > 0 {
@@ -144,7 +149,7 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 					})
 					if err != nil {
 						uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: %s", err.Error())
-						return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: " + err.Error())
+						return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question option: " + err.Error())
 					}
 				}
 			}
@@ -157,10 +162,16 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 			err := uc.Repository.DeleteQuestion(uuid.MustParse(id))
 			if err != nil {
 				uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question: %s", err.Error())
-				return errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question: " + err.Error())
+				return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when deleting question: " + err.Error())
 			}
 		}
 	}
 
-	return nil
+	tQuestion, err := uc.TemplateQuestionRepository.FindByID(tq.ID)
+	if err != nil {
+		uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when finding template question by id: %s", err.Error())
+		return nil, errors.New("[QuestionUseCase.CreateOrUpdateQuestions] error when finding template question by id: " + err.Error())
+	}
+
+	return uc.TemplateQuestionDTO.ConvertEntityToResponse(tQuestion), nil
 }

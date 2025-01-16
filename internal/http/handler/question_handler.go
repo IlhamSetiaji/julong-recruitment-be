@@ -61,11 +61,12 @@ func (h *QuestionHandler) CreateOrUpdateQuestions(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.UseCase.CreateOrUpdateQuestions(&payload); err != nil {
+	tq, err := h.UseCase.CreateOrUpdateQuestions(&payload)
+	if err != nil {
 		h.Log.Error("[QuestionHandler.CreateOrUpdateQuestions] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusCreated, "success", nil)
+	utils.SuccessResponse(ctx, http.StatusCreated, "success", tq)
 }

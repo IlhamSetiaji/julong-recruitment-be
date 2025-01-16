@@ -5,7 +5,7 @@ type CreateTemplateQuestion struct {
 	Name            string `json:"name" validate:"required"`
 	FormType        string `json:"form_type" validate:"omitempty,form_type_validation"`
 	Description     string `json:"description" validate:"omitempty"`
-	Duration        int    `json:"duration" validate:"omitempty"`
+	Duration        *int   `json:"duration" validate:"omitempty,gte=0"`
 	Status          string `json:"status" validate:"required,template_question_status_validation"`
 }
 
@@ -15,6 +15,6 @@ type UpdateTemplateQuestion struct {
 	Name            string `json:"name" validate:"required"`
 	FormType        string `json:"form_type" validate:"omitempty,form_type_validation"`
 	Description     string `json:"description" validate:"omitempty"`
-	Duration        int    `json:"duration" validate:"required"`
+	Duration        *int   `json:"duration" validate:"omitempty,gte=0"`
 	Status          string `json:"status" validate:"required,template_question_status_validation"`
 }

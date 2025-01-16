@@ -7,4 +7,6 @@ type DocumentVerificationResponse struct {
 	TemplateQuestionID uuid.UUID `json:"template_question_id"`
 	Name               string    `json:"name"`
 	Format             string    `json:"format"`
+
+	TemplateQuestion *TemplateQuestionResponse `json:"template_question"`
 }

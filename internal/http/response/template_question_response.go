@@ -11,7 +11,7 @@ type TemplateQuestionResponse struct {
 	Name            string                          `json:"name"`
 	FormType        entity.TemplateQuestionFormType `json:"form_type"`
 	Description     string                          `json:"description"`
-	Duration        int                             `json:"duration"`
+	Duration        *int                            `json:"duration"`
 	Status          entity.TemplateQuestionStatus   `json:"status"`
 
 	Questions             *[]QuestionResponse             `json:"questions"`

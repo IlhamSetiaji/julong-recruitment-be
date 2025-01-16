@@ -3,6 +3,7 @@ package dto
 import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -30,5 +31,24 @@ func (dto *DocumentVerificationDTO) ConvertEntityToResponse(ent *entity.Document
 		TemplateQuestionID: ent.TemplateQuestionID,
 		Name:               ent.Name,
 		Format:             ent.Format,
+		TemplateQuestion: func() *response.TemplateQuestionResponse {
+			if ent.TemplateQuestion == nil {
+				return nil
+			}
+			return &response.TemplateQuestionResponse{
+				ID: ent.TemplateQuestion.ID,
+				DocumentSetupID: func() *uuid.UUID {
+					if ent.TemplateQuestion.DocumentSetupID == nil {
+						return nil
+					}
+					return ent.TemplateQuestion.DocumentSetupID
+				}(),
+				Name:        ent.TemplateQuestion.Name,
+				FormType:    entity.TemplateQuestionFormType(ent.TemplateQuestion.FormType),
+				Description: ent.TemplateQuestion.Description,
+				Duration:    ent.TemplateQuestion.Duration,
+				Status:      ent.TemplateQuestion.Status,
+			}
+		}(),
 	}
 }

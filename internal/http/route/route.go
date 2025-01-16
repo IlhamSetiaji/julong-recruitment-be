@@ -9,17 +9,18 @@ import (
 )
 
 type RouteConfig struct {
-	App                     *gin.Engine
-	Log                     *logrus.Logger
-	Viper                   *viper.Viper
-	AuthMiddleware          gin.HandlerFunc
-	MPRequestHandler        handler.IMPRequestHandler
-	RecruitmentTypeHandler  handler.IRecruitmentTypeHandler
-	TemplateQuestionHandler handler.ITemplateQuestionHandler
-	AnswerTypeHandler       handler.IAnswerTypeHandler
-	QuestionHandler         handler.IQuestionHandler
-	DocumentTypeHandler     handler.IDocumentTypeHandler
-	DocumentSetupHandler    handler.IDocumentSetupHandler
+	App                         *gin.Engine
+	Log                         *logrus.Logger
+	Viper                       *viper.Viper
+	AuthMiddleware              gin.HandlerFunc
+	MPRequestHandler            handler.IMPRequestHandler
+	RecruitmentTypeHandler      handler.IRecruitmentTypeHandler
+	TemplateQuestionHandler     handler.ITemplateQuestionHandler
+	AnswerTypeHandler           handler.IAnswerTypeHandler
+	QuestionHandler             handler.IQuestionHandler
+	DocumentTypeHandler         handler.IDocumentTypeHandler
+	DocumentSetupHandler        handler.IDocumentSetupHandler
+	DocumentVerificationHandler handler.IDocumentVerificationHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -82,6 +83,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentSetupRoute.PUT("/update", c.DocumentSetupHandler.UpdateDocumentSetup)
 				documentSetupRoute.DELETE("/:id", c.DocumentSetupHandler.DeleteDocumentSetup)
 			}
+			// document verification
+			documentVerificationRoute := apiRoute.Group("/document-verification")
+			{
+				documentVerificationRoute.POST("", c.DocumentVerificationHandler.CreateDocumentVerification)
+			}
 		}
 	}
 }
@@ -95,17 +101,19 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	questionHandler := handler.QuestionHandlerFactory(log, viper)
 	documentTypeHandler := handler.DocumentTypeHandlerFactory(log, viper)
 	documentSetupHandler := handler.DocumentSetupHandlerFactory(log, viper)
+	documentVerificationHandler := handler.DocumentVerificationHandlerFactory(log, viper)
 	return &RouteConfig{
-		App:                     app,
-		Log:                     log,
-		Viper:                   viper,
-		AuthMiddleware:          authMiddleware,
-		MPRequestHandler:        mpRequestHandler,
-		RecruitmentTypeHandler:  recruitmentTypeHandler,
-		TemplateQuestionHandler: templateQuestionHandler,
-		AnswerTypeHandler:       answerTypeHandler,
-		QuestionHandler:         questionHandler,
-		DocumentTypeHandler:     documentTypeHandler,
-		DocumentSetupHandler:    documentSetupHandler,
+		App:                         app,
+		Log:                         log,
+		Viper:                       viper,
+		AuthMiddleware:              authMiddleware,
+		MPRequestHandler:            mpRequestHandler,
+		RecruitmentTypeHandler:      recruitmentTypeHandler,
+		TemplateQuestionHandler:     templateQuestionHandler,
+		AnswerTypeHandler:           answerTypeHandler,
+		QuestionHandler:             questionHandler,
+		DocumentTypeHandler:         documentTypeHandler,
+		DocumentSetupHandler:        documentSetupHandler,
+		DocumentVerificationHandler: documentVerificationHandler,
 	}
 }

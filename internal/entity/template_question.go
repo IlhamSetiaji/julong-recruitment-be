@@ -38,7 +38,7 @@ type TemplateQuestion struct {
 	Name            string                 `json:"name" gorm:"type:varchar(255);not null"`
 	FormType        string                 `json:"form_type" gorm:"type:varchar(255);default:null"`
 	Description     string                 `json:"description" gorm:"type:text;default:null"`
-	Duration        int                    `json:"duration" gorm:"default:0"`
+	Duration        *int                   `json:"duration" gorm:"default:0"`
 	Status          TemplateQuestionStatus `json:"status" gorm:"default:'ACTIVE'"`
 
 	Questions             []Question             `json:"questions" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

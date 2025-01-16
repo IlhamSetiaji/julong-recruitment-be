@@ -112,13 +112,19 @@ func (uc *TemplateQuestionUseCase) UpdateTemplateQuestion(req *request.UpdateTem
 	} else {
 		documentSetupID = nil
 	}
+
+	var duration *int
+	if req.Duration != nil {
+		duration = req.Duration
+	}
+
 	updatedTemplateQuestion, err := uc.Repository.UpdateTemplateQuestion(&entity.TemplateQuestion{
 		ID:              uuid.MustParse(req.ID),
 		DocumentSetupID: documentSetupID,
 		Name:            req.Name,
 		FormType:        req.FormType,
 		Description:     req.Description,
-		Duration:        req.Duration,
+		Duration:        duration,
 		Status:          entity.TemplateQuestionStatus(req.Status),
 	})
 	if err != nil {

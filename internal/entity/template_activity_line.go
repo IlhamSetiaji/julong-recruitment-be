@@ -18,6 +18,7 @@ type TemplateActivityLine struct {
 	gorm.Model         `json:"-"`
 	ID                 uuid.UUID                  `json:"id" gorm:"type:char(36);primaryKey;"`
 	TemplateActivityID uuid.UUID                  `json:"template_activity_id" gorm:"type:char(36);not null"`
+	Name               string                     `json:"name" gorm:"type:varchar(255);not null"`
 	Description        string                     `json:"description" gorm:"type:text;default:null"`
 	Status             TemplateActivityLineStatus `json:"status" gorm:"default:'ACTIVE'"`
 	QuestionTemplateID uuid.UUID                  `json:"question_template_id" gorm:"type:char(36);not null"`

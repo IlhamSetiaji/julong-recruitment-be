@@ -22,6 +22,7 @@ type RouteConfig struct {
 	DocumentSetupHandler        handler.IDocumentSetupHandler
 	DocumentVerificationHandler handler.IDocumentVerificationHandler
 	TemplateActivityHandler     handler.ITemplateActivityHandler
+	TemplateActivityLineHandler handler.ITemplateActivityLineHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -103,6 +104,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				templateActivityRoute.PUT("/update", c.TemplateActivityHandler.UpdateTemplateActivity)
 				templateActivityRoute.DELETE("/:id", c.TemplateActivityHandler.DeleteTemplateActivity)
 			}
+			// template activity lines
+			templateActivityLineRoute := apiRoute.Group("/template-activity-lines")
+			{
+				templateActivityLineRoute.POST("", c.TemplateActivityLineHandler.CreateOrUpdateTemplateActivityLine)
+			}
 		}
 	}
 }
@@ -118,6 +124,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	documentSetupHandler := handler.DocumentSetupHandlerFactory(log, viper)
 	documentVerificationHandler := handler.DocumentVerificationHandlerFactory(log, viper)
 	templateActivityHandler := handler.TemplateActivityHandlerFactory(log, viper)
+	templateActivityLineHandler := handler.TemplateActivityLineHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                         app,
 		Log:                         log,
@@ -132,5 +139,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		DocumentSetupHandler:        documentSetupHandler,
 		DocumentVerificationHandler: documentVerificationHandler,
 		TemplateActivityHandler:     templateActivityHandler,
+		TemplateActivityLineHandler: templateActivityLineHandler,
 	}
 }

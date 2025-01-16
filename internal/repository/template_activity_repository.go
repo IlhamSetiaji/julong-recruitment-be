@@ -59,7 +59,7 @@ func (r *TemplateActivityRepository) CreateTemplateActivity(ent *entity.Template
 		return nil, err
 	}
 
-	if err := r.DB.Preload("TemplateActivityLines").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("TemplateActivityLines.TemplateQuestion").First(ent, ent.ID).Error; err != nil {
 		r.Log.Error("[TemplateActivityRepository.CreateTemplateActivity] " + err.Error())
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (r *TemplateActivityRepository) FindAllPaginated(page, pageSize int, search
 	var templateActivities []entity.TemplateActivity
 	var total int64
 
-	query := r.DB.Preload("TemplateActivityLines")
+	query := r.DB.Preload("TemplateActivityLines.TemplateQuestion")
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")
@@ -98,7 +98,7 @@ func (r *TemplateActivityRepository) FindByID(id uuid.UUID) (*entity.TemplateAct
 	var templateActivity entity.TemplateActivity
 
 	if err := r.DB.
-		Preload("TemplateActivityLines").
+		Preload("TemplateActivityLines.TemplateQuestion").
 		Where("id = ?", id).
 		First(&templateActivity).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -131,7 +131,7 @@ func (r *TemplateActivityRepository) UpdateTemplateActivity(ent *entity.Template
 		return nil, err
 	}
 
-	if err := r.DB.Preload("TemplateActivityLines").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("TemplateActivityLines.TemplateQuestion").First(ent, ent.ID).Error; err != nil {
 		r.Log.Error("[TemplateActivityRepository.UpdateTemplateActivity] " + err.Error())
 		return nil, err
 	}

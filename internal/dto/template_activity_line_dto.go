@@ -35,6 +35,7 @@ func (dto *TemplateActivityLineDTO) ConvertEntityToResponse(ent *entity.Template
 		ID:                 ent.ID,
 		TemplateActivityID: ent.TemplateActivityID,
 		TemplateQuestionID: ent.QuestionTemplateID,
+		Name:               ent.Name,
 		Description:        ent.Description,
 		Status:             ent.Status,
 		ColorHexCode:       ent.ColorHexCode,

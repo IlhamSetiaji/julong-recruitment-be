@@ -10,6 +10,7 @@ import (
 type TemplateActivityLineResponse struct {
 	ID                 uuid.UUID                         `json:"id"`
 	TemplateActivityID uuid.UUID                         `json:"template_activity_id"`
+	Name               string                            `json:"name"`
 	Description        string                            `json:"description"`
 	Status             entity.TemplateActivityLineStatus `json:"status"`
 	TemplateQuestionID uuid.UUID                         `json:"question_template_id"`

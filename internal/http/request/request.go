@@ -67,3 +67,17 @@ func TemplateActivityStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func TemplateActivityLineStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.TemplateActivityLineStatus(status) {
+	case entity.TEMPLATE_ACTIVITY_LINE_STATUS_ACTIVE,
+		entity.TEMPLATE_ACTIVITY_LINE_STATUS_INACTIVE:
+		return true
+	default:
+		return false
+	}
+}

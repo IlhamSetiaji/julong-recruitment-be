@@ -84,9 +84,14 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentSetupRoute.DELETE("/:id", c.DocumentSetupHandler.DeleteDocumentSetup)
 			}
 			// document verification
-			documentVerificationRoute := apiRoute.Group("/document-verification")
+			documentVerificationRoute := apiRoute.Group("/document-verifications")
 			{
+				documentVerificationRoute.GET("", c.DocumentVerificationHandler.FindAllPaginated)
+				documentVerificationRoute.GET("/template-question/:id", c.DocumentVerificationHandler.FindByTemplateQuestionID)
+				documentVerificationRoute.GET("/:id", c.DocumentVerificationHandler.FindByID)
 				documentVerificationRoute.POST("", c.DocumentVerificationHandler.CreateDocumentVerification)
+				documentVerificationRoute.PUT("/update", c.DocumentVerificationHandler.UpdateDocumentVerification)
+				documentVerificationRoute.DELETE("/:id", c.DocumentVerificationHandler.DeleteDocumentVerification)
 			}
 		}
 	}

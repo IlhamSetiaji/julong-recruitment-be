@@ -88,7 +88,10 @@ func (r *DocumentSetupRepository) FindAllPaginated(page, pageSize int, search st
 		return nil, 0, err
 	}
 
-	query.Model(&entity.DocumentSetup{}).Count(&total)
+	if err := query.Count(&total).Error; err != nil {
+		r.Log.Error("[DocumentSetupRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
 
 	return &documentSetups, total, nil
 }

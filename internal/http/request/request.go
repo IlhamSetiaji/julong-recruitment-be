@@ -53,3 +53,17 @@ func RecruitmentTypeValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func TemplateActivityStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.TemplateActivityStatus(status) {
+	case entity.TEMPLATE_ACTIVITY_STATUS_ACTIVE,
+		entity.TEMPLATE_ACTIVITY_STATUS_INACTIVE:
+		return true
+	default:
+		return false
+	}
+}

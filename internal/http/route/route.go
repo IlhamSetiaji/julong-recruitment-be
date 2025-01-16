@@ -21,6 +21,7 @@ type RouteConfig struct {
 	DocumentTypeHandler         handler.IDocumentTypeHandler
 	DocumentSetupHandler        handler.IDocumentSetupHandler
 	DocumentVerificationHandler handler.IDocumentVerificationHandler
+	TemplateActivityHandler     handler.ITemplateActivityHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -93,6 +94,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentVerificationRoute.PUT("/update", c.DocumentVerificationHandler.UpdateDocumentVerification)
 				documentVerificationRoute.DELETE("/:id", c.DocumentVerificationHandler.DeleteDocumentVerification)
 			}
+			// template activities
+			templateActivityRoute := apiRoute.Group("/template-activities")
+			{
+				templateActivityRoute.POST("", c.TemplateActivityHandler.CreateTemplateActivity)
+			}
 		}
 	}
 }
@@ -107,6 +113,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	documentTypeHandler := handler.DocumentTypeHandlerFactory(log, viper)
 	documentSetupHandler := handler.DocumentSetupHandlerFactory(log, viper)
 	documentVerificationHandler := handler.DocumentVerificationHandlerFactory(log, viper)
+	templateActivityHandler := handler.TemplateActivityHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                         app,
 		Log:                         log,
@@ -120,5 +127,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		DocumentTypeHandler:         documentTypeHandler,
 		DocumentSetupHandler:        documentSetupHandler,
 		DocumentVerificationHandler: documentVerificationHandler,
+		TemplateActivityHandler:     templateActivityHandler,
 	}
 }

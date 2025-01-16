@@ -12,23 +12,31 @@ type ITemplateQuestionDTO interface {
 }
 
 type TemplateQuestionDTO struct {
-	Log              *logrus.Logger
-	QuestionDTO      IQuestionDTO
-	DocumentSetupDTO IDocumentSetupDTO
+	Log                     *logrus.Logger
+	QuestionDTO             IQuestionDTO
+	DocumentSetupDTO        IDocumentSetupDTO
+	DocumentVerificationDTO IDocumentVerificationDTO
 }
 
-func NewTemplateQuestionDTO(log *logrus.Logger, questionDTO IQuestionDTO, documentSetupDTO IDocumentSetupDTO) ITemplateQuestionDTO {
+func NewTemplateQuestionDTO(
+	log *logrus.Logger,
+	questionDTO IQuestionDTO,
+	documentSetupDTO IDocumentSetupDTO,
+	documentVerificationDTO IDocumentVerificationDTO,
+) ITemplateQuestionDTO {
 	return &TemplateQuestionDTO{
-		Log:              log,
-		QuestionDTO:      questionDTO,
-		DocumentSetupDTO: documentSetupDTO,
+		Log:                     log,
+		QuestionDTO:             questionDTO,
+		DocumentSetupDTO:        documentSetupDTO,
+		DocumentVerificationDTO: documentVerificationDTO,
 	}
 }
 
 func TemplateQuestionDTOFactory(log *logrus.Logger) ITemplateQuestionDTO {
 	questionDTO := QuestionDTOFactory(log)
 	documentSetupDTO := DocumentSetupDTOFactory(log)
-	return NewTemplateQuestionDTO(log, questionDTO, documentSetupDTO)
+	documentVerificationDTO := DocumentVerificationDTOFactory(log)
+	return NewTemplateQuestionDTO(log, questionDTO, documentSetupDTO, documentVerificationDTO)
 }
 
 func (dto *TemplateQuestionDTO) ConvertEntityToResponse(ent *entity.TemplateQuestion) *response.TemplateQuestionResponse {
@@ -60,6 +68,16 @@ func (dto *TemplateQuestionDTO) ConvertEntityToResponse(ent *entity.TemplateQues
 				return nil
 			}
 			return dto.DocumentSetupDTO.ConvertEntityToResponse(ent.DocumentSetup)
+		}(),
+		DocumentVerifications: func() *[]response.DocumentVerificationResponse {
+			var documentVerificationResponses []response.DocumentVerificationResponse
+			if len(ent.DocumentVerifications) == 0 || ent.DocumentVerifications == nil {
+				return nil
+			}
+			for _, documentVerification := range ent.DocumentVerifications {
+				documentVerificationResponses = append(documentVerificationResponses, *dto.DocumentVerificationDTO.ConvertEntityToResponse(&documentVerification))
+			}
+			return &documentVerificationResponses
 		}(),
 	}
 }

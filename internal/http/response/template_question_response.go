@@ -14,8 +14,9 @@ type TemplateQuestionResponse struct {
 	Duration        int                             `json:"duration"`
 	Status          entity.TemplateQuestionStatus   `json:"status"`
 
-	Questions     *[]QuestionResponse    `json:"questions"`
-	DocumentSetup *DocumentSetupResponse `json:"document_setup"`
+	Questions             *[]QuestionResponse             `json:"questions"`
+	DocumentSetup         *DocumentSetupResponse          `json:"document_setup"`
+	DocumentVerifications *[]DocumentVerificationResponse `json:"document_verifications"`
 }
 
 type FormTypeResponse struct {

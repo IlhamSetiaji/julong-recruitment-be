@@ -13,8 +13,6 @@ func main() {
 	// migrate the schema
 	err := db.AutoMigrate(
 		&entity.MPRequest{},
-		&entity.TemplateActivity{},
-		&entity.TemplateActivityLine{},
 		&entity.ProjectRecruitmentHeader{},
 		&entity.ProjectRecruitmentLine{},
 		&entity.JobPosting{},
@@ -30,6 +28,8 @@ func main() {
 		&entity.DocumentSetup{},
 		&entity.DocumentSending{},
 		&entity.DocumentVerification{},
+		&entity.TemplateActivity{},
+		&entity.TemplateActivityLine{},
 	)
 	if err != nil {
 		log.Fatal(err)

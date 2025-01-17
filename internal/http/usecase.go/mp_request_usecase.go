@@ -2,10 +2,10 @@ package usecase
 
 import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
-	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -20,28 +20,28 @@ type MPRequestUseCase struct {
 	Log        *logrus.Logger
 	Repository repository.IMPRequestRepository
 	Message    messaging.IMPRequestMessage
-	Helper     helper.IMPRequestHelper
+	Service    service.IMPRequestService
 }
 
 func NewMPRequestUseCase(
 	log *logrus.Logger,
 	repo repository.IMPRequestRepository,
 	message messaging.IMPRequestMessage,
-	mprHelper helper.IMPRequestHelper,
+	mprService service.IMPRequestService,
 ) IMPRequestUseCase {
 	return &MPRequestUseCase{
 		Log:        log,
 		Repository: repo,
 		Message:    message,
-		Helper:     mprHelper,
+		Service:    mprService,
 	}
 }
 
 func MPRequestUseCaseFactory(log *logrus.Logger) IMPRequestUseCase {
 	repo := repository.MPRequestRepositoryFactory(log)
 	message := messaging.MPRequestMessageFactory(log)
-	mprHelper := helper.MPRequestHelperFactory(log)
-	return NewMPRequestUseCase(log, repo, message, mprHelper)
+	mprService := service.MPRequestServiceFactory(log)
+	return NewMPRequestUseCase(log, repo, message, mprService)
 }
 
 func (uc *MPRequestUseCase) CreateMPRequest(req *request.CreateMPRequest) (*entity.MPRequest, error) {
@@ -75,7 +75,7 @@ func (uc *MPRequestUseCase) FindAllPaginated(page int, pageSize int, search stri
 			return nil, err
 		}
 
-		convertedData, err := uc.Helper.CheckPortalData(resp)
+		convertedData, err := uc.Service.CheckPortalData(resp)
 		if err != nil {
 			uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when check portal data: %v", err)
 			return nil, err

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -17,23 +17,23 @@ type IMPRequestMessage interface {
 }
 
 type MPRequestMessage struct {
-	Log *logrus.Logger
-	DTO dto.IMPRequestDTO
+	Log    *logrus.Logger
+	Helper helper.IMPRequestHelper
 }
 
 func NewMPRequestMessage(
 	log *logrus.Logger,
-	mprDTO dto.IMPRequestDTO,
+	mprHelper helper.IMPRequestHelper,
 ) IMPRequestMessage {
 	return &MPRequestMessage{
-		Log: log,
-		DTO: mprDTO,
+		Log:    log,
+		Helper: mprHelper,
 	}
 }
 
 func MPRequestMessageFactory(log *logrus.Logger) IMPRequestMessage {
-	mprDTO := dto.MPRequestDTOFactory(log)
-	return NewMPRequestMessage(log, mprDTO)
+	mprHelper := helper.MPRequestHelperFactory(log)
+	return NewMPRequestMessage(log, mprHelper)
 }
 
 func (m *MPRequestMessage) SendFindByIdMessage(id string) (*response.MPRequestHeaderResponse, error) {
@@ -73,7 +73,7 @@ func (m *MPRequestMessage) SendFindByIdMessage(id string) (*response.MPRequestHe
 		return nil, errors.New("[MPRequestMessage.SendFindByIDMessage] " + errMsg)
 	}
 
-	mprData, err := m.DTO.ConvertMapInterfaceToResponse(resp.MessageData)
+	mprData, err := m.Helper.ConvertMapInterfaceToResponse(resp.MessageData)
 	if err != nil {
 		return nil, err
 	}

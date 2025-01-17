@@ -73,7 +73,7 @@ func (h *TemplateActivityLineHandler) CreateOrUpdateTemplateActivityLine(ctx *gi
 }
 
 func (h *TemplateActivityLineHandler) FindByTemplateActivityID(ctx *gin.Context) {
-	templateActivityID := ctx.Param("templateActivityID")
+	templateActivityID := ctx.Param("id")
 
 	tal, err := h.UseCase.FindByTemplateActivityID(templateActivityID)
 	if err != nil {

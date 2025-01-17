@@ -109,6 +109,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// template activity lines
 			templateActivityLineRoute := apiRoute.Group("/template-activity-lines")
 			{
+				templateActivityLineRoute.GET("/template-activity/:id", c.TemplateActivityLineHandler.FindByTemplateActivityID)
 				templateActivityLineRoute.POST("", c.TemplateActivityLineHandler.CreateOrUpdateTemplateActivityLine)
 			}
 			// project recruitment headers

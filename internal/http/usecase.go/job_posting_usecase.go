@@ -17,6 +17,8 @@ type IJobPostingUseCase interface {
 	CreateJobPosting(req *request.CreateJobPostingRequest) (*response.JobPostingResponse, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.JobPostingResponse, error)
+	UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error)
+	DeleteJobPosting(id uuid.UUID) error
 }
 
 type JobPostingUseCase struct {
@@ -153,6 +155,82 @@ func (uc *JobPostingUseCase) FindByID(id uuid.UUID) (*response.JobPostingRespons
 	jobPosting.Poster = uc.Viper.GetString("app.url") + jobPosting.Poster
 
 	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
+}
+
+func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error) {
+	// Get project recruitment header
+	prhID, err := uuid.Parse(req.ProjectRecruitmentHeaderID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	prh, err := uc.ProjectRecruitmentHeaderRepository.FindByID(prhID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	if prh == nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + "Project Recruitment Header not found")
+		return nil, err
+	}
+
+	// Get MP Request
+	mpRequestID, err := uuid.Parse(req.MPRequestID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	mpRequest, err := uc.MPRequestRepository.FindByID(mpRequestID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	if mpRequest == nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + "MP Request not found")
+		return nil, err
+	}
+
+	// Parse data
+	data, err := uc.parseData(req.ForOrganizationID, req.ForOrganizationLocationID, req.JobID, req.DocumentDate, req.StartDate, req.EndDate)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	jobPosting, err := uc.Repository.UpdateJobPosting(&entity.JobPosting{
+		ID:                         uuid.MustParse(req.ID),
+		ProjectRecruitmentHeaderID: prhID,
+		MPRequestID:                &mpRequestID,
+		ForOrganizationID:          data["forOrgID"].(*uuid.UUID),
+		ForOrganizationLocationID:  data["forOrgLocID"].(*uuid.UUID),
+		JobID:                      data["jobID"].(*uuid.UUID),
+		DocumentNumber:             req.DocumentNumber,
+		DocumentDate:               data["documentDate"].(time.Time),
+		RecruitmentType:            entity.ProjectRecruitmentType(req.RecruitmentType),
+		StartDate:                  data["startDate"].(time.Time),
+		EndDate:                    data["endDate"].(time.Time),
+		Status:                     entity.JobPostingStatus(req.Status),
+		SalaryMin:                  req.SalaryMin,
+		SalaryMax:                  req.SalaryMax,
+		ContentDescription:         req.ContentDescription,
+		OrganizationLogo:           req.OrganizationLogoPath,
+		Poster:                     req.PosterPath,
+		Link:                       req.Link,
+	})
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
+}
+
+func (uc *JobPostingUseCase) DeleteJobPosting(id uuid.UUID) error {
+	return uc.Repository.DeleteJobPosting(id)
 }
 
 func (uc *JobPostingUseCase) parseData(forOrgID, forOrgLocID, forJobID, docDate, stDate, edDate string) (map[string]interface{}, error) {

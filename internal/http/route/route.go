@@ -26,6 +26,7 @@ type RouteConfig struct {
 	ProjectRecruitmentHeaderHandler handler.IProjectRecruitmentHeaderHandler
 	ProjectRecruitmentLineHandler   handler.IProjectRecruitmentLineHandler
 	JobPostingHandler               handler.IJobPostingHandler
+	UniversityHandler               handler.IUniversityHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -133,6 +134,13 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				jobPostingRoute.GET("", c.JobPostingHandler.FindAllPaginated)
 				jobPostingRoute.GET("/:id", c.JobPostingHandler.FindByID)
 				jobPostingRoute.POST("", c.JobPostingHandler.CreateJobPosting)
+				jobPostingRoute.PUT("/update", c.JobPostingHandler.UpdateJobPosting)
+				jobPostingRoute.DELETE("/:id", c.JobPostingHandler.DeleteJobPosting)
+			}
+			// universities
+			universityRoute := apiRoute.Group("/universities")
+			{
+				universityRoute.GET("", c.UniversityHandler.FindAll)
 			}
 		}
 	}
@@ -152,6 +160,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	templateActivityLineHandler := handler.TemplateActivityLineHandlerFactory(log, viper)
 	projectRecruitmentHeaderHandler := handler.ProjectRecruitmentHeaderHandlerFactory(log, viper)
 	projectRecruitmentLineHandler := handler.ProjectRecruitmentLineHandlerFactory(log, viper)
+	universityHandler := handler.UniversityHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -170,5 +179,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		ProjectRecruitmentHeaderHandler: projectRecruitmentHeaderHandler,
 		ProjectRecruitmentLineHandler:   projectRecruitmentLineHandler,
 		JobPostingHandler:               handler.JobPostingHandlerFactory(log, viper),
+		UniversityHandler:               universityHandler,
 	}
 }

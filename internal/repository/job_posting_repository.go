@@ -14,6 +14,8 @@ type IJobPostingRepository interface {
 	CreateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.JobPosting, int64, error)
 	FindByID(id uuid.UUID) (*entity.JobPosting, error)
+	UpdateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error)
+	DeleteJobPosting(id uuid.UUID) error
 }
 
 type JobPostingRepository struct {
@@ -92,4 +94,50 @@ func (r *JobPostingRepository) FindByID(id uuid.UUID) (*entity.JobPosting, error
 	}
 
 	return &ent, nil
+}
+
+func (r *JobPostingRepository) UpdateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error) {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return nil, errors.New("[JobPostingRepository.UpdateJobPosting] failed to begin transaction: " + tx.Error.Error())
+	}
+
+	if err := tx.Model(&entity.JobPosting{}).Where("id = ?", ent.ID).Updates(ent).Error; err != nil {
+		tx.Rollback()
+		return nil, errors.New("[JobPostingRepository.UpdateJobPosting] " + err.Error())
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, errors.New("[JobPostingRepository.UpdateJobPosting] failed to commit transaction: " + err.Error())
+	}
+
+	if err := r.DB.Preload("ProjectRecruitmentHeader").First(ent, ent.ID).Error; err != nil {
+		return nil, errors.New("[JobPostingRepository.UpdateJobPosting] failed to preload data: " + err.Error())
+	}
+
+	return ent, nil
+}
+
+func (r *JobPostingRepository) DeleteJobPosting(id uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return errors.New("[JobPostingRepository.DeleteJobPosting] failed to begin transaction: " + tx.Error.Error())
+	}
+
+	var jobPosting entity.JobPosting
+	if err := tx.First(&jobPosting, id).Error; err != nil {
+		tx.Rollback()
+		return errors.New("[JobPostingRepository.DeleteJobPosting] " + err.Error())
+	}
+
+	if err := tx.Where("id = ?", id).Delete(&jobPosting).Error; err != nil {
+		tx.Rollback()
+		return errors.New("[JobPostingRepository.DeleteJobPosting] " + err.Error())
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return errors.New("[JobPostingRepository.DeleteJobPosting] failed to commit transaction: " + err.Error())
+	}
+
+	return nil
 }

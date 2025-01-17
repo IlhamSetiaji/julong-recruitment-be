@@ -20,6 +20,8 @@ type IJobPostingHandler interface {
 	CreateJobPosting(ctx *gin.Context)
 	FindAllPaginated(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	UpdateJobPosting(ctx *gin.Context)
+	DeleteJobPosting(ctx *gin.Context)
 }
 
 type JobPostingHandler struct {
@@ -163,4 +165,74 @@ func (h *JobPostingHandler) FindByID(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
+}
+
+func (h *JobPostingHandler) UpdateJobPosting(ctx *gin.Context) {
+	var req request.UpdateJobPostingRequest
+	if err := ctx.ShouldBind(&req); err != nil {
+		h.Log.Error("failed to bind request: ", err)
+		utils.BadRequestResponse(ctx, "invalid request payload", err)
+		return
+	}
+
+	if err := h.Validate.Struct(&req); err != nil {
+		h.Log.Error("validation error: ", err)
+		utils.BadRequestResponse(ctx, "invalid request payload", err)
+		return
+	}
+
+	// Handle file uploads
+	if req.OrganizationLogo != nil {
+		timestamp := time.Now().UnixNano()
+		organizationLogoPath := "storage/job_posting/logos/" + strconv.FormatInt(timestamp, 10) + "_" + req.OrganizationLogo.Filename
+		if err := ctx.SaveUploadedFile(req.OrganizationLogo, organizationLogoPath); err != nil {
+			h.Log.Error("failed to save organization logo: ", err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to save organization logo", err.Error())
+			return
+		}
+		req.OrganizationLogo = nil
+		req.OrganizationLogoPath = organizationLogoPath
+	}
+
+	if req.Poster != nil {
+		timestamp := time.Now().UnixNano()
+		posterPath := "storage/job_posting/posters/" + strconv.FormatInt(timestamp, 10) + "_" + req.Poster.Filename
+		if err := ctx.SaveUploadedFile(req.Poster, posterPath); err != nil {
+			h.Log.Error("failed to save poster: ", err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to save poster", err.Error())
+			return
+		}
+		req.Poster = nil
+		req.PosterPath = posterPath
+	}
+
+	// Update job posting
+	res, err := h.UseCase.UpdateJobPosting(&req)
+	if err != nil {
+		h.Log.Error("failed to update job posting: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to update job posting", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "job posting updated", res)
+}
+
+func (h *JobPostingHandler) DeleteJobPosting(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("failed to parse id: ", err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "failed to parse id", err.Error())
+		return
+	}
+
+	err = h.UseCase.DeleteJobPosting(parsedUUID)
+	if err != nil {
+		h.Log.Error("failed to delete job posting: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to delete job posting", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "job posting deleted", nil)
 }

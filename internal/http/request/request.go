@@ -100,3 +100,22 @@ func ProjectRecruitmentHeaderStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func JobPostingStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.JobPostingStatus(status) {
+	case entity.JOB_POSTING_STATUS_DRAFT,
+		entity.JOB_POSTING_STATUS_SUBMITTED,
+		entity.JOB_POSTING_STATUS_APPROVED,
+		entity.JOB_POSTING_STATUS_REJECTED,
+		entity.JOB_POSTING_STATUS_CLOSE,
+		entity.JOB_POSTING_STATUS_IN_PROGRESS,
+		entity.JOB_POSTING_STATUS_COMPLETED:
+		return true
+	default:
+		return false
+	}
+}

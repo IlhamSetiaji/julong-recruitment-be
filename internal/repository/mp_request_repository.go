@@ -5,6 +5,7 @@ import (
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -12,6 +13,7 @@ import (
 type IMPRequestRepository interface {
 	Create(ent *entity.MPRequest) (*entity.MPRequest, error)
 	FindAllPaginated(page int, pageSize int, search string, filter map[string]interface{}) (*[]entity.MPRequest, int64, error)
+	FindByID(id uuid.UUID) (*entity.MPRequest, error)
 }
 
 type MPRequestRepository struct {
@@ -71,4 +73,19 @@ func (r *MPRequestRepository) FindAllPaginated(page int, pageSize int, search st
 	}
 
 	return &mpRequests, total, nil
+}
+
+func (r *MPRequestRepository) FindByID(id uuid.UUID) (*entity.MPRequest, error) {
+	var mpRequest entity.MPRequest
+
+	if err := r.DB.Where("id = ?", id).First(&mpRequest).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			r.Log.Errorf("[MPRequestRepository.FindByID] error when find mp request header by id: %v", err)
+			return nil, errors.New("[MPRequestRepository.FindByID] error when find mp request header by id " + err.Error())
+		}
+	}
+
+	return &mpRequest, nil
 }

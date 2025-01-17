@@ -10,7 +10,7 @@ import (
 )
 
 type IJobPostingRepository interface {
-	Create(ent *entity.JobPosting) (*entity.JobPosting, error)
+	CreateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error)
 }
 
 type JobPostingRepository struct {
@@ -27,7 +27,7 @@ func JobPostingRepositoryFactory(log *logrus.Logger) IJobPostingRepository {
 	return NewJobPostingRepository(log, db)
 }
 
-func (r *JobPostingRepository) Create(ent *entity.JobPosting) (*entity.JobPosting, error) {
+func (r *JobPostingRepository) CreateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error) {
 	tx := r.DB.Begin()
 	if tx.Error != nil {
 		return nil, errors.New("[JobPostingRepository.Create] failed to begin transaction: " + tx.Error.Error())
@@ -40,6 +40,10 @@ func (r *JobPostingRepository) Create(ent *entity.JobPosting) (*entity.JobPostin
 
 	if err := tx.Commit().Error; err != nil {
 		return nil, errors.New("[JobPostingRepository.Create] failed to commit transaction: " + err.Error())
+	}
+
+	if err := r.DB.Preload("MPRequest").Preload("ProjectRecruitmentHeader").First(ent, ent.ID).Error; err != nil {
+		return nil, errors.New("[JobPostingRepository.Create] failed to preload data: " + err.Error())
 	}
 
 	return ent, nil

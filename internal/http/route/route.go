@@ -25,6 +25,7 @@ type RouteConfig struct {
 	TemplateActivityLineHandler     handler.ITemplateActivityLineHandler
 	ProjectRecruitmentHeaderHandler handler.IProjectRecruitmentHeaderHandler
 	ProjectRecruitmentLineHandler   handler.IProjectRecruitmentLineHandler
+	JobPostingHandler               handler.IJobPostingHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -126,6 +127,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				projectRecruitmentLineRoute.POST("", c.ProjectRecruitmentLineHandler.CreateOrUpdateProjectRecruitmentLines)
 			}
+			// job postings
+			jobPostingRoute := apiRoute.Group("/job-postings")
+			{
+				jobPostingRoute.POST("", c.JobPostingHandler.CreateJobPosting)
+			}
 		}
 	}
 }
@@ -161,5 +167,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		TemplateActivityLineHandler:     templateActivityLineHandler,
 		ProjectRecruitmentHeaderHandler: projectRecruitmentHeaderHandler,
 		ProjectRecruitmentLineHandler:   projectRecruitmentLineHandler,
+		JobPostingHandler:               handler.JobPostingHandlerFactory(log, viper),
 	}
 }

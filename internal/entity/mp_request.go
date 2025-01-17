@@ -17,7 +17,7 @@ const (
 
 type MPRequest struct {
 	gorm.Model `json:"-"`
-	ID         uuid.UUID       ` json:"id" gorm:"type:char(36);primaryKey;"`
+	ID         uuid.UUID       `json:"id" gorm:"type:char(36);primaryKey;"`
 	MPRCloneID *uuid.UUID      `json:"mpr_clone_id" gorm:"type:char(36);not null;unique"`
 	Status     MPRequestStatus `json:"status" gorm:"default:'OPEN'"`
 

@@ -30,6 +30,7 @@ func main() {
 		&entity.DocumentVerification{},
 		&entity.TemplateActivity{},
 		&entity.TemplateActivityLine{},
+		&entity.University{},
 	)
 	if err != nil {
 		log.Fatal(err)

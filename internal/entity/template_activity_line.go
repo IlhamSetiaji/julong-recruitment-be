@@ -22,7 +22,7 @@ type TemplateActivityLine struct {
 	Description        string                     `json:"description" gorm:"type:text;default:null"`
 	Status             TemplateActivityLineStatus `json:"status" gorm:"default:'ACTIVE'"`
 	QuestionTemplateID uuid.UUID                  `json:"question_template_id" gorm:"type:char(36);not null"`
-	ColorHexCode       string                     `json:"color_hex_code" gorm:"type:varchar(10);not null"`
+	ColorHexCode       string                     `json:"color_hex_code" gorm:"type:varchar(10);default:null"`
 
 	TemplateActivity *TemplateActivity `json:"template_activity" gorm:"foreignKey:TemplateActivityID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	TemplateQuestion *TemplateQuestion `json:"template_question" gorm:"foreignKey:QuestionTemplateID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

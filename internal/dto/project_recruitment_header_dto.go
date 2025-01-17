@@ -42,6 +42,11 @@ func (dto *ProjectRecruitmentHeaderDTO) ConvertEntityToResponse(ent *entity.Proj
 		StartDate:          ent.StartDate,
 		EndDate:            ent.EndDate,
 		Status:             entity.ProjectRecruitmentHeaderStatus(ent.Status),
-		TemplateActivity:   dto.TemplateActivityDTO.ConvertEntityToResponse(ent.TemplateActivity),
+		TemplateActivity: func() *response.TemplateActivityResponse {
+			if ent.TemplateActivity == nil {
+				return nil
+			}
+			return dto.TemplateActivityDTO.ConvertEntityToResponse(ent.TemplateActivity)
+		}(),
 	}
 }

@@ -81,3 +81,22 @@ func TemplateActivityLineStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func ProjectRecruitmentHeaderStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.ProjectRecruitmentHeaderStatus(status) {
+	case entity.PROJECT_RECRUITMENT_HEADER_STATUS_DRAFT,
+		entity.PROJECT_RECRUITMENT_HEADER_STATUS_SUBMITTED,
+		entity.PROJECT_RECRUITMENT_HEADER_STATUS_APPROVED,
+		entity.PROJECT_RECRUITMENT_HEADER_STATUS_REJECTED,
+		entity.PROJECT_RECRUITMENT_HEADER_STATUS_CLOSE,
+		entity.PROJECT_RECRUITMENT_HEADER_STATUS_IN_PROGRESS,
+		entity.PROJECT_RECRUITMENT_HEADER_STATUS_COMPLETED:
+		return true
+	default:
+		return false
+	}
+}

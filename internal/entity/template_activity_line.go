@@ -24,8 +24,9 @@ type TemplateActivityLine struct {
 	QuestionTemplateID uuid.UUID                  `json:"question_template_id" gorm:"type:char(36);not null"`
 	ColorHexCode       string                     `json:"color_hex_code" gorm:"type:varchar(10);default:null"`
 
-	TemplateActivity *TemplateActivity `json:"template_activity" gorm:"foreignKey:TemplateActivityID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TemplateQuestion *TemplateQuestion `json:"template_question" gorm:"foreignKey:QuestionTemplateID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TemplateActivity        *TemplateActivity        `json:"template_activity" gorm:"foreignKey:TemplateActivityID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TemplateQuestion        *TemplateQuestion        `json:"template_question" gorm:"foreignKey:QuestionTemplateID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectRecruitmentLines []ProjectRecruitmentLine `json:"project_recruitment_lines" gorm:"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (tal *TemplateActivityLine) BeforeCreate(tx *gorm.DB) (err error) {

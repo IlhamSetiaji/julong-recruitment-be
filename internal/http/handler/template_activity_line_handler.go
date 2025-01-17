@@ -15,6 +15,7 @@ import (
 
 type ITemplateActivityLineHandler interface {
 	CreateOrUpdateTemplateActivityLine(ctx *gin.Context)
+	FindByTemplateActivityID(ctx *gin.Context)
 }
 
 type TemplateActivityLineHandler struct {
@@ -69,4 +70,17 @@ func (h *TemplateActivityLineHandler) CreateOrUpdateTemplateActivityLine(ctx *gi
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success", ta)
+}
+
+func (h *TemplateActivityLineHandler) FindByTemplateActivityID(ctx *gin.Context) {
+	templateActivityID := ctx.Param("templateActivityID")
+
+	tal, err := h.UseCase.FindByTemplateActivityID(templateActivityID)
+	if err != nil {
+		h.Log.Error("[TemplateActivityLineHandler.FindByTemplateActivityID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", tal)
 }

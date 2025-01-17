@@ -99,7 +99,7 @@ func (r *ProjectRecruitmentHeaderRepository) FindByID(id uuid.UUID) (*entity.Pro
 
 	if err := r.DB.
 		Where("id = ?", id).
-		Preload("TemplateActivity").
+		Preload("TemplateActivity").Preload("ProjectRecruitmentLines.TemplateActivityLine").Preload("ProjectRecruitmentLines.ProjectPics").
 		First(&projectRecruitmentHeader).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			r.Log.Error("[ProjectRecruitmentHeaderRepository.FindByID] " + err.Error())

@@ -11,23 +11,27 @@ type IProjectRecruitmentHeaderDTO interface {
 }
 
 type ProjectRecruitmentHeaderDTO struct {
-	Log                 *logrus.Logger
-	TemplateActivityDTO ITemplateActivityDTO
+	Log                       *logrus.Logger
+	TemplateActivityDTO       ITemplateActivityDTO
+	ProjectRecruitmentLineDTO IProjectRecruitmentLineDTO
 }
 
 func NewProjectRecruitmentHeaderDTO(
 	log *logrus.Logger,
 	templateActivityDTO ITemplateActivityDTO,
+	prl IProjectRecruitmentLineDTO,
 ) IProjectRecruitmentHeaderDTO {
 	return &ProjectRecruitmentHeaderDTO{
-		Log:                 log,
-		TemplateActivityDTO: templateActivityDTO,
+		Log:                       log,
+		TemplateActivityDTO:       templateActivityDTO,
+		ProjectRecruitmentLineDTO: prl,
 	}
 }
 
 func ProjectRecruitmentHeaderDTOFactory(log *logrus.Logger) IProjectRecruitmentHeaderDTO {
 	templateActivityDTO := TemplateActivityDTOFactory(log)
-	return NewProjectRecruitmentHeaderDTO(log, templateActivityDTO)
+	prlDTO := ProjectRecruitmentLineDTOFactory(log)
+	return NewProjectRecruitmentHeaderDTO(log, templateActivityDTO, prlDTO)
 }
 
 func (dto *ProjectRecruitmentHeaderDTO) ConvertEntityToResponse(ent *entity.ProjectRecruitmentHeader) *response.ProjectRecruitmentHeaderResponse {
@@ -47,6 +51,16 @@ func (dto *ProjectRecruitmentHeaderDTO) ConvertEntityToResponse(ent *entity.Proj
 				return nil
 			}
 			return dto.TemplateActivityDTO.ConvertEntityToResponse(ent.TemplateActivity)
+		}(),
+		ProjectRecruitmentLines: func() []response.ProjectRecruitmentLineResponse {
+			var projectRecruitmentLineResponses []response.ProjectRecruitmentLineResponse
+			if ent.ProjectRecruitmentLines == nil || len(ent.ProjectRecruitmentLines) == 0 {
+				return nil
+			}
+			for _, projectRecruitmentLine := range ent.ProjectRecruitmentLines {
+				projectRecruitmentLineResponses = append(projectRecruitmentLineResponses, *dto.ProjectRecruitmentLineDTO.ConvertEntityToResponse(&projectRecruitmentLine))
+			}
+			return projectRecruitmentLineResponses
 		}(),
 	}
 }

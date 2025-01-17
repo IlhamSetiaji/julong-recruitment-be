@@ -14,6 +14,7 @@ import (
 
 type ITemplateActivityLineUseCase interface {
 	CreateOrUpdateTemplateActivityLine(req *request.CreateOrUpdateTemplateActivityLineRequest) (*response.TemplateActivityResponse, error)
+	FindByTemplateActivityID(templateActivityID string) (*[]response.TemplateActivityLineResponse, error)
 }
 
 type TemplateActivityLineUseCase struct {
@@ -148,4 +149,25 @@ func (uc *TemplateActivityLineUseCase) CreateOrUpdateTemplateActivityLine(req *r
 	findTa, err := uc.TemplateActivityRepository.FindByID(parsedTemplateActivityID)
 
 	return uc.TemplateActivityDTO.ConvertEntityToResponse(findTa), nil
+}
+
+func (uc *TemplateActivityLineUseCase) FindByTemplateActivityID(templateActivityID string) (*[]response.TemplateActivityLineResponse, error) {
+	parsedTemplateActivityID, err := uuid.Parse(templateActivityID)
+	if err != nil {
+		uc.Log.Errorf("[TemplateActivityLineUseCase.FindByTemplateActivityID] error when parsing template activity id: %s", err.Error())
+		return nil, err
+	}
+
+	templateActivityLines, err := uc.Repository.FindByTemplateActivityID(parsedTemplateActivityID)
+	if err != nil {
+		uc.Log.Errorf("[TemplateActivityLineUseCase.FindByTemplateActivityID] error when finding template activity line by template activity id: %s", err.Error())
+		return nil, err
+	}
+
+	var templateActivityLineResponses []response.TemplateActivityLineResponse
+	for _, templateActivityLine := range *templateActivityLines {
+		templateActivityLineResponses = append(templateActivityLineResponses, *uc.DTO.ConvertEntityToResponse(&templateActivityLine))
+	}
+
+	return &templateActivityLineResponses, nil
 }

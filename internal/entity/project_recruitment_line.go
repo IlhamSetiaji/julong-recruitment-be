@@ -16,7 +16,7 @@ type ProjectRecruitmentLine struct {
 	EndDate                    time.Time `json:"end_date" gorm:"type:date;not null"`
 
 	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TemplateActivityLine     *TemplateActivityLine     `json:"template_activity_line" gorm:"foreignKey:TemplateActivityID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TemplateActivityLine     *TemplateActivityLine     `json:"template_activity_line" gorm:"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectPics              []ProjectPic              `json:"project_pics" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DocumentSendings         []DocumentSending         `json:"document_sendings" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }

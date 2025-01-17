@@ -16,5 +16,5 @@ type ProjectRecruitmentLineResponse struct {
 	UpdatedAt                  time.Time `json:"updated_at"`
 
 	ProjectPics          []ProjectPicResponse          `json:"project_pics"`
-	TemplateActivityLine *TemplateActivityLineResponse `json:"template_activity"`
+	TemplateActivityLine *TemplateActivityLineResponse `json:"template_activity_line"`
 }

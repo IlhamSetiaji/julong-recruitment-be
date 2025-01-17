@@ -22,8 +22,7 @@ type TemplateActivity struct {
 	RecruitmentType ProjectRecruitmentType `json:"recruitment_type" gorm:"not null"`
 	Status          TemplateActivityStatus `json:"status" gorm:"default:'ACTIVE'"`
 
-	ProjectRecruitmentLines []ProjectRecruitmentLine `json:"project_recruitment_lines" gorm:"foreignKey:TemplateActivityID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TemplateActivityLines   []TemplateActivityLine   `json:"template_activity_lines" gorm:"foreignKey:TemplateActivityID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TemplateActivityLines []TemplateActivityLine `json:"template_activity_lines" gorm:"foreignKey:TemplateActivityID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (ta *TemplateActivity) BeforeCreate(tx *gorm.DB) (err error) {

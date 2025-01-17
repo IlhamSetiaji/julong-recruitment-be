@@ -15,6 +15,7 @@ type ITemplateActivityLineRepository interface {
 	UpdateTemplateActivityLine(ent *entity.TemplateActivityLine) (*entity.TemplateActivityLine, error)
 	DeleteTemplateActivityLine(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.TemplateActivityLine, error)
+	FindByTemplateActivityID(templateActivityID uuid.UUID) (*[]entity.TemplateActivityLine, error)
 }
 
 type TemplateActivityLineRepository struct {
@@ -120,4 +121,13 @@ func (r *TemplateActivityLineRepository) FindByID(id uuid.UUID) (*entity.Templat
 	}
 
 	return &templateActivityLine, nil
+}
+
+func (r *TemplateActivityLineRepository) FindByTemplateActivityID(templateActivityID uuid.UUID) (*[]entity.TemplateActivityLine, error) {
+	var templateActivityLines []entity.TemplateActivityLine
+	if err := r.DB.Where("template_activity_id = ?", templateActivityID).Find(&templateActivityLines).Error; err != nil {
+		return nil, err
+	}
+
+	return &templateActivityLines, nil
 }

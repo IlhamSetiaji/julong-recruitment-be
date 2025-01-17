@@ -24,6 +24,7 @@ type RouteConfig struct {
 	TemplateActivityHandler         handler.ITemplateActivityHandler
 	TemplateActivityLineHandler     handler.ITemplateActivityLineHandler
 	ProjectRecruitmentHeaderHandler handler.IProjectRecruitmentHeaderHandler
+	ProjectRecruitmentLineHandler   handler.IProjectRecruitmentLineHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -119,6 +120,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				projectRecruitmentHeaderRoute.PUT("/update", c.ProjectRecruitmentHeaderHandler.UpdateProjectRecruitmentHeader)
 				projectRecruitmentHeaderRoute.DELETE("/:id", c.ProjectRecruitmentHeaderHandler.DeleteProjectRecruitmentHeader)
 			}
+			// project recruitment lines
+			projectRecruitmentLineRoute := apiRoute.Group("/project-recruitment-lines")
+			{
+				projectRecruitmentLineRoute.POST("", c.ProjectRecruitmentLineHandler.CreateOrUpdateProjectRecruitmentLines)
+			}
 		}
 	}
 }
@@ -136,6 +142,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	templateActivityHandler := handler.TemplateActivityHandlerFactory(log, viper)
 	templateActivityLineHandler := handler.TemplateActivityLineHandlerFactory(log, viper)
 	projectRecruitmentHeaderHandler := handler.ProjectRecruitmentHeaderHandlerFactory(log, viper)
+	projectRecruitmentLineHandler := handler.ProjectRecruitmentLineHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -152,5 +159,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		TemplateActivityHandler:         templateActivityHandler,
 		TemplateActivityLineHandler:     templateActivityLineHandler,
 		ProjectRecruitmentHeaderHandler: projectRecruitmentHeaderHandler,
+		ProjectRecruitmentLineHandler:   projectRecruitmentLineHandler,
 	}
 }

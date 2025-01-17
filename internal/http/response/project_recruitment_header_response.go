@@ -19,5 +19,6 @@ type ProjectRecruitmentHeaderResponse struct {
 	EndDate            time.Time                             `json:"end_date"`
 	Status             entity.ProjectRecruitmentHeaderStatus `json:"status"`
 
-	TemplateActivity *TemplateActivityResponse `json:"template_activity"`
+	TemplateActivity        *TemplateActivityResponse        `json:"template_activity"`
+	ProjectRecruitmentLines []ProjectRecruitmentLineResponse `json:"project_recruitment_lines"`
 }

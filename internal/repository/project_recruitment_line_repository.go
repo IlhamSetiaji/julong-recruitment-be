@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -10,7 +13,8 @@ import (
 type IProjectRecruitmentLineRepository interface {
 	CreateProjectRecruitmentLine(ent *entity.ProjectRecruitmentLine) (*entity.ProjectRecruitmentLine, error)
 	UpdateProjectRecruitmentLine(ent *entity.ProjectRecruitmentLine) (*entity.ProjectRecruitmentLine, error)
-	DeleteProjectRecruitmentLine(id string) error
+	DeleteProjectRecruitmentLine(id uuid.UUID) error
+	FindByID(id uuid.UUID) (*entity.ProjectRecruitmentLine, error)
 }
 
 type ProjectRecruitmentLineRepository struct {
@@ -79,7 +83,7 @@ func (r *ProjectRecruitmentLineRepository) UpdateProjectRecruitmentLine(ent *ent
 	return ent, nil
 }
 
-func (r *ProjectRecruitmentLineRepository) DeleteProjectRecruitmentLine(id string) error {
+func (r *ProjectRecruitmentLineRepository) DeleteProjectRecruitmentLine(id uuid.UUID) error {
 	tx := r.DB.Begin()
 	if tx.Error != nil {
 		return tx.Error
@@ -101,4 +105,17 @@ func (r *ProjectRecruitmentLineRepository) DeleteProjectRecruitmentLine(id strin
 	}
 
 	return nil
+}
+
+func (r *ProjectRecruitmentLineRepository) FindByID(id uuid.UUID) (*entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLine entity.ProjectRecruitmentLine
+	if err := r.DB.Preload("ProjectPics").Preload("DocumentSendings").First(&projectRecruitmentLine, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &projectRecruitmentLine, nil
 }

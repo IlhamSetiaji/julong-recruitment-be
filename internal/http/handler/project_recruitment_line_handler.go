@@ -1,0 +1,72 @@
+package handler
+
+import (
+	"net/http"
+
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase.go"
+	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+)
+
+type IProjectRecruitmentLineHandler interface {
+	CreateOrUpdateProjectRecruitmentLines(ctx *gin.Context)
+}
+
+type ProjectRecruitmentLineHandler struct {
+	Log      *logrus.Logger
+	Viper    *viper.Viper
+	Validate *validator.Validate
+	UseCase  usecase.IProjectRecruitmentLineUseCase
+}
+
+func NewProjectRecruitmentLineHandler(
+	log *logrus.Logger,
+	viper *viper.Viper,
+	validate *validator.Validate,
+	useCase usecase.IProjectRecruitmentLineUseCase,
+) IProjectRecruitmentLineHandler {
+	return &ProjectRecruitmentLineHandler{
+		Log:      log,
+		Viper:    viper,
+		Validate: validate,
+		UseCase:  useCase,
+	}
+}
+
+func ProjectRecruitmentLineHandlerFactory(
+	log *logrus.Logger,
+	viper *viper.Viper,
+) IProjectRecruitmentLineHandler {
+	useCase := usecase.ProjectRecruitmentLineUseCaseFactory(log)
+	validate := config.NewValidator(viper)
+	return NewProjectRecruitmentLineHandler(log, viper, validate, useCase)
+}
+
+func (h *ProjectRecruitmentLineHandler) CreateOrUpdateProjectRecruitmentLines(ctx *gin.Context) {
+	var payload request.CreateOrUpdateProjectRecruitmentLinesRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Error("[ProjectRecruitmentLineHandler.CreateOrUpdateProjectRecruitmentLines] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Error("[ProjectRecruitmentLineHandler.CreateOrUpdateProjectRecruitmentLines] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.CreateOrUpdateProjectRecruitmentLines(&payload)
+	if err != nil {
+		h.Log.Error("[ProjectRecruitmentLineHandler.CreateOrUpdateProjectRecruitmentLines] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusCreated, "success", res)
+}

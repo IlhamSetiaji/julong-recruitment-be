@@ -10,10 +10,13 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type IJobPostingUseCase interface {
 	CreateJobPosting(req *request.CreateJobPostingRequest) (*response.JobPostingResponse, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
+	FindByID(id uuid.UUID) (*response.JobPostingResponse, error)
 }
 
 type JobPostingUseCase struct {
@@ -22,6 +25,7 @@ type JobPostingUseCase struct {
 	DTO                                dto.IJobPostingDTO
 	ProjectRecruitmentHeaderRepository repository.IProjectRecruitmentHeaderRepository
 	MPRequestRepository                repository.IMPRequestRepository
+	Viper                              *viper.Viper
 }
 
 func NewJobPostingUseCase(
@@ -30,6 +34,7 @@ func NewJobPostingUseCase(
 	dto dto.IJobPostingDTO,
 	prhRepository repository.IProjectRecruitmentHeaderRepository,
 	mpRequestRepository repository.IMPRequestRepository,
+	viper *viper.Viper,
 ) IJobPostingUseCase {
 	return &JobPostingUseCase{
 		Log:                                log,
@@ -37,15 +42,16 @@ func NewJobPostingUseCase(
 		DTO:                                dto,
 		ProjectRecruitmentHeaderRepository: prhRepository,
 		MPRequestRepository:                mpRequestRepository,
+		Viper:                              viper,
 	}
 }
 
-func JobPostingUseCaseFactory(log *logrus.Logger) IJobPostingUseCase {
+func JobPostingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IJobPostingUseCase {
 	repo := repository.JobPostingRepositoryFactory(log)
 	dto := dto.JobPostingDTOFactory(log)
 	prhRepository := repository.ProjectRecruitmentHeaderRepositoryFactory(log)
 	mpRequestRepository := repository.MPRequestRepositoryFactory(log)
-	return NewJobPostingUseCase(log, repo, dto, prhRepository, mpRequestRepository)
+	return NewJobPostingUseCase(log, repo, dto, prhRepository, mpRequestRepository, viper)
 }
 
 func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingRequest) (*response.JobPostingResponse, error) {
@@ -115,6 +121,36 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + err.Error())
 		return nil, err
 	}
+
+	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
+}
+
+func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.JobPostingResponse, int64, error) {
+	jobPostings, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	jobPostingResponses := make([]response.JobPostingResponse, 0)
+	for _, jobPosting := range *jobPostings {
+		jobPosting.OrganizationLogo = uc.Viper.GetString("app.url") + jobPosting.OrganizationLogo
+		jobPosting.Poster = uc.Viper.GetString("app.url") + jobPosting.Poster
+		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
+	}
+
+	return &jobPostingResponses, total, nil
+}
+
+func (uc *JobPostingUseCase) FindByID(id uuid.UUID) (*response.JobPostingResponse, error) {
+	jobPosting, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindByID] " + err.Error())
+		return nil, err
+	}
+
+	jobPosting.OrganizationLogo = uc.Viper.GetString("app.url") + jobPosting.OrganizationLogo
+	jobPosting.Poster = uc.Viper.GetString("app.url") + jobPosting.Poster
 
 	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
 }

@@ -130,6 +130,8 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// job postings
 			jobPostingRoute := apiRoute.Group("/job-postings")
 			{
+				jobPostingRoute.GET("", c.JobPostingHandler.FindAllPaginated)
+				jobPostingRoute.GET("/:id", c.JobPostingHandler.FindByID)
 				jobPostingRoute.POST("", c.JobPostingHandler.CreateJobPosting)
 			}
 		}

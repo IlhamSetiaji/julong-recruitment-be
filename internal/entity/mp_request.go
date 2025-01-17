@@ -22,6 +22,8 @@ type MPRequest struct {
 	Status     MPRequestStatus `json:"status" gorm:"default:'OPEN'"`
 
 	JobPosting *JobPosting `json:"job_posting" gorm:"foreignKey:MPRequestID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+
+	MPRequestInterface map[string]interface{} `json:"mp_request_interface" gorm:"-"`
 }
 
 func (mpr *MPRequest) BeforeCreate(tx *gorm.DB) (err error) {

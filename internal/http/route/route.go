@@ -27,6 +27,7 @@ type RouteConfig struct {
 	ProjectRecruitmentLineHandler   handler.IProjectRecruitmentLineHandler
 	JobPostingHandler               handler.IJobPostingHandler
 	UniversityHandler               handler.IUniversityHandler
+	MailTemplateHandler             handler.IMailTemplateHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -142,6 +143,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				universityRoute.GET("", c.UniversityHandler.FindAll)
 			}
+			// mail templates
+			mailTemplateRoute := apiRoute.Group("/mail-templates")
+			{
+				mailTemplateRoute.POST("", c.MailTemplateHandler.CreateMailTemplate)
+			}
 		}
 	}
 }
@@ -161,6 +167,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	projectRecruitmentHeaderHandler := handler.ProjectRecruitmentHeaderHandlerFactory(log, viper)
 	projectRecruitmentLineHandler := handler.ProjectRecruitmentLineHandlerFactory(log, viper)
 	universityHandler := handler.UniversityHandlerFactory(log, viper)
+	mailTemplateHandler := handler.MailTemplateHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -180,5 +187,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		ProjectRecruitmentLineHandler:   projectRecruitmentLineHandler,
 		JobPostingHandler:               handler.JobPostingHandlerFactory(log, viper),
 		UniversityHandler:               universityHandler,
+		MailTemplateHandler:             mailTemplateHandler,
 	}
 }

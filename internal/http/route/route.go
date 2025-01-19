@@ -147,6 +147,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			mailTemplateRoute := apiRoute.Group("/mail-templates")
 			{
 				mailTemplateRoute.GET("", c.MailTemplateHandler.FindAllPaginated)
+				mailTemplateRoute.GET("/document-type/:id", c.MailTemplateHandler.FindAllByDocumentTypeID)
 				mailTemplateRoute.GET("/:id", c.MailTemplateHandler.FindByID)
 				mailTemplateRoute.POST("", c.MailTemplateHandler.CreateMailTemplate)
 				mailTemplateRoute.PUT("/update", c.MailTemplateHandler.UpdateMailTemplate)

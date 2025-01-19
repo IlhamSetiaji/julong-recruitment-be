@@ -16,6 +16,7 @@ type IMailTemplateRepository interface {
 	FindByID(id uuid.UUID) (*entity.MailTemplate, error)
 	UpdateMailTemplate(ent *entity.MailTemplate) (*entity.MailTemplate, error)
 	DeleteMailTemplate(id uuid.UUID) error
+	FindAllByDocumentTypeID(documentTypeID uuid.UUID) (*[]entity.MailTemplate, error)
 }
 
 type MailTemplateRepository struct {
@@ -164,4 +165,15 @@ func (r *MailTemplateRepository) DeleteMailTemplate(id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (r *MailTemplateRepository) FindAllByDocumentTypeID(documentTypeID uuid.UUID) (*[]entity.MailTemplate, error) {
+	var res []entity.MailTemplate
+
+	if err := r.DB.Where("document_type_id = ?", documentTypeID).Find(&res).Error; err != nil {
+		r.Log.Error("[MailTemplateRepository.FindAllByDocumentTypeID] " + err.Error())
+		return nil, err
+	}
+
+	return &res, nil
 }

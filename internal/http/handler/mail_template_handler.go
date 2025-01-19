@@ -21,6 +21,7 @@ type IMailTemplateHandler interface {
 	FindByID(ctx *gin.Context)
 	UpdateMailTemplate(ctx *gin.Context)
 	DeleteMailTemplate(ctx *gin.Context)
+	FindAllByDocumentTypeID(ctx *gin.Context)
 }
 
 type MailTemplateHandler struct {
@@ -204,4 +205,23 @@ func (h *MailTemplateHandler) DeleteMailTemplate(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Success delete mail template", nil)
+}
+
+func (h *MailTemplateHandler) FindAllByDocumentTypeID(ctx *gin.Context) {
+	id := ctx.Param("id")
+	documentTypeID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.FindAllByDocumentTypeID] error when parsing UUID: %v", err)
+		utils.BadRequestResponse(ctx, "Bad request", err)
+		return
+	}
+
+	res, err := h.UseCase.FindAllByDocumentTypeID(documentTypeID)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.FindAllByDocumentTypeID] error when finding mail templates by document type ID: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find mail templates by document type ID", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Success get mail templates by document type ID", res)
 }

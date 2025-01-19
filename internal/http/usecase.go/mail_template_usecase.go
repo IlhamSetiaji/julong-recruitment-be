@@ -16,6 +16,7 @@ type IMailTemplateUseCase interface {
 	FindByID(id uuid.UUID) (*response.MailTemplateResponse, error)
 	UpdateMailTemplate(req *request.UpdateMailTemplateRequest) (*response.MailTemplateResponse, error)
 	DeleteMailTemplate(id uuid.UUID) error
+	FindAllByDocumentTypeID(documentTypeID uuid.UUID) (*[]response.MailTemplateResponse, error)
 }
 
 type MailTemplateUseCase struct {
@@ -118,4 +119,19 @@ func (uc *MailTemplateUseCase) UpdateMailTemplate(req *request.UpdateMailTemplat
 
 func (uc *MailTemplateUseCase) DeleteMailTemplate(id uuid.UUID) error {
 	return uc.Repository.DeleteMailTemplate(id)
+}
+
+func (uc *MailTemplateUseCase) FindAllByDocumentTypeID(documentTypeID uuid.UUID) (*[]response.MailTemplateResponse, error) {
+	mts, err := uc.Repository.FindAllByDocumentTypeID(documentTypeID)
+	if err != nil {
+		uc.Log.Error("[MailTemplateUseCase.FindAllByDocumentTypeID] " + err.Error())
+		return nil, err
+	}
+
+	mtResponses := make([]response.MailTemplateResponse, 0)
+	for _, mt := range *mts {
+		mtResponses = append(mtResponses, *uc.DTO.ConvertEntityToResponse(&mt))
+	}
+
+	return &mtResponses, nil
 }

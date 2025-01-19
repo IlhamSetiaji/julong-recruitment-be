@@ -14,6 +14,8 @@ type IMailTemplateRepository interface {
 	CreateMailTemplate(ent *entity.MailTemplate) (*entity.MailTemplate, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.MailTemplate, int64, error)
 	FindByID(id uuid.UUID) (*entity.MailTemplate, error)
+	UpdateMailTemplate(ent *entity.MailTemplate) (*entity.MailTemplate, error)
+	DeleteMailTemplate(id uuid.UUID) error
 }
 
 type MailTemplateRepository struct {
@@ -105,4 +107,61 @@ func (r *MailTemplateRepository) FindByID(id uuid.UUID) (*entity.MailTemplate, e
 	}
 
 	return &ent, nil
+}
+
+func (r *MailTemplateRepository) UpdateMailTemplate(ent *entity.MailTemplate) (*entity.MailTemplate, error) {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[MailTemplateRepository.UpdateMailTemplate] " + tx.Error.Error())
+		return nil, tx.Error
+	}
+
+	if err := tx.Model(&entity.MailTemplate{}).Where("id = ?", ent.ID).Updates(ent).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[MailTemplateRepository.UpdateMailTemplate] " + err.Error())
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[MailTemplateRepository.UpdateMailTemplate] " + err.Error())
+		return nil, err
+	}
+
+	if err := r.DB.Preload("DocumentType").First(ent, ent.ID).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[MailTemplateRepository.UpdateMailTemplate] " + err.Error())
+		return nil, err
+	}
+
+	return ent, nil
+}
+
+func (r *MailTemplateRepository) DeleteMailTemplate(id uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[MailTemplateRepository.DeleteMailTemplate] " + tx.Error.Error())
+		return tx.Error
+	}
+
+	var ent entity.MailTemplate
+	if err := tx.Preload("DocumentType").First(&ent, id).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[MailTemplateRepository.DeleteMailTemplate] " + err.Error())
+		return err
+	}
+
+	if err := tx.Where("id = ?", id).Delete(&ent).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[MailTemplateRepository.DeleteMailTemplate] " + err.Error())
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[MailTemplateRepository.DeleteMailTemplate] " + err.Error())
+		return err
+	}
+
+	return nil
 }

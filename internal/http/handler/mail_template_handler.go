@@ -19,6 +19,8 @@ type IMailTemplateHandler interface {
 	CreateMailTemplate(ctx *gin.Context)
 	FindAllPaginated(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	UpdateMailTemplate(ctx *gin.Context)
+	DeleteMailTemplate(ctx *gin.Context)
 }
 
 type MailTemplateHandler struct {
@@ -135,4 +137,71 @@ func (h *MailTemplateHandler) FindByID(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Success get mail template", res)
+}
+
+func (h *MailTemplateHandler) UpdateMailTemplate(ctx *gin.Context) {
+	var payload request.UpdateMailTemplateRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Errorf("[MailTemplateHandler.UpdateMailTemplate] error when binding request: %v", err)
+		utils.BadRequestResponse(ctx, "Bad request", err)
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Errorf("[MailTemplateHandler.UpdateMailTemplate] error when validating request: %v", err)
+		utils.BadRequestResponse(ctx, "Bad request", err)
+		return
+	}
+
+	exist, err := h.UseCase.FindByID(uuid.MustParse(payload.ID))
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.UpdateMailTemplate] error when finding mail template by ID: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find mail template by ID", err.Error())
+		return
+	}
+
+	if exist == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Mail template not found", "Mail template not found")
+		return
+	}
+
+	res, err := h.UseCase.UpdateMailTemplate(&payload)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.UpdateMailTemplate] error when updating mail template: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to update mail template", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Success update mail template", res)
+}
+
+func (h *MailTemplateHandler) DeleteMailTemplate(ctx *gin.Context) {
+	id := ctx.Param("id")
+	mtID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.DeleteMailTemplate] error when parsing UUID: %v", err)
+		utils.BadRequestResponse(ctx, "Bad request", err)
+		return
+	}
+
+	exist, err := h.UseCase.FindByID(mtID)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.DeleteMailTemplate] error when finding mail template by ID: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find mail template by ID", err.Error())
+		return
+	}
+
+	if exist == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Mail template not found", "Mail template not found")
+		return
+	}
+
+	err = h.UseCase.DeleteMailTemplate(mtID)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.DeleteMailTemplate] error when deleting mail template: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to delete mail template", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Success delete mail template", nil)
 }

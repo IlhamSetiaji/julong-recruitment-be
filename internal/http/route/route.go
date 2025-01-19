@@ -149,6 +149,8 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				mailTemplateRoute.GET("", c.MailTemplateHandler.FindAllPaginated)
 				mailTemplateRoute.GET("/:id", c.MailTemplateHandler.FindByID)
 				mailTemplateRoute.POST("", c.MailTemplateHandler.CreateMailTemplate)
+				mailTemplateRoute.PUT("/update", c.MailTemplateHandler.UpdateMailTemplate)
+				mailTemplateRoute.DELETE("/:id", c.MailTemplateHandler.DeleteMailTemplate)
 			}
 		}
 	}

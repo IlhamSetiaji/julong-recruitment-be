@@ -14,6 +14,8 @@ type IMailTemplateUseCase interface {
 	CreateMailTemplate(req *request.CreateMailTemplateRequest) (*response.MailTemplateResponse, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.MailTemplateResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.MailTemplateResponse, error)
+	UpdateMailTemplate(req *request.UpdateMailTemplateRequest) (*response.MailTemplateResponse, error)
+	DeleteMailTemplate(id uuid.UUID) error
 }
 
 type MailTemplateUseCase struct {
@@ -84,4 +86,36 @@ func (uc *MailTemplateUseCase) FindByID(id uuid.UUID) (*response.MailTemplateRes
 	}
 
 	return uc.DTO.ConvertEntityToResponse(mt), nil
+}
+
+func (uc *MailTemplateUseCase) UpdateMailTemplate(req *request.UpdateMailTemplateRequest) (*response.MailTemplateResponse, error) {
+	parsedDocumentTypeID, err := uuid.Parse(req.DocumentTypeID)
+	if err != nil {
+		uc.Log.Error("[MailTemplateUseCase.UpdateMailTemplate] " + err.Error())
+		return nil, err
+	}
+
+	parsedID, err := uuid.Parse(req.ID)
+	if err != nil {
+		uc.Log.Error("[MailTemplateUseCase.UpdateMailTemplate] " + err.Error())
+		return nil, err
+	}
+
+	mt, err := uc.Repository.UpdateMailTemplate(&entity.MailTemplate{
+		ID:             parsedID,
+		Name:           req.Name,
+		DocumentTypeID: parsedDocumentTypeID,
+		Subject:        req.Subject,
+		Body:           req.Body,
+	})
+	if err != nil {
+		uc.Log.Error("[MailTemplateUseCase.UpdateMailTemplate] " + err.Error())
+		return nil, err
+	}
+
+	return uc.DTO.ConvertEntityToResponse(mt), nil
+}
+
+func (uc *MailTemplateUseCase) DeleteMailTemplate(id uuid.UUID) error {
+	return uc.Repository.DeleteMailTemplate(id)
 }

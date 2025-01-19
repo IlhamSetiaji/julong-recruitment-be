@@ -1,0 +1,138 @@
+package handler
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase.go"
+	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+)
+
+type IMailTemplateHandler interface {
+	CreateMailTemplate(ctx *gin.Context)
+	FindAllPaginated(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
+}
+
+type MailTemplateHandler struct {
+	Log      *logrus.Logger
+	Viper    *viper.Viper
+	Validate *validator.Validate
+	UseCase  usecase.IMailTemplateUseCase
+}
+
+func NewMailTemplateHandler(
+	log *logrus.Logger,
+	viper *viper.Viper,
+	validate *validator.Validate,
+	useCase usecase.IMailTemplateUseCase,
+) IMailTemplateHandler {
+	return &MailTemplateHandler{
+		Log:      log,
+		Viper:    viper,
+		Validate: validate,
+		UseCase:  useCase,
+	}
+}
+
+func MailTemplateHandlerFactory(
+	log *logrus.Logger,
+	viper *viper.Viper,
+) IMailTemplateHandler {
+	useCase := usecase.MailTemplateUseCaseFactory(log)
+	validate := config.NewValidator(viper)
+	return NewMailTemplateHandler(log, viper, validate, useCase)
+}
+
+func (h *MailTemplateHandler) CreateMailTemplate(ctx *gin.Context) {
+	var payload request.CreateMailTemplateRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Errorf("[MailTemplateHandler.CreateMailTemplate] error when binding request: %v", err)
+		utils.BadRequestResponse(ctx, "Bad request", err)
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Errorf("[MailTemplateHandler.CreateMailTemplate] error when validating request: %v", err)
+		utils.BadRequestResponse(ctx, "Bad request", err)
+		return
+	}
+
+	res, err := h.UseCase.CreateMailTemplate(&payload)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.CreateMailTemplate] error when creating mail template: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to create mail template", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusCreated, "Success created mail template", res)
+}
+
+func (h *MailTemplateHandler) FindAllPaginated(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.FindAllPaginated] error when getting mail templates: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get mail templates", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Success get mail templates", gin.H{
+		"mail_templates": res,
+		"total":          total,
+	})
+}
+
+func (h *MailTemplateHandler) FindByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+	mtID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.FindByID] error when parsing UUID: %v", err)
+		utils.BadRequestResponse(ctx, "Bad request", err)
+		return
+	}
+
+	res, err := h.UseCase.FindByID(mtID)
+	if err != nil {
+		h.Log.Errorf("[MailTemplateHandler.FindByID] error when getting mail template: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get mail template", err.Error())
+		return
+	}
+
+	if res == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Mail template not found", "Mail template not found")
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Success get mail template", res)
+}

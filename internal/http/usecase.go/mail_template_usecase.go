@@ -12,6 +12,8 @@ import (
 
 type IMailTemplateUseCase interface {
 	CreateMailTemplate(req *request.CreateMailTemplateRequest) (*response.MailTemplateResponse, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.MailTemplateResponse, int64, error)
+	FindByID(id uuid.UUID) (*response.MailTemplateResponse, error)
 }
 
 type MailTemplateUseCase struct {
@@ -53,6 +55,31 @@ func (uc *MailTemplateUseCase) CreateMailTemplate(req *request.CreateMailTemplat
 	})
 	if err != nil {
 		uc.Log.Error("[MailTemplateUseCase.CreateMailTemplate] " + err.Error())
+		return nil, err
+	}
+
+	return uc.DTO.ConvertEntityToResponse(mt), nil
+}
+
+func (uc *MailTemplateUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.MailTemplateResponse, int64, error) {
+	mts, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		uc.Log.Error("[MailTemplateUseCase.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	mtResponses := make([]response.MailTemplateResponse, 0)
+	for _, mt := range *mts {
+		mtResponses = append(mtResponses, *uc.DTO.ConvertEntityToResponse(&mt))
+	}
+
+	return &mtResponses, total, nil
+}
+
+func (uc *MailTemplateUseCase) FindByID(id uuid.UUID) (*response.MailTemplateResponse, error) {
+	mt, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Error("[MailTemplateUseCase.FindByID] " + err.Error())
 		return nil, err
 	}
 

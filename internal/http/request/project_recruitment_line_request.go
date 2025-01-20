@@ -9,7 +9,7 @@ type CreateOrUpdateProjectRecruitmentLinesRequest struct {
 		EndDate                string `json:"end_date" validate:"required,datetime=2006-01-02"`
 		ProjectPics            []struct {
 			EmployeeID          string `json:"employee_id" validate:"required,uuid"`
-			AdministrativeTotal int    `json:"administrative_total" validate:"required"`
+			AdministrativeTotal int    `json:"administrative_total" validate:"omitempty"`
 		} `json:"project_pics" validate:"required,dive"`
 	} `json:"project_recruitment_lines" validate:"required,dive"`
 	DeletedProjectRecruitmentLineIDs []string `json:"deleted_project_recruitment_line_ids" validate:"omitempty,dive,uuid"`

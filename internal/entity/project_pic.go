@@ -12,7 +12,7 @@ type ProjectPic struct {
 	ID                       uuid.UUID  `json:"id" gorm:"type:char(36);primaryKey;"`
 	ProjectRecruitmentLineID uuid.UUID  `json:"project_recruitment_line_id" gorm:"type:char(36);not null"`
 	EmployeeID               *uuid.UUID `json:"employee_id" gorm:"type:char(36);not null"`
-	AdministrativeTotal      int        `json:"administrative_total" gorm:"not null"`
+	AdministrativeTotal      int        `json:"administrative_total" gorm:"default:null"`
 
 	ProjectRecruitmentLine *ProjectRecruitmentLine `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }

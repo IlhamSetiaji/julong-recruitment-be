@@ -119,3 +119,49 @@ func JobPostingStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func MaritalStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.MaritalStatusEnum(status) {
+	case entity.MARITAL_STATUS_ENUM_SINGLE,
+		entity.MARITAL_STATUS_ENUM_MARRIED,
+		entity.MARITAL_STATUS_ENUM_DIVORCED,
+		entity.MARITAL_STATUS_ENUM_WIDOWED,
+		entity.MARITAL_STATUS_ENUM_ANY:
+		return true
+	default:
+		return false
+	}
+}
+
+func UserStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.UserStatus(status) {
+	case entity.USER_ACTIVE,
+		entity.USER_INACTIVE,
+		entity.USER_PENDING:
+		return true
+	default:
+		return false
+	}
+}
+
+func UserGenderValidation(fl validator.FieldLevel) bool {
+	gender := fl.Field().String()
+	if gender == "" {
+		return true
+	}
+	switch entity.UserGender(gender) {
+	case entity.MALE,
+		entity.FEMALE:
+		return true
+	default:
+		return false
+	}
+}

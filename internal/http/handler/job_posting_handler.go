@@ -22,6 +22,7 @@ type IJobPostingHandler interface {
 	FindByID(ctx *gin.Context)
 	UpdateJobPosting(ctx *gin.Context)
 	DeleteJobPosting(ctx *gin.Context)
+	GenerateDocumentNumber(ctx *gin.Context)
 }
 
 type JobPostingHandler struct {
@@ -235,4 +236,16 @@ func (h *JobPostingHandler) DeleteJobPosting(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "job posting deleted", nil)
+}
+
+func (h *JobPostingHandler) GenerateDocumentNumber(ctx *gin.Context) {
+	dateNow := time.Now()
+	documentNumber, err := h.UseCase.GenerateDocumentNumber(dateNow)
+	if err != nil {
+		h.Log.Error("failed to generate document number: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to generate document number", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", documentNumber)
 }

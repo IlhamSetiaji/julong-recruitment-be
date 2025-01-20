@@ -16,6 +16,7 @@ type IJobPostingRepository interface {
 	FindByID(id uuid.UUID) (*entity.JobPosting, error)
 	UpdateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error)
 	DeleteJobPosting(id uuid.UUID) error
+	GetHighestDocumentNumberByDate(date string) (int, error)
 }
 
 type JobPostingRepository struct {
@@ -140,4 +141,18 @@ func (r *JobPostingRepository) DeleteJobPosting(id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (r *JobPostingRepository) GetHighestDocumentNumberByDate(date string) (int, error) {
+	var maxNumber int
+	err := r.DB.Raw(`
+			SELECT COALESCE(MAX(CAST(SUBSTRING(document_number FROM '[0-9]+$') AS INTEGER)), 0)
+			FROM job_postings
+			WHERE DATE(created_at) = ?
+	`, date).Scan(&maxNumber).Error
+	if err != nil {
+		r.Log.Errorf("[JobPostingRepository.GetHighestDocumentNumberByDate] error when querying max document number: %v", err)
+		return 0, err
+	}
+	return maxNumber, nil
 }

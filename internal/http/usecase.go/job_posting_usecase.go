@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -19,6 +20,7 @@ type IJobPostingUseCase interface {
 	FindByID(id uuid.UUID) (*response.JobPostingResponse, error)
 	UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error)
 	DeleteJobPosting(id uuid.UUID) error
+	GenerateDocumentNumber(dateNow time.Time) (string, error)
 }
 
 type JobPostingUseCase struct {
@@ -277,4 +279,17 @@ func (uc *JobPostingUseCase) parseData(forOrgID, forOrgLocID, forJobID, docDate,
 		"startDate":    startDate,
 		"endDate":      endDate,
 	}, nil
+}
+
+func (uc *JobPostingUseCase) GenerateDocumentNumber(dateNow time.Time) (string, error) {
+	dateStr := dateNow.Format("2006-01-02")
+	highestNumber, err := uc.Repository.GetHighestDocumentNumberByDate(dateStr)
+	if err != nil {
+		uc.Log.Errorf("[JobPostingUseCase.GenerateDocumentNumber] " + err.Error())
+		return "", err
+	}
+
+	newNumber := highestNumber + 1
+	documentNumber := fmt.Sprintf("JP/%s/%03d", dateNow.Format("20060102"), newNumber)
+	return documentNumber, nil
 }

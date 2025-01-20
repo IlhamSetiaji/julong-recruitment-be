@@ -76,7 +76,7 @@ func (r *ProjectRecruitmentHeaderRepository) GetHighestDocumentNumberByDate(date
 			WHERE DATE(created_at) = ?
 	`, date).Scan(&maxNumber).Error
 	if err != nil {
-		r.Log.Errorf("[MPPlanningRepository.GetHighestDocumentNumberByDate] error when querying max document number: %v", err)
+		r.Log.Errorf("[ProjectRecruitmentHeaderRepository.GetHighestDocumentNumberByDate] error when querying max document number: %v", err)
 		return 0, err
 	}
 	return maxNumber, nil

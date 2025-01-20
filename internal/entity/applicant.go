@@ -25,6 +25,8 @@ type Applicant struct {
 	Status       ApplicantStatus `json:"status" gorm:"not null"`
 
 	DocumentSendings []DocumentSending `json:"document_sendings" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	WorkExperiences  []WorkExperience  `json:"work_experiences" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Educations       []Education       `json:"educations" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (a *Applicant) BeforeCreate(tx *gorm.DB) (err error) {

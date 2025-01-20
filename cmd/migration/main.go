@@ -31,6 +31,9 @@ func main() {
 		&entity.TemplateActivity{},
 		&entity.TemplateActivityLine{},
 		&entity.University{},
+		&entity.WorkExperience{},
+		&entity.Education{},
+		&entity.Skill{},
 	)
 	if err != nil {
 		log.Fatal(err)

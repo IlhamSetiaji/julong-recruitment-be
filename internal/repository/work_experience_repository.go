@@ -15,6 +15,7 @@ type IWorkExperienceRepository interface {
 	UpdateWorkExperience(ent *entity.WorkExperience) (*entity.WorkExperience, error)
 	DeleteWorkExperience(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.WorkExperience, error)
+	DeleteByUserProfileID(userProfileID uuid.UUID) error
 }
 
 type WorkExperienceRepository struct {
@@ -118,4 +119,22 @@ func (r *WorkExperienceRepository) FindByID(id uuid.UUID) (*entity.WorkExperienc
 	}
 
 	return ent, nil
+}
+
+func (r *WorkExperienceRepository) DeleteByUserProfileID(userProfileID uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Where("user_profile_id = ?", userProfileID).Delete(&entity.WorkExperience{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

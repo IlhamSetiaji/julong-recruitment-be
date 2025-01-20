@@ -12,6 +12,7 @@ import (
 
 type IUserProfileRepository interface {
 	CreateUserProfile(ent *entity.UserProfile) (*entity.UserProfile, error)
+	UpdateUserProfile(ent *entity.UserProfile) (*entity.UserProfile, error)
 	FindByID(id uuid.UUID) (*entity.UserProfile, error)
 }
 
@@ -73,6 +74,33 @@ func (r *UserProfileRepository) FindByID(id uuid.UUID) (*entity.UserProfile, err
 			r.Log.Error("[UserProfileRepository.FindByID] " + err.Error())
 			return nil, err
 		}
+	}
+
+	return ent, nil
+}
+
+func (r *UserProfileRepository) UpdateUserProfile(ent *entity.UserProfile) (*entity.UserProfile, error) {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[UserProfileRepository.UpdateUserProfile] " + tx.Error.Error())
+		return nil, tx.Error
+	}
+
+	if err := tx.Model(&entity.UserProfile{}).Where("id = ?", ent.ID).Updates(ent).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[UserProfileRepository.UpdateUserProfile] " + err.Error())
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[UserProfileRepository.UpdateUserProfile] " + err.Error())
+		return nil, err
+	}
+
+	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(ent, ent.ID).Error; err != nil {
+		r.Log.Error("[UserProfileRepository.UpdateUserProfile] " + err.Error())
+		return nil, err
 	}
 
 	return ent, nil

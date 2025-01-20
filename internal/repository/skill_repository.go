@@ -15,6 +15,7 @@ type ISkillRepository interface {
 	UpdateSkill(ent *entity.Skill) (*entity.Skill, error)
 	DeleteSkill(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.Skill, error)
+	DeleteByUserProfileID(userProfileID uuid.UUID) error
 }
 
 type SkillRepository struct {
@@ -118,4 +119,22 @@ func (r *SkillRepository) FindByID(id uuid.UUID) (*entity.Skill, error) {
 	}
 
 	return ent, nil
+}
+
+func (r *SkillRepository) DeleteByUserProfileID(userProfileID uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Where("user_profile_id = ?", userProfileID).Delete(&entity.Skill{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -14,6 +14,7 @@ type IUserProfileRepository interface {
 	CreateUserProfile(ent *entity.UserProfile) (*entity.UserProfile, error)
 	UpdateUserProfile(ent *entity.UserProfile) (*entity.UserProfile, error)
 	FindByID(id uuid.UUID) (*entity.UserProfile, error)
+	FindByUserID(userID uuid.UUID) (*entity.UserProfile, error)
 }
 
 type UserProfileRepository struct {
@@ -101,6 +102,20 @@ func (r *UserProfileRepository) UpdateUserProfile(ent *entity.UserProfile) (*ent
 	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(ent, ent.ID).Error; err != nil {
 		r.Log.Error("[UserProfileRepository.UpdateUserProfile] " + err.Error())
 		return nil, err
+	}
+
+	return ent, nil
+}
+
+func (r *UserProfileRepository) FindByUserID(userID uuid.UUID) (*entity.UserProfile, error) {
+	ent := new(entity.UserProfile)
+	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").Where("user_id = ?", userID).First(ent).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			r.Log.Error("[UserProfileRepository.FindByUserID] " + err.Error())
+			return nil, err
+		}
 	}
 
 	return ent, nil

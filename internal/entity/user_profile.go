@@ -50,3 +50,19 @@ type UserProfile struct {
 	Educations      []Education      `json:"educations" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Skills          []Skill          `json:"skills" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
+
+func (up *UserProfile) BeforeCreate(tx *gorm.DB) (err error) {
+	up.ID = uuid.New()
+	up.CreatedAt = time.Now()
+	up.UpdatedAt = time.Now()
+	return
+}
+
+func (up *UserProfile) BeforeUpdate(tx *gorm.DB) (err error) {
+	up.UpdatedAt = time.Now()
+	return
+}
+
+func (UserProfile) TableName() string {
+	return "user_profiles"
+}

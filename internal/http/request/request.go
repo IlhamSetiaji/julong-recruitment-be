@@ -165,3 +165,26 @@ func UserGenderValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func EducationLevelValidation(fl validator.FieldLevel) bool {
+	level := fl.Field().String()
+	if level == "" {
+		return true
+	}
+	switch entity.EducationLevelEnum(level) {
+	case entity.EDUCATION_LEVEL_ENUM_DOCTORAL,
+		entity.EDUCATION_LEVEL_ENUM_MASTER,
+		entity.EDUCATION_LEVEL_ENUM_BACHELOR,
+		entity.EDUCATION_LEVEL_ENUM_D1,
+		entity.EDUCATION_LEVEL_ENUM_D2,
+		entity.EDUCATION_LEVEL_ENUM_D3,
+		entity.EDUCATION_LEVEL_ENUM_D4,
+		entity.EDUCATION_LEVEL_ENUM_SD,
+		entity.EDUCATION_LEVEL_ENUM_SMA,
+		entity.EDUCATION_LEVEL_ENUM_SMP,
+		entity.EDUCATION_LEVEL_ENUM_TK:
+		return true
+	default:
+		return false
+	}
+}

@@ -23,5 +23,19 @@ type FillUserProfileRequest struct {
 		CertificatePath string                `form:"certificate_path" validate:"omitempty"`
 	} `form:"work_experiences" validate:"omitempty,dive"`
 	Educations []struct {
+		EducationLevel  string                `form:"education_level" validate:"required,education_level_validation"`
+		Major           string                `form:"major" validate:"required"`
+		SchoolName      string                `form:"school_name" validate:"required"`
+		GraduateYear    int                   `form:"graduate_year" validate:"required"`
+		EndDate         string                `form:"end_date" validate:"required,datetime=2006-01-02"`
+		Certificate     *multipart.FileHeader `form:"certificate" validate:"omitempty"`
+		CertificatePath string                `form:"certificate_path" validate:"omitempty"`
+		Gpa             float64               `form:"gpa" validate:"required"`
 	} `form:"educations" validate:"omitempty,dive"`
+	Skills []struct {
+		Name            string                `form:"name" validate:"required"`
+		Description     string                `form:"description" validate:"required"`
+		Certificate     *multipart.FileHeader `form:"certificate" validate:"omitempty"`
+		CertificatePath string                `form:"certificate_path" validate:"omitempty"`
+	} `form:"skills" validate:"omitempty,dive"`
 }

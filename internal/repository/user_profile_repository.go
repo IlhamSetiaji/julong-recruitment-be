@@ -15,6 +15,8 @@ type IUserProfileRepository interface {
 	UpdateUserProfile(ent *entity.UserProfile) (*entity.UserProfile, error)
 	FindByID(id uuid.UUID) (*entity.UserProfile, error)
 	FindByUserID(userID uuid.UUID) (*entity.UserProfile, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.UserProfile, int64, error)
+	DeleteUserProfile(id uuid.UUID) error
 }
 
 type UserProfileRepository struct {
@@ -119,4 +121,60 @@ func (r *UserProfileRepository) FindByUserID(userID uuid.UUID) (*entity.UserProf
 	}
 
 	return ent, nil
+}
+
+func (r *UserProfileRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.UserProfile, int64, error) {
+	var userProfiles []entity.UserProfile
+	var total int64
+
+	query := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills")
+
+	if search != "" {
+		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
+	for key, value := range sort {
+		query = query.Order(key + " " + value.(string))
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&userProfiles).Error; err != nil {
+		r.Log.Error("[UserProfileRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, errors.New("[UserProfileRepository.FindAllPaginated] " + err.Error())
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		r.Log.Error("[UserProfileRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	return &userProfiles, total, nil
+}
+
+func (r *UserProfileRepository) DeleteUserProfile(id uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[UserProfileRepository.DeleteUserProfile] " + tx.Error.Error())
+		return tx.Error
+	}
+
+	var userProfile entity.UserProfile
+	if err := tx.Where("id = ?", id).First(&userProfile).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[UserProfileRepository.DeleteUserProfile] " + err.Error())
+		return err
+	}
+
+	if err := tx.Where("id = ?", id).Delete(&userProfile).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[UserProfileRepository.DeleteUserProfile] " + err.Error())
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[UserProfileRepository.DeleteUserProfile] " + err.Error())
+		return err
+	}
+
+	return nil
 }

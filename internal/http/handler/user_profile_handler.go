@@ -13,12 +13,18 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 type IUserProfileHandler interface {
 	FillUserProfile(ctx *gin.Context)
+	FindAllPaginated(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
+	FindByUserID(ctx *gin.Context)
+	UpdateStatusUserProfile(ctx *gin.Context)
+	DeleteUserProfile(ctx *gin.Context)
 }
 
 type UserProfileHandler struct {
@@ -80,8 +86,16 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 		return
 	}
 
+	userName, err := h.UserHelper.GetUserName(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user name: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
 	var payload request.FillUserProfileRequest
 	payload.ID = ctx.PostForm("id")
+	payload.Name = userName
 	payload.MaritalStatus = ctx.PostForm("marital_status")
 	payload.Gender = ctx.PostForm("gender")
 	payload.PhoneNumber = ctx.PostForm("phone_number")
@@ -219,4 +233,137 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, 201, "success", up)
+}
+
+func (h *UserProfileHandler) FindAllPaginated(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	userProfiles, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.FindAllPaginated] " + err.Error())
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, 200, "success", gin.H{
+		"user_profiles": userProfiles,
+		"total":         total,
+	})
+}
+
+func (h *UserProfileHandler) FindByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.FindByID] " + err.Error())
+		utils.ErrorResponse(ctx, 400, "bad request", err.Error())
+		return
+	}
+
+	userProfile, err := h.UseCase.FindByID(parsedID)
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.FindByID] " + err.Error())
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	if userProfile == nil {
+		utils.ErrorResponse(ctx, 404, "error", "User profile not found")
+		return
+	}
+
+	utils.SuccessResponse(ctx, 200, "success", userProfile)
+}
+
+func (h *UserProfileHandler) FindByUserID(ctx *gin.Context) {
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	userProfile, err := h.UseCase.FindByUserID(userUUID)
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.FindByUserID] " + err.Error())
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	if userProfile == nil {
+		utils.ErrorResponse(ctx, 404, "error", "User profile not found")
+		return
+	}
+
+	utils.SuccessResponse(ctx, 200, "success", userProfile)
+}
+
+func (h *UserProfileHandler) UpdateStatusUserProfile(ctx *gin.Context) {
+	var payload request.UpdateStatusUserProfileRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Error("[UserProfileHandler.UpdateStatusUserProfile] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	userProfile, err := h.UseCase.UpdateStatusUserProfile(&payload)
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.UpdateStatusUserProfile] " + err.Error())
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, 200, "success", userProfile)
+}
+
+func (h *UserProfileHandler) DeleteUserProfile(ctx *gin.Context) {
+	id := ctx.Param("id")
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.DeleteUserProfile] " + err.Error())
+		utils.ErrorResponse(ctx, 400, "bad request", err.Error())
+		return
+	}
+
+	err = h.UseCase.DeleteUserProfile(parsedID)
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.DeleteUserProfile] " + err.Error())
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, 200, "success", nil)
 }

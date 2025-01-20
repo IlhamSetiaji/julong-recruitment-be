@@ -16,6 +16,11 @@ import (
 
 type IUserProfileUseCase interface {
 	FillUserProfile(req *request.FillUserProfileRequest, userID uuid.UUID) (*response.UserProfileResponse, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.UserProfileResponse, int64, error)
+	FindByID(id uuid.UUID) (*response.UserProfileResponse, error)
+	FindByUserID(userID uuid.UUID) (*response.UserProfileResponse, error)
+	UpdateStatusUserProfile(req *request.UpdateStatusUserProfileRequest) (*response.UserProfileResponse, error)
+	DeleteUserProfile(id uuid.UUID) error
 }
 
 type UserProfileUseCase struct {
@@ -66,6 +71,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 	if req.ID == "" || req.ID == uuid.Nil.String() {
 		createdProfile, err := uc.Repository.CreateUserProfile(&entity.UserProfile{
 			UserID:          &userID,
+			Name:            req.Name,
 			MaritalStatus:   entity.MaritalStatusEnum(req.MaritalStatus),
 			Gender:          entity.UserGender(req.Gender),
 			PhoneNumber:     req.PhoneNumber,
@@ -144,6 +150,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 
 		updatedProfile, err := uc.Repository.UpdateUserProfile(&entity.UserProfile{
 			ID:              parsedID,
+			Name:            req.Name,
 			UserID:          &userID,
 			MaritalStatus:   entity.MaritalStatusEnum(req.MaritalStatus),
 			Gender:          entity.UserGender(req.Gender),
@@ -254,4 +261,86 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 		return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when converting entity to response: " + err.Error())
 	}
 	return resp, nil
+}
+
+func (uc *UserProfileUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.UserProfileResponse, int64, error) {
+	profiles, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.FindAllPaginated] error when finding all paginated: %s", err.Error())
+		return nil, 0, errors.New("[UserProfileUseCase.FindAllPaginated] error when finding all paginated: " + err.Error())
+	}
+
+	if profiles == nil {
+		uc.Log.Errorf("[UserProfileUseCase.FindAllPaginated] user profiles not found")
+		return nil, 0, errors.New("[UserProfileUseCase.FindAllPaginated] user profiles not found")
+	}
+
+	resp := make([]response.UserProfileResponse, 0)
+	for _, profile := range *profiles {
+		converted, err := uc.DTO.ConvertEntityToResponse(&profile)
+		if err != nil {
+			uc.Log.Errorf("[UserProfileUseCase.FindAllPaginated] error when converting entity to response: %s", err.Error())
+			return nil, 0, errors.New("[UserProfileUseCase.FindAllPaginated] error when converting entity to response: " + err.Error())
+		}
+		resp = append(resp, *converted)
+	}
+	return &resp, total, nil
+}
+
+func (uc *UserProfileUseCase) FindByID(id uuid.UUID) (*response.UserProfileResponse, error) {
+	profile, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.FindByID] error when finding user profile by ID: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.FindByID] error when finding user profile by ID: " + err.Error())
+	}
+
+	return uc.DTO.ConvertEntityToResponse(profile)
+}
+
+func (uc *UserProfileUseCase) FindByUserID(userID uuid.UUID) (*response.UserProfileResponse, error) {
+	profile, err := uc.Repository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.FindByUserID] error when finding user profile by user ID: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.FindByUserID] error when finding user profile by user ID: " + err.Error())
+	}
+
+	return uc.DTO.ConvertEntityToResponse(profile)
+}
+
+func (uc *UserProfileUseCase) UpdateStatusUserProfile(req *request.UpdateStatusUserProfileRequest) (*response.UserProfileResponse, error) {
+	parsedID, err := uuid.Parse(req.ID)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.UpdateStatusUserProfile] error when parsing ID: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.UpdateStatusUserProfile] error when parsing ID: " + err.Error())
+	}
+
+	profile, err := uc.Repository.FindByID(parsedID)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.UpdateStatusUserProfile] error when finding user profile by ID: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.UpdateStatusUserProfile] error when finding user profile by ID: " + err.Error())
+	}
+	if profile == nil {
+		uc.Log.Errorf("[UserProfileUseCase.UpdateStatusUserProfile] user profile not found")
+		return nil, errors.New("[UserProfileUseCase.UpdateStatusUserProfile] user profile not found")
+	}
+
+	updatedProfile, err := uc.Repository.UpdateUserProfile(&entity.UserProfile{
+		ID:     parsedID,
+		Status: entity.UserStatus(req.Status),
+	})
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.UpdateStatusUserProfile] error when updating user profile: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.UpdateStatusUserProfile] error when updating user profile: " + err.Error())
+	}
+
+	return uc.DTO.ConvertEntityToResponse(updatedProfile)
+}
+
+func (uc *UserProfileUseCase) DeleteUserProfile(id uuid.UUID) error {
+	err := uc.Repository.DeleteUserProfile(id)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.DeleteUserProfile] error when deleting user profile: %s", err.Error())
+		return errors.New("[UserProfileUseCase.DeleteUserProfile] error when deleting user profile: " + err.Error())
+	}
+	return nil
 }

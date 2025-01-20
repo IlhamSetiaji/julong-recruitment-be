@@ -10,6 +10,7 @@ import (
 type UserProfileResponse struct {
 	ID              uuid.UUID                 `json:"id"`
 	UserID          *uuid.UUID                `json:"user_id"`
+	Name            string                    `json:"name"`
 	MaritalStatus   entity.MaritalStatusEnum  `json:"marital_status"`
 	Gender          entity.UserGender         `json:"gender"`
 	PhoneNumber     string                    `json:"phone_number"`
@@ -18,6 +19,7 @@ type UserProfileResponse struct {
 	BirthPlace      string                    `json:"birth_place"`
 	Ktp             string                    `json:"ktp"`
 	CurriculumVitae string                    `json:"curriculum_vitae"`
+	Status          entity.UserStatus         `json:"status"`
 	CreatedAt       time.Time                 `json:"created_at"`
 	UpdatedAt       time.Time                 `json:"updated_at"`
 	WorkExperiences *[]WorkExperienceResponse `json:"work_experiences"`

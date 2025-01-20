@@ -159,7 +159,12 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// user profile
 			userProfileRoute := apiRoute.Group("/user-profiles")
 			{
+				userProfileRoute.GET("", c.UserProfileHandler.FindAllPaginated)
+				userProfileRoute.GET("/user", c.UserProfileHandler.FindByUserID)
+				userProfileRoute.GET("/:id", c.UserProfileHandler.FindByID)
 				userProfileRoute.POST("", c.UserProfileHandler.FillUserProfile)
+				userProfileRoute.PUT("/update/status", c.UserProfileHandler.UpdateStatusUserProfile)
+				userProfileRoute.DELETE("/:id", c.UserProfileHandler.DeleteUserProfile)
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import "mime/multipart"
 
 type FillUserProfileRequest struct {
 	ID              string                `form:"id" validate:"omitempty,uuid"`
+	Name            string                `form:"name" validate:"omitempty"`
 	MaritalStatus   string                `form:"marital_status" validate:"required,marital_status_validation"`
 	Gender          string                `form:"gender" validate:"required,user_gender_validation"`
 	PhoneNumber     string                `form:"phone_number" validate:"required"`
@@ -17,4 +18,9 @@ type FillUserProfileRequest struct {
 	WorkExperiences []WorkExperience      `form:"work_experiences" validate:"omitempty,dive"`
 	Educations      []Education           `form:"educations" validate:"omitempty,dive"`
 	Skills          []Skill               `form:"skills" validate:"omitempty,dive"`
+}
+
+type UpdateStatusUserProfileRequest struct {
+	ID     string `json:"id" validate:"required,uuid"`
+	Status string `json:"status" validate:"required,user_status_validation"`
 }

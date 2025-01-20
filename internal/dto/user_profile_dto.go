@@ -69,6 +69,7 @@ func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) (*re
 	return &response.UserProfileResponse{
 		ID:              ent.ID,
 		UserID:          ent.UserID,
+		Name:            ent.Name,
 		MaritalStatus:   ent.MaritalStatus,
 		Gender:          ent.Gender,
 		PhoneNumber:     ent.PhoneNumber,
@@ -77,6 +78,7 @@ func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) (*re
 		BirthPlace:      ent.BirthPlace,
 		Ktp:             dto.Viper.GetString("app.url") + ent.Ktp,
 		CurriculumVitae: dto.Viper.GetString("app.url") + ent.CurriculumVitae,
+		Status:          ent.Status,
 		CreatedAt:       ent.CreatedAt,
 		UpdatedAt:       ent.UpdatedAt,
 		WorkExperiences: func() *[]response.WorkExperienceResponse {

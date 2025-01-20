@@ -35,6 +35,7 @@ type UserProfile struct {
 	gorm.Model      `json:"-"`
 	ID              uuid.UUID         `json:"id" gorm:"type:char(36);primaryKey;"`
 	UserID          *uuid.UUID        `json:"user_id" gorm:"type:char(36);not null"`
+	Name            string            `json:"name" gorm:"type:varchar(255);not null"`
 	MaritalStatus   MaritalStatusEnum `json:"marital_status" gorm:"type:varchar(255);default:'single'"`
 	Gender          UserGender        `json:"gender" gorm:"type:varchar(255);not null"`
 	Status          UserStatus        `json:"status" gorm:"type:varchar(255);not null"`

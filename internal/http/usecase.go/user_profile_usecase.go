@@ -11,6 +11,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type IUserProfileUseCase interface {
@@ -24,6 +25,7 @@ type UserProfileUseCase struct {
 	WorkExperienceRepository repository.IWorkExperienceRepository
 	EducationRepository      repository.IEducationRepository
 	SkillRepository          repository.ISkillRepository
+	Viper                    *viper.Viper
 }
 
 func NewUserProfileUseCase(
@@ -33,6 +35,7 @@ func NewUserProfileUseCase(
 	weRepository repository.IWorkExperienceRepository,
 	edRepository repository.IEducationRepository,
 	sRepository repository.ISkillRepository,
+	viper *viper.Viper,
 ) IUserProfileUseCase {
 	return &UserProfileUseCase{
 		Log:                      log,
@@ -41,16 +44,17 @@ func NewUserProfileUseCase(
 		WorkExperienceRepository: weRepository,
 		EducationRepository:      edRepository,
 		SkillRepository:          sRepository,
+		Viper:                    viper,
 	}
 }
 
-func UserProfileUseCaseFactory(log *logrus.Logger) IUserProfileUseCase {
+func UserProfileUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IUserProfileUseCase {
 	repo := repository.UserProfileRepositoryFactory(log)
-	uDTO := dto.UserProfileDTOFactory(log)
+	uDTO := dto.UserProfileDTOFactory(log, viper)
 	weRepository := repository.WorkExperienceRepositoryFactory(log)
 	edRepository := repository.EducationRepositoryFactory(log)
 	sRepository := repository.SkillRepositoryFactory(log)
-	return NewUserProfileUseCase(log, repo, uDTO, weRepository, edRepository, sRepository)
+	return NewUserProfileUseCase(log, repo, uDTO, weRepository, edRepository, sRepository, viper)
 }
 
 func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileRequest, userID uuid.UUID) (*response.UserProfileResponse, error) {
@@ -178,6 +182,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 		}
 
 		if len(req.WorkExperiences) > 0 {
+			uc.Log.Info("Ada ini bos")
 			for _, we := range req.WorkExperiences {
 				_, err := uc.WorkExperienceRepository.CreateWorkExperience(&entity.WorkExperience{
 					UserProfileID:  updatedProfile.ID,
@@ -196,12 +201,18 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 
 		if len(req.Educations) > 0 {
 			for _, ed := range req.Educations {
-				_, err := uc.EducationRepository.CreateEducation(&entity.Education{
+				parsedEndDate, err := time.Parse("2006-01-02", ed.EndDate)
+				if err != nil {
+					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing end date: %s", err.Error())
+					return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing end date: " + err.Error())
+				}
+				_, err = uc.EducationRepository.CreateEducation(&entity.Education{
 					UserProfileID: updatedProfile.ID,
 					SchoolName:    ed.SchoolName,
 					Major:         ed.Major,
 					GraduateYear:  ed.GraduateYear,
 					Certificate:   ed.CertificatePath,
+					EndDate:       parsedEndDate,
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating education: %s", err.Error())
@@ -237,5 +248,10 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 		return nil, errors.New("[UserProfileUseCase.FillUserProfile] user profile not found")
 	}
 
-	return uc.DTO.ConvertEntityToResponse(profile), nil
+	resp, err := uc.DTO.ConvertEntityToResponse(profile)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when converting entity to response: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when converting entity to response: " + err.Error())
+	}
+	return resp, nil
 }

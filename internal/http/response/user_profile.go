@@ -23,4 +23,5 @@ type UserProfileResponse struct {
 	WorkExperiences *[]WorkExperienceResponse `json:"work_experiences"`
 	Educations      *[]EducationResponse      `json:"educations"`
 	Skills          *[]SkillResponse          `json:"skills"`
+	User            *map[string]interface{}   `json:"user"`
 }

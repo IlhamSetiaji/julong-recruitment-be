@@ -4,6 +4,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type ISkillDTO interface {
@@ -11,17 +12,19 @@ type ISkillDTO interface {
 }
 
 type SkillDTO struct {
-	Log *logrus.Logger
+	Log   *logrus.Logger
+	Viper *viper.Viper
 }
 
-func NewSkillDTO(log *logrus.Logger) ISkillDTO {
+func NewSkillDTO(log *logrus.Logger, viper *viper.Viper) ISkillDTO {
 	return &SkillDTO{
-		Log: log,
+		Log:   log,
+		Viper: viper,
 	}
 }
 
-func SkillDTOFactory(log *logrus.Logger) ISkillDTO {
-	return NewSkillDTO(log)
+func SkillDTOFactory(log *logrus.Logger, viper *viper.Viper) ISkillDTO {
+	return NewSkillDTO(log, viper)
 }
 
 func (dto *SkillDTO) ConvertEntityToResponse(ent *entity.Skill) *response.SkillResponse {
@@ -30,7 +33,7 @@ func (dto *SkillDTO) ConvertEntityToResponse(ent *entity.Skill) *response.SkillR
 		UserProfileID: ent.UserProfileID,
 		Name:          ent.Name,
 		Description:   ent.Description,
-		Certificate:   ent.Certificate,
+		Certificate:   dto.Viper.GetString("app.url") + ent.Certificate,
 		CreatedAt:     ent.CreatedAt,
 		UpdatedAt:     ent.UpdatedAt,
 	}

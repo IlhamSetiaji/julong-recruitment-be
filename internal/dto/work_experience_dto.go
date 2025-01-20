@@ -4,6 +4,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type IWorkExperienceDTO interface {
@@ -11,17 +12,19 @@ type IWorkExperienceDTO interface {
 }
 
 type WorkExperienceDTO struct {
-	Log *logrus.Logger
+	Log   *logrus.Logger
+	Viper *viper.Viper
 }
 
-func NewWorkExperienceDTO(log *logrus.Logger) IWorkExperienceDTO {
+func NewWorkExperienceDTO(log *logrus.Logger, viper *viper.Viper) IWorkExperienceDTO {
 	return &WorkExperienceDTO{
-		Log: log,
+		Log:   log,
+		Viper: viper,
 	}
 }
 
-func WorkExperienceDTOFactory(log *logrus.Logger) IWorkExperienceDTO {
-	return NewWorkExperienceDTO(log)
+func WorkExperienceDTOFactory(log *logrus.Logger, viper *viper.Viper) IWorkExperienceDTO {
+	return NewWorkExperienceDTO(log, viper)
 }
 
 func (dto *WorkExperienceDTO) ConvertEntityToResponse(ent *entity.WorkExperience) *response.WorkExperienceResponse {
@@ -32,7 +35,7 @@ func (dto *WorkExperienceDTO) ConvertEntityToResponse(ent *entity.WorkExperience
 		CompanyName:    ent.CompanyName,
 		YearExperience: ent.YearExperience,
 		JobDescription: ent.JobDescription,
-		Certificate:    ent.Certificate,
+		Certificate:    dto.Viper.GetString("app.url") + ent.Certificate,
 		CreatedAt:      ent.CreatedAt,
 		UpdatedAt:      ent.UpdatedAt,
 	}

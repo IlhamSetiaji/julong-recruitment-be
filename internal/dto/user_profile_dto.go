@@ -2,12 +2,15 @@ package dto
 
 import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type IUserProfileDTO interface {
-	ConvertEntityToResponse(ent *entity.UserProfile) *response.UserProfileResponse
+	ConvertEntityToResponse(ent *entity.UserProfile) (*response.UserProfileResponse, error)
 }
 
 type UserProfileDTO struct {
@@ -15,6 +18,8 @@ type UserProfileDTO struct {
 	WorkExperienceDTO IWorkExperienceDTO
 	SkillDTO          ISkillDTO
 	EducationDTO      IEducationDTO
+	Viper             *viper.Viper
+	UserMessage       messaging.IUserMessage
 }
 
 func NewUserProfileDTO(
@@ -22,25 +27,45 @@ func NewUserProfileDTO(
 	workExperienceDTO IWorkExperienceDTO,
 	skillDTO ISkillDTO,
 	educationDTO IEducationDTO,
+	viper *viper.Viper,
+	userMessage messaging.IUserMessage,
 ) IUserProfileDTO {
 	return &UserProfileDTO{
 		Log:               log,
 		WorkExperienceDTO: workExperienceDTO,
 		SkillDTO:          skillDTO,
 		EducationDTO:      educationDTO,
+		Viper:             viper,
+		UserMessage:       userMessage,
 	}
 }
 
 func UserProfileDTOFactory(
 	log *logrus.Logger,
+	viper *viper.Viper,
 ) IUserProfileDTO {
-	workExperienceDTO := WorkExperienceDTOFactory(log)
-	skillDTO := SkillDTOFactory(log)
-	educationDTO := EducationDTOFactory(log)
-	return NewUserProfileDTO(log, workExperienceDTO, skillDTO, educationDTO)
+	workExperienceDTO := WorkExperienceDTOFactory(log, viper)
+	skillDTO := SkillDTOFactory(log, viper)
+	educationDTO := EducationDTOFactory(log, viper)
+	userMessage := messaging.UserMessageFactory(log)
+	return NewUserProfileDTO(log, workExperienceDTO, skillDTO, educationDTO, viper, userMessage)
 }
 
-func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) *response.UserProfileResponse {
+func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) (*response.UserProfileResponse, error) {
+	messageResponse, err := dto.UserMessage.SendGetUserMe(request.SendFindUserByIDMessageRequest{
+		ID: ent.UserID.String(),
+	})
+	if err != nil {
+		dto.Log.Errorf("[UserProfileDTO.ConvertEntityToResponse] error when sending message to user service: %s", err.Error())
+		return nil, err
+	}
+
+	userData, ok := messageResponse.User["user"].(map[string]interface{})
+	if !ok {
+		dto.Log.Errorf("User information is missing or invalid")
+		return nil, err
+	}
+
 	return &response.UserProfileResponse{
 		ID:              ent.ID,
 		UserID:          ent.UserID,
@@ -50,8 +75,8 @@ func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) *res
 		Age:             ent.Age,
 		BirthDate:       ent.BirthDate,
 		BirthPlace:      ent.BirthPlace,
-		Ktp:             ent.Ktp,
-		CurriculumVitae: ent.CurriculumVitae,
+		Ktp:             dto.Viper.GetString("app.url") + ent.Ktp,
+		CurriculumVitae: dto.Viper.GetString("app.url") + ent.CurriculumVitae,
 		CreatedAt:       ent.CreatedAt,
 		UpdatedAt:       ent.UpdatedAt,
 		WorkExperiences: func() *[]response.WorkExperienceResponse {
@@ -84,5 +109,6 @@ func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) *res
 			}
 			return &skillResponses
 		}(),
-	}
+		User: &userData,
+	}, nil
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type IEducationDTO interface {
@@ -11,17 +12,19 @@ type IEducationDTO interface {
 }
 
 type EducationDTO struct {
-	Log *logrus.Logger
+	Log   *logrus.Logger
+	Viper *viper.Viper
 }
 
-func NewEducationDTO(log *logrus.Logger) IEducationDTO {
+func NewEducationDTO(log *logrus.Logger, viper *viper.Viper) IEducationDTO {
 	return &EducationDTO{
-		Log: log,
+		Log:   log,
+		Viper: viper,
 	}
 }
 
-func EducationDTOFactory(log *logrus.Logger) IEducationDTO {
-	return NewEducationDTO(log)
+func EducationDTOFactory(log *logrus.Logger, viper *viper.Viper) IEducationDTO {
+	return NewEducationDTO(log, viper)
 }
 
 func (dto *EducationDTO) ConvertEntityToResponse(ent *entity.Education) *response.EducationResponse {
@@ -33,7 +36,7 @@ func (dto *EducationDTO) ConvertEntityToResponse(ent *entity.Education) *respons
 		SchoolName:     ent.SchoolName,
 		GraduateYear:   ent.GraduateYear,
 		EndDate:        ent.EndDate,
-		Certificate:    ent.Certificate,
+		Certificate:    dto.Viper.GetString("app.url") + ent.Certificate,
 		Gpa:            ent.Gpa,
 		CreatedAt:      ent.CreatedAt,
 		UpdatedAt:      ent.UpdatedAt,

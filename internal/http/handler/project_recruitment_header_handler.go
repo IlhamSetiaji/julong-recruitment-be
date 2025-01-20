@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -21,6 +22,7 @@ type IProjectRecruitmentHeaderHandler interface {
 	FindByID(ctx *gin.Context)
 	UpdateProjectRecruitmentHeader(ctx *gin.Context)
 	DeleteProjectRecruitmentHeader(ctx *gin.Context)
+	GenerateDocumentNumber(ctx *gin.Context)
 }
 
 type ProjectRecruitmentHeaderHandler struct {
@@ -234,4 +236,16 @@ func (h *ProjectRecruitmentHeaderHandler) DeleteProjectRecruitmentHeader(ctx *gi
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success", nil)
+}
+
+func (h *ProjectRecruitmentHeaderHandler) GenerateDocumentNumber(ctx *gin.Context) {
+	dateNow := time.Now()
+	documentNumber, err := h.UseCase.GenerateDocumentNumber(dateNow)
+	if err != nil {
+		h.Log.Error("[ProjectRecruitmentHeaderHandler.GenerateDocumentNumber] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", documentNumber)
 }

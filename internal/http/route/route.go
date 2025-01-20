@@ -119,6 +119,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			projectRecruitmentHeaderRoute := apiRoute.Group("/project-recruitment-headers")
 			{
 				projectRecruitmentHeaderRoute.GET("", c.ProjectRecruitmentHeaderHandler.FindAllPaginated)
+				projectRecruitmentHeaderRoute.GET("/document-number", c.ProjectRecruitmentHeaderHandler.GenerateDocumentNumber)
 				projectRecruitmentHeaderRoute.GET("/:id", c.ProjectRecruitmentHeaderHandler.FindByID)
 				projectRecruitmentHeaderRoute.POST("", c.ProjectRecruitmentHeaderHandler.CreateProjectRecruitmentHeader)
 				projectRecruitmentHeaderRoute.PUT("/update", c.ProjectRecruitmentHeaderHandler.UpdateProjectRecruitmentHeader)

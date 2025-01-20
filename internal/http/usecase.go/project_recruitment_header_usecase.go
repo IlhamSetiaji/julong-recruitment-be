@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -18,6 +19,7 @@ type IProjectRecruitmentHeaderUseCase interface {
 	FindByID(id uuid.UUID) (*response.ProjectRecruitmentHeaderResponse, error)
 	UpdateProjectRecruitmentHeader(req *request.UpdateProjectRecruitmentHeader) (*response.ProjectRecruitmentHeaderResponse, error)
 	DeleteProjectRecruitmentHeader(id uuid.UUID) error
+	GenerateDocumentNumber(dateNow time.Time) (string, error)
 }
 
 type ProjectRecruitmentHeaderUseCase struct {
@@ -90,6 +92,19 @@ func (uc *ProjectRecruitmentHeaderUseCase) CreateProjectRecruitmentHeader(req *r
 
 	projectRecruitmentHeaderResponse := uc.DTO.ConvertEntityToResponse(projectRecruitmentHeader)
 	return projectRecruitmentHeaderResponse, nil
+}
+
+func (uc *ProjectRecruitmentHeaderUseCase) GenerateDocumentNumber(dateNow time.Time) (string, error) {
+	dateStr := dateNow.Format("2006-01-02")
+	highestNumber, err := uc.Repository.GetHighestDocumentNumberByDate(dateStr)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentHeaderUseCase.GenerateDocumentNumber] " + err.Error())
+		return "", err
+	}
+
+	newNumber := highestNumber + 1
+	documentNumber := fmt.Sprintf("PRH/%s/%03d", dateNow.Format("20060102"), newNumber)
+	return documentNumber, nil
 }
 
 func (uc *ProjectRecruitmentHeaderUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.ProjectRecruitmentHeaderResponse, int64, error) {

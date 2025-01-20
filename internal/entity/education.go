@@ -26,7 +26,7 @@ const (
 type Education struct {
 	gorm.Model     `json:"-"`
 	ID             uuid.UUID          `json:"id" gorm:"type:char(36);primaryKey;"`
-	UserID         *uuid.UUID         `json:"user_id" gorm:"type:char(36);not null"`
+	UserProfileID  uuid.UUID          `json:"user_profile_id" gorm:"type:char(36);not null"`
 	EducationLevel EducationLevelEnum `json:"education_level" gorm:"type:varchar(255);not null"`
 	Major          string             `json:"major" gorm:"type:varchar(255);not null"`
 	SchoolName     string             `json:"school_name" gorm:"type:varchar(255);not null"`
@@ -36,6 +36,7 @@ type Education struct {
 	Gpa            float64            `json:"gpa" gorm:"type:float;not null"`
 
 	// Applicant *Applicant `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserProfile *UserProfile `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (e *Education) BeforeCreate(tx *gorm.DB) (err error) {

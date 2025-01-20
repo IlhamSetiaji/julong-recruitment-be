@@ -8,14 +8,15 @@ import (
 )
 
 type Skill struct {
-	gorm.Model  `json:"-"`
-	ID          uuid.UUID  `json:"id" gorm:"type:char(36);primaryKey;"`
-	UserID      *uuid.UUID `json:"user_id" gorm:"type:char(36);not null"`
-	Name        string     `json:"name" gorm:"type:varchar(255);not null"`
-	Description string     `json:"description" gorm:"type:text;not null"`
-	Certificate string     `json:"certificate" gorm:"type:text;not null"`
+	gorm.Model    `json:"-"`
+	ID            uuid.UUID  `json:"id" gorm:"type:char(36);primaryKey;"`
+	UserProfileID *uuid.UUID `json:"user_profile_id" gorm:"type:char(36);not null"`
+	Name          string     `json:"name" gorm:"type:varchar(255);not null"`
+	Description   string     `json:"description" gorm:"type:text;not null"`
+	Certificate   string     `json:"certificate" gorm:"type:text;not null"`
 
 	// Applicant *Applicant `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserProfile *UserProfile `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (s *Skill) BeforeCreate(tx *gorm.DB) (err error) {

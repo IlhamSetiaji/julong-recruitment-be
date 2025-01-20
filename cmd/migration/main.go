@@ -22,6 +22,7 @@ func main() {
 		&entity.Question{},
 		&entity.QuestionOption{},
 		&entity.QuestionResponse{},
+		&entity.UserProfile{},
 		&entity.Applicant{},
 		&entity.DocumentType{},
 		&entity.MailTemplate{},

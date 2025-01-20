@@ -17,14 +17,15 @@ const (
 )
 
 type Applicant struct {
-	gorm.Model   `json:"-"`
-	ID           uuid.UUID       `json:"id" gorm:"type:char(36);primaryKey;"`
-	UserID       *uuid.UUID      `json:"user_id" gorm:"type:char(36);not null"`
-	JobPostingID uuid.UUID       `json:"job_posting_id" gorm:"type:char(36);not null"`
-	AppliedDate  time.Time       `json:"applied_date" gorm:"type:date;not null"`
-	Status       ApplicantStatus `json:"status" gorm:"not null"`
+	gorm.Model    `json:"-"`
+	ID            uuid.UUID       `json:"id" gorm:"type:char(36);primaryKey;"`
+	UserProfileID uuid.UUID       `json:"user_profile_id" gorm:"type:char(36);not null"`
+	JobPostingID  uuid.UUID       `json:"job_posting_id" gorm:"type:char(36);not null"`
+	AppliedDate   time.Time       `json:"applied_date" gorm:"type:date;not null"`
+	Status        ApplicantStatus `json:"status" gorm:"not null"`
 
 	DocumentSendings []DocumentSending `json:"document_sendings" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserProfile      *UserProfile      `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	// WorkExperiences  []WorkExperience  `json:"work_experiences" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	// Educations       []Education       `json:"educations" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	// Skills           []Skill           `json:"skills" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

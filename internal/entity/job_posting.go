@@ -42,6 +42,7 @@ type JobPosting struct {
 
 	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	MPRequest                *MPRequest                `json:"mp_request" gorm:"foreignKey:MPRequestID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Applicants               []Applicant               `json:"applicants" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	ForOrganizationName      string `json:"for_organization_name" gorm:"-"`
 	ForOrganizationLocation  string `json:"for_organization_location" gorm:"-"`

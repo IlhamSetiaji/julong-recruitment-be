@@ -102,8 +102,21 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 	payload.Age, _ = strconv.Atoi(ctx.PostForm("age"))
 	payload.BirthDate = ctx.PostForm("birth_date")
 	payload.BirthPlace = ctx.PostForm("birth_place")
-	payload.Ktp = ctx.Request.MultipartForm.File["ktp"][0]
-	payload.CurriculumVitae = ctx.Request.MultipartForm.File["curriculum_vitae"][0]
+	if files, ok := ctx.Request.MultipartForm.File["ktp"]; ok && len(files) > 0 {
+		payload.Ktp = files[0]
+	} else {
+		h.Log.Error("KTP file is missing")
+		// utils.ErrorResponse(ctx, http.StatusBadRequest, "KTP file is missing", "KTP file is required")
+		// return
+	}
+
+	if files, ok := ctx.Request.MultipartForm.File["curriculum_vitae"]; ok && len(files) > 0 {
+		payload.CurriculumVitae = files[0]
+	} else {
+		h.Log.Error("Curriculum Vitae file is missing")
+		// utils.ErrorResponse(ctx, http.StatusBadRequest, "Curriculum Vitae file is missing", "Curriculum Vitae file is required")
+		// return
+	}
 
 	workExpNames := ctx.PostFormArray("work_experiences.name")
 	workExpCompanies := ctx.PostFormArray("work_experiences.company_name")

@@ -15,7 +15,7 @@ type IUserProfileRepository interface {
 	UpdateUserProfile(ent *entity.UserProfile) (*entity.UserProfile, error)
 	FindByID(id uuid.UUID) (*entity.UserProfile, error)
 	FindByUserID(userID uuid.UUID) (*entity.UserProfile, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.UserProfile, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.UserProfile, int64, error)
 	DeleteUserProfile(id uuid.UUID) error
 }
 
@@ -123,7 +123,7 @@ func (r *UserProfileRepository) FindByUserID(userID uuid.UUID) (*entity.UserProf
 	return &ent, nil
 }
 
-func (r *UserProfileRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.UserProfile, int64, error) {
+func (r *UserProfileRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.UserProfile, int64, error) {
 	var userProfiles []entity.UserProfile
 	var total int64
 

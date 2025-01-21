@@ -275,7 +275,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 }
 
 func (uc *UserProfileUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.UserProfileResponse, int64, error) {
-	profiles, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+	profiles, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, map[string]interface{}{})
 	if err != nil {
 		uc.Log.Errorf("[UserProfileUseCase.FindAllPaginated] error when finding all paginated: %s", err.Error())
 		return nil, 0, errors.New("[UserProfileUseCase.FindAllPaginated] error when finding all paginated: " + err.Error())

@@ -23,6 +23,7 @@ type IJobPostingUseCase interface {
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
 	UpdateJobPostingOrganizationLogoToNull(id uuid.UUID) error
 	UpdateJobPostingPosterToNull(id uuid.UUID) error
+	FindAllAppliedJobPostingByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error)
 }
 
 type JobPostingUseCase struct {
@@ -369,4 +370,43 @@ func (uc *JobPostingUseCase) UpdateJobPostingOrganizationLogoToNull(id uuid.UUID
 
 func (uc *JobPostingUseCase) UpdateJobPostingPosterToNull(id uuid.UUID) error {
 	return uc.Repository.UpdateJobPostingPosterToNull(id)
+}
+
+func (uc *JobPostingUseCase) FindAllAppliedJobPostingByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error) {
+	userProfile, err := uc.UserProfileRepository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + err.Error())
+		return nil, err
+	}
+
+	if userProfile == nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + "User Profile not found")
+		return nil, err
+	}
+
+	applicants, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
+		"user_profile_id": userProfile.ID,
+	})
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + err.Error())
+		return nil, err
+	}
+
+	jobPostingResponses := make([]response.JobPostingResponse, 0)
+	for _, applicant := range applicants {
+		jobPosting, err := uc.Repository.FindByID(applicant.JobPostingID)
+		if err != nil {
+			uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + err.Error())
+			return nil, err
+		}
+
+		if jobPosting == nil {
+			uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + "Job Posting not found")
+			return nil, err
+		}
+
+		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(jobPosting))
+	}
+
+	return &jobPostingResponses, nil
 }

@@ -25,6 +25,7 @@ type IJobPostingHandler interface {
 	UpdateJobPosting(ctx *gin.Context)
 	DeleteJobPosting(ctx *gin.Context)
 	GenerateDocumentNumber(ctx *gin.Context)
+	FindAllAppliedJobPostingByUserID(ctx *gin.Context)
 }
 
 type JobPostingHandler struct {
@@ -329,4 +330,33 @@ func (h *JobPostingHandler) GenerateDocumentNumber(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success", documentNumber)
+}
+
+func (h *JobPostingHandler) FindAllAppliedJobPostingByUserID(ctx *gin.Context) {
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindAllAppliedJobPostingByUserID(userUUID)
+	if err != nil {
+		h.Log.Error("failed to find all applied job posting by user id: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all applied job posting by user id", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
 }

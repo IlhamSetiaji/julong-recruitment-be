@@ -12,6 +12,7 @@ import (
 type IApplicantRepository interface {
 	CreateApplicant(applicant *entity.Applicant) (*entity.Applicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.Applicant, error)
+	GetAllByKeys(keys map[string]interface{}) ([]entity.Applicant, error)
 }
 
 type ApplicantRepository struct {
@@ -69,4 +70,13 @@ func (r *ApplicantRepository) FindByKeys(keys map[string]interface{}) (*entity.A
 	}
 
 	return &applicant, nil
+}
+
+func (r *ApplicantRepository) GetAllByKeys(keys map[string]interface{}) ([]entity.Applicant, error) {
+	var applicants []entity.Applicant
+	if err := r.DB.Where(keys).Preload("UserProfile").Preload("JobPosting").Find(&applicants).Error; err != nil {
+		return nil, err
+	}
+
+	return applicants, nil
 }

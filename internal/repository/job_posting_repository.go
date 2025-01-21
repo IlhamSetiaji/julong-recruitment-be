@@ -19,6 +19,7 @@ type IJobPostingRepository interface {
 	UpdateJobPostingOrganizationLogoToNull(id uuid.UUID) error
 	UpdateJobPostingPosterToNull(id uuid.UUID) error
 	GetHighestDocumentNumberByDate(date string) (int, error)
+	GetByIDs(ids []uuid.UUID) (*[]entity.JobPosting, error)
 }
 
 type JobPostingRepository struct {
@@ -199,4 +200,13 @@ func (r *JobPostingRepository) GetHighestDocumentNumberByDate(date string) (int,
 		return 0, err
 	}
 	return maxNumber, nil
+}
+
+func (r *JobPostingRepository) GetByIDs(ids []uuid.UUID) (*[]entity.JobPosting, error) {
+	var entities []entity.JobPosting
+	if err := r.DB.Preload("ProjectRecruitmentHeader").Where("id IN ?", ids).Find(&entities).Error; err != nil {
+		r.Log.Errorf("[JobPostingRepository.GetByIDs] error when querying data: %v", err)
+		return nil, err
+	}
+	return &entities, nil
 }

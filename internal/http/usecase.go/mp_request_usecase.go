@@ -81,6 +81,7 @@ func (uc *MPRequestUseCase) FindAllPaginated(page int, pageSize int, search stri
 			return nil, err
 		}
 		convertedData.Status = string(mpRequest.Status)
+		convertedData.ID = mpRequest.ID
 
 		mprResponses = append(mprResponses, *convertedData)
 	}

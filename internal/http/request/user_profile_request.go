@@ -11,8 +11,8 @@ type FillUserProfileRequest struct {
 	Age             int                   `form:"age" validate:"required"`
 	BirthDate       string                `form:"birth_date" validate:"required,datetime=2006-01-02"`
 	BirthPlace      string                `form:"birth_place" validate:"required"`
-	Ktp             *multipart.FileHeader `form:"ktp" validate:"required"`
-	CurriculumVitae *multipart.FileHeader `form:"curriculum_vitae" validate:"required"`
+	Ktp             *multipart.FileHeader `form:"ktp" validate:"omitempty"`
+	CurriculumVitae *multipart.FileHeader `form:"curriculum_vitae" validate:"omitempty"`
 	KtpPath         string                `form:"ktp_path" validate:"omitempty"`
 	CvPath          string                `form:"cv_path" validate:"omitempty"`
 	WorkExperiences []WorkExperience      `form:"work_experiences" validate:"omitempty,dive"`

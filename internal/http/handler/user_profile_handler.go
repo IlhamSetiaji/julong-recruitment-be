@@ -273,7 +273,13 @@ func (h *UserProfileHandler) FindAllPaginated(ctx *gin.Context) {
 		"created_at": createdAt,
 	}
 
-	userProfiles, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	userProfiles, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("[UserProfileHandler.FindAllPaginated] " + err.Error())
 		utils.ErrorResponse(ctx, 500, "error", err.Error())

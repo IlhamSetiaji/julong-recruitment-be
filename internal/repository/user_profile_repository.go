@@ -133,6 +133,10 @@ func (r *UserProfileRepository) FindAllPaginated(page, pageSize int, search stri
 		query = query.Where("name ILIKE ?", "%"+search+"%")
 	}
 
+	if filter["status"] != nil {
+		query = query.Where("status = ?", filter["status"])
+	}
+
 	for key, value := range sort {
 		query = query.Order(key + " " + value.(string))
 	}

@@ -16,7 +16,7 @@ import (
 
 type IUserProfileUseCase interface {
 	FillUserProfile(req *request.FillUserProfileRequest, userID uuid.UUID) (*response.UserProfileResponse, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.UserProfileResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.UserProfileResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.UserProfileResponse, error)
 	FindByUserID(userID uuid.UUID) (*response.UserProfileResponse, error)
 	UpdateStatusUserProfile(req *request.UpdateStatusUserProfileRequest) (*response.UserProfileResponse, error)
@@ -280,8 +280,8 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 	return resp, nil
 }
 
-func (uc *UserProfileUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.UserProfileResponse, int64, error) {
-	profiles, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, map[string]interface{}{})
+func (uc *UserProfileUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.UserProfileResponse, int64, error) {
+	profiles, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Errorf("[UserProfileUseCase.FindAllPaginated] error when finding all paginated: %s", err.Error())
 		return nil, 0, errors.New("[UserProfileUseCase.FindAllPaginated] error when finding all paginated: " + err.Error())

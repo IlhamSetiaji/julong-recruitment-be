@@ -21,6 +21,8 @@ type IJobPostingUseCase interface {
 	UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error)
 	DeleteJobPosting(id uuid.UUID) error
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
+	UpdateJobPostingOrganizationLogoToNull(id uuid.UUID) error
+	UpdateJobPostingPosterToNull(id uuid.UUID) error
 }
 
 type JobPostingUseCase struct {
@@ -117,8 +119,8 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 		SalaryMin:                  req.SalaryMin,
 		SalaryMax:                  req.SalaryMax,
 		ContentDescription:         req.ContentDescription,
-		OrganizationLogo:           req.OrganizationLogoPath,
-		Poster:                     req.PosterPath,
+		OrganizationLogo:           &req.OrganizationLogoPath,
+		Poster:                     &req.PosterPath,
 		Link:                       req.Link,
 	})
 	if err != nil {
@@ -219,8 +221,8 @@ func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingReque
 		SalaryMin:                  req.SalaryMin,
 		SalaryMax:                  req.SalaryMax,
 		ContentDescription:         req.ContentDescription,
-		OrganizationLogo:           req.OrganizationLogoPath,
-		Poster:                     req.PosterPath,
+		OrganizationLogo:           &req.OrganizationLogoPath,
+		Poster:                     &req.PosterPath,
 		Link:                       req.Link,
 	})
 	if err != nil {
@@ -292,4 +294,12 @@ func (uc *JobPostingUseCase) GenerateDocumentNumber(dateNow time.Time) (string, 
 	newNumber := highestNumber + 1
 	documentNumber := fmt.Sprintf("JP/%s/%03d", dateNow.Format("20060102"), newNumber)
 	return documentNumber, nil
+}
+
+func (uc *JobPostingUseCase) UpdateJobPostingOrganizationLogoToNull(id uuid.UUID) error {
+	return uc.Repository.UpdateJobPostingOrganizationLogoToNull(id)
+}
+
+func (uc *JobPostingUseCase) UpdateJobPostingPosterToNull(id uuid.UUID) error {
+	return uc.Repository.UpdateJobPostingPosterToNull(id)
 }

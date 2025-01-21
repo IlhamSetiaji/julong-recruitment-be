@@ -207,6 +207,39 @@ func (h *JobPostingHandler) UpdateJobPosting(ctx *gin.Context) {
 		req.PosterPath = posterPath
 	}
 
+	parsedUUID, err := uuid.Parse(req.ID)
+	if err != nil {
+		h.Log.Error("failed to parse id: ", err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "failed to parse id", err.Error())
+		return
+	}
+
+	parsedBoolDeletedOrganizationLogo, err := strconv.ParseBool(req.DeletedOrganizationLogo)
+	if err != nil {
+		h.Log.Error("failed to parse deleted organization logo: ", err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "failed to parse deleted organization logo", err.Error())
+		return
+	}
+
+	if parsedBoolDeletedOrganizationLogo != false {
+		err := h.UseCase.UpdateJobPostingOrganizationLogoToNull(parsedUUID)
+		if err != nil {
+			h.Log.Error("failed to update organization logo to null: ", err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to update organization logo to null", err.Error())
+			return
+		}
+	}
+
+	parsedBoolDeletedPoster, err := strconv.ParseBool(req.DeletedPoster)
+	if parsedBoolDeletedPoster != false {
+		err := h.UseCase.UpdateJobPostingPosterToNull(parsedUUID)
+		if err != nil {
+			h.Log.Error("failed to update poster to null: ", err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to update poster to null", err.Error())
+			return
+		}
+	}
+
 	// Update job posting
 	res, err := h.UseCase.UpdateJobPosting(&req)
 	if err != nil {

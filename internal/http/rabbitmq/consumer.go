@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
@@ -187,6 +188,30 @@ func handleMsg(docMsg *request.RabbitMQRequest, log *logrus.Logger, viper *viper
 
 		msgData = map[string]interface{}{
 			"message": "success",
+		}
+	case "find_user_profile_by_user_id":
+		userID, ok := docMsg.MessageData["user_id"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'user_id'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'user_id'").Error(),
+			}
+			break
+		}
+		userMessageFactory := messaging.UserMessageFactory(log)
+		resp, err := userMessageFactory.FindUserProfileByUserIDMessage(userID)
+		if err != nil {
+			log.Errorf("ERROR: fail find user profile by user id: %s", err.Error())
+			msgData = map[string]interface{}{
+				"error": err.Error(),
+			}
+			break
+		} else {
+			log.Printf("INFO: success find user profile by user id")
+		}
+
+		msgData = map[string]interface{}{
+			"user_profile": resp,
 		}
 	default:
 		log.Printf("Unknown message type, please recheck your type: %s", docMsg.MessageType)

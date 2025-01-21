@@ -45,4 +45,6 @@ type UpdateJobPostingRequest struct {
 	Link                       string                `form:"link" validate:"omitempty"`
 	OrganizationLogoPath       string                `form:"organization_logo_path" validate:"omitempty"`
 	PosterPath                 string                `form:"poster_path" validate:"omitempty"`
+	DeletedOrganizationLogo    string                `form:"deleted_organization_logo" validate:"omitempty"`
+	DeletedPoster              string                `form:"deleted_poster" validate:"omitempty"`
 }

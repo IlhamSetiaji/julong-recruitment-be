@@ -69,8 +69,8 @@ func (r *UserProfileRepository) CreateUserProfile(ent *entity.UserProfile) (*ent
 }
 
 func (r *UserProfileRepository) FindByID(id uuid.UUID) (*entity.UserProfile, error) {
-	ent := new(entity.UserProfile)
-	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(ent, id).Error; err != nil {
+	var ent entity.UserProfile
+	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(&ent, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {
@@ -79,7 +79,7 @@ func (r *UserProfileRepository) FindByID(id uuid.UUID) (*entity.UserProfile, err
 		}
 	}
 
-	return ent, nil
+	return &ent, nil
 }
 
 func (r *UserProfileRepository) UpdateUserProfile(ent *entity.UserProfile) (*entity.UserProfile, error) {
@@ -110,8 +110,8 @@ func (r *UserProfileRepository) UpdateUserProfile(ent *entity.UserProfile) (*ent
 }
 
 func (r *UserProfileRepository) FindByUserID(userID uuid.UUID) (*entity.UserProfile, error) {
-	ent := new(entity.UserProfile)
-	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").Where("user_id = ?", userID).First(ent).Error; err != nil {
+	var ent entity.UserProfile
+	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").Where("user_id = ?", userID).First(&ent).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {
@@ -120,7 +120,7 @@ func (r *UserProfileRepository) FindByUserID(userID uuid.UUID) (*entity.UserProf
 		}
 	}
 
-	return ent, nil
+	return &ent, nil
 }
 
 func (r *UserProfileRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.UserProfile, int64, error) {

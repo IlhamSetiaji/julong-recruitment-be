@@ -36,8 +36,8 @@ type JobPosting struct {
 	SalaryMin                  string                 `json:"salary_min" gorm:"type:varchar(255);not null"`
 	SalaryMax                  string                 `json:"salary_max" gorm:"type:varchar(255);not null"`
 	ContentDescription         string                 `json:"content_description" gorm:"type:text;default:null"`
-	OrganizationLogo           string                 `json:"organization_logo" gorm:"type:text;default:null"`
-	Poster                     string                 `json:"poster" gorm:"type:text;default:null"`
+	OrganizationLogo           *string                `json:"organization_logo" gorm:"type:text;default:null"`
+	Poster                     *string                `json:"poster" gorm:"type:text;default:null"`
 	Link                       string                 `json:"link" gorm:"type:text;default:null"`
 
 	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

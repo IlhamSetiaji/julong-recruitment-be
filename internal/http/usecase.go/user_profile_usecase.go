@@ -69,6 +69,15 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 		return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing birth date: " + err.Error())
 	}
 	if req.ID == "" || req.ID == uuid.Nil.String() {
+		exist, err := uc.Repository.FindByUserID(userID)
+		if err != nil {
+			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when finding user profile by user ID: %s", err.Error())
+			return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when finding user profile by user ID: " + err.Error())
+		}
+		if exist != nil {
+			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] user profile already exist")
+			return nil, errors.New("[UserProfileUseCase.FillUserProfile] user profile already exist")
+		}
 		createdProfile, err := uc.Repository.CreateUserProfile(&entity.UserProfile{
 			UserID:          &userID,
 			Name:            req.Name,

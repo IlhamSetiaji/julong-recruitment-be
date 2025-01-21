@@ -6,6 +6,7 @@ import (
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -14,16 +15,24 @@ import (
 type IUserMessage interface {
 	SendFindUserByIDMessage(request request.SendFindUserByIDMessageRequest) (*response.SendFindUserByIDResponse, error)
 	SendGetUserMe(request request.SendFindUserByIDMessageRequest) (*response.SendGetUserMeResponse, error)
+	FindUserProfileByUserIDMessage(userId string) (*response.UserProfileResponse, error)
 }
 
 type UserMessage struct {
-	Log *logrus.Logger
+	Log                   *logrus.Logger
+	UserProfileRepository repository.IUserProfileRepository
 }
 
-func NewUserMessage(log *logrus.Logger) IUserMessage {
+func NewUserMessage(log *logrus.Logger, userProfileRepository repository.IUserProfileRepository) IUserMessage {
 	return &UserMessage{
-		Log: log,
+		Log:                   log,
+		UserProfileRepository: userProfileRepository,
 	}
+}
+
+func UserMessageFactory(log *logrus.Logger) IUserMessage {
+	userProfileRepository := repository.UserProfileRepositoryFactory(log)
+	return NewUserMessage(log, userProfileRepository)
 }
 
 func (m *UserMessage) SendFindUserByIDMessage(req request.SendFindUserByIDMessageRequest) (*response.SendFindUserByIDResponse, error) {
@@ -111,6 +120,26 @@ func (m *UserMessage) SendGetUserMe(req request.SendFindUserByIDMessageRequest) 
 	}, nil
 }
 
-func UserMessageFactory(log *logrus.Logger) IUserMessage {
-	return NewUserMessage(log)
+func (m *UserMessage) FindUserProfileByUserIDMessage(userId string) (*response.UserProfileResponse, error) {
+	parsedUserID, err := uuid.Parse(userId)
+	if err != nil {
+		return nil, err
+	}
+	userProfile, err := m.UserProfileRepository.FindByUserID(parsedUserID)
+	if err != nil {
+		return nil, err
+	}
+
+	if userProfile == nil {
+		return nil, nil
+	}
+
+	m.Log.Printf("INFO: user profile: %v", userProfile)
+
+	return &response.UserProfileResponse{
+		ID:     userProfile.ID,
+		UserID: userProfile.UserID,
+		Name:   userProfile.Name,
+		Status: userProfile.Status,
+	}, nil
 }

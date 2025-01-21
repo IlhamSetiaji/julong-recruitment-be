@@ -16,6 +16,8 @@ type IJobPostingRepository interface {
 	FindByID(id uuid.UUID) (*entity.JobPosting, error)
 	UpdateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error)
 	DeleteJobPosting(id uuid.UUID) error
+	UpdateJobPostingOrganizationLogoToNull(id uuid.UUID) error
+	UpdateJobPostingPosterToNull(id uuid.UUID) error
 	GetHighestDocumentNumberByDate(date string) (int, error)
 }
 
@@ -117,6 +119,44 @@ func (r *JobPostingRepository) UpdateJobPosting(ent *entity.JobPosting) (*entity
 	}
 
 	return ent, nil
+}
+
+func (r *JobPostingRepository) UpdateJobPostingOrganizationLogoToNull(id uuid.UUID) error {
+	tx := r.DB.Begin()
+
+	if tx.Error != nil {
+		return errors.New("[JobPostingRepository.UpdateJobPostingOrganizationLogoToNull] failed to begin transaction: " + tx.Error.Error())
+	}
+
+	if err := tx.Model(&entity.JobPosting{}).Where("id = ?", id).Update("organization_logo", nil).Error; err != nil {
+		tx.Rollback()
+		return errors.New("[JobPostingRepository.UpdateJobPostingOrganizationLogoToNull] " + err.Error())
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return errors.New("[JobPostingRepository.UpdateJobPostingOrganizationLogoToNull] failed to commit transaction: " + tx.Error.Error())
+	}
+
+	return nil
+}
+
+func (r *JobPostingRepository) UpdateJobPostingPosterToNull(id uuid.UUID) error {
+	tx := r.DB.Begin()
+
+	if tx.Error != nil {
+		return errors.New("[JobPostingRepository.UpdateJobPostingPosterToNull] failed to begin transaction: " + tx.Error.Error())
+	}
+
+	if err := tx.Model(&entity.JobPosting{}).Where("id = ?", id).Update("poster", nil).Error; err != nil {
+		tx.Rollback()
+		return errors.New("[JobPostingRepository.UpdateJobPostingPosterToNull] " + err.Error())
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return errors.New("[JobPostingRepository.UpdateJobPostingPosterToNull] failed to commit transaction: " + tx.Error.Error())
+	}
+
+	return nil
 }
 
 func (r *JobPostingRepository) DeleteJobPosting(id uuid.UUID) error {

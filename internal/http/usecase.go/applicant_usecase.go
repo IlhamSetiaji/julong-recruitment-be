@@ -74,6 +74,21 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 		return nil, err
 	}
 
+	applicantExist, err := uc.Repository.FindByKeys(map[string]interface{}{
+		"user_profile_id": applicantID,
+		"job_posting_id":  jobPostingID,
+	})
+
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	if applicantExist != nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + "Applicant already applied")
+		return nil, err
+	}
+
 	applicant, err := uc.Repository.CreateApplicant(&entity.Applicant{
 		UserProfileID: applicantID,
 		JobPostingID:  jobPostingID,

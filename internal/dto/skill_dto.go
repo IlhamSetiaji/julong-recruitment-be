@@ -40,7 +40,7 @@ func (dto *SkillDTO) ConvertEntityToResponse(ent *entity.Skill) *response.SkillR
 			}
 			return nil
 		}(),
-		Level:     ent.Level,
+		Level:     *ent.Level,
 		CreatedAt: ent.CreatedAt,
 		UpdatedAt: ent.UpdatedAt,
 	}

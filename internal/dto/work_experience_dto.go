@@ -35,8 +35,14 @@ func (dto *WorkExperienceDTO) ConvertEntityToResponse(ent *entity.WorkExperience
 		CompanyName:    ent.CompanyName,
 		YearExperience: ent.YearExperience,
 		JobDescription: ent.JobDescription,
-		Certificate:    dto.Viper.GetString("app.url") + ent.Certificate,
-		CreatedAt:      ent.CreatedAt,
-		UpdatedAt:      ent.UpdatedAt,
+		Certificate: func() *string {
+			if ent.Certificate != "" {
+				certificateURL := dto.Viper.GetString("app.url") + ent.Certificate
+				return &certificateURL
+			}
+			return nil
+		}(),
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
 	}
 }

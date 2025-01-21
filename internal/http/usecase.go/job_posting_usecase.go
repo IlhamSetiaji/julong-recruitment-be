@@ -52,7 +52,7 @@ func NewJobPostingUseCase(
 
 func JobPostingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IJobPostingUseCase {
 	repo := repository.JobPostingRepositoryFactory(log)
-	dto := dto.JobPostingDTOFactory(log)
+	dto := dto.JobPostingDTOFactory(log, viper)
 	prhRepository := repository.ProjectRecruitmentHeaderRepositoryFactory(log)
 	mpRequestRepository := repository.MPRequestRepositoryFactory(log)
 	return NewJobPostingUseCase(log, repo, dto, prhRepository, mpRequestRepository, viper)
@@ -138,8 +138,8 @@ func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string,
 
 	jobPostingResponses := make([]response.JobPostingResponse, 0)
 	for _, jobPosting := range *jobPostings {
-		jobPosting.OrganizationLogo = uc.Viper.GetString("app.url") + jobPosting.OrganizationLogo
-		jobPosting.Poster = uc.Viper.GetString("app.url") + jobPosting.Poster
+		// jobPosting.OrganizationLogo = uc.Viper.GetString("app.url") + jobPosting.OrganizationLogo
+		// jobPosting.Poster = uc.Viper.GetString("app.url") + jobPosting.Poster
 		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 	}
 
@@ -153,8 +153,8 @@ func (uc *JobPostingUseCase) FindByID(id uuid.UUID) (*response.JobPostingRespons
 		return nil, err
 	}
 
-	jobPosting.OrganizationLogo = uc.Viper.GetString("app.url") + jobPosting.OrganizationLogo
-	jobPosting.Poster = uc.Viper.GetString("app.url") + jobPosting.Poster
+	// jobPosting.OrganizationLogo = uc.Viper.GetString("app.url") + jobPosting.OrganizationLogo
+	// jobPosting.Poster = uc.Viper.GetString("app.url") + jobPosting.Poster
 
 	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
 }

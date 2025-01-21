@@ -6,6 +6,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type IJobPostingDTO interface {
@@ -17,6 +18,7 @@ type JobPostingDTO struct {
 	OrganizationMessage         messaging.IOrganizationMessage
 	JobMessage                  messaging.IJobPlafonMessage
 	ProjectRecruitmentHeaderDTO IProjectRecruitmentHeaderDTO
+	Viper                       *viper.Viper
 }
 
 func NewJobPostingDTO(
@@ -24,20 +26,22 @@ func NewJobPostingDTO(
 	orgMessage messaging.IOrganizationMessage,
 	jobMessage messaging.IJobPlafonMessage,
 	prhDTO IProjectRecruitmentHeaderDTO,
+	viper *viper.Viper,
 ) IJobPostingDTO {
 	return &JobPostingDTO{
 		Log:                         log,
 		OrganizationMessage:         orgMessage,
 		JobMessage:                  jobMessage,
 		ProjectRecruitmentHeaderDTO: prhDTO,
+		Viper:                       viper,
 	}
 }
 
-func JobPostingDTOFactory(log *logrus.Logger) IJobPostingDTO {
+func JobPostingDTOFactory(log *logrus.Logger, viper *viper.Viper) IJobPostingDTO {
 	orgMessage := messaging.OrganizationMessageFactory(log)
 	jobMessage := messaging.JobPlafonMessageFactory(log)
 	prhDTO := ProjectRecruitmentHeaderDTOFactory(log)
-	return NewJobPostingDTO(log, orgMessage, jobMessage, prhDTO)
+	return NewJobPostingDTO(log, orgMessage, jobMessage, prhDTO, viper)
 }
 
 func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *response.JobPostingResponse {
@@ -86,12 +90,24 @@ func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *respo
 		SalaryMin:                  ent.SalaryMin,
 		SalaryMax:                  ent.SalaryMax,
 		ContentDescription:         ent.ContentDescription,
-		OrganizationLogo:           ent.OrganizationLogo,
-		Poster:                     ent.Poster,
-		Link:                       ent.Link,
-		ForOrganizationName:        organizationName,
-		ForOrganizationLocation:    organizationLocationName,
-		JobName:                    jobName,
+		OrganizationLogo: func() *string {
+			if ent.OrganizationLogo != "" {
+				organizationLogoURL := dto.Viper.GetString("app.url") + ent.OrganizationLogo
+				return &organizationLogoURL
+			}
+			return nil
+		}(),
+		Poster: func() *string {
+			if ent.Poster != "" {
+				posterURL := dto.Viper.GetString("app.url") + ent.Poster
+				return &posterURL
+			}
+			return nil
+		}(),
+		Link:                    ent.Link,
+		ForOrganizationName:     organizationName,
+		ForOrganizationLocation: organizationLocationName,
+		JobName:                 jobName,
 
 		ProjectRecruitmentHeader: func() *response.ProjectRecruitmentHeaderResponse {
 			if ent.ProjectRecruitmentHeader == nil {

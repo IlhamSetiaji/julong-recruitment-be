@@ -21,8 +21,8 @@ type JobPostingResponse struct {
 	SalaryMin                  string                        `json:"salary_min"`
 	SalaryMax                  string                        `json:"salary_max"`
 	ContentDescription         string                        `json:"content_description"`
-	OrganizationLogo           string                        `json:"organization_logo"`
-	Poster                     string                        `json:"poster"`
+	OrganizationLogo           *string                       `json:"organization_logo"`
+	Poster                     *string                       `json:"poster"`
 	Link                       string                        `json:"link"`
 
 	ForOrganizationName     string `json:"for_organization_name"`

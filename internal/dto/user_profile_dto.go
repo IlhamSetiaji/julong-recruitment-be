@@ -67,20 +67,32 @@ func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) (*re
 	}
 
 	return &response.UserProfileResponse{
-		ID:              ent.ID,
-		UserID:          ent.UserID,
-		Name:            ent.Name,
-		MaritalStatus:   ent.MaritalStatus,
-		Gender:          ent.Gender,
-		PhoneNumber:     ent.PhoneNumber,
-		Age:             ent.Age,
-		BirthDate:       ent.BirthDate,
-		BirthPlace:      ent.BirthPlace,
-		Ktp:             dto.Viper.GetString("app.url") + ent.Ktp,
-		CurriculumVitae: dto.Viper.GetString("app.url") + ent.CurriculumVitae,
-		Status:          ent.Status,
-		CreatedAt:       ent.CreatedAt,
-		UpdatedAt:       ent.UpdatedAt,
+		ID:            ent.ID,
+		UserID:        ent.UserID,
+		Name:          ent.Name,
+		MaritalStatus: ent.MaritalStatus,
+		Gender:        ent.Gender,
+		PhoneNumber:   ent.PhoneNumber,
+		Age:           ent.Age,
+		BirthDate:     ent.BirthDate,
+		BirthPlace:    ent.BirthPlace,
+		Ktp: func() *string {
+			if ent.Ktp != "" {
+				ktpURL := dto.Viper.GetString("app.url") + ent.Ktp
+				return &ktpURL
+			}
+			return nil
+		}(),
+		CurriculumVitae: func() *string {
+			if ent.CurriculumVitae != "" {
+				cvURL := dto.Viper.GetString("app.url") + ent.CurriculumVitae
+				return &cvURL
+			}
+			return nil
+		}(),
+		Status:    ent.Status,
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
 		WorkExperiences: func() *[]response.WorkExperienceResponse {
 			var workExperienceResponses []response.WorkExperienceResponse
 			if len(ent.WorkExperiences) == 0 || ent.WorkExperiences == nil {

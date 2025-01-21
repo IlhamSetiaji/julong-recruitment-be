@@ -17,8 +17,8 @@ type UserProfileResponse struct {
 	Age             int                       `json:"age"`
 	BirthDate       time.Time                 `json:"birth_date"`
 	BirthPlace      string                    `json:"birth_place"`
-	Ktp             string                    `json:"ktp"`
-	CurriculumVitae string                    `json:"curriculum_vitae"`
+	Ktp             *string                   `json:"ktp"`
+	CurriculumVitae *string                   `json:"curriculum_vitae"`
 	Status          entity.UserStatus         `json:"status"`
 	CreatedAt       time.Time                 `json:"created_at"`
 	UpdatedAt       time.Time                 `json:"updated_at"`

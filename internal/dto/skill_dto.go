@@ -33,8 +33,14 @@ func (dto *SkillDTO) ConvertEntityToResponse(ent *entity.Skill) *response.SkillR
 		UserProfileID: ent.UserProfileID,
 		Name:          ent.Name,
 		Description:   ent.Description,
-		Certificate:   dto.Viper.GetString("app.url") + ent.Certificate,
-		CreatedAt:     ent.CreatedAt,
-		UpdatedAt:     ent.UpdatedAt,
+		Certificate: func() *string {
+			if ent.Certificate != "" {
+				certificateURL := dto.Viper.GetString("app.url") + ent.Certificate
+				return &certificateURL
+			}
+			return nil
+		}(),
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
 	}
 }

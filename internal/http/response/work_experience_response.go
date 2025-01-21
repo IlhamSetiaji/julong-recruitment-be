@@ -13,7 +13,7 @@ type WorkExperienceResponse struct {
 	CompanyName    string    `json:"company_name"`
 	YearExperience int       `json:"year_experienced"`
 	JobDescription string    `json:"job_description"`
-	Certificate    string    `json:"certificate"`
+	Certificate    *string   `json:"certificate"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }

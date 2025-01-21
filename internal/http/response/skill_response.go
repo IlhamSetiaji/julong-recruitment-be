@@ -11,7 +11,7 @@ type SkillResponse struct {
 	UserProfileID uuid.UUID `json:"user_profile_id"`
 	Name          string    `json:"name"`
 	Description   string    `json:"description"`
-	Certificate   string    `json:"certificate"`
+	Certificate   *string   `json:"certificate"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }

@@ -36,9 +36,15 @@ func (dto *EducationDTO) ConvertEntityToResponse(ent *entity.Education) *respons
 		SchoolName:     ent.SchoolName,
 		GraduateYear:   ent.GraduateYear,
 		EndDate:        ent.EndDate,
-		Certificate:    dto.Viper.GetString("app.url") + ent.Certificate,
-		Gpa:            ent.Gpa,
-		CreatedAt:      ent.CreatedAt,
-		UpdatedAt:      ent.UpdatedAt,
+		Certificate: func() *string {
+			if ent.Certificate != "" {
+				certificateURL := dto.Viper.GetString("app.url") + ent.Certificate
+				return &certificateURL
+			}
+			return nil
+		}(),
+		Gpa:       ent.Gpa,
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
 	}
 }

@@ -91,16 +91,16 @@ func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *respo
 		SalaryMax:                  ent.SalaryMax,
 		ContentDescription:         ent.ContentDescription,
 		OrganizationLogo: func() *string {
-			if ent.OrganizationLogo != nil || *ent.OrganizationLogo != "" {
+			if ent.OrganizationLogo != "" {
 				dto.Log.Info("Organization Logo: ", ent.OrganizationLogo)
-				organizationLogoURL := dto.Viper.GetString("app.url") + *ent.OrganizationLogo
+				organizationLogoURL := dto.Viper.GetString("app.url") + ent.OrganizationLogo
 				return &organizationLogoURL
 			}
 			return nil
 		}(),
 		Poster: func() *string {
-			if ent.Poster != nil || *ent.Poster != "" {
-				posterURL := dto.Viper.GetString("app.url") + *ent.Poster
+			if ent.Poster != "" {
+				posterURL := dto.Viper.GetString("app.url") + ent.Poster
 				return &posterURL
 			}
 			return nil

@@ -132,7 +132,7 @@ func (r *JobPostingRepository) UpdateJobPostingOrganizationLogoToNull(id uuid.UU
 		return errors.New("[JobPostingRepository.UpdateJobPostingOrganizationLogoToNull] failed to begin transaction: " + tx.Error.Error())
 	}
 
-	if err := tx.Model(&entity.JobPosting{}).Where("id = ?", id).Update("organization_logo", nil).Error; err != nil {
+	if err := tx.Model(&entity.JobPosting{}).Where("id = ?", id).Update("organization_logo", "").Error; err != nil {
 		tx.Rollback()
 		return errors.New("[JobPostingRepository.UpdateJobPostingOrganizationLogoToNull] " + err.Error())
 	}
@@ -151,7 +151,7 @@ func (r *JobPostingRepository) UpdateJobPostingPosterToNull(id uuid.UUID) error 
 		return errors.New("[JobPostingRepository.UpdateJobPostingPosterToNull] failed to begin transaction: " + tx.Error.Error())
 	}
 
-	if err := tx.Model(&entity.JobPosting{}).Where("id = ?", id).Update("poster", nil).Error; err != nil {
+	if err := tx.Model(&entity.JobPosting{}).Where("id = ?", id).Update("poster", "").Error; err != nil {
 		tx.Rollback()
 		return errors.New("[JobPostingRepository.UpdateJobPostingPosterToNull] " + err.Error())
 	}

@@ -119,8 +119,8 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 		SalaryMin:                  req.SalaryMin,
 		SalaryMax:                  req.SalaryMax,
 		ContentDescription:         req.ContentDescription,
-		OrganizationLogo:           &req.OrganizationLogoPath,
-		Poster:                     &req.PosterPath,
+		OrganizationLogo:           req.OrganizationLogoPath,
+		Poster:                     req.PosterPath,
 		Link:                       req.Link,
 	})
 	if err != nil {
@@ -221,8 +221,8 @@ func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingReque
 		SalaryMin:                  req.SalaryMin,
 		SalaryMax:                  req.SalaryMax,
 		ContentDescription:         req.ContentDescription,
-		OrganizationLogo:           &req.OrganizationLogoPath,
-		Poster:                     &req.PosterPath,
+		OrganizationLogo:           req.OrganizationLogoPath,
+		Poster:                     req.PosterPath,
 		Link:                       req.Link,
 	})
 	if err != nil {

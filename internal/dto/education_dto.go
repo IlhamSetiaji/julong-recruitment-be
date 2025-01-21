@@ -43,7 +43,12 @@ func (dto *EducationDTO) ConvertEntityToResponse(ent *entity.Education) *respons
 			}
 			return nil
 		}(),
-		Gpa:       *ent.Gpa,
+		Gpa: func() *float64 {
+			if ent.Gpa != nil {
+				return ent.Gpa
+			}
+			return nil
+		}(),
 		CreatedAt: ent.CreatedAt,
 		UpdatedAt: ent.UpdatedAt,
 	}

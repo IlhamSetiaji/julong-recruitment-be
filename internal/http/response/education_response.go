@@ -16,7 +16,7 @@ type EducationResponse struct {
 	GraduateYear   int                       `json:"graduate_year"`
 	EndDate        time.Time                 `json:"end_date"`
 	Certificate    *string                   `json:"certificate"`
-	Gpa            float64                   `json:"gpa"`
+	Gpa            *float64                  `json:"gpa"`
 	CreatedAt      time.Time                 `json:"created_at"`
 	UpdatedAt      time.Time                 `json:"updated_at"`
 }

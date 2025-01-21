@@ -12,7 +12,7 @@ type SkillResponse struct {
 	Name          string    `json:"name"`
 	Description   string    `json:"description"`
 	Certificate   *string   `json:"certificate"`
-	Level         int       `json:"level"`
+	Level         *int      `json:"level"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }

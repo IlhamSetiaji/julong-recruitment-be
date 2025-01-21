@@ -60,7 +60,7 @@ func (r *UserProfileRepository) CreateUserProfile(ent *entity.UserProfile) (*ent
 		return nil, err
 	}
 
-	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("Applicants").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(ent, ent.ID).Error; err != nil {
 		r.Log.Error("[UserProfileRepository.CreateUserProfile] " + err.Error())
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (r *UserProfileRepository) CreateUserProfile(ent *entity.UserProfile) (*ent
 
 func (r *UserProfileRepository) FindByID(id uuid.UUID) (*entity.UserProfile, error) {
 	var ent entity.UserProfile
-	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(&ent, id).Error; err != nil {
+	if err := r.DB.Preload("Applicants").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(&ent, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {
@@ -101,7 +101,7 @@ func (r *UserProfileRepository) UpdateUserProfile(ent *entity.UserProfile) (*ent
 		return nil, err
 	}
 
-	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("Applicants").Preload("WorkExperiences").Preload("Educations").Preload("Skills").First(ent, ent.ID).Error; err != nil {
 		r.Log.Error("[UserProfileRepository.UpdateUserProfile] " + err.Error())
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (r *UserProfileRepository) UpdateUserProfile(ent *entity.UserProfile) (*ent
 
 func (r *UserProfileRepository) FindByUserID(userID uuid.UUID) (*entity.UserProfile, error) {
 	var ent entity.UserProfile
-	if err := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills").Where("user_id = ?", userID).First(&ent).Error; err != nil {
+	if err := r.DB.Preload("Applicants").Preload("WorkExperiences").Preload("Educations").Preload("Skills").Where("user_id = ?", userID).First(&ent).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {
@@ -127,7 +127,7 @@ func (r *UserProfileRepository) FindAllPaginated(page, pageSize int, search stri
 	var userProfiles []entity.UserProfile
 	var total int64
 
-	query := r.DB.Preload("Applicant").Preload("WorkExperiences").Preload("Educations").Preload("Skills")
+	query := r.DB.Preload("Applicants").Preload("WorkExperiences").Preload("Educations").Preload("Skills")
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")

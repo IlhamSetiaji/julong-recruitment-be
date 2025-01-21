@@ -123,13 +123,14 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 					gpa = ed.Gpa
 				}
 				_, err = uc.EducationRepository.CreateEducation(&entity.Education{
-					UserProfileID: createdProfile.ID,
-					SchoolName:    ed.SchoolName,
-					Major:         ed.Major,
-					GraduateYear:  ed.GraduateYear,
-					Certificate:   ed.CertificatePath,
-					EndDate:       parsedEndDate,
-					Gpa:           gpa,
+					UserProfileID:  createdProfile.ID,
+					SchoolName:     ed.SchoolName,
+					Major:          ed.Major,
+					GraduateYear:   ed.GraduateYear,
+					Certificate:    ed.CertificatePath,
+					EndDate:        parsedEndDate,
+					Gpa:            gpa,
+					EducationLevel: entity.EducationLevelEnum(ed.EducationLevel),
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating education: %s", err.Error())
@@ -243,13 +244,14 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 					gpa = ed.Gpa
 				}
 				_, err = uc.EducationRepository.CreateEducation(&entity.Education{
-					UserProfileID: updatedProfile.ID,
-					SchoolName:    ed.SchoolName,
-					Major:         ed.Major,
-					GraduateYear:  ed.GraduateYear,
-					Certificate:   ed.CertificatePath,
-					EndDate:       parsedEndDate,
-					Gpa:           gpa,
+					UserProfileID:  updatedProfile.ID,
+					SchoolName:     ed.SchoolName,
+					Major:          ed.Major,
+					GraduateYear:   ed.GraduateYear,
+					Certificate:    ed.CertificatePath,
+					EndDate:        parsedEndDate,
+					EducationLevel: entity.EducationLevelEnum(ed.EducationLevel),
+					Gpa:            gpa,
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating education: %s", err.Error())

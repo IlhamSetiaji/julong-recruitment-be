@@ -12,7 +12,7 @@ import (
 
 type IJobPostingRepository interface {
 	CreateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.JobPosting, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.JobPosting, int64, error)
 	FindByID(id uuid.UUID) (*entity.JobPosting, error)
 	UpdateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error)
 	DeleteJobPosting(id uuid.UUID) error
@@ -57,7 +57,7 @@ func (r *JobPostingRepository) CreateJobPosting(ent *entity.JobPosting) (*entity
 	return ent, nil
 }
 
-func (r *JobPostingRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.JobPosting, int64, error) {
+func (r *JobPostingRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.JobPosting, int64, error) {
 	var entities []entity.JobPosting
 	var total int64
 
@@ -65,6 +65,10 @@ func (r *JobPostingRepository) FindAllPaginated(page, pageSize int, search strin
 
 	if search != "" {
 		query = query.Where("document_number ILIKE ?", "%"+search+"%")
+	}
+
+	if filter["status"] != nil {
+		query = query.Where("status = ?", filter["status"])
 	}
 
 	for key, value := range sort {

@@ -130,7 +130,13 @@ func (h *JobPostingHandler) FindAllPaginated(ctx *gin.Context) {
 		"created_at": createdAt,
 	}
 
-	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("failed to find all paginated job postings: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings", err.Error())

@@ -16,7 +16,7 @@ import (
 
 type IJobPostingUseCase interface {
 	CreateJobPosting(req *request.CreateJobPostingRequest) (*response.JobPostingResponse, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.JobPostingResponse, error)
 	UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error)
 	DeleteJobPosting(id uuid.UUID) error
@@ -131,8 +131,8 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
 }
 
-func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.JobPostingResponse, int64, error) {
-	jobPostings, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error) {
+	jobPostings, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
 		return nil, 0, err

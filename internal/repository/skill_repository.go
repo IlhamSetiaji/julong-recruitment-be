@@ -16,6 +16,7 @@ type ISkillRepository interface {
 	DeleteSkill(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.Skill, error)
 	DeleteByUserProfileID(userProfileID uuid.UUID) error
+	DeleteNotInIDAndUserProfileID(ids []uuid.UUID, userProfileID uuid.UUID) error
 }
 
 type SkillRepository struct {
@@ -128,6 +129,24 @@ func (r *SkillRepository) DeleteByUserProfileID(userProfileID uuid.UUID) error {
 	}
 
 	if err := tx.Where("user_profile_id = ?", userProfileID).Delete(&entity.Skill{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *SkillRepository) DeleteNotInIDAndUserProfileID(ids []uuid.UUID, userProfileID uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Where("user_profile_id = ? AND id NOT IN ?", userProfileID, ids).Delete(&entity.Skill{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

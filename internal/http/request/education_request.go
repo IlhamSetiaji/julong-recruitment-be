@@ -3,6 +3,7 @@ package request
 import "mime/multipart"
 
 type Education struct {
+	ID              *string               `form:"id" validate:"omitempty,uuid"`
 	EducationLevel  string                `form:"education_level" validate:"required,education_level_validation"`
 	Major           string                `form:"major" validate:"required"`
 	SchoolName      string                `form:"school_name" validate:"required"`

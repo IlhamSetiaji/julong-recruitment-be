@@ -16,6 +16,7 @@ type IEducationRepository interface {
 	DeleteEducation(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.Education, error)
 	DeleteByUserProfileID(userProfileID uuid.UUID) error
+	DeleteNotInIDAndUserProfileID(ids []uuid.UUID, userProfileID uuid.UUID) error
 }
 
 type EducationRepository struct {
@@ -128,6 +129,24 @@ func (r *EducationRepository) DeleteByUserProfileID(userProfileID uuid.UUID) err
 	}
 
 	if err := tx.Where("user_profile_id = ?", userProfileID).Delete(&entity.Education{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *EducationRepository) DeleteNotInIDAndUserProfileID(ids []uuid.UUID, userProfileID uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Where("user_profile_id = ? AND id NOT IN ?", userProfileID, ids).Delete(&entity.Education{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

@@ -194,88 +194,223 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 		}
 
 		// delete work experiences
-		err = uc.WorkExperienceRepository.DeleteByUserProfileID(updatedProfile.ID)
+		// err = uc.WorkExperienceRepository.DeleteByUserProfileID(updatedProfile.ID)
+		// if err != nil {
+		// 	uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when deleting work experiences: %s", err.Error())
+		// 	return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when deleting work experiences: " + err.Error())
+		// }
+
+		// delete educations
+		// err = uc.EducationRepository.DeleteByUserProfileID(updatedProfile.ID)
+		// if err != nil {
+		// 	uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when deleting educations: %s", err.Error())
+		// 	return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when deleting educations: " + err.Error())
+		// }
+
+		// delete skills
+		// err = uc.SkillRepository.DeleteByUserProfileID(updatedProfile.ID)
+		// if err != nil {
+		// 	uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when deleting skills: %s", err.Error())
+		// 	return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when deleting skills: " + err.Error())
+		// }
+
+		var workExpIDs []uuid.UUID
+		if len(req.WorkExperiences) > 0 {
+			for _, we := range req.WorkExperiences {
+				if we.ID != nil {
+					woExpID, err := uuid.Parse(*we.ID)
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing work experience ID: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing work experience ID: " + err.Error())
+					}
+					workExpIDs = append(workExpIDs, woExpID)
+				}
+			}
+		}
+		err = uc.WorkExperienceRepository.DeleteNotInIDAndUserProfileID(workExpIDs, updatedProfile.ID)
 		if err != nil {
 			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when deleting work experiences: %s", err.Error())
 			return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when deleting work experiences: " + err.Error())
 		}
+		if len(req.WorkExperiences) > 0 {
+			for _, we := range req.WorkExperiences {
+				if we.ID != nil {
+					woExpID, err := uuid.Parse(*we.ID)
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing work experience ID: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing work experience ID: " + err.Error())
+					}
 
-		// delete educations
-		err = uc.EducationRepository.DeleteByUserProfileID(updatedProfile.ID)
+					_, err = uc.WorkExperienceRepository.UpdateWorkExperience(&entity.WorkExperience{
+						ID:             woExpID,
+						UserProfileID:  updatedProfile.ID,
+						CompanyName:    we.CompanyName,
+						Name:           we.Name,
+						YearExperience: we.YearExperience,
+						JobDescription: we.JobDescription,
+						Certificate:    we.CertificatePath,
+					})
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when updating work experience: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when updating work experience: " + err.Error())
+					}
+				} else {
+					_, err = uc.WorkExperienceRepository.CreateWorkExperience(&entity.WorkExperience{
+						UserProfileID:  updatedProfile.ID,
+						CompanyName:    we.CompanyName,
+						Name:           we.Name,
+						YearExperience: we.YearExperience,
+						JobDescription: we.JobDescription,
+						Certificate:    we.CertificatePath,
+					})
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating work experience: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when creating work experience: " + err.Error())
+					}
+				}
+			}
+		}
+
+		var eduIDs []uuid.UUID
+		if len(req.Educations) > 0 {
+			for _, ed := range req.Educations {
+				if ed.ID != nil {
+					eduID, err := uuid.Parse(*ed.ID)
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing education ID: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing education ID: " + err.Error())
+					}
+					eduIDs = append(eduIDs, eduID)
+				}
+			}
+		}
+
+		err = uc.EducationRepository.DeleteNotInIDAndUserProfileID(eduIDs, updatedProfile.ID)
 		if err != nil {
 			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when deleting educations: %s", err.Error())
 			return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when deleting educations: " + err.Error())
 		}
 
-		// delete skills
-		err = uc.SkillRepository.DeleteByUserProfileID(updatedProfile.ID)
+		if len(req.Educations) > 0 {
+			for _, ed := range req.Educations {
+				if ed.ID == nil {
+					parsedEndDate, err := time.Parse("2006-01-02", ed.EndDate)
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing end date: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing end date: " + err.Error())
+					}
+					var gpa *float64
+					if ed.Gpa != nil {
+						gpa = ed.Gpa
+					}
+					_, err = uc.EducationRepository.CreateEducation(&entity.Education{
+						UserProfileID:  updatedProfile.ID,
+						SchoolName:     ed.SchoolName,
+						Major:          ed.Major,
+						GraduateYear:   ed.GraduateYear,
+						Certificate:    ed.CertificatePath,
+						EndDate:        parsedEndDate,
+						EducationLevel: entity.EducationLevelEnum(ed.EducationLevel),
+						Gpa:            gpa,
+					})
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating education: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when creating education: " + err.Error())
+					}
+				} else {
+					eduID, err := uuid.Parse(*ed.ID)
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing education ID: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing education ID: " + err.Error())
+					}
+					parsedEndDate, err := time.Parse("2006-01-02", ed.EndDate)
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing end date: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing end date: " + err.Error())
+					}
+					var gpa *float64
+					if ed.Gpa != nil {
+						gpa = ed.Gpa
+					}
+					_, err = uc.EducationRepository.UpdateEducation(&entity.Education{
+						ID:             eduID,
+						UserProfileID:  updatedProfile.ID,
+						SchoolName:     ed.SchoolName,
+						Major:          ed.Major,
+						GraduateYear:   ed.GraduateYear,
+						Certificate:    ed.CertificatePath,
+						EndDate:        parsedEndDate,
+						EducationLevel: entity.EducationLevelEnum(ed.EducationLevel),
+						Gpa:            gpa,
+					})
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating education: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when creating education: " + err.Error())
+					}
+				}
+			}
+		}
+
+		var skillIDs []uuid.UUID
+		if len(req.Skills) > 0 {
+			for _, s := range req.Skills {
+				if s.ID != nil {
+					skillID, err := uuid.Parse(*s.ID)
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing skill ID: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing skill ID: " + err.Error())
+					}
+					skillIDs = append(skillIDs, skillID)
+				}
+			}
+		}
+
+		err = uc.SkillRepository.DeleteNotInIDAndUserProfileID(skillIDs, updatedProfile.ID)
 		if err != nil {
 			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when deleting skills: %s", err.Error())
 			return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when deleting skills: " + err.Error())
 		}
 
-		if len(req.WorkExperiences) > 0 {
-			uc.Log.Info("Ada ini bos")
-			for _, we := range req.WorkExperiences {
-				_, err := uc.WorkExperienceRepository.CreateWorkExperience(&entity.WorkExperience{
-					UserProfileID:  updatedProfile.ID,
-					CompanyName:    we.CompanyName,
-					Name:           we.Name,
-					YearExperience: we.YearExperience,
-					JobDescription: we.JobDescription,
-					Certificate:    we.CertificatePath,
-				})
-				if err != nil {
-					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating work experience: %s", err.Error())
-					return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when creating work experience: " + err.Error())
-				}
-			}
-		}
-
-		if len(req.Educations) > 0 {
-			for _, ed := range req.Educations {
-				parsedEndDate, err := time.Parse("2006-01-02", ed.EndDate)
-				if err != nil {
-					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing end date: %s", err.Error())
-					return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing end date: " + err.Error())
-				}
-				var gpa *float64
-				if ed.Gpa != nil {
-					gpa = ed.Gpa
-				}
-				_, err = uc.EducationRepository.CreateEducation(&entity.Education{
-					UserProfileID:  updatedProfile.ID,
-					SchoolName:     ed.SchoolName,
-					Major:          ed.Major,
-					GraduateYear:   ed.GraduateYear,
-					Certificate:    ed.CertificatePath,
-					EndDate:        parsedEndDate,
-					EducationLevel: entity.EducationLevelEnum(ed.EducationLevel),
-					Gpa:            gpa,
-				})
-				if err != nil {
-					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating education: %s", err.Error())
-					return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when creating education: " + err.Error())
-				}
-			}
-		}
-
 		if len(req.Skills) > 0 {
 			for _, s := range req.Skills {
-				var level *int
-				if s.Level != nil {
-					level = s.Level
-				}
-				_, err := uc.SkillRepository.CreateSkill(&entity.Skill{
-					UserProfileID: updatedProfile.ID,
-					Name:          s.Name,
-					Description:   s.Description,
-					Certificate:   s.CertificatePath,
-					Level:         level,
-				})
-				if err != nil {
-					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating skill: %s", err.Error())
-					return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when creating skill: " + err.Error())
+				if s.ID == nil {
+					var level *int
+					if s.Level != nil {
+						level = s.Level
+					}
+					_, err := uc.SkillRepository.CreateSkill(&entity.Skill{
+						UserProfileID: updatedProfile.ID,
+						Name:          s.Name,
+						Description:   s.Description,
+						Certificate:   s.CertificatePath,
+						Level:         level,
+					})
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating skill: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when creating skill: " + err.Error())
+					}
+				} else {
+					skillID, err := uuid.Parse(*s.ID)
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing skill ID: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing skill ID: " + err.Error())
+					}
+					var level *int
+					if s.Level != nil {
+						level = s.Level
+					}
+					_, err = uc.SkillRepository.UpdateSkill(&entity.Skill{
+						ID:            skillID,
+						UserProfileID: updatedProfile.ID,
+						Name:          s.Name,
+						Description:   s.Description,
+						Certificate:   s.CertificatePath,
+						Level:         level,
+					})
+					if err != nil {
+						uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when updating skill: %s", err.Error())
+						return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when updating skill: " + err.Error())
+					}
 				}
 			}
 		}

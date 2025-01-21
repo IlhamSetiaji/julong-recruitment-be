@@ -118,6 +118,7 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 		// return
 	}
 
+	workExpIDs := ctx.PostFormArray("work_experiences.id")
 	workExpNames := ctx.PostFormArray("work_experiences.name")
 	workExpCompanies := ctx.PostFormArray("work_experiences.company_name")
 	workExpYears := ctx.PostFormArray("work_experiences.year_experience")
@@ -137,7 +138,14 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 					return
 				}
 			}
+
+			var workExpID *string
+			if len(workExpIDs) > i {
+				workExpID = &workExpIDs[i]
+			}
+
 			payload.WorkExperiences = append(payload.WorkExperiences, request.WorkExperience{
+				ID:             workExpID,
 				Name:           workExpNames[i],
 				CompanyName:    workExpCompanies[i],
 				YearExperience: yearExp,
@@ -148,6 +156,7 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 		}
 	}
 
+	eduIDs := ctx.PostFormArray("educations.id")
 	eduLevels := ctx.PostFormArray("educations.education_level")
 	eduMajors := ctx.PostFormArray("educations.major")
 	eduSchools := ctx.PostFormArray("educations.school_name")
@@ -174,7 +183,13 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 			}
 		}
 
+		var eduID *string
+		if len(eduIDs) > i {
+			eduID = &eduIDs[i]
+		}
+
 		payload.Educations = append(payload.Educations, request.Education{
+			ID:             eduID,
 			EducationLevel: eduLevels[i],
 			Major:          eduMajors[i],
 			SchoolName:     eduSchools[i],
@@ -186,6 +201,7 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 		})
 	}
 
+	skillIDs := ctx.PostFormArray("skills.id")
 	skillNames := ctx.PostFormArray("skills.name")
 	skillDescriptions := ctx.PostFormArray("skills.description")
 	skillLevels := ctx.PostFormArray("skills.level")
@@ -210,7 +226,13 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 			skillLevel = &parsedLevel
 		}
 
+		var skillID *string
+		if len(skillIDs) > i {
+			skillID = &skillIDs[i]
+		}
+
 		payload.Skills = append(payload.Skills, request.Skill{
+			ID:          skillID,
 			Name:        skillNames[i],
 			Description: skillDescriptions[i],
 			// Certificate: skillCertificates[i],

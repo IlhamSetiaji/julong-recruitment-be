@@ -113,12 +113,18 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 		}
 		if len(req.Educations) > 0 {
 			for _, ed := range req.Educations {
-				_, err := uc.EducationRepository.CreateEducation(&entity.Education{
+				parsedEndDate, err := time.Parse("2006-01-02", ed.EndDate)
+				if err != nil {
+					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing end date: %s", err.Error())
+					return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing end date: " + err.Error())
+				}
+				_, err = uc.EducationRepository.CreateEducation(&entity.Education{
 					UserProfileID: createdProfile.ID,
 					SchoolName:    ed.SchoolName,
 					Major:         ed.Major,
 					GraduateYear:  ed.GraduateYear,
 					Certificate:   ed.CertificatePath,
+					EndDate:       parsedEndDate,
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating education: %s", err.Error())

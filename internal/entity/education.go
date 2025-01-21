@@ -33,7 +33,7 @@ type Education struct {
 	GraduateYear   int                `json:"graduate_year" gorm:"type:int;not null"`
 	EndDate        time.Time          `json:"end_date" gorm:"type:date;not null"`
 	Certificate    string             `json:"certificate" gorm:"type:text;not null"`
-	Gpa            float64            `json:"gpa" gorm:"type:float;not null"`
+	Gpa            *float64           `json:"gpa" gorm:"type:float;not null"`
 
 	// Applicant *Applicant `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	UserProfile *UserProfile `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

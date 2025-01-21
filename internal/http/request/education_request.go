@@ -10,5 +10,5 @@ type Education struct {
 	EndDate         string                `form:"end_date" validate:"required,datetime=2006-01-02"`
 	Certificate     *multipart.FileHeader `form:"certificate" validate:"omitempty"`
 	CertificatePath string                `form:"certificate_path" validate:"omitempty"`
-	Gpa             float64               `form:"gpa" validate:"required"`
+	Gpa             *float64              `form:"gpa" validate:"omitempty,gte=0,lte=4"`
 }

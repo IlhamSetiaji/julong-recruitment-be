@@ -157,7 +157,11 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 
 	for i := range eduLevels {
 		gradYear, _ := strconv.Atoi(eduGradYears[i])
-		gpa, _ := strconv.ParseFloat(eduGpas[i], 64)
+		var gpa *float64
+		if eduGpas[i] != "" {
+			parsedGpa, _ := strconv.ParseFloat(eduGpas[i], 64)
+			gpa = &parsedGpa
+		}
 		var certificatePath string
 		file, err := ctx.FormFile("educations.certificate[" + strconv.Itoa(i) + "]")
 		if err == nil && file != nil {
@@ -169,6 +173,7 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 				return
 			}
 		}
+
 		payload.Educations = append(payload.Educations, request.Education{
 			EducationLevel: eduLevels[i],
 			Major:          eduMajors[i],
@@ -183,6 +188,7 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 
 	skillNames := ctx.PostFormArray("skills.name")
 	skillDescriptions := ctx.PostFormArray("skills.description")
+	skillLevels := ctx.PostFormArray("skills.level")
 	// skillCertificates := ctx.Request.MultipartForm.File["skills.certificate"]
 
 	for i := range skillNames {
@@ -197,11 +203,19 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 				return
 			}
 		}
+
+		var skillLevel *int
+		if skillLevels[i] != "" {
+			parsedLevel, _ := strconv.Atoi(skillLevels[i])
+			skillLevel = &parsedLevel
+		}
+
 		payload.Skills = append(payload.Skills, request.Skill{
 			Name:        skillNames[i],
 			Description: skillDescriptions[i],
 			// Certificate: skillCertificates[i],
 			CertificatePath: certificatePath,
+			Level:           skillLevel,
 		})
 	}
 

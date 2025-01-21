@@ -118,6 +118,10 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing end date: %s", err.Error())
 					return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing end date: " + err.Error())
 				}
+				var gpa *float64
+				if ed.Gpa != nil {
+					gpa = ed.Gpa
+				}
 				_, err = uc.EducationRepository.CreateEducation(&entity.Education{
 					UserProfileID: createdProfile.ID,
 					SchoolName:    ed.SchoolName,
@@ -125,6 +129,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 					GraduateYear:  ed.GraduateYear,
 					Certificate:   ed.CertificatePath,
 					EndDate:       parsedEndDate,
+					Gpa:           gpa,
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating education: %s", err.Error())
@@ -134,12 +139,16 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 		}
 		if len(req.Skills) > 0 {
 			for _, s := range req.Skills {
+				var level *int
+				if s.Level != nil {
+					level = s.Level
+				}
 				_, err := uc.SkillRepository.CreateSkill(&entity.Skill{
 					UserProfileID: createdProfile.ID,
 					Name:          s.Name,
 					Description:   s.Description,
 					Certificate:   s.CertificatePath,
-					Level:         s.Level,
+					Level:         level,
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating skill: %s", err.Error())
@@ -229,6 +238,10 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing end date: %s", err.Error())
 					return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing end date: " + err.Error())
 				}
+				var gpa *float64
+				if ed.Gpa != nil {
+					gpa = ed.Gpa
+				}
 				_, err = uc.EducationRepository.CreateEducation(&entity.Education{
 					UserProfileID: updatedProfile.ID,
 					SchoolName:    ed.SchoolName,
@@ -236,6 +249,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 					GraduateYear:  ed.GraduateYear,
 					Certificate:   ed.CertificatePath,
 					EndDate:       parsedEndDate,
+					Gpa:           gpa,
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating education: %s", err.Error())
@@ -246,12 +260,16 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 
 		if len(req.Skills) > 0 {
 			for _, s := range req.Skills {
+				var level *int
+				if s.Level != nil {
+					level = s.Level
+				}
 				_, err := uc.SkillRepository.CreateSkill(&entity.Skill{
 					UserProfileID: updatedProfile.ID,
 					Name:          s.Name,
 					Description:   s.Description,
 					Certificate:   s.CertificatePath,
-					Level:         s.Level,
+					Level:         level,
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating skill: %s", err.Error())

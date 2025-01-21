@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/sirupsen/logrus"
@@ -9,6 +11,7 @@ import (
 
 type IApplicantRepository interface {
 	CreateApplicant(applicant *entity.Applicant) (*entity.Applicant, error)
+	FindByKeys(keys map[string]interface{}) (*entity.Applicant, error)
 }
 
 type ApplicantRepository struct {
@@ -53,4 +56,17 @@ func (r *ApplicantRepository) CreateApplicant(applicant *entity.Applicant) (*ent
 	}
 
 	return applicant, nil
+}
+
+func (r *ApplicantRepository) FindByKeys(keys map[string]interface{}) (*entity.Applicant, error) {
+	var applicant entity.Applicant
+	if err := r.DB.Where(keys).Preload("UserProfile").Preload("JobPosting").First(&applicant).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &applicant, nil
 }

@@ -48,6 +48,7 @@ type JobPosting struct {
 	ForOrganizationLocation  string `json:"for_organization_location" gorm:"-"`
 	ForOrganizationStructure string `json:"for_organization_structure" gorm:"-"`
 	JobName                  string `json:"job_name" gorm:"-"`
+	IsApplied                bool   `json:"is_applied" gorm:"-"`
 }
 
 func (jp *JobPosting) BeforeCreate(tx *gorm.DB) (err error) {

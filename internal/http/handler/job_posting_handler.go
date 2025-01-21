@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase.go"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -26,10 +28,11 @@ type IJobPostingHandler interface {
 }
 
 type JobPostingHandler struct {
-	Log      *logrus.Logger
-	Viper    *viper.Viper
-	Validate *validator.Validate
-	UseCase  usecase.IJobPostingUseCase
+	Log        *logrus.Logger
+	Viper      *viper.Viper
+	Validate   *validator.Validate
+	UseCase    usecase.IJobPostingUseCase
+	UserHelper helper.IUserHelper
 }
 
 func NewJobPostingHandler(
@@ -37,12 +40,14 @@ func NewJobPostingHandler(
 	viper *viper.Viper,
 	validate *validator.Validate,
 	useCase usecase.IJobPostingUseCase,
+	userHelper helper.IUserHelper,
 ) IJobPostingHandler {
 	return &JobPostingHandler{
-		Log:      log,
-		Viper:    viper,
-		Validate: validate,
-		UseCase:  useCase,
+		Log:        log,
+		Viper:      viper,
+		Validate:   validate,
+		UseCase:    useCase,
+		UserHelper: userHelper,
 	}
 }
 
@@ -52,7 +57,8 @@ func JobPostingHandlerFactory(
 ) IJobPostingHandler {
 	useCase := usecase.JobPostingUseCaseFactory(log, viper)
 	validate := config.NewValidator(viper)
-	return NewJobPostingHandler(log, viper, validate, useCase)
+	userHelper := helper.UserHelperFactory(log)
+	return NewJobPostingHandler(log, viper, validate, useCase, userHelper)
 }
 
 func (h *JobPostingHandler) CreateJobPosting(ctx *gin.Context) {
@@ -106,6 +112,24 @@ func (h *JobPostingHandler) CreateJobPosting(ctx *gin.Context) {
 }
 
 func (h *JobPostingHandler) FindAllPaginated(ctx *gin.Context) {
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
 		page = 1
@@ -136,7 +160,7 @@ func (h *JobPostingHandler) FindAllPaginated(ctx *gin.Context) {
 		filter["status"] = status
 	}
 
-	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
+	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter, userUUID)
 	if err != nil {
 		h.Log.Error("failed to find all paginated job postings: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings", err.Error())

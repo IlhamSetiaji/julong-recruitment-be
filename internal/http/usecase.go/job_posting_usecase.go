@@ -16,7 +16,7 @@ import (
 
 type IJobPostingUseCase interface {
 	CreateJobPosting(req *request.CreateJobPostingRequest) (*response.JobPostingResponse, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID) (*[]response.JobPostingResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.JobPostingResponse, error)
 	UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error)
 	DeleteJobPosting(id uuid.UUID) error
@@ -32,6 +32,8 @@ type JobPostingUseCase struct {
 	ProjectRecruitmentHeaderRepository repository.IProjectRecruitmentHeaderRepository
 	MPRequestRepository                repository.IMPRequestRepository
 	Viper                              *viper.Viper
+	ApplicantRepository                repository.IApplicantRepository
+	UserProfileRepository              repository.IUserProfileRepository
 }
 
 func NewJobPostingUseCase(
@@ -41,6 +43,8 @@ func NewJobPostingUseCase(
 	prhRepository repository.IProjectRecruitmentHeaderRepository,
 	mpRequestRepository repository.IMPRequestRepository,
 	viper *viper.Viper,
+	applicantRepository repository.IApplicantRepository,
+	userProfileRepository repository.IUserProfileRepository,
 ) IJobPostingUseCase {
 	return &JobPostingUseCase{
 		Log:                                log,
@@ -49,6 +53,8 @@ func NewJobPostingUseCase(
 		ProjectRecruitmentHeaderRepository: prhRepository,
 		MPRequestRepository:                mpRequestRepository,
 		Viper:                              viper,
+		ApplicantRepository:                applicantRepository,
+		UserProfileRepository:              userProfileRepository,
 	}
 }
 
@@ -57,7 +63,18 @@ func JobPostingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IJobPostin
 	dto := dto.JobPostingDTOFactory(log, viper)
 	prhRepository := repository.ProjectRecruitmentHeaderRepositoryFactory(log)
 	mpRequestRepository := repository.MPRequestRepositoryFactory(log)
-	return NewJobPostingUseCase(log, repo, dto, prhRepository, mpRequestRepository, viper)
+	applicantRepository := repository.ApplicantRepositoryFactory(log)
+	userProfileRepository := repository.UserProfileRepositoryFactory(log)
+	return NewJobPostingUseCase(
+		log,
+		repo,
+		dto,
+		prhRepository,
+		mpRequestRepository,
+		viper,
+		applicantRepository,
+		userProfileRepository,
+	)
 }
 
 func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingRequest) (*response.JobPostingResponse, error) {
@@ -131,7 +148,18 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
 }
 
-func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error) {
+func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID) (*[]response.JobPostingResponse, int64, error) {
+	userProfile, err := uc.UserProfileRepository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	if userProfile == nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + "User Profile not found")
+		return nil, 0, err
+	}
+
 	jobPostings, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
@@ -140,8 +168,22 @@ func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string,
 
 	jobPostingResponses := make([]response.JobPostingResponse, 0)
 	for _, jobPosting := range *jobPostings {
-		// jobPosting.OrganizationLogo = uc.Viper.GetString("app.url") + jobPosting.OrganizationLogo
-		// jobPosting.Poster = uc.Viper.GetString("app.url") + jobPosting.Poster
+		applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+			"job_posting_id":  jobPosting.ID,
+			"user_profile_id": userProfile.ID,
+		})
+		if err != nil {
+			uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
+			return nil, 0, err
+		}
+
+		isApplied := false
+		if applicant != nil {
+			isApplied = true
+		}
+
+		jobPosting.IsApplied = isApplied
+
 		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 	}
 
@@ -154,9 +196,6 @@ func (uc *JobPostingUseCase) FindByID(id uuid.UUID) (*response.JobPostingRespons
 		uc.Log.Error("[JobPostingUseCase.FindByID] " + err.Error())
 		return nil, err
 	}
-
-	// jobPosting.OrganizationLogo = uc.Viper.GetString("app.url") + jobPosting.OrganizationLogo
-	// jobPosting.Poster = uc.Viper.GetString("app.url") + jobPosting.Poster
 
 	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
 }

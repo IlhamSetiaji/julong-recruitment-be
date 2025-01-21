@@ -17,7 +17,7 @@ import (
 type IJobPostingUseCase interface {
 	CreateJobPosting(req *request.CreateJobPostingRequest) (*response.JobPostingResponse, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID) (*[]response.JobPostingResponse, int64, error)
-	FindByID(id uuid.UUID) (*response.JobPostingResponse, error)
+	FindByID(id uuid.UUID, userID uuid.UUID) (*response.JobPostingResponse, error)
 	UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error)
 	DeleteJobPosting(id uuid.UUID) error
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
@@ -190,12 +190,40 @@ func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string,
 	return &jobPostingResponses, total, nil
 }
 
-func (uc *JobPostingUseCase) FindByID(id uuid.UUID) (*response.JobPostingResponse, error) {
+func (uc *JobPostingUseCase) FindByID(id uuid.UUID, userID uuid.UUID) (*response.JobPostingResponse, error) {
 	jobPosting, err := uc.Repository.FindByID(id)
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.FindByID] " + err.Error())
 		return nil, err
 	}
+
+	if jobPosting == nil {
+		uc.Log.Error("[JobPostingUseCase.FindByID] " + "Job Posting not found")
+		return nil, err
+	}
+
+	userProfile, err := uc.UserProfileRepository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindByID] " + err.Error())
+		return nil, err
+	}
+
+	if userProfile == nil {
+		uc.Log.Error("[JobPostingUseCase.FindByID] " + "User Profile not found")
+		return nil, err
+	}
+
+	applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+		"job_posting_id":  jobPosting.ID,
+		"user_profile_id": userProfile.ID,
+	})
+
+	isApplied := false
+	if applicant != nil {
+		isApplied = true
+	}
+
+	jobPosting.IsApplied = isApplied
 
 	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
 }

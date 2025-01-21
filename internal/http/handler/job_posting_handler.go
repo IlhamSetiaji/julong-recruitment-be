@@ -183,7 +183,25 @@ func (h *JobPostingHandler) FindByID(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.UseCase.FindByID(parsedUUID)
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindByID(parsedUUID, userUUID)
 	if err != nil {
 		h.Log.Error("failed to find job posting by id: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find job posting by id", err.Error())

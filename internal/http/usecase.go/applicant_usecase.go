@@ -17,10 +17,12 @@ type IApplicantUseCase interface {
 }
 
 type ApplicantUseCase struct {
-	Log        *logrus.Logger
-	Repository repository.IApplicantRepository
-	DTO        dto.IApplicantDTO
-	Viper      *viper.Viper
+	Log                   *logrus.Logger
+	Repository            repository.IApplicantRepository
+	DTO                   dto.IApplicantDTO
+	Viper                 *viper.Viper
+	JobPostingRepository  repository.IJobPostingRepository
+	UserProfileRepository repository.IUserProfileRepository
 }
 
 func NewApplicantUseCase(
@@ -28,22 +30,50 @@ func NewApplicantUseCase(
 	repo repository.IApplicantRepository,
 	applicantDTO dto.IApplicantDTO,
 	viper *viper.Viper,
+	jpRepo repository.IJobPostingRepository,
+	upRepo repository.IUserProfileRepository,
 ) IApplicantUseCase {
 	return &ApplicantUseCase{
-		Log:        log,
-		Repository: repo,
-		DTO:        applicantDTO,
-		Viper:      viper,
+		Log:                   log,
+		Repository:            repo,
+		DTO:                   applicantDTO,
+		Viper:                 viper,
+		JobPostingRepository:  jpRepo,
+		UserProfileRepository: upRepo,
 	}
 }
 
 func ApplicantUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IApplicantUseCase {
 	repo := repository.ApplicantRepositoryFactory(log)
 	applicantDTO := dto.ApplicantDTOFactory(log, viper)
-	return NewApplicantUseCase(log, repo, applicantDTO, viper)
+	jpRepo := repository.JobPostingRepositoryFactory(log)
+	upRepo := repository.UserProfileRepositoryFactory(log)
+	return NewApplicantUseCase(log, repo, applicantDTO, viper, jpRepo, upRepo)
 }
 
 func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error) {
+	jpExist, err := uc.JobPostingRepository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	if jpExist == nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + "Job Posting not found")
+		return nil, err
+	}
+
+	upExist, err := uc.UserProfileRepository.FindByID(applicantID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	if upExist == nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + "User Profile not found")
+		return nil, err
+	}
+
 	applicant, err := uc.Repository.CreateApplicant(&entity.Applicant{
 		UserProfileID: applicantID,
 		JobPostingID:  jobPostingID,

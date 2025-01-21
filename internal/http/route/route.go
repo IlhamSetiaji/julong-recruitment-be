@@ -29,6 +29,7 @@ type RouteConfig struct {
 	UniversityHandler               handler.IUniversityHandler
 	MailTemplateHandler             handler.IMailTemplateHandler
 	UserProfileHandler              handler.IUserProfileHandler
+	ApplicantHandler                handler.IApplicantHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -166,6 +167,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				userProfileRoute.PUT("/update/status", c.UserProfileHandler.UpdateStatusUserProfile)
 				userProfileRoute.DELETE("/:id", c.UserProfileHandler.DeleteUserProfile)
 			}
+			// applicants
+			applicantRoute := apiRoute.Group("/applicants")
+			{
+				applicantRoute.GET("/apply", c.ApplicantHandler.ApplyJobPosting)
+			}
 		}
 	}
 }
@@ -187,6 +193,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	universityHandler := handler.UniversityHandlerFactory(log, viper)
 	mailTemplateHandler := handler.MailTemplateHandlerFactory(log, viper)
 	userProfileHandler := handler.UserProfileHandlerFactory(log, viper)
+	applicantHandler := handler.ApplicantHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -208,5 +215,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		UniversityHandler:               universityHandler,
 		MailTemplateHandler:             mailTemplateHandler,
 		UserProfileHandler:              userProfileHandler,
+		ApplicantHandler:                applicantHandler,
 	}
 }

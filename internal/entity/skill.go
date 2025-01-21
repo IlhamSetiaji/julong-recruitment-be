@@ -14,6 +14,7 @@ type Skill struct {
 	Name          string    `json:"name" gorm:"type:varchar(255);not null"`
 	Description   string    `json:"description" gorm:"type:text;not null"`
 	Certificate   string    `json:"certificate" gorm:"type:text;not null"`
+	Level         int       `json:"level" gorm:"type:int;default:0"`
 
 	// Applicant *Applicant `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	UserProfile *UserProfile `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

@@ -133,6 +133,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 					Name:          s.Name,
 					Description:   s.Description,
 					Certificate:   s.CertificatePath,
+					Level:         s.Level,
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating skill: %s", err.Error())
@@ -244,6 +245,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 					Name:          s.Name,
 					Description:   s.Description,
 					Certificate:   s.CertificatePath,
+					Level:         s.Level,
 				})
 				if err != nil {
 					uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when creating skill: %s", err.Error())

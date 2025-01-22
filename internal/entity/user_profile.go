@@ -50,6 +50,7 @@ type UserProfile struct {
 	WorkExperiences []WorkExperience `json:"work_experiences" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Educations      []Education      `json:"educations" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Skills          []Skill          `json:"skills" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TestApplicants  []TestApplicant  `json:"test_applicants" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (up *UserProfile) BeforeCreate(tx *gorm.DB) (err error) {

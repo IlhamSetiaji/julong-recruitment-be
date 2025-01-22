@@ -34,9 +34,10 @@ type TestScheduleHeader struct {
 	TotalCandidate int                `json:"total_candidate" gorm:"type:int;not null"`
 	Status         TestScheduleStatus `json:"status" gorm:"type:varchar(255);default:'DRAFT'"`
 
-	JobPosting *JobPosting `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TestType   *TestType   `json:"test_type" gorm:"foreignKey:TestTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	ProjectPic *ProjectPic `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	JobPosting     *JobPosting     `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TestType       *TestType       `json:"test_type" gorm:"foreignKey:TestTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectPic     *ProjectPic     `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TestApplicants []TestApplicant `json:"test_applicants" gorm:"foreignKey:TestScheduleHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	JobName string `json:"job_name" gorm:"-"`
 }

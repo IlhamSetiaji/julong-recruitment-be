@@ -36,6 +36,8 @@ func main() {
 		&entity.Education{},
 		&entity.Skill{},
 		&entity.TestType{},
+		&entity.TestScheduleHeader{},
+		&entity.TestApplicant{},
 	)
 	if err != nil {
 		log.Fatal(err)

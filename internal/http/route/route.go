@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type RouteConfig struct {
@@ -40,6 +42,7 @@ func (c *RouteConfig) SetupRoutes() {
 		})
 	})
 
+	c.App.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	c.SetupAPIRoutes()
 }
 

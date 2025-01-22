@@ -1,0 +1,250 @@
+basePath: /api
+definitions:
+  entity.ProjectRecruitmentType:
+    enum:
+    - MT_Management Trainee
+    - PH_Professional Hire
+    - NS_Non Staff to Staff
+    type: string
+    x-enum-varnames:
+    - PROJECT_RECRUITMENT_TYPE_MT
+    - PROJECT_RECRUITMENT_TYPE_PH
+    - PROJECT_RECRUITMENT_TYPE_NS
+  entity.TemplateQuestionFormType:
+    enum:
+    - ADMINISTRATIVE_SELECTION
+    - TEST
+    - INTERVIEW
+    - FGD
+    - FINAL_INTERVIEW
+    - OFFERING_LETTER
+    - CONTRACT_DOCUMENT
+    - DOCUMENT_CHECKING
+    - SURAT_IZIN_ORANG_TUA
+    - KARYAWAN_TETAP
+    - PKWT
+    - PKWTT
+    type: string
+    x-enum-varnames:
+    - TQ_FORM_TYPE_ADMINISTRATIVE_SELECTION
+    - TQ_FORM_TYPE_TEST
+    - TQ_FORM_TYPE_INTERVIEW
+    - TQ_FORM_TYPE_FGD
+    - TQ_FORM_TYPE_FINAL_INTERVIEW
+    - TQ_FORM_TYPE_OFFERING_LETTER
+    - TQ_FORM_TYPE_CONTRACT_DOCUMENT
+    - TQ_FORM_TYPE_DOCUMENT_CHECKING
+    - TQ_FORM_TYPE_SURAT_IZIN_ORTU
+    - TQ_FORM_TYPE_KARYAWAN_TETAP
+    - TQ_FORM_TYPE_PKWT
+    - TQ_FORM_TYPE_PKWTT
+  entity.TemplateQuestionStatus:
+    enum:
+    - ACTIVE
+    - INACTIVE
+    type: string
+    x-enum-varnames:
+    - TEMPLATE_QUESTION_STATUS_ACTIVE
+    - TEMPLATE_QUESTION_STATUS_INACTIVE
+  request.CreateOrUpdateQuestions:
+    properties:
+      deleted_question_ids:
+        items:
+          type: string
+        type: array
+      questions:
+        items:
+          properties:
+            answer_type_id:
+              type: string
+            id:
+              type: string
+            name:
+              type: string
+            question_options:
+              items:
+                properties:
+                  option_text:
+                    type: string
+                required:
+                - option_text
+                type: object
+              type: array
+          required:
+          - answer_type_id
+          - name
+          type: object
+        type: array
+      template_question_id:
+        type: string
+    required:
+    - questions
+    - template_question_id
+    type: object
+  response.AnswerTypeResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.DocumentSetupResponse:
+    properties:
+      body:
+        type: string
+      created_at:
+        type: string
+      document_type:
+        $ref: '#/definitions/response.DocumentTypeResponse'
+      document_type_id:
+        type: string
+      footer:
+        type: string
+      header:
+        type: string
+      id:
+        type: string
+      recruitment_type:
+        $ref: '#/definitions/entity.ProjectRecruitmentType'
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.DocumentTypeResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.DocumentVerificationResponse:
+    properties:
+      format:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      template_question:
+        $ref: '#/definitions/response.TemplateQuestionResponse'
+      template_question_id:
+        type: string
+    type: object
+  response.QuestionOptionResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      option_text:
+        type: string
+      question_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.QuestionResponse:
+    properties:
+      answer_type_id:
+        type: string
+      answer_types:
+        $ref: '#/definitions/response.AnswerTypeResponse'
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      question_options:
+        items:
+          $ref: '#/definitions/response.QuestionOptionResponse'
+        type: array
+      template_question_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.TemplateQuestionResponse:
+    properties:
+      description:
+        type: string
+      document_setup:
+        $ref: '#/definitions/response.DocumentSetupResponse'
+      document_setup_id:
+        type: string
+      document_verifications:
+        items:
+          $ref: '#/definitions/response.DocumentVerificationResponse'
+        type: array
+      duration:
+        type: integer
+      form_type:
+        $ref: '#/definitions/entity.TemplateQuestionFormType'
+      id:
+        type: string
+      name:
+        type: string
+      questions:
+        items:
+          $ref: '#/definitions/response.QuestionResponse'
+        type: array
+      status:
+        $ref: '#/definitions/entity.TemplateQuestionStatus'
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /api/questions:
+    post:
+      consumes:
+      - application/json
+      description: Create or update questions
+      parameters:
+      - description: Create employee
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrUpdateQuestions'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.TemplateQuestionResponse'
+      security:
+      - BearerAuth: []
+      summary: Create or update questions
+      tags:
+      - questions
+securityDefinitions:
+  BearerAuth:
+    description: Bearer token for authentication
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

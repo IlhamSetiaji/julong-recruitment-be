@@ -1,0 +1,365 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample server celler server.",
+        "title": "Swagger Example API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8000",
+    "basePath": "/api",
+    "paths": {
+        "/api/questions": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update questions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "questions"
+                ],
+                "summary": "Create or update questions",
+                "parameters": [
+                    {
+                        "description": "Create employee",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrUpdateQuestions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.TemplateQuestionResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entity.ProjectRecruitmentType": {
+            "type": "string",
+            "enum": [
+                "MT_Management Trainee",
+                "PH_Professional Hire",
+                "NS_Non Staff to Staff"
+            ],
+            "x-enum-varnames": [
+                "PROJECT_RECRUITMENT_TYPE_MT",
+                "PROJECT_RECRUITMENT_TYPE_PH",
+                "PROJECT_RECRUITMENT_TYPE_NS"
+            ]
+        },
+        "entity.TemplateQuestionFormType": {
+            "type": "string",
+            "enum": [
+                "ADMINISTRATIVE_SELECTION",
+                "TEST",
+                "INTERVIEW",
+                "FGD",
+                "FINAL_INTERVIEW",
+                "OFFERING_LETTER",
+                "CONTRACT_DOCUMENT",
+                "DOCUMENT_CHECKING",
+                "SURAT_IZIN_ORANG_TUA",
+                "KARYAWAN_TETAP",
+                "PKWT",
+                "PKWTT"
+            ],
+            "x-enum-varnames": [
+                "TQ_FORM_TYPE_ADMINISTRATIVE_SELECTION",
+                "TQ_FORM_TYPE_TEST",
+                "TQ_FORM_TYPE_INTERVIEW",
+                "TQ_FORM_TYPE_FGD",
+                "TQ_FORM_TYPE_FINAL_INTERVIEW",
+                "TQ_FORM_TYPE_OFFERING_LETTER",
+                "TQ_FORM_TYPE_CONTRACT_DOCUMENT",
+                "TQ_FORM_TYPE_DOCUMENT_CHECKING",
+                "TQ_FORM_TYPE_SURAT_IZIN_ORTU",
+                "TQ_FORM_TYPE_KARYAWAN_TETAP",
+                "TQ_FORM_TYPE_PKWT",
+                "TQ_FORM_TYPE_PKWTT"
+            ]
+        },
+        "entity.TemplateQuestionStatus": {
+            "type": "string",
+            "enum": [
+                "ACTIVE",
+                "INACTIVE"
+            ],
+            "x-enum-varnames": [
+                "TEMPLATE_QUESTION_STATUS_ACTIVE",
+                "TEMPLATE_QUESTION_STATUS_INACTIVE"
+            ]
+        },
+        "request.CreateOrUpdateQuestions": {
+            "type": "object",
+            "required": [
+                "questions",
+                "template_question_id"
+            ],
+            "properties": {
+                "deleted_question_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "answer_type_id",
+                            "name"
+                        ],
+                        "properties": {
+                            "answer_type_id": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "question_options": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "option_text"
+                                    ],
+                                    "properties": {
+                                        "option_text": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "template_question_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.AnswerTypeResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.DocumentSetupResponse": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "document_type": {
+                    "$ref": "#/definitions/response.DocumentTypeResponse"
+                },
+                "document_type_id": {
+                    "type": "string"
+                },
+                "footer": {
+                    "type": "string"
+                },
+                "header": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentType"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.DocumentTypeResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.DocumentVerificationResponse": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "template_question": {
+                    "$ref": "#/definitions/response.TemplateQuestionResponse"
+                },
+                "template_question_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.QuestionOptionResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "option_text": {
+                    "type": "string"
+                },
+                "question_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.QuestionResponse": {
+            "type": "object",
+            "properties": {
+                "answer_type_id": {
+                    "type": "string"
+                },
+                "answer_types": {
+                    "$ref": "#/definitions/response.AnswerTypeResponse"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "question_options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.QuestionOptionResponse"
+                    }
+                },
+                "template_question_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.TemplateQuestionResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_setup": {
+                    "$ref": "#/definitions/response.DocumentSetupResponse"
+                },
+                "document_setup_id": {
+                    "type": "string"
+                },
+                "document_verifications": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.DocumentVerificationResponse"
+                    }
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "form_type": {
+                    "$ref": "#/definitions/entity.TemplateQuestionFormType"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.QuestionResponse"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.TemplateQuestionStatus"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Bearer token for authentication",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
+    }
+}

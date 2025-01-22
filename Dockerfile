@@ -4,6 +4,9 @@ FROM golang:1.23 AS builder
 # Set the working directory inside the container
 WORKDIR /app
 
+# Install Swag CLI
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
 # Copy the go.mod and go.sum files
 COPY go.mod go.sum ./
 

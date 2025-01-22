@@ -47,6 +47,17 @@ func QuestionHandlerFactory(
 	return NewQuestionHandler(log, viper, validate, useCase)
 }
 
+// CreateOrUpdateQuestions create or update questions
+//
+//	@Summary		Create or update questions
+//	@Description	Create or update questions
+//	@Tags			questions
+//	@Accept			json
+//	@Produce		json
+//	@Param			employee	body		request.CreateOrUpdateQuestions	true	"Create employee"
+//	@Success		201			{object}	response.TemplateQuestionResponse
+//	@Security		BearerAuth
+//	@Router			/api/questions [post]
 func (h *QuestionHandler) CreateOrUpdateQuestions(ctx *gin.Context) {
 	var payload request.CreateOrUpdateQuestions
 	if err := ctx.ShouldBindJSON(&payload); err != nil {

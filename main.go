@@ -1,12 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	_ "github.com/IlhamSetiaji/julong-recruitment-be/docs"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/rabbitmq"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/route"
@@ -17,7 +21,44 @@ import (
 	csrf "github.com/utrack/gin-csrf"
 )
 
+func generateSwaggerDocs() {
+	cmd := exec.Command("swag", "init", "--parseDependency", "--parseInternal")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	fmt.Println("Generating Swagger documentation...")
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error generating Swagger docs:", err)
+		os.Exit(1) // Exit if Swagger generation fails
+	}
+	fmt.Println("Swagger documentation generated successfully!")
+}
+
+// @title           Julong Recruitment API Docs
+// @version         1.0
+// @description     This is a sample server celler server.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8000
+// @BasePath  /api
+
+// @securityDefinitions.apikey  BearerAuth
+// @in header
+// @name Authorization
+// @description Bearer token for authentication
+// @tokenUrl http://localhost:3000/api/login
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
+	generateSwaggerDocs()
 	viper := config.NewViper()
 	log := config.NewLogrus(viper)
 

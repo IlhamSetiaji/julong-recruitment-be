@@ -34,6 +34,7 @@ type RouteConfig struct {
 	ApplicantHandler                handler.IApplicantHandler
 	TestTypeHandler                 handler.ITestTypeHandler
 	TestScheduleHeaderHandler       handler.ITestScheduleHeaderHandler
+	TestApplicantHandler            handler.ITestApplicantHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -196,6 +197,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				testScheduleHeaderRoute.PUT("/update", c.TestScheduleHeaderHandler.UpdateTestScheduleHeader)
 				testScheduleHeaderRoute.DELETE("/:id", c.TestScheduleHeaderHandler.DeleteTestScheduleHeader)
 			}
+			// test applicants
+			testApplicantRoute := apiRoute.Group("/test-applicants")
+			{
+				testApplicantRoute.POST("", c.TestApplicantHandler.CreateOrUpdateTestApplicants)
+			}
 		}
 	}
 }
@@ -220,6 +226,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	applicantHandler := handler.ApplicantHandlerFactory(log, viper)
 	testTypeHandler := handler.TestTypeHandlerFactory(log, viper)
 	testScheduleHeaderHandler := handler.TestScheduleHeaderHandlerFactory(log, viper)
+	testApplicantHandler := handler.TestApplicantHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -244,5 +251,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		ApplicantHandler:                applicantHandler,
 		TestTypeHandler:                 testTypeHandler,
 		TestScheduleHeaderHandler:       testScheduleHeaderHandler,
+		TestApplicantHandler:            testApplicantHandler,
 	}
 }

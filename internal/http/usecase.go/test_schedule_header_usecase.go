@@ -166,7 +166,13 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		Status:         entity.TestScheduleStatus(req.Status),
 	})
 
-	return uc.DTO.ConvertEntityToResponse(testScheduleHeader), nil
+	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.UpdateTestScheduleHeaderRequest) (*response.TestScheduleHeaderResponse, error) {
@@ -284,7 +290,12 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 		Status:         entity.TestScheduleStatus(req.Status),
 	})
 
-	return uc.DTO.ConvertEntityToResponse(testScheduleHeader), nil
+	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (uc *TestScheduleHeaderUsecase) FindByID(id uuid.UUID) (*response.TestScheduleHeaderResponse, error) {
@@ -298,7 +309,12 @@ func (uc *TestScheduleHeaderUsecase) FindByID(id uuid.UUID) (*response.TestSched
 		return nil, nil
 	}
 
-	return uc.DTO.ConvertEntityToResponse(testScheduleHeader), nil
+	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindByID] " + err.Error())
+		return nil, err
+	}
+	return resp, nil
 }
 
 func (uc *TestScheduleHeaderUsecase) DeleteTestScheduleHeader(id uuid.UUID) error {

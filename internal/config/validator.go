@@ -21,5 +21,6 @@ func NewValidator(viper *viper.Viper) *validator.Validate {
 	validate.RegisterValidation("education_level_validation", request.EducationLevelValidation)
 	validate.RegisterValidation("test_type_status_validation", request.TestTypeStatusValidation)
 	validate.RegisterValidation("test_schedule_header_status_validation", request.TestScheduleHeaderStatusValidation)
+	validate.RegisterValidation("test_applicant_status_validation", request.TestApplicantStatusValidation)
 	return validate
 }

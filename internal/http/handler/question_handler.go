@@ -51,7 +51,7 @@ func QuestionHandlerFactory(
 //
 //	@Summary		Create or update questions
 //	@Description	Create or update questions
-//	@Tags			questions
+//	@Tags			Questions
 //	@Accept			json
 //	@Produce		json
 //	@Param			employee	body		request.CreateOrUpdateQuestions	true	"Create employee"

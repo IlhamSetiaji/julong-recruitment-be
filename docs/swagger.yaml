@@ -26,6 +26,20 @@ definitions:
     - EDUCATION_LEVEL_ENUM_SMA
     - EDUCATION_LEVEL_ENUM_SMP
     - EDUCATION_LEVEL_ENUM_TK
+  entity.FinalResultStatus:
+    enum:
+    - DRAFT
+    - IN PROGRESS
+    - COMPLETED
+    - ACCEPTED
+    - REJECTED
+    type: string
+    x-enum-varnames:
+    - FINAL_RESULT_STATUS_DRAFT
+    - FINAL_RESULT_STATUS_IN_PROGRESS
+    - FINAL_RESULT_STATUS_COMPLETED
+    - FINAL_RESULT_STATUS_ACCEPTED
+    - FINAL_RESULT_STATUS_REJECTED
   entity.JobPostingStatus:
     enum:
     - DRAFT
@@ -208,6 +222,38 @@ definitions:
     required:
     - questions
     - template_question_id
+    type: object
+  request.CreateOrUpdateTestApplicantsRequest:
+    properties:
+      deleted_test_applicant_ids:
+        items:
+          type: string
+        type: array
+      test_applicants:
+        items:
+          properties:
+            end_time:
+              type: string
+            final_result:
+              type: string
+            id:
+              type: string
+            start_time:
+              type: string
+            user_profile_id:
+              type: string
+          required:
+          - end_time
+          - final_result
+          - start_time
+          - user_profile_id
+          type: object
+        type: array
+      test_schedule_header_id:
+        type: string
+    required:
+    - test_applicants
+    - test_schedule_header_id
     type: object
   request.CreateTestScheduleHeaderRequest:
     properties:
@@ -797,7 +843,7 @@ definitions:
       end_time:
         type: string
       final_result:
-        type: string
+        $ref: '#/definitions/entity.FinalResultStatus'
       id:
         type: string
       start_time:
@@ -982,7 +1028,31 @@ paths:
       - BearerAuth: []
       summary: Create or update questions
       tags:
-      - questions
+      - Questions
+  /api/test-applicants:
+    post:
+      consumes:
+      - application/json
+      description: Create or update test applicants
+      parameters:
+      - description: Create test applicants
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrUpdateTestApplicantsRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.TestScheduleHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Create or update test applicants
+      tags:
+      - Test Applicants
   /api/test-schedule-headers:
     post:
       consumes:

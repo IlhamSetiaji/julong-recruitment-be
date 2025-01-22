@@ -39,7 +39,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "questions"
+                    "Questions"
                 ],
                 "summary": "Create or update questions",
                 "parameters": [
@@ -58,6 +58,45 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/response.TemplateQuestionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/test-applicants": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update test applicants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test Applicants"
+                ],
+                "summary": "Create or update test applicants",
+                "parameters": [
+                    {
+                        "description": "Create test applicants",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrUpdateTestApplicantsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.TestScheduleHeaderResponse"
                         }
                     }
                 }
@@ -242,6 +281,23 @@ const docTemplate = `{
                 "EDUCATION_LEVEL_ENUM_SMA",
                 "EDUCATION_LEVEL_ENUM_SMP",
                 "EDUCATION_LEVEL_ENUM_TK"
+            ]
+        },
+        "entity.FinalResultStatus": {
+            "type": "string",
+            "enum": [
+                "DRAFT",
+                "IN PROGRESS",
+                "COMPLETED",
+                "ACCEPTED",
+                "REJECTED"
+            ],
+            "x-enum-varnames": [
+                "FINAL_RESULT_STATUS_DRAFT",
+                "FINAL_RESULT_STATUS_IN_PROGRESS",
+                "FINAL_RESULT_STATUS_COMPLETED",
+                "FINAL_RESULT_STATUS_ACCEPTED",
+                "FINAL_RESULT_STATUS_REJECTED"
             ]
         },
         "entity.JobPostingStatus": {
@@ -477,6 +533,53 @@ const docTemplate = `{
                     }
                 },
                 "template_question_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateOrUpdateTestApplicantsRequest": {
+            "type": "object",
+            "required": [
+                "test_applicants",
+                "test_schedule_header_id"
+            ],
+            "properties": {
+                "deleted_test_applicant_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "test_applicants": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "end_time",
+                            "final_result",
+                            "start_time",
+                            "user_profile_id"
+                        ],
+                        "properties": {
+                            "end_time": {
+                                "type": "string"
+                            },
+                            "final_result": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "start_time": {
+                                "type": "string"
+                            },
+                            "user_profile_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "test_schedule_header_id": {
                     "type": "string"
                 }
             }
@@ -1352,7 +1455,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "final_result": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.FinalResultStatus"
                 },
                 "id": {
                     "type": "string"

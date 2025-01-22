@@ -217,3 +217,20 @@ func TestScheduleHeaderStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func TestApplicantStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.FinalResultStatus(status) {
+	case entity.FINAL_RESULT_STATUS_DRAFT,
+		entity.FINAL_RESULT_STATUS_IN_PROGRESS,
+		entity.FINAL_RESULT_STATUS_COMPLETED,
+		entity.FINAL_RESULT_STATUS_ACCEPTED,
+		entity.FINAL_RESULT_STATUS_REJECTED:
+		return true
+	default:
+		return false
+	}
+}

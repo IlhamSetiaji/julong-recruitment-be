@@ -63,7 +63,7 @@ func (r *TestScheduleHeaderRepository) CreateTestScheduleHeader(tsh *entity.Test
 func (r *TestScheduleHeaderRepository) FindByID(id uuid.UUID) (*entity.TestScheduleHeader, error) {
 	var tsh entity.TestScheduleHeader
 
-	if err := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants").First(&tsh, id).Error; err != nil {
+	if err := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants.UserProfile").First(&tsh, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

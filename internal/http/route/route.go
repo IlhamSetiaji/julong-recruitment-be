@@ -173,6 +173,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			applicantRoute := apiRoute.Group("/applicants")
 			{
 				applicantRoute.GET("/apply", c.ApplicantHandler.ApplyJobPosting)
+				applicantRoute.GET("/job-posting/:job_posting_id", c.ApplicantHandler.GetApplicantsByJobPostingID)
 			}
 			// test types
 			testTypeRoute := apiRoute.Group("/test-types")

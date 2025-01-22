@@ -18,6 +18,7 @@ import (
 
 type IApplicantHandler interface {
 	ApplyJobPosting(ctx *gin.Context)
+	GetApplicantsByJobPostingID(ctx *gin.Context)
 }
 
 type ApplicantHandler struct {
@@ -111,4 +112,22 @@ func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Successfully applied job posting", applicant)
+}
+
+func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
+	jobPostingID, err := uuid.Parse(ctx.Param("job_posting_id"))
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when parsing job_posting_id: %v", err)
+		utils.BadRequestResponse(ctx, "job_posting_id is not a valid UUID", err)
+		return
+	}
+
+	applicants, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID)
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when getting applicants: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get applicants", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Successfully get applicants", applicants)
 }

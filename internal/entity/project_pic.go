@@ -15,6 +15,7 @@ type ProjectPic struct {
 	AdministrativeTotal      int        `json:"administrative_total" gorm:"default:null"`
 
 	ProjectRecruitmentLine *ProjectRecruitmentLine `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TestScheduleHeaders    []TestScheduleHeader    `json:"test_schedule_headers" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (pp *ProjectPic) BeforeCreate(tx *gorm.DB) (err error) {

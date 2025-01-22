@@ -20,6 +20,8 @@ type TestType struct {
 	Name            string                 `json:"name" gorm:"type:text;not null"`
 	RecruitmentType ProjectRecruitmentType `json:"recruitment_type" gorm:"type:varchar(255);not null"`
 	Status          TestTypeStatus         `json:"status" gorm:"type:varchar(255);default:'ACTIVE'"`
+
+	TestScheduleHeaders []TestScheduleHeader `json:"test_schedule_headers" gorm:"foreignKey:TestTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (tt *TestType) BeforeCreate(tx *gorm.DB) (err error) {

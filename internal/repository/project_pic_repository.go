@@ -12,6 +12,7 @@ type IProjectPicRepository interface {
 	CreateProjectPic(ent *entity.ProjectPic) (*entity.ProjectPic, error)
 	DeleteProjectPic(id uuid.UUID) (*entity.ProjectPic, error)
 	DeleteProjectPicByProjectRecruitmentLineID(projectRecruitmentLineID uuid.UUID) error
+	FindByID(id uuid.UUID) (*entity.ProjectPic, error)
 }
 
 type ProjectPicRepository struct {
@@ -98,4 +99,21 @@ func (r *ProjectPicRepository) DeleteProjectPicByProjectRecruitmentLineID(projec
 	}
 
 	return nil
+}
+
+func (r *ProjectPicRepository) FindByID(id uuid.UUID) (*entity.ProjectPic, error) {
+	var projectPic entity.ProjectPic
+
+	if err := r.DB.
+		Where("id = ?", id).
+		First(&projectPic).
+		Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &projectPic, nil
 }

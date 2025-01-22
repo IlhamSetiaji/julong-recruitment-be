@@ -1,0 +1,34 @@
+package response
+
+import (
+	"time"
+
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/google/uuid"
+)
+
+type TestScheduleHeaderResponse struct {
+	ID             uuid.UUID                 `json:"id"`
+	JobPostingID   uuid.UUID                 `json:"job_posting_id"`
+	TestTypeID     uuid.UUID                 `json:"test_type_id"`
+	ProjectPicID   uuid.UUID                 `json:"project_pic_id"`
+	JobID          *uuid.UUID                `json:"job_id"`
+	Name           string                    `json:"name"`
+	DocumentNumber string                    `json:"document_number"`
+	StartDate      time.Time                 `json:"start_date"`
+	EndDate        time.Time                 `json:"end_date"`
+	StartTime      time.Time                 `json:"start_time"`
+	EndTime        time.Time                 `json:"end_time"`
+	Link           string                    `json:"link"`
+	Location       string                    `json:"location"`
+	Description    string                    `json:"description"`
+	TotalCandidate int                       `json:"total_candidate"`
+	Status         entity.TestScheduleStatus `json:"status"`
+	CreatedAt      time.Time                 `json:"created_at"`
+	UpdatedAt      time.Time                 `json:"updated_at"`
+
+	JobPosting     *JobPostingResponse     `json:"job_posting"`
+	TestType       *TestTypeResponse       `json:"test_type"`
+	ProjectPic     *ProjectPicResponse     `json:"project_pic"`
+	TestApplicants []TestApplicantResponse `json:"test_applicants"`
+}

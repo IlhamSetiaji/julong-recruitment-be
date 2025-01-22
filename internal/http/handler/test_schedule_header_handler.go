@@ -1,8 +1,12 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase.go"
+	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
@@ -43,6 +47,37 @@ func TestScheduleHeaderHandlerFactory(
 	return NewTestScheduleHeaderHandler(log, viper, validate, useCase)
 }
 
+// CreateTestScheduleHeader create test schedule header
+//
+//	@Summary		Create test schedule header
+//	@Description	Create test schedule header
+//	@Tags			Test Schedule Headers
+//	@Accept			json
+//	@Produce		json
+//	@Param			test_schedule_header	body		request.CreateTestScheduleHeaderRequest	true	"Create test schedule header"
+//	@Success		201			{object}	response.TestScheduleHeaderResponse
+//	@Security		BearerAuth
+//	@Router			/api/test-schedule-headers [post]
 func (h *TestScheduleHeaderHandler) CreateTestScheduleHeader(ctx *gin.Context) {
-	
+	var req request.CreateTestScheduleHeaderRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid request body", err)
+		return
+	}
+
+	if err := h.Validate.Struct(req); err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid request body", err)
+		return
+	}
+
+	res, err := h.UseCase.CreateTestScheduleHeader(&req)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to create test schedule header", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusCreated, "Test schedule header created", res)
 }

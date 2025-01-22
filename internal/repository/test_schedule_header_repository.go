@@ -57,6 +57,8 @@ func (r *TestScheduleHeaderRepository) CreateTestScheduleHeader(tsh *entity.Test
 		return nil, err
 	}
 
+	r.Log.Info("[TestScheduleHeaderRepository.CreateTestScheduleHeader] Test Schedule Header created")
+
 	return tsh, nil
 }
 

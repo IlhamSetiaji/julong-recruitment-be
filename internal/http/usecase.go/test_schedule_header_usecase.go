@@ -132,12 +132,13 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		return nil, err
 	}
 
-	testScheduleHeader := &response.TestScheduleHeaderResponse{
+	testScheduleHeader, err := uc.Repository.CreateTestScheduleHeader(&entity.TestScheduleHeader{
 		JobPostingID:   parsedJobPostingID,
 		TestTypeID:     parsedTestTypeID,
 		ProjectPicID:   parsedProjectPicID,
 		JobID:          &parsedJobID,
 		Name:           req.Name,
+		DocumentNumber: req.DocumentNumber,
 		StartDate:      parsedStartDate,
 		EndDate:        parsedEndDate,
 		StartTime:      parsedStartTime,
@@ -145,10 +146,9 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		Link:           req.Link,
 		Location:       req.Location,
 		Description:    req.Description,
-		DocumentNumber: req.DocumentNumber,
 		TotalCandidate: req.TotalCandidate,
 		Status:         entity.TestScheduleStatus(req.Status),
-	}
+	})
 
-	return testScheduleHeader, nil
+	return uc.DTO.ConvertEntityToResponse(testScheduleHeader), nil
 }

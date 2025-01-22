@@ -33,6 +33,7 @@ type RouteConfig struct {
 	UserProfileHandler              handler.IUserProfileHandler
 	ApplicantHandler                handler.IApplicantHandler
 	TestTypeHandler                 handler.ITestTypeHandler
+	TestScheduleHeaderHandler       handler.ITestScheduleHeaderHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -187,6 +188,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				testTypeRoute.PUT("/update", c.TestTypeHandler.UpdateTestType)
 				testTypeRoute.DELETE("/:id", c.TestTypeHandler.DeleteTestType)
 			}
+			// test schedule headers
+			testScheduleHeaderRoute := apiRoute.Group("/test-schedule-headers")
+			{
+				testScheduleHeaderRoute.POST("", c.TestScheduleHeaderHandler.CreateTestScheduleHeader)
+			}
 		}
 	}
 }
@@ -210,6 +216,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	userProfileHandler := handler.UserProfileHandlerFactory(log, viper)
 	applicantHandler := handler.ApplicantHandlerFactory(log, viper)
 	testTypeHandler := handler.TestTypeHandlerFactory(log, viper)
+	testScheduleHeaderHandler := handler.TestScheduleHeaderHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -233,5 +240,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		UserProfileHandler:              userProfileHandler,
 		ApplicantHandler:                applicantHandler,
 		TestTypeHandler:                 testTypeHandler,
+		TestScheduleHeaderHandler:       testScheduleHeaderHandler,
 	}
 }

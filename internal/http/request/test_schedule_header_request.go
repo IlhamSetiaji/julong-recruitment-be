@@ -9,8 +9,8 @@ type CreateTestScheduleHeaderRequest struct {
 	DocumentNumber string `json:"document_number" validate:"required,max=255"`
 	StartDate      string `json:"start_date" validate:"required,datetime=2006-01-02"`
 	EndDate        string `json:"end_date" validate:"required,datetime=2006-01-02"`
-	StartTime      string `json:"start_time" validate:"required,datetime=15:04:05"`
-	EndTime        string `json:"end_time" validate:"required,datetime=15:04:05"`
+	StartTime      string `json:"start_time" validate:"required,datetime=2006-01-02 15:04:05"`
+	EndTime        string `json:"end_time" validate:"required,datetime=2006-01-02 15:04:05"`
 	Link           string `json:"link" validate:"required"`
 	Location       string `json:"location" validate:"required"`
 	Description    string `json:"description" validate:"required"`

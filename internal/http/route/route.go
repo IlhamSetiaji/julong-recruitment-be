@@ -177,7 +177,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// test types
 			testTypeRoute := apiRoute.Group("/test-types")
 			{
+				testTypeRoute.GET("", c.TestTypeHandler.FindAll)
+				testTypeRoute.GET("/:id", c.TestTypeHandler.FindByID)
 				testTypeRoute.POST("", c.TestTypeHandler.CreateTestType)
+				testTypeRoute.PUT("/update", c.TestTypeHandler.UpdateTestType)
+				testTypeRoute.DELETE("/:id", c.TestTypeHandler.DeleteTestType)
 			}
 		}
 	}

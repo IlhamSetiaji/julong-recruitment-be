@@ -21,8 +21,18 @@ import (
 	csrf "github.com/utrack/gin-csrf"
 )
 
-func generateSwaggerDocs() {
-	cmd := exec.Command("swag", "init", "--parseDependency", "--parseInternal")
+func generateSwaggerDocs(mode string) {
+	var swagPath = "swag"
+	if mode == "production" {
+		swagPath = "/go/bin/swag"
+
+		// Check if swag exists
+		if _, err := os.Stat(swagPath); os.IsNotExist(err) {
+			fmt.Println("Swag CLI not found, skipping Swagger generation.")
+			return
+		}
+	}
+	cmd := exec.Command(swagPath, "init", "--parseDependency", "--parseInternal")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -58,9 +68,9 @@ func generateSwaggerDocs() {
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
-	generateSwaggerDocs()
 	viper := config.NewViper()
 	log := config.NewLogrus(viper)
+	generateSwaggerDocs(viper.GetString("app.env"))
 
 	var wg sync.WaitGroup
 	wg.Add(2)

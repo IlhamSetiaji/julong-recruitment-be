@@ -1007,6 +1007,51 @@ paths:
       summary: Create test schedule header
       tags:
       - Test Schedule Headers
+  /api/test-schedule-headers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete test schedule header
+      parameters:
+      - description: Test schedule header ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete test schedule header
+      tags:
+      - Test Schedule Headers
+    get:
+      consumes:
+      - application/json
+      description: Find test schedule header by id
+      parameters:
+      - description: Test schedule header ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TestScheduleHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Find test schedule header by id
+      tags:
+      - Test Schedule Headers
   /api/test-schedule-headers/update:
     put:
       consumes:

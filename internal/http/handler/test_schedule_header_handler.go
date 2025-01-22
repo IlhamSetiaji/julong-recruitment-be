@@ -9,6 +9,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -16,6 +17,8 @@ import (
 type ITestScheduleHeaderHandler interface {
 	CreateTestScheduleHeader(ctx *gin.Context)
 	UpdateTestScheduleHeader(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
+	DeleteTestScheduleHeader(ctx *gin.Context)
 }
 
 type TestScheduleHeaderHandler struct {
@@ -116,4 +119,76 @@ func (h *TestScheduleHeaderHandler) UpdateTestScheduleHeader(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Test schedule header updated", res)
+}
+
+// FindByID find test schedule header by id
+//
+//	@Summary		Find test schedule header by id
+//	@Description	Find test schedule header by id
+//	@Tags			Test Schedule Headers
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"Test schedule header ID"
+//	@Success		200			{object}	response.TestScheduleHeaderResponse
+//	@Security		BearerAuth
+//	@Router			/api/test-schedule-headers/{id} [get]
+func (h *TestScheduleHeaderHandler) FindByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		h.Log.Error("Test schedule header ID is required")
+		utils.BadRequestResponse(ctx, "Test schedule header ID is required", nil)
+		return
+	}
+
+	testScheduleHeaderID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid test schedule header ID", err)
+		return
+	}
+
+	res, err := h.UseCase.FindByID(testScheduleHeaderID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find test schedule header", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Test schedule header found", res)
+}
+
+// DeleteTestScheduleHeader delete test schedule header
+//
+//	@Summary		Delete test schedule header
+//	@Description	Delete test schedule header
+//	@Tags			Test Schedule Headers
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"Test schedule header ID"
+//	@Success		200			{string}	string
+//	@Security		BearerAuth
+//	@Router			/api/test-schedule-headers/{id} [delete]
+func (h *TestScheduleHeaderHandler) DeleteTestScheduleHeader(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		h.Log.Error("Test schedule header ID is required")
+		utils.BadRequestResponse(ctx, "Test schedule header ID is required", nil)
+		return
+	}
+
+	testScheduleHeaderID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid test schedule header ID", err)
+		return
+	}
+
+	err = h.UseCase.DeleteTestScheduleHeader(testScheduleHeaderID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to delete test schedule header", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Test schedule header deleted", nil)
 }

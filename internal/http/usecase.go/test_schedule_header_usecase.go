@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -16,6 +17,8 @@ import (
 type ITestScheduleHeaderUsecase interface {
 	CreateTestScheduleHeader(req *request.CreateTestScheduleHeaderRequest) (*response.TestScheduleHeaderResponse, error)
 	UpdateTestScheduleHeader(req *request.UpdateTestScheduleHeaderRequest) (*response.TestScheduleHeaderResponse, error)
+	FindByID(id uuid.UUID) (*response.TestScheduleHeaderResponse, error)
+	DeleteTestScheduleHeader(id uuid.UUID) error
 }
 
 type TestScheduleHeaderUsecase struct {
@@ -282,4 +285,33 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 	})
 
 	return uc.DTO.ConvertEntityToResponse(testScheduleHeader), nil
+}
+
+func (uc *TestScheduleHeaderUsecase) FindByID(id uuid.UUID) (*response.TestScheduleHeaderResponse, error) {
+	testScheduleHeader, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindByID] " + err.Error())
+		return nil, err
+	}
+
+	if testScheduleHeader == nil {
+		return nil, nil
+	}
+
+	return uc.DTO.ConvertEntityToResponse(testScheduleHeader), nil
+}
+
+func (uc *TestScheduleHeaderUsecase) DeleteTestScheduleHeader(id uuid.UUID) error {
+	exist, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.DeleteTestScheduleHeader] " + err.Error())
+		return err
+	}
+
+	if exist == nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.DeleteTestScheduleHeader] Test Schedule Header not found")
+		return errors.New("Test Schedule Header not found")
+	}
+
+	return uc.Repository.DeleteTestScheduleHeader(id)
 }

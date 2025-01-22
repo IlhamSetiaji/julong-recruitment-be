@@ -192,6 +192,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			testScheduleHeaderRoute := apiRoute.Group("/test-schedule-headers")
 			{
 				testScheduleHeaderRoute.POST("", c.TestScheduleHeaderHandler.CreateTestScheduleHeader)
+				testScheduleHeaderRoute.PUT("/update", c.TestScheduleHeaderHandler.UpdateTestScheduleHeader)
 			}
 		}
 	}

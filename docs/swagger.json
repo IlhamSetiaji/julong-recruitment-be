@@ -95,6 +95,45 @@
                     }
                 }
             }
+        },
+        "/api/test-schedule-headers/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update test schedule header",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test Schedule Headers"
+                ],
+                "summary": "Update test schedule header",
+                "parameters": [
+                    {
+                        "description": "Update test schedule header",
+                        "name": "test_schedule_header",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateTestScheduleHeaderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TestScheduleHeaderResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -395,6 +434,79 @@
                     "type": "string"
                 },
                 "end_time": {
+                    "type": "string"
+                },
+                "job_id": {
+                    "type": "string"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "test_type_id": {
+                    "type": "string"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.UpdateTestScheduleHeaderRequest": {
+            "type": "object",
+            "required": [
+                "description",
+                "document_number",
+                "end_date",
+                "end_time",
+                "id",
+                "job_id",
+                "job_posting_id",
+                "link",
+                "location",
+                "name",
+                "project_pic_id",
+                "start_date",
+                "start_time",
+                "status",
+                "test_type_id",
+                "total_candidate"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "job_id": {

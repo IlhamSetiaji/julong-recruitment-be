@@ -250,13 +250,13 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 		return nil, err
 	}
 
-	parsedStartTime, err := time.Parse("15:04:05", req.StartTime)
+	parsedStartTime, err := time.Parse("2006-01-02 15:04:05", req.StartTime)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
 		return nil, err
 	}
 
-	parsedEndTime, err := time.Parse("15:04:05", req.EndTime)
+	parsedEndTime, err := time.Parse("2006-01-02 15:04:05", req.EndTime)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
 		return nil, err

@@ -1,11 +1,19 @@
 # Use the official Golang image as the build stage
 FROM golang:1.23 AS builder
 
+# Set environment variables to ensure `go install` puts `swag` in a known location
+ENV GOPATH=/go
+ENV GOBIN=$GOPATH/bin
+ENV PATH=$GOBIN:$PATH
+
 # Set the working directory inside the container
 WORKDIR /app
 
 # Install Swag CLI
 RUN go install github.com/swaggo/swag/cmd/swag@latest
+
+# Verify that Swag CLI is installed
+RUN swag --version
 
 # Copy the go.mod and go.sum files
 COPY go.mod go.sum ./

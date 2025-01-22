@@ -30,6 +30,7 @@ type RouteConfig struct {
 	MailTemplateHandler             handler.IMailTemplateHandler
 	UserProfileHandler              handler.IUserProfileHandler
 	ApplicantHandler                handler.IApplicantHandler
+	TestTypeHandler                 handler.ITestTypeHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -173,6 +174,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				applicantRoute.GET("/apply", c.ApplicantHandler.ApplyJobPosting)
 			}
+			// test types
+			testTypeRoute := apiRoute.Group("/test-types")
+			{
+				testTypeRoute.POST("", c.TestTypeHandler.CreateTestType)
+			}
 		}
 	}
 }
@@ -195,6 +201,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	mailTemplateHandler := handler.MailTemplateHandlerFactory(log, viper)
 	userProfileHandler := handler.UserProfileHandlerFactory(log, viper)
 	applicantHandler := handler.ApplicantHandlerFactory(log, viper)
+	testTypeHandler := handler.TestTypeHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -217,5 +224,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		MailTemplateHandler:             mailTemplateHandler,
 		UserProfileHandler:              userProfileHandler,
 		ApplicantHandler:                applicantHandler,
+		TestTypeHandler:                 testTypeHandler,
 	}
 }

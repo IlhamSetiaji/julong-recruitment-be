@@ -35,6 +35,7 @@ func main() {
 		&entity.WorkExperience{},
 		&entity.Education{},
 		&entity.Skill{},
+		&entity.TestType{},
 	)
 	if err != nil {
 		log.Fatal(err)

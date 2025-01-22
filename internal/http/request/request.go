@@ -188,3 +188,17 @@ func EducationLevelValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func TestTypeStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.TestTypeStatus(status) {
+	case entity.TEST_TYPE_STATUS_ACTIVE,
+		entity.TEST_TYPE_STATUS_INACTIVE:
+		return true
+	default:
+		return false
+	}
+}

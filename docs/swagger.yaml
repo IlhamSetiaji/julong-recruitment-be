@@ -1054,6 +1054,39 @@ paths:
       tags:
       - Test Applicants
   /api/test-schedule-headers:
+    get:
+      consumes:
+      - application/json
+      description: Find all test schedule headers paginated
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TestScheduleHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all test schedule headers paginated
+      tags:
+      - Test Schedule Headers
     post:
       consumes:
       - application/json

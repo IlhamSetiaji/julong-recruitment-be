@@ -25,7 +25,7 @@ go run main.go
 To run, watch, and build this project
 
 ```bash
-CompileDaemon -command="./julong-recruitment-be"
+CompileDaemon -exclude-dir=docs -command="./julong-recruitment-be"
 ```
 
 To migrate the database

@@ -11,6 +11,7 @@ import (
 )
 
 type ITestScheduleHeaderRepository interface {
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TestScheduleHeader, int64, error)
 	CreateTestScheduleHeader(tsh *entity.TestScheduleHeader) (*entity.TestScheduleHeader, error)
 	FindByID(id uuid.UUID) (*entity.TestScheduleHeader, error)
 	UpdateTestScheduleHeader(tsh *entity.TestScheduleHeader) (*entity.TestScheduleHeader, error)
@@ -34,6 +35,33 @@ func TestScheduleHeaderRepositoryFactory(log *logrus.Logger) ITestScheduleHeader
 	return NewTestScheduleHeaderRepository(log, db)
 }
 
+func (r *TestScheduleHeaderRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TestScheduleHeader, int64, error) {
+	var testScheduleHeaders []entity.TestScheduleHeader
+	var total int64
+
+	query := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants.UserProfile")
+
+	if search != "" {
+		query = query.Where("document_number ILIKE ?", "%"+search+"%")
+	}
+
+	for key, value := range sort {
+		query = query.Order(key + " " + value.(string))
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&testScheduleHeaders).Error; err != nil {
+		r.Log.Error("[TestScheduleHeaderRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, errors.New("[TestScheduleHeaderRepository.FindAllPaginated] " + err.Error())
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		r.Log.Error("[TestScheduleHeaderRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, errors.New("[TestScheduleHeaderRepository.FindAllPaginated] " + err.Error())
+	}
+
+	return &testScheduleHeaders, total, nil
+}
+
 func (r *TestScheduleHeaderRepository) CreateTestScheduleHeader(tsh *entity.TestScheduleHeader) (*entity.TestScheduleHeader, error) {
 	tx := r.DB.Begin()
 	if tx.Error != nil {
@@ -52,7 +80,7 @@ func (r *TestScheduleHeaderRepository) CreateTestScheduleHeader(tsh *entity.Test
 		return nil, err
 	}
 
-	if err := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants").First(tsh, tsh.ID).Error; err != nil {
+	if err := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants.UserProfile").First(tsh, tsh.ID).Error; err != nil {
 		r.Log.Error("[TestScheduleHeaderRepository.CreateTestScheduleHeader] " + err.Error())
 		return nil, err
 	}
@@ -93,7 +121,7 @@ func (r *TestScheduleHeaderRepository) UpdateTestScheduleHeader(tsh *entity.Test
 		return nil, err
 	}
 
-	if err := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants").First(tsh, tsh.ID).Error; err != nil {
+	if err := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants.UserProfile").First(tsh, tsh.ID).Error; err != nil {
 		r.Log.Error("[TestScheduleHeaderRepository.UpdateTestScheduleHeader] " + err.Error())
 		return nil, err
 	}

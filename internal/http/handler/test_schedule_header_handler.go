@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -17,6 +18,7 @@ import (
 type ITestScheduleHeaderHandler interface {
 	CreateTestScheduleHeader(ctx *gin.Context)
 	UpdateTestScheduleHeader(ctx *gin.Context)
+	FindAllPaginated(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	DeleteTestScheduleHeader(ctx *gin.Context)
 }
@@ -119,6 +121,58 @@ func (h *TestScheduleHeaderHandler) UpdateTestScheduleHeader(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Test schedule header updated", res)
+}
+
+// FindAllPaginated find all test schedule headers paginated
+//
+//	@Summary		Find all test schedule headers paginated
+//	@Description	Find all test schedule headers paginated
+//	@Tags			Test Schedule Headers
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query	int	false	"Page"
+//	@Param			page_size	query	int	false	"Page size"
+//	@Param			search	query	string	false	"Search"
+//	@Param			sort	query	string	false	"Sort"
+//	@Success		200			{object}	response.TestScheduleHeaderResponse
+//	@Security		BearerAuth
+//	@Router			/api/test-schedule-headers [get]
+func (h *TestScheduleHeaderHandler) FindAllPaginated(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	testScheduleHeaders, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find test schedule headers", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Test schedule headers found", gin.H{
+		"test_schedule_headers": testScheduleHeaders,
+		"total":                 total,
+	})
 }
 
 // FindByID find test schedule header by id

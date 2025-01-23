@@ -15,6 +15,7 @@ import (
 )
 
 type ITestScheduleHeaderUsecase interface {
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TestScheduleHeaderResponse, int64, error)
 	CreateTestScheduleHeader(req *request.CreateTestScheduleHeaderRequest) (*response.TestScheduleHeaderResponse, error)
 	UpdateTestScheduleHeader(req *request.UpdateTestScheduleHeaderRequest) (*response.TestScheduleHeaderResponse, error)
 	FindByID(id uuid.UUID) (*response.TestScheduleHeaderResponse, error)
@@ -58,6 +59,27 @@ func TestScheduleHeaderUsecaseFactory(log *logrus.Logger, viper *viper.Viper) IT
 	ttRepo := repository.TestTypeRepositoryFactory(log)
 	ppRepo := repository.ProjectPicRepositoryFactory(log)
 	return NewTestScheduleHeaderUsecase(log, repo, tshDTO, viper, jpRepo, ttRepo, ppRepo)
+}
+
+func (uc *TestScheduleHeaderUsecase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TestScheduleHeaderResponse, int64, error) {
+	testScheduleHeaders, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	testScheduleHeaderResponses := make([]response.TestScheduleHeaderResponse, 0)
+	for _, testScheduleHeader := range *testScheduleHeaders {
+		resp, err := uc.DTO.ConvertEntityToResponse(&testScheduleHeader)
+		if err != nil {
+			uc.Log.Error("[TestScheduleHeaderUsecase.FindAllPaginated] " + err.Error())
+			return nil, 0, err
+		}
+
+		testScheduleHeaderResponses = append(testScheduleHeaderResponses, *resp)
+	}
+
+	return &testScheduleHeaderResponses, total, nil
 }
 
 func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.CreateTestScheduleHeaderRequest) (*response.TestScheduleHeaderResponse, error) {

@@ -54,6 +54,17 @@ func DocumentVerificationHandlerFactory(
 	return NewDocumentVerificationHandler(log, viper, validate, useCase)
 }
 
+// CreateDocumentVerification create document verification
+//
+//	@Summary		Create document verification
+//	@Description	Create document verification
+//	@Tags			Document Verifications
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload body request.CreateDocumentVerificationRequest true "Create Document Verification"
+//	@Success		201	{object} response.DocumentVerificationResponse
+//	@Security BearerAuth
+//	@Router			/document-verifications [post]
 func (h *DocumentVerificationHandler) CreateDocumentVerification(ctx *gin.Context) {
 	var payload request.CreateDocumentVerificationRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -78,6 +89,20 @@ func (h *DocumentVerificationHandler) CreateDocumentVerification(ctx *gin.Contex
 	utils.SuccessResponse(ctx, http.StatusCreated, "Document verification created successfully", res)
 }
 
+// FindAllPaginated find all document verification
+//
+//	@Summary		Find all document verification
+//	@Description	Find all document verification
+//	@Tags			Document Verifications
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query	int	false	"Page"
+//	@Param			page_size	query	int	false	"Page Size"
+//	@Param			search	query	string	false	"Search"
+//	@Param			created_at	query	string	false	"Created At"
+//	@Success		200	{object} response.DocumentVerificationResponse
+//	@Security BearerAuth
+//	@Router			/document-verifications [get]
 func (h *DocumentVerificationHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
@@ -116,6 +141,17 @@ func (h *DocumentVerificationHandler) FindAllPaginated(ctx *gin.Context) {
 	})
 }
 
+// FindByID find document verification by id
+//
+//	@Summary		Find document verification by id
+//	@Description	Find document verification by id
+//	@Tags			Document Verifications
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Success		200	{object} response.DocumentVerificationResponse
+//	@Security BearerAuth
+//	@Router			/document-verifications/{id} [get]
 func (h *DocumentVerificationHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -136,6 +172,17 @@ func (h *DocumentVerificationHandler) FindByID(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Success get document verification by id", res)
 }
 
+// UpdateDocumentVerification update document verification
+//
+//	@Summary		Update document verification
+//	@Description	Update document verification
+//	@Tags			Document Verifications
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload body request.UpdateDocumentVerificationRequest true "Update Document Verification"
+//	@Success		200	{object} response.DocumentVerificationResponse
+//	@Security BearerAuth
+//	@Router			/document-verifications/update [put]
 func (h *DocumentVerificationHandler) UpdateDocumentVerification(ctx *gin.Context) {
 	var payload request.UpdateDocumentVerificationRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -160,6 +207,17 @@ func (h *DocumentVerificationHandler) UpdateDocumentVerification(ctx *gin.Contex
 	utils.SuccessResponse(ctx, http.StatusOK, "Document verification updated successfully", res)
 }
 
+// FindByTemplateQuestionID find document verification by template question id
+//
+//	@Summary		Find document verification by template question id
+//	@Description	Find document verification by template question id
+//	@Tags			Document Verifications
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Success		200	{object} response.DocumentVerificationResponse
+//	@Security BearerAuth
+//	@Router			/document-verifications/template-question/{id} [get]
 func (h *DocumentVerificationHandler) FindByTemplateQuestionID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -180,6 +238,17 @@ func (h *DocumentVerificationHandler) FindByTemplateQuestionID(ctx *gin.Context)
 	utils.SuccessResponse(ctx, http.StatusOK, "Success get document verification by template question id", res)
 }
 
+// DeleteDocumentVerification delete document verification
+//
+//	@Summary		Delete document verification
+//	@Description	Delete document verification
+//	@Tags			Document Verifications
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Success		200	{string}	string
+//	@Security BearerAuth
+//	@Router			/document-verifications/{id} [delete]
 func (h *DocumentVerificationHandler) DeleteDocumentVerification(ctx *gin.Context) {
 	id := ctx.Param("id")
 

@@ -46,6 +46,16 @@ func DocumentTypeHandlerFactory(
 	return NewDocumentTypeHandler(log, viper, validate, useCase)
 }
 
+// FindAll find all document types
+//
+//		@Summary		Find all document types
+//		@Description	Find all document types
+//		@Tags			Document Types
+//		@Accept			json
+//		@Produce		json
+//		@Success		200	{object} response.DocumentTypeResponse
+//	 @Security BearerAuth
+//		@Router			/document-types [get]
 func (h *DocumentTypeHandler) FindAll(ctx *gin.Context) {
 	documentTypes, err := h.UseCase.GetAllDocumentType()
 	if err != nil {

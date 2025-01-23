@@ -846,6 +846,19 @@ definitions:
     - recruitment_type
     - title
     type: object
+  request.CreateDocumentVerificationRequest:
+    properties:
+      format:
+        type: string
+      name:
+        type: string
+      template_question_id:
+        type: string
+    required:
+    - format
+    - name
+    - template_question_id
+    type: object
   request.CreateOrUpdateQuestions:
     properties:
       deleted_question_ids:
@@ -1007,6 +1020,22 @@ definitions:
     - id
     - recruitment_type
     - title
+    type: object
+  request.UpdateDocumentVerificationRequest:
+    properties:
+      format:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      template_question_id:
+        type: string
+    required:
+    - format
+    - id
+    - name
+    - template_question_id
     type: object
   request.UpdateTemplateQuestion:
     properties:
@@ -2296,6 +2325,172 @@ paths:
       summary: Find document setups by document type name
       tags:
       - Document Setups
+  /document-types:
+    get:
+      consumes:
+      - application/json
+      description: Find all document types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentTypeResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all document types
+      tags:
+      - Document Types
+  /document-verifications:
+    get:
+      consumes:
+      - application/json
+      description: Find all document verification
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all document verification
+      tags:
+      - Document Verifications
+    post:
+      consumes:
+      - application/json
+      description: Create document verification
+      parameters:
+      - description: Create Document Verification
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateDocumentVerificationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationResponse'
+      security:
+      - BearerAuth: []
+      summary: Create document verification
+      tags:
+      - Document Verifications
+  /document-verifications/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete document verification
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete document verification
+      tags:
+      - Document Verifications
+    get:
+      consumes:
+      - application/json
+      description: Find document verification by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationResponse'
+      security:
+      - BearerAuth: []
+      summary: Find document verification by id
+      tags:
+      - Document Verifications
+  /document-verifications/template-question/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find document verification by template question id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationResponse'
+      security:
+      - BearerAuth: []
+      summary: Find document verification by template question id
+      tags:
+      - Document Verifications
+  /document-verifications/update:
+    put:
+      consumes:
+      - application/json
+      description: Update document verification
+      parameters:
+      - description: Update Document Verification
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDocumentVerificationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationResponse'
+      security:
+      - BearerAuth: []
+      summary: Update document verification
+      tags:
+      - Document Verifications
 securityDefinitions:
   BearerAuth:
     description: Bearer token for authentication

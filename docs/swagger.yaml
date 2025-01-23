@@ -2491,6 +2491,341 @@ paths:
       summary: Update document verification
       tags:
       - Document Verifications
+  /job-postings:
+    get:
+      consumes:
+      - application/json
+      description: Find all job postings
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.JobPostingResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all job postings
+      tags:
+      - Job Postings
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create job posting
+      parameters:
+      - description: Project Recruitment Header ID
+        in: formData
+        name: project_recruitment_header_id
+        required: true
+        type: string
+      - description: MP Request ID
+        in: formData
+        name: mp_request_id
+        required: true
+        type: string
+      - description: Job ID
+        in: formData
+        name: job_id
+        required: true
+        type: string
+      - description: For Organization ID
+        in: formData
+        name: for_organization_id
+        required: true
+        type: string
+      - description: For Organization Location ID
+        in: formData
+        name: for_organization_location_id
+        required: true
+        type: string
+      - description: Document Number
+        in: formData
+        name: document_number
+        required: true
+        type: string
+      - description: Document Date
+        in: formData
+        name: document_date
+        required: true
+        type: string
+      - description: Recruitment Type
+        in: formData
+        name: recruitment_type
+        required: true
+        type: string
+      - description: Start Date
+        in: formData
+        name: start_date
+        required: true
+        type: string
+      - description: End Date
+        in: formData
+        name: end_date
+        required: true
+        type: string
+      - description: Status
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: Salary Min
+        in: formData
+        name: salary_min
+        required: true
+        type: string
+      - description: Salary Max
+        in: formData
+        name: salary_max
+        required: true
+        type: string
+      - description: Content Description
+        in: formData
+        name: content_description
+        type: string
+      - description: Organization Logo
+        in: formData
+        name: organization_logo
+        type: file
+      - description: Poster
+        in: formData
+        name: poster
+        type: file
+      - description: Link
+        in: formData
+        name: link
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.JobPostingResponse'
+      security:
+      - BearerAuth: []
+      summary: Create job posting
+      tags:
+      - Job Postings
+  /job-postings/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete job posting
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete job posting
+      tags:
+      - Job Postings
+    get:
+      consumes:
+      - application/json
+      description: Find job posting by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.JobPostingResponse'
+      security:
+      - BearerAuth: []
+      summary: Find job posting by id
+      tags:
+      - Job Postings
+  /job-postings/applied:
+    get:
+      consumes:
+      - application/json
+      description: Find all applied job posting by user id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.JobPostingResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all applied job posting by user id
+      tags:
+      - Job Postings
+  /job-postings/generate-document-number:
+    get:
+      consumes:
+      - application/json
+      description: Generate document number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Generate document number
+      tags:
+      - Job Postings
+  /job-postings/update:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update job posting
+      parameters:
+      - description: ID
+        in: formData
+        name: id
+        required: true
+        type: string
+      - description: Project Recruitment Header ID
+        in: formData
+        name: project_recruitment_header_id
+        required: true
+        type: string
+      - description: MP Request ID
+        in: formData
+        name: mp_request_id
+        required: true
+        type: string
+      - description: Job ID
+        in: formData
+        name: job_id
+        required: true
+        type: string
+      - description: For Organization ID
+        in: formData
+        name: for_organization_id
+        required: true
+        type: string
+      - description: For Organization Location ID
+        in: formData
+        name: for_organization_location_id
+        required: true
+        type: string
+      - description: Document Number
+        in: formData
+        name: document_number
+        required: true
+        type: string
+      - description: Document Date
+        in: formData
+        name: document_date
+        required: true
+        type: string
+      - description: Recruitment Type
+        in: formData
+        name: recruitment_type
+        required: true
+        type: string
+      - description: Start Date
+        in: formData
+        name: start_date
+        required: true
+        type: string
+      - description: End Date
+        in: formData
+        name: end_date
+        required: true
+        type: string
+      - description: Status
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: Salary Min
+        in: formData
+        name: salary_min
+        required: true
+        type: string
+      - description: Salary Max
+        in: formData
+        name: salary_max
+        required: true
+        type: string
+      - description: Content Description
+        in: formData
+        name: content_description
+        type: string
+      - description: Organization Logo
+        in: formData
+        name: organization_logo
+        type: file
+      - description: Poster
+        in: formData
+        name: poster
+        type: file
+      - description: Link
+        in: formData
+        name: link
+        type: string
+      - description: Organization Logo Path
+        in: formData
+        name: organization_logo_path
+        type: string
+      - description: Poster Path
+        in: formData
+        name: poster_path
+        type: string
+      - description: Deleted Organization Logo
+        in: formData
+        name: deleted_organization_logo
+        type: string
+      - description: Deleted Poster
+        in: formData
+        name: deleted_poster
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.JobPostingResponse'
+      security:
+      - BearerAuth: []
+      summary: Update job posting
+      tags:
+      - Job Postings
 securityDefinitions:
   BearerAuth:
     description: Bearer token for authentication

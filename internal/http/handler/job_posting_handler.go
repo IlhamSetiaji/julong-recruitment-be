@@ -62,6 +62,33 @@ func JobPostingHandlerFactory(
 	return NewJobPostingHandler(log, viper, validate, useCase, userHelper)
 }
 
+// CreateJobPosting create job posting
+//
+//		@Summary		Create job posting
+//		@Description	Create job posting
+//		@Tags			Job Postings
+//		@Accept			multipart/form-data
+//		@Produce		json
+//		@Param			project_recruitment_header_id formData string true "Project Recruitment Header ID"
+//		@Param			mp_request_id formData string true "MP Request ID"
+//		@Param			job_id formData string true "Job ID"
+//		@Param			for_organization_id formData string true "For Organization ID"
+//		@Param			for_organization_location_id formData string true "For Organization Location ID"
+//		@Param			document_number formData string true "Document Number"
+//		@Param			document_date formData string true "Document Date"
+//		@Param			recruitment_type formData string true "Recruitment Type"
+//		@Param			start_date formData string true "Start Date"
+//		@Param			end_date formData string true "End Date"
+//		@Param			status formData string true "Status"
+//		@Param			salary_min formData string true "Salary Min"
+//		@Param			salary_max formData string true "Salary Max"
+//		@Param			content_description formData string false "Content Description"
+//		@Param			organization_logo formData file false "Organization Logo"
+//		@Param			poster formData file false "Poster"
+//		@Param			link formData string false "Link"
+//		@Success		201	{object} response.JobPostingResponse
+//	 @Security BearerAuth
+//		@Router			/job-postings [post]
 func (h *JobPostingHandler) CreateJobPosting(ctx *gin.Context) {
 	var req request.CreateJobPostingRequest
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -112,6 +139,21 @@ func (h *JobPostingHandler) CreateJobPosting(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusCreated, "job posting created", res)
 }
 
+// FindAllPaginated find all job postings
+//
+//		@Summary		Find all job postings
+//		@Description	Find all job postings
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Param			page	query	int	false	"Page"
+//		@Param			page_size	query	int	false	"Page Size"
+//		@Param			search	query	string	false	"Search"
+//		@Param			created_at	query	string	false	"Created At"
+//		@Param			status	query	string	false	"Status"
+//		@Success		200	{object} response.JobPostingResponse
+//	 @Security BearerAuth
+//		@Router			/job-postings [get]
 func (h *JobPostingHandler) FindAllPaginated(ctx *gin.Context) {
 	user, err := middleware.GetUser(ctx, h.Log)
 	if err != nil {
@@ -174,6 +216,17 @@ func (h *JobPostingHandler) FindAllPaginated(ctx *gin.Context) {
 	})
 }
 
+// FindByID find job posting by id
+//
+//		@Summary		Find job posting by id
+//		@Description	Find job posting by id
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Param			id	path	string	true	"ID"
+//		@Success		200	{object} response.JobPostingResponse
+//	 @Security BearerAuth
+//		@Router			/job-postings/{id} [get]
 func (h *JobPostingHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -217,6 +270,38 @@ func (h *JobPostingHandler) FindByID(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
 }
 
+// UpdateJobPosting update job posting
+//
+//		@Summary		Update job posting
+//		@Description	Update job posting
+//		@Tags			Job Postings
+//		@Accept			multipart/form-data
+//		@Produce		json
+//		@Param			id	formData	string	true	"ID"
+//		@Param			project_recruitment_header_id formData string true "Project Recruitment Header ID"
+//		@Param			mp_request_id formData string true "MP Request ID"
+//		@Param			job_id formData string true "Job ID"
+//		@Param			for_organization_id formData string true "For Organization ID"
+//		@Param			for_organization_location_id formData string true "For Organization Location ID"
+//		@Param			document_number formData string true "Document Number"
+//		@Param			document_date formData string true "Document Date"
+//		@Param			recruitment_type formData string true "Recruitment Type"
+//		@Param			start_date formData string true "Start Date"
+//		@Param			end_date formData string true "End Date"
+//		@Param			status formData string true "Status"
+//		@Param			salary_min formData string true "Salary Min"
+//		@Param			salary_max formData string true "Salary Max"
+//		@Param			content_description formData string false "Content Description"
+//		@Param			organization_logo formData file false "Organization Logo"
+//		@Param			poster formData file false "Poster"
+//		@Param			link formData string false "Link"
+//		@Param			organization_logo_path formData string false "Organization Logo Path"
+//		@Param			poster_path formData string false "Poster Path"
+//		@Param			deleted_organization_logo formData string false "Deleted Organization Logo"
+//		@Param			deleted_poster formData string false "Deleted Poster"
+//		@Success		200	{object} response.JobPostingResponse
+//	 @Security BearerAuth
+//		@Router			/job-postings/update [put]
 func (h *JobPostingHandler) UpdateJobPosting(ctx *gin.Context) {
 	var req request.UpdateJobPostingRequest
 	if err := ctx.ShouldBind(&req); err != nil {
@@ -300,6 +385,17 @@ func (h *JobPostingHandler) UpdateJobPosting(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "job posting updated", res)
 }
 
+// DeleteJobPosting delete job posting
+//
+//		@Summary		Delete job posting
+//		@Description	Delete job posting
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Param			id	path	string	true	"ID"
+//		@Success		200	{string}	string
+//	 @Security BearerAuth
+//		@Router			/job-postings/{id} [delete]
 func (h *JobPostingHandler) DeleteJobPosting(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -320,6 +416,16 @@ func (h *JobPostingHandler) DeleteJobPosting(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "job posting deleted", nil)
 }
 
+// GenerateDocumentNumber generate document number
+//
+//		@Summary		Generate document number
+//		@Description	Generate document number
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Success		200	{string}	string
+//	 @Security BearerAuth
+//		@Router			/job-postings/generate-document-number [get]
 func (h *JobPostingHandler) GenerateDocumentNumber(ctx *gin.Context) {
 	dateNow := time.Now()
 	documentNumber, err := h.UseCase.GenerateDocumentNumber(dateNow)
@@ -332,6 +438,16 @@ func (h *JobPostingHandler) GenerateDocumentNumber(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success", documentNumber)
 }
 
+// FindAllAppliedJobPostingByUserID find all applied job posting by user id
+//
+//		@Summary		Find all applied job posting by user id
+//		@Description	Find all applied job posting by user id
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Success		200	{object} response.JobPostingResponse
+//	 @Security BearerAuth
+//		@Router			/job-postings/applied [get]
 func (h *JobPostingHandler) FindAllAppliedJobPostingByUserID(ctx *gin.Context) {
 	user, err := middleware.GetUser(ctx, h.Log)
 	if err != nil {

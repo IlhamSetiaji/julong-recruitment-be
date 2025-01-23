@@ -34,6 +34,7 @@ func (dto *MailTemplateDTO) ConvertEntityToResponse(ent *entity.MailTemplate) *r
 	return &response.MailTemplateResponse{
 		ID:             ent.ID,
 		DocumentTypeID: ent.DocumentTypeID,
+		FormType:       ent.FormType,
 		Name:           ent.Name,
 		Subject:        ent.Subject,
 		Body:           ent.Body,

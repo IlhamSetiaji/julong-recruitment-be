@@ -53,6 +53,7 @@ func (uc *MailTemplateUseCase) CreateMailTemplate(req *request.CreateMailTemplat
 	mt, err := uc.Repository.CreateMailTemplate(&entity.MailTemplate{
 		Name:           req.Name,
 		DocumentTypeID: parsedDocumentTypeID,
+		FormType:       entity.TemplateQuestionFormType(req.FormType),
 		Subject:        req.Subject,
 		Body:           req.Body,
 	})
@@ -106,6 +107,7 @@ func (uc *MailTemplateUseCase) UpdateMailTemplate(req *request.UpdateMailTemplat
 		ID:             parsedID,
 		Name:           req.Name,
 		DocumentTypeID: parsedDocumentTypeID,
+		FormType:       entity.TemplateQuestionFormType(req.FormType),
 		Subject:        req.Subject,
 		Body:           req.Body,
 	})

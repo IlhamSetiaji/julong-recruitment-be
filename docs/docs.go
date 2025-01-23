@@ -3434,6 +3434,9 @@ const docTemplate = `{
                 "document_type_id": {
                     "type": "string"
                 },
+                "form_type": {
+                    "$ref": "#/definitions/entity.TemplateQuestionFormType"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4212,7 +4215,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "body",
-                "document_type_id",
+                "form_type",
                 "name",
                 "subject"
             ],
@@ -4221,6 +4224,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "document_type_id": {
+                    "type": "string"
+                },
+                "form_type": {
                     "type": "string"
                 },
                 "name": {
@@ -5342,6 +5348,9 @@ const docTemplate = `{
                 },
                 "document_type_id": {
                     "type": "string"
+                },
+                "form_type": {
+                    "$ref": "#/definitions/entity.TemplateQuestionFormType"
                 },
                 "id": {
                     "type": "string"

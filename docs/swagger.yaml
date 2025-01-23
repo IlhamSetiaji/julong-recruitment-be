@@ -328,6 +328,8 @@ definitions:
         $ref: '#/definitions/entity.DocumentType'
       document_type_id:
         type: string
+      form_type:
+        $ref: '#/definitions/entity.TemplateQuestionFormType'
       id:
         type: string
       name:
@@ -865,13 +867,15 @@ definitions:
         type: string
       document_type_id:
         type: string
+      form_type:
+        type: string
       name:
         type: string
       subject:
         type: string
     required:
     - body
-    - document_type_id
+    - form_type
     - name
     - subject
     type: object
@@ -1635,6 +1639,8 @@ definitions:
         $ref: '#/definitions/response.DocumentTypeResponse'
       document_type_id:
         type: string
+      form_type:
+        $ref: '#/definitions/entity.TemplateQuestionFormType'
       id:
         type: string
       name:

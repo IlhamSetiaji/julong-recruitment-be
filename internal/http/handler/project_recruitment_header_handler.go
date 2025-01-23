@@ -59,6 +59,17 @@ func ProjectRecruitmentHeaderHandlerFactory(
 	return NewProjectRecruitmentHeaderHandler(log, viper, validate, useCase, taUseCase)
 }
 
+// CreateProjectRecruitmentHeader create project recruitment header
+//
+//	@Summary		Create project recruitment header
+//	@Description	Create project recruitment header
+//	@Tags			Project Recruitment Headers
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload			body	request.CreateProjectRecruitmentHeader	true	"Create Project Recruitment Header"
+//	@Success		201	{object} response.ProjectRecruitmentHeaderResponse
+//	@Security BearerAuth
+//	@Router /api/project-recruitment-headers [post]
 func (h *ProjectRecruitmentHeaderHandler) CreateProjectRecruitmentHeader(ctx *gin.Context) {
 	var req request.CreateProjectRecruitmentHeader
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -103,6 +114,20 @@ func (h *ProjectRecruitmentHeaderHandler) CreateProjectRecruitmentHeader(ctx *gi
 	utils.SuccessResponse(ctx, http.StatusCreated, "success", response)
 }
 
+// FindAllPaginated find all project recruitment headers
+//
+// @Summary		Find all project recruitment headers
+// @Description	Find all project recruitment headers
+// @Tags			Project Recruitment Headers
+// @Accept			json
+// @Produce		json
+// @Param			page	query	int	false	"Page"
+// @Param			page_size	query	int	false	"Page Size"
+// @Param			search	query	string	false	"Search"
+// @Param			created_at	query	string	false	"Created At"
+// @Success		200	{object} response.ProjectRecruitmentHeaderResponse
+// @Security BearerAuth
+// @Router			/api/project-recruitment-headers [get]
 func (h *ProjectRecruitmentHeaderHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
@@ -141,6 +166,17 @@ func (h *ProjectRecruitmentHeaderHandler) FindAllPaginated(ctx *gin.Context) {
 	})
 }
 
+// FindByID find project recruitment header by id
+//
+// @Summary		Find project recruitment header by id
+// @Description	Find project recruitment header by id
+// @Tags			Project Recruitment Headers
+// @Accept			json
+// @Produce		json
+// @Param			id	path	string	true	"ID"
+// @Success		200	{object} response.ProjectRecruitmentHeaderResponse
+// @Security BearerAuth
+// @Router			/api/project-recruitment-headers/{id} [get]
 func (h *ProjectRecruitmentHeaderHandler) FindByID(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
@@ -164,6 +200,17 @@ func (h *ProjectRecruitmentHeaderHandler) FindByID(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success", response)
 }
 
+// UpdateProjectRecruitmentHeader update project recruitment header
+//
+// @Summary		Update project recruitment header
+// @Description	Update project recruitment header
+// @Tags			Project Recruitment Headers
+// @Accept			json
+// @Produce		json
+// @Param			payload	body	request.UpdateProjectRecruitmentHeader	true	"Update Project Recruitment Header"
+// @Success		200	{object} response.ProjectRecruitmentHeaderResponse
+// @Security BearerAuth
+// @Router			/api/project-recruitment-headers/update [put]
 func (h *ProjectRecruitmentHeaderHandler) UpdateProjectRecruitmentHeader(ctx *gin.Context) {
 	var req request.UpdateProjectRecruitmentHeader
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -208,6 +255,17 @@ func (h *ProjectRecruitmentHeaderHandler) UpdateProjectRecruitmentHeader(ctx *gi
 	utils.SuccessResponse(ctx, http.StatusOK, "success", response)
 }
 
+// DeleteProjectRecruitmentHeader delete project recruitment header
+//
+// @Summary		Delete project recruitment header
+// @Description	Delete project recruitment header
+// @Tags			Project Recruitment Headers
+// @Accept			json
+// @Produce		json
+// @Param			id	path	string	true	"ID"
+// @Success		200	{string}	string
+// @Security BearerAuth
+// @Router			/api/project-recruitment-headers/{id} [delete]
 func (h *ProjectRecruitmentHeaderHandler) DeleteProjectRecruitmentHeader(ctx *gin.Context) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil {
@@ -238,6 +296,16 @@ func (h *ProjectRecruitmentHeaderHandler) DeleteProjectRecruitmentHeader(ctx *gi
 	utils.SuccessResponse(ctx, http.StatusOK, "success", nil)
 }
 
+// GenerateDocumentNumber generate document number
+//
+// @Summary		Generate document number
+// @Description	Generate document number
+// @Tags			Project Recruitment Headers
+// @Accept			json
+// @Produce		json
+// @Success		200	{string}	string
+// @Security BearerAuth
+// @Router			/api/project-recruitment-headers/document-number [get]
 func (h *ProjectRecruitmentHeaderHandler) GenerateDocumentNumber(ctx *gin.Context) {
 	dateNow := time.Now()
 	documentNumber, err := h.UseCase.GenerateDocumentNumber(dateNow)

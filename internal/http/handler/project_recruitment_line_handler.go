@@ -47,6 +47,17 @@ func ProjectRecruitmentLineHandlerFactory(
 	return NewProjectRecruitmentLineHandler(log, viper, validate, useCase)
 }
 
+// CreateOrUpdateProjectRecruitmentLines create or update project recruitment lines
+//
+//	@Summary		Create or update project recruitment lines
+//	@Description	Create or update project recruitment lines
+//	@Tags			Project Recruitment Lines
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload body request.CreateOrUpdateProjectRecruitmentLinesRequest true "payload"
+//	@Success		201	{object} response.ProjectRecruitmentHeaderResponse
+//	@Security BearerAuth
+//	@Router			/project-recruitment-lines [post]
 func (h *ProjectRecruitmentLineHandler) CreateOrUpdateProjectRecruitmentLines(ctx *gin.Context) {
 	var payload request.CreateOrUpdateProjectRecruitmentLinesRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {

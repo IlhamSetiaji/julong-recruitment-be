@@ -48,6 +48,17 @@ func TemplateActivityLineHandlerFactory(
 	return NewTemplateActivityLineHandler(log, viper, validate, useCase)
 }
 
+// CreateOrUpdateTemplateActivityLine create or update template activity line
+//
+//	@Summary		Create or update template activity line
+//	@Description	Create or update template activity line
+//	@Tags			Template Activity Lines
+//	@Accept		json
+//	@Produce		json
+//	@Param			payload body request.CreateOrUpdateTemplateActivityLineRequest true "payload"
+//	@Success		201	{object} response.TemplateActivityResponse
+//	@Security BearerAuth
+//	@Router			/template-activity-lines [post]
 func (h *TemplateActivityLineHandler) CreateOrUpdateTemplateActivityLine(ctx *gin.Context) {
 	var payload request.CreateOrUpdateTemplateActivityLineRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -72,6 +83,17 @@ func (h *TemplateActivityLineHandler) CreateOrUpdateTemplateActivityLine(ctx *gi
 	utils.SuccessResponse(ctx, http.StatusOK, "success", ta)
 }
 
+// FindByTemplateActivityID find template activity line by template activity id
+//
+//	@Summary		Find template activity line by template activity id
+//	@Description	Find template activity line by template activity id
+//	@Tags			Template Activity Lines
+//	@Accept			json
+//	@Produce		json
+//	@Param			id path string true "Template Activity ID"
+//	@Success		200	{object} response.TemplateActivityLineResponse
+//	@Security BearerAuth
+//	@Router			/template-activity-lines/template-activity/{id} [get]
 func (h *TemplateActivityLineHandler) FindByTemplateActivityID(ctx *gin.Context) {
 	templateActivityID := ctx.Param("id")
 

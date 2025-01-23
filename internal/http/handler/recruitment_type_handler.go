@@ -46,6 +46,16 @@ func RecruitmentTypeHandlerFactory(
 	return NewRecruitmentTypeHandler(log, viper, validate, useCase)
 }
 
+// FindAll find all recruitment types
+//
+//		@Summary		Find all recruitment types
+//		@Description	Find all recruitment types
+//		@Tags			Recruitment Types
+//		@Accept			json
+//		@Produce		json
+//		@Success		200	{object} response.RecruitmentTypeResponse
+//	 @Security BearerAuth
+//		@Router			/recruitment-types [get]
 func (h *RecruitmentTypeHandler) FindAll(ctx *gin.Context) {
 	recruitmentTypes, err := h.UseCase.FindAll()
 	if err != nil {

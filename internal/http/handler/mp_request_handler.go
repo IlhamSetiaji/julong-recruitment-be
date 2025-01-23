@@ -47,6 +47,16 @@ func MPRequestHandlerFactory(
 	return NewMPRequestHandler(log, viper, validate, useCase)
 }
 
+// FindAllPaginated find all mp requests paginated
+//
+//	@Summary		Find all mp requests paginated
+//	@Description	Find all mp requests paginated
+//	@Tags			MP Requests
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object} response.MPRequestPaginatedResponse
+//	@Security BearerAuth
+//	@Router			/mp-requests [get]
 func (h *MPRequestHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {

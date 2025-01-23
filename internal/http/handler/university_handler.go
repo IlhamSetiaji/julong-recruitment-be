@@ -46,6 +46,16 @@ func UniversityHandlerFactory(
 	return NewUniversityHandler(log, viper, validate, useCase)
 }
 
+// FindAll find all universities
+//
+//		@Summary		Find all universities
+//		@Description	Find all universities
+//		@Tags			Universities
+//		@Accept			json
+//	 @Produce		json
+//		@Success		200	{object} response.UniversityResponse
+//		@Security BearerAuth
+//		@Router			/universities [get]
 func (h *UniversityHandler) FindAll(ctx *gin.Context) {
 	responses, err := h.UseCase.FindAll()
 	if err != nil {

@@ -54,6 +54,19 @@ func MailTemplateHandlerFactory(
 	return NewMailTemplateHandler(log, viper, validate, useCase)
 }
 
+// CreateMailTemplate create mail template
+//
+//	@Summary		Create mail template
+//	@Description	Create mail template
+//	@Tags			Mail Templates
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload body request.CreateMailTemplateRequest true "Create Mail Template"
+//	@Success		201	{object} response.MailTemplateResponse
+//
+// @Security BearerAuth
+//
+//	@Router			/mail-templates [post]
 func (h *MailTemplateHandler) CreateMailTemplate(ctx *gin.Context) {
 	var payload request.CreateMailTemplateRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -78,6 +91,21 @@ func (h *MailTemplateHandler) CreateMailTemplate(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusCreated, "Success created mail template", res)
 }
 
+// FindAllPaginated find all mail templates paginated
+//
+//	@Summary		Find all mail templates paginated
+//	@Description	Find all mail templates paginated
+//	@Tags			Mail Templates
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query	int	false	"Page"
+//	@Param			page_size	query	int	false	"Page Size"
+//	@Param			search	query	string	false	"Search"
+//	@Param			created_at	query	string	false	"Created At"
+//
+// @Security BearerAuth
+//
+//	@Router			/mail-templates [get]
 func (h *MailTemplateHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
@@ -116,6 +144,18 @@ func (h *MailTemplateHandler) FindAllPaginated(ctx *gin.Context) {
 	})
 }
 
+// FindByID find mail template by ID
+//
+//	@Summary		Find mail template by ID
+//	@Description	Find mail template by ID
+//	@Tags			Mail Templates
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//
+// @Security BearerAuth
+//
+//	@Router			/mail-templates/{id} [get]
 func (h *MailTemplateHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 	mtID, err := uuid.Parse(id)
@@ -176,6 +216,19 @@ func (h *MailTemplateHandler) UpdateMailTemplate(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Success update mail template", res)
 }
 
+// DeleteMailTemplate delete mail template
+//
+//	@Summary		Delete mail template
+//	@Description	Delete mail template
+//	@Tags			Mail Templates
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Success		200			{string}	string
+//
+// @Security BearerAuth
+//
+//	@Router			/mail-templates/{id} [delete]
 func (h *MailTemplateHandler) DeleteMailTemplate(ctx *gin.Context) {
 	id := ctx.Param("id")
 	mtID, err := uuid.Parse(id)
@@ -207,6 +260,19 @@ func (h *MailTemplateHandler) DeleteMailTemplate(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Success delete mail template", nil)
 }
 
+// FindAllByDocumentTypeID find all mail templates by document type ID
+//
+//	@Summary		Find all mail templates by document type ID
+//	@Description	Find all mail templates by document type ID
+//	@Tags			Mail Templates
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Success		200	{object} response.MailTemplateResponse
+//
+// @Security BearerAuth
+//
+//	@Router			/mail-templates/document-type/{id} [get]
 func (h *MailTemplateHandler) FindAllByDocumentTypeID(ctx *gin.Context) {
 	id := ctx.Param("id")
 	documentTypeID, err := uuid.Parse(id)

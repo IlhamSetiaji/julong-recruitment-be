@@ -61,6 +61,47 @@ func UserProfileHandlerFactory(
 	return NewUserProfileHandler(log, viper, validate, useCase, userHelper)
 }
 
+// FillUserProfile fill user profile
+//
+//	@Summary		Fill user profile
+//	@Description	Fill user profile
+//	@Tags			User Profiles
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			id					formData	string					false	"ID"
+//	@Param			name				formData	string					false	"Name"
+//	@Param			marital_status		formData	string					true	"Marital Status"
+//	@Param			gender				formData	string					true	"Gender"
+//	@Param			phone_number		formData	string					true	"Phone Number"
+//	@Param			age					formData	int						true	"Age"
+//	@Param			birth_date			formData	string					true	"Birth Date"
+//	@Param			birth_place			formData	string					true	"Birth Place"
+//	@Param			ktp					formData	file					false	"KTP"
+//	@Param			curriculum_vitae	formData	file					false	"Curriculum Vitae"
+//	@Param			ktp_path			formData	string					false	"KTP Path"
+//	@Param			cv_path				formData	string					false	"CV Path"
+//	@Param			work_experiences.id					formData	string	false	"Work Experience ID"
+//	@Param			work_experiences.name				formData	string	false	"Work Experience Name"
+//	@Param			work_experiences.company_name		formData	string	false	"Work Experience Company Name"
+//	@Param			work_experiences.year_experience	formData	int		false	"Work Experience Year"
+//	@Param			work_experiences.job_description	formData	string	false	"Work Experience Job Description"
+//	@Param			work_experiences.certificate		formData	file	false	"Work Experience Certificate"
+//	@Param			educations.id						formData	string	false	"Education ID"
+//	@Param			educations.education_level			formData	string	false	"Education Level"
+//	@Param			educations.major					formData	string	false	"Education Major"
+//	@Param			educations.school_name				formData	string	false	"Education School Name"
+//	@Param			educations.graduate_year			formData	int		false	"Education Graduate Year"
+//	@Param			educations.end_date					formData	string	false	"Education End Date"
+//	@Param			educations.certificate				formData	file	false	"Education Certificate"
+//	@Param			educations.gpa						formData	float64	false	"Education GPA"
+//	@Param			skills.id							formData	string	false	"Skill ID"
+//	@Param			skills.name							formData	string	false	"Skill Name"
+//	@Param			skills.description					formData	string	false	"Skill Description"
+//	@Param			skills.level						formData	int		false	"Skill Level"
+//	@Param			skills.certificate					formData	file	false	"Skill Certificate"
+//	@Success		200					{object}	response.UserProfileResponse
+//	@Security		BearerAuth
+//	@Router			/user-profiles [post]
 func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 	user, err := middleware.GetUser(ctx, h.Log)
 	if err != nil {
@@ -284,6 +325,21 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, 201, "success", up)
 }
 
+// FindAllPaginated find all user profiles paginated
+//
+//	@Summary		Find all user profiles paginated
+//	@Description	Find all user profiles paginated
+//	@Tags			User Profiles
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query	int		false	"Page"
+//	@Param			page_size	query	int		false	"Page Size"
+//	@Param			search	query	string	false	"Search"
+//	@Param			created_at	query	string	false	"Created At"
+//	@Param			status		query	string	false	"Status"
+//	@Success		200	{object}	response.UserProfileResponse
+//	@Security		BearerAuth
+//	@Router			/user-profiles	[get]
 func (h *UserProfileHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
@@ -328,6 +384,17 @@ func (h *UserProfileHandler) FindAllPaginated(ctx *gin.Context) {
 	})
 }
 
+// FindByID find user profile by id
+//
+//	@Summary		Find user profile by id
+//	@Description	Find user profile by id
+//	@Tags			User Profiles
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Success		200	{object}	response.UserProfileResponse
+//	@Security		BearerAuth
+//	@Router			/user-profiles/{id}	[get]
 func (h *UserProfileHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 	parsedID, err := uuid.Parse(id)
@@ -352,6 +419,16 @@ func (h *UserProfileHandler) FindByID(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, 200, "success", userProfile)
 }
 
+// FindByUserID find user profile by user id
+//
+//	@Summary		Find user profile by user id
+//	@Description	Find user profile by user id
+//	@Tags			User Profiles
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	response.UserProfileResponse
+//	@Security		BearerAuth
+//	@Router			/user-profiles/user	[get]
 func (h *UserProfileHandler) FindByUserID(ctx *gin.Context) {
 	user, err := middleware.GetUser(ctx, h.Log)
 	if err != nil {
@@ -386,6 +463,17 @@ func (h *UserProfileHandler) FindByUserID(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, 200, "success", userProfile)
 }
 
+// UpdateStatusUserProfile update status user profile
+//
+//	@Summary		Update status user profile
+//	@Description	Update status user profile
+//	@Tags			User Profiles
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body	request.UpdateStatusUserProfileRequest	true	"Update Status User Profile"
+//	@Success		200	{object}	response.UserProfileResponse
+//	@Security		BearerAuth
+//	@Router			/user-profiles/update-status	[put]
 func (h *UserProfileHandler) UpdateStatusUserProfile(ctx *gin.Context) {
 	var payload request.UpdateStatusUserProfileRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -404,6 +492,17 @@ func (h *UserProfileHandler) UpdateStatusUserProfile(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, 200, "success", userProfile)
 }
 
+// DeleteUserProfile delete user profile
+//
+//	@Summary		Delete user profile
+//	@Description	Delete user profile
+//	@Tags			User Profiles
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Success		200	{string}	string
+//	@Security		BearerAuth
+//	@Router			/user-profiles/{id}	[delete]
 func (h *UserProfileHandler) DeleteUserProfile(ctx *gin.Context) {
 	id := ctx.Param("id")
 	parsedID, err := uuid.Parse(id)

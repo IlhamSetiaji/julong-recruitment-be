@@ -49,6 +49,236 @@
                 }
             }
         },
+        "/api/project-recruitment-headers": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all project recruitment headers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Headers"
+                ],
+                "summary": "Find all project recruitment headers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created At",
+                        "name": "created_at",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create project recruitment header",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Headers"
+                ],
+                "summary": "Create project recruitment header",
+                "parameters": [
+                    {
+                        "description": "Create Project Recruitment Header",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateProjectRecruitmentHeader"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/project-recruitment-headers/document-number": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate document number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Headers"
+                ],
+                "summary": "Generate document number",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/project-recruitment-headers/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update project recruitment header",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Headers"
+                ],
+                "summary": "Update project recruitment header",
+                "parameters": [
+                    {
+                        "description": "Update Project Recruitment Header",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateProjectRecruitmentHeader"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/project-recruitment-headers/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find project recruitment header by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Headers"
+                ],
+                "summary": "Find project recruitment header by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete project recruitment header",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Headers"
+                ],
+                "summary": "Delete project recruitment header",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/questions": {
             "post": {
                 "security": [
@@ -1658,6 +1888,1012 @@
                     }
                 }
             }
+        },
+        "/mail-templates": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all mail templates paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mail Templates"
+                ],
+                "summary": "Find all mail templates paginated",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created At",
+                        "name": "created_at",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create mail template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mail Templates"
+                ],
+                "summary": "Create mail template",
+                "parameters": [
+                    {
+                        "description": "Create Mail Template",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateMailTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.MailTemplateResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/mail-templates/document-type/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all mail templates by document type ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mail Templates"
+                ],
+                "summary": "Find all mail templates by document type ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.MailTemplateResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/mail-templates/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find mail template by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mail Templates"
+                ],
+                "summary": "Find mail template by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete mail template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Mail Templates"
+                ],
+                "summary": "Delete mail template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/mp-requests": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all mp requests paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MP Requests"
+                ],
+                "summary": "Find all mp requests paginated",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.MPRequestPaginatedResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/project-recruitment-lines": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update project recruitment lines",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Lines"
+                ],
+                "summary": "Create or update project recruitment lines",
+                "parameters": [
+                    {
+                        "description": "payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrUpdateProjectRecruitmentLinesRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/recruitment-types": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all recruitment types",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Recruitment Types"
+                ],
+                "summary": "Find all recruitment types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.RecruitmentTypeResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/template-activities": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all template activities paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Template Activities"
+                ],
+                "summary": "Find all template activities paginated",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created At",
+                        "name": "created_at",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TemplateActivityResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create template activity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Template Activities"
+                ],
+                "summary": "Create template activity",
+                "parameters": [
+                    {
+                        "description": "Create Template Activity",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateTemplateActivityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.TemplateActivityResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/template-activities/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update template activity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Template Activities"
+                ],
+                "summary": "Update template activity",
+                "parameters": [
+                    {
+                        "description": "Update Template Activity",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateTemplateActivityRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TemplateActivityResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/template-activities/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find template activity by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Template Activities"
+                ],
+                "summary": "Find template activity by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TemplateActivityResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete template activity",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Template Activities"
+                ],
+                "summary": "Delete template activity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/template-activity-lines": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update template activity line",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Template Activity Lines"
+                ],
+                "summary": "Create or update template activity line",
+                "parameters": [
+                    {
+                        "description": "payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrUpdateTemplateActivityLineRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.TemplateActivityResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/template-activity-lines/template-activity/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find template activity line by template activity id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Template Activity Lines"
+                ],
+                "summary": "Find template activity line by template activity id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Template Activity ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TemplateActivityLineResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/universities": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all universities",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Universities"
+                ],
+                "summary": "Find all universities",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UniversityResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user-profiles": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all user profiles paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Profiles"
+                ],
+                "summary": "Find all user profiles paginated",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created At",
+                        "name": "created_at",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UserProfileResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Fill user profile",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Profiles"
+                ],
+                "summary": "Fill user profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name",
+                        "name": "name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Marital Status",
+                        "name": "marital_status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gender",
+                        "name": "gender",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Phone Number",
+                        "name": "phone_number",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Age",
+                        "name": "age",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Birth Date",
+                        "name": "birth_date",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Birth Place",
+                        "name": "birth_place",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "KTP",
+                        "name": "ktp",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Curriculum Vitae",
+                        "name": "curriculum_vitae",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "KTP Path",
+                        "name": "ktp_path",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "CV Path",
+                        "name": "cv_path",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Work Experience ID",
+                        "name": "work_experiences.id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Work Experience Name",
+                        "name": "work_experiences.name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Work Experience Company Name",
+                        "name": "work_experiences.company_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Work Experience Year",
+                        "name": "work_experiences.year_experience",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Work Experience Job Description",
+                        "name": "work_experiences.job_description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Work Experience Certificate",
+                        "name": "work_experiences.certificate",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Education ID",
+                        "name": "educations.id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Education Level",
+                        "name": "educations.education_level",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Education Major",
+                        "name": "educations.major",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Education School Name",
+                        "name": "educations.school_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Education Graduate Year",
+                        "name": "educations.graduate_year",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Education End Date",
+                        "name": "educations.end_date",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Education Certificate",
+                        "name": "educations.certificate",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Education GPA",
+                        "name": "educations.gpa",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Skill ID",
+                        "name": "skills.id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Skill Name",
+                        "name": "skills.name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Skill Description",
+                        "name": "skills.description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Skill Level",
+                        "name": "skills.level",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Skill Certificate",
+                        "name": "skills.certificate",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UserProfileResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user-profiles/update-status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update status user profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Profiles"
+                ],
+                "summary": "Update status user profile",
+                "parameters": [
+                    {
+                        "description": "Update Status User Profile",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStatusUserProfileRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UserProfileResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user-profiles/user": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find user profile by user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Profiles"
+                ],
+                "summary": "Find user profile by user id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UserProfileResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user-profiles/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find user profile by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Profiles"
+                ],
+                "summary": "Find user profile by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UserProfileResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete user profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Profiles"
+                ],
+                "summary": "Delete user profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -2906,6 +4142,90 @@
                 }
             }
         },
+        "request.CreateMailTemplateRequest": {
+            "type": "object",
+            "required": [
+                "body",
+                "document_type_id",
+                "name",
+                "subject"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "document_type_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateOrUpdateProjectRecruitmentLinesRequest": {
+            "type": "object",
+            "required": [
+                "project_recruitment_header_id",
+                "project_recruitment_lines"
+            ],
+            "properties": {
+                "deleted_project_recruitment_line_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_lines": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "end_date",
+                            "project_pics",
+                            "start_date",
+                            "template_activity_line_id"
+                        ],
+                        "properties": {
+                            "end_date": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "project_pics": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "employee_id"
+                                    ],
+                                    "properties": {
+                                        "administrative_total": {
+                                            "type": "integer"
+                                        },
+                                        "employee_id": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "start_date": {
+                                "type": "string"
+                            },
+                            "template_activity_line_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "request.CreateOrUpdateQuestions": {
             "type": "object",
             "required": [
@@ -2959,6 +4279,55 @@
                 }
             }
         },
+        "request.CreateOrUpdateTemplateActivityLineRequest": {
+            "type": "object",
+            "required": [
+                "template_activity_id",
+                "template_activity_lines"
+            ],
+            "properties": {
+                "deleted_template_activity_line_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "template_activity_id": {
+                    "type": "string"
+                },
+                "template_activity_lines": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "status",
+                            "template_question_id"
+                        ],
+                        "properties": {
+                            "color_hex_code": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "template_question_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "request.CreateOrUpdateTestApplicantsRequest": {
             "type": "object",
             "required": [
@@ -3002,6 +4371,70 @@
                     }
                 },
                 "test_schedule_header_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateProjectRecruitmentHeader": {
+            "type": "object",
+            "required": [
+                "document_date",
+                "document_number",
+                "end_date",
+                "name",
+                "recruitment_type",
+                "start_date",
+                "status",
+                "template_activity_id"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "template_activity_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateTemplateActivityRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "recruitment_type",
+                "status"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -3157,6 +4590,93 @@
                     "type": "string"
                 },
                 "template_question_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateProjectRecruitmentHeader": {
+            "type": "object",
+            "required": [
+                "document_date",
+                "document_number",
+                "end_date",
+                "id",
+                "name",
+                "recruitment_type",
+                "start_date",
+                "status",
+                "template_activity_id"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "template_activity_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateStatusUserProfileRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateTemplateActivityRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "recruitment_type",
+                "status"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -3728,6 +5248,49 @@
                 }
             }
         },
+        "response.MPRequestPaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "mp_request_header": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.MPRequestHeaderResponse"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.MailTemplateResponse": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "document_type": {
+                    "$ref": "#/definitions/response.DocumentTypeResponse"
+                },
+                "document_type_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "response.ProjectPicResponse": {
             "type": "object",
             "properties": {
@@ -3881,6 +5444,17 @@
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.RecruitmentTypeResponse": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 }
             }
@@ -4148,6 +5722,29 @@
                 },
                 "status": {
                     "$ref": "#/definitions/entity.TestTypeStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.UniversityResponse": {
+            "type": "object",
+            "properties": {
+                "alpha_two_code": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"

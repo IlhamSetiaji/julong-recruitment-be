@@ -859,6 +859,63 @@ definitions:
     - name
     - template_question_id
     type: object
+  request.CreateMailTemplateRequest:
+    properties:
+      body:
+        type: string
+      document_type_id:
+        type: string
+      name:
+        type: string
+      subject:
+        type: string
+    required:
+    - body
+    - document_type_id
+    - name
+    - subject
+    type: object
+  request.CreateOrUpdateProjectRecruitmentLinesRequest:
+    properties:
+      deleted_project_recruitment_line_ids:
+        items:
+          type: string
+        type: array
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_lines:
+        items:
+          properties:
+            end_date:
+              type: string
+            id:
+              type: string
+            project_pics:
+              items:
+                properties:
+                  administrative_total:
+                    type: integer
+                  employee_id:
+                    type: string
+                required:
+                - employee_id
+                type: object
+              type: array
+            start_date:
+              type: string
+            template_activity_line_id:
+              type: string
+          required:
+          - end_date
+          - project_pics
+          - start_date
+          - template_activity_line_id
+          type: object
+        type: array
+    required:
+    - project_recruitment_header_id
+    - project_recruitment_lines
+    type: object
   request.CreateOrUpdateQuestions:
     properties:
       deleted_question_ids:
@@ -894,6 +951,39 @@ definitions:
     - questions
     - template_question_id
     type: object
+  request.CreateOrUpdateTemplateActivityLineRequest:
+    properties:
+      deleted_template_activity_line_ids:
+        items:
+          type: string
+        type: array
+      template_activity_id:
+        type: string
+      template_activity_lines:
+        items:
+          properties:
+            color_hex_code:
+              type: string
+            description:
+              type: string
+            id:
+              type: string
+            name:
+              type: string
+            status:
+              type: string
+            template_question_id:
+              type: string
+          required:
+          - name
+          - status
+          - template_question_id
+          type: object
+        type: array
+    required:
+    - template_activity_id
+    - template_activity_lines
+    type: object
   request.CreateOrUpdateTestApplicantsRequest:
     properties:
       deleted_test_applicant_ids:
@@ -925,6 +1015,51 @@ definitions:
     required:
     - test_applicants
     - test_schedule_header_id
+    type: object
+  request.CreateProjectRecruitmentHeader:
+    properties:
+      description:
+        type: string
+      document_date:
+        type: string
+      document_number:
+        type: string
+      end_date:
+        type: string
+      name:
+        type: string
+      recruitment_type:
+        type: string
+      start_date:
+        type: string
+      status:
+        type: string
+      template_activity_id:
+        type: string
+    required:
+    - document_date
+    - document_number
+    - end_date
+    - name
+    - recruitment_type
+    - start_date
+    - status
+    - template_activity_id
+    type: object
+  request.CreateTemplateActivityRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      recruitment_type:
+        type: string
+      status:
+        type: string
+    required:
+    - name
+    - recruitment_type
+    - status
     type: object
   request.CreateTemplateQuestion:
     properties:
@@ -1036,6 +1171,67 @@ definitions:
     - id
     - name
     - template_question_id
+    type: object
+  request.UpdateProjectRecruitmentHeader:
+    properties:
+      description:
+        type: string
+      document_date:
+        type: string
+      document_number:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      recruitment_type:
+        type: string
+      start_date:
+        type: string
+      status:
+        type: string
+      template_activity_id:
+        type: string
+    required:
+    - document_date
+    - document_number
+    - end_date
+    - id
+    - name
+    - recruitment_type
+    - start_date
+    - status
+    - template_activity_id
+    type: object
+  request.UpdateStatusUserProfileRequest:
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+    required:
+    - id
+    - status
+    type: object
+  request.UpdateTemplateActivityRequest:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      recruitment_type:
+        type: string
+      status:
+        type: string
+    required:
+    - id
+    - name
+    - recruitment_type
+    - status
     type: object
   request.UpdateTemplateQuestion:
     properties:
@@ -1420,6 +1616,34 @@ definitions:
       vp_gm_director_name:
         type: string
     type: object
+  response.MPRequestPaginatedResponse:
+    properties:
+      mp_request_header:
+        items:
+          $ref: '#/definitions/response.MPRequestHeaderResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  response.MailTemplateResponse:
+    properties:
+      body:
+        type: string
+      created_at:
+        type: string
+      document_type:
+        $ref: '#/definitions/response.DocumentTypeResponse'
+      document_type_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      subject:
+        type: string
+      updated_at:
+        type: string
+    type: object
   response.ProjectPicResponse:
     properties:
       administrative_total:
@@ -1521,6 +1745,13 @@ definitions:
       template_question_id:
         type: string
       updated_at:
+        type: string
+    type: object
+  response.RecruitmentTypeResponse:
+    properties:
+      key:
+        type: string
+      value:
         type: string
     type: object
   response.SkillResponse:
@@ -1700,6 +1931,21 @@ definitions:
       updated_at:
         type: string
     type: object
+  response.UniversityResponse:
+    properties:
+      alpha_two_code:
+        type: string
+      country:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   response.UserProfileResponse:
     properties:
       age:
@@ -1803,6 +2049,149 @@ paths:
       summary: find all answer types
       tags:
       - Answer Types
+  /api/project-recruitment-headers:
+    get:
+      consumes:
+      - application/json
+      description: Find all project recruitment headers
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all project recruitment headers
+      tags:
+      - Project Recruitment Headers
+    post:
+      consumes:
+      - application/json
+      description: Create project recruitment header
+      parameters:
+      - description: Create Project Recruitment Header
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateProjectRecruitmentHeader'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Create project recruitment header
+      tags:
+      - Project Recruitment Headers
+  /api/project-recruitment-headers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete project recruitment header
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete project recruitment header
+      tags:
+      - Project Recruitment Headers
+    get:
+      consumes:
+      - application/json
+      description: Find project recruitment header by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Find project recruitment header by id
+      tags:
+      - Project Recruitment Headers
+  /api/project-recruitment-headers/document-number:
+    get:
+      consumes:
+      - application/json
+      description: Generate document number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Generate document number
+      tags:
+      - Project Recruitment Headers
+  /api/project-recruitment-headers/update:
+    put:
+      consumes:
+      - application/json
+      description: Update project recruitment header
+      parameters:
+      - description: Update Project Recruitment Header
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateProjectRecruitmentHeader'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Update project recruitment header
+      tags:
+      - Project Recruitment Headers
   /api/questions:
     post:
       consumes:
@@ -2826,6 +3215,642 @@ paths:
       summary: Update job posting
       tags:
       - Job Postings
+  /mail-templates:
+    get:
+      consumes:
+      - application/json
+      description: Find all mail templates paginated
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Find all mail templates paginated
+      tags:
+      - Mail Templates
+    post:
+      consumes:
+      - application/json
+      description: Create mail template
+      parameters:
+      - description: Create Mail Template
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateMailTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.MailTemplateResponse'
+      security:
+      - BearerAuth: []
+      summary: Create mail template
+      tags:
+      - Mail Templates
+  /mail-templates/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete mail template
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete mail template
+      tags:
+      - Mail Templates
+    get:
+      consumes:
+      - application/json
+      description: Find mail template by ID
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Find mail template by ID
+      tags:
+      - Mail Templates
+  /mail-templates/document-type/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find all mail templates by document type ID
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.MailTemplateResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all mail templates by document type ID
+      tags:
+      - Mail Templates
+  /mp-requests:
+    get:
+      consumes:
+      - application/json
+      description: Find all mp requests paginated
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.MPRequestPaginatedResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all mp requests paginated
+      tags:
+      - MP Requests
+  /project-recruitment-lines:
+    post:
+      consumes:
+      - application/json
+      description: Create or update project recruitment lines
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrUpdateProjectRecruitmentLinesRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Create or update project recruitment lines
+      tags:
+      - Project Recruitment Lines
+  /recruitment-types:
+    get:
+      consumes:
+      - application/json
+      description: Find all recruitment types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RecruitmentTypeResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all recruitment types
+      tags:
+      - Recruitment Types
+  /template-activities:
+    get:
+      consumes:
+      - application/json
+      description: Find all template activities paginated
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TemplateActivityResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all template activities paginated
+      tags:
+      - Template Activities
+    post:
+      consumes:
+      - application/json
+      description: Create template activity
+      parameters:
+      - description: Create Template Activity
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTemplateActivityRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.TemplateActivityResponse'
+      security:
+      - BearerAuth: []
+      summary: Create template activity
+      tags:
+      - Template Activities
+  /template-activities/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete template activity
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete template activity
+      tags:
+      - Template Activities
+    get:
+      consumes:
+      - application/json
+      description: Find template activity by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TemplateActivityResponse'
+      security:
+      - BearerAuth: []
+      summary: Find template activity by id
+      tags:
+      - Template Activities
+  /template-activities/update:
+    put:
+      consumes:
+      - application/json
+      description: Update template activity
+      parameters:
+      - description: Update Template Activity
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateTemplateActivityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TemplateActivityResponse'
+      security:
+      - BearerAuth: []
+      summary: Update template activity
+      tags:
+      - Template Activities
+  /template-activity-lines:
+    post:
+      consumes:
+      - application/json
+      description: Create or update template activity line
+      parameters:
+      - description: payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrUpdateTemplateActivityLineRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.TemplateActivityResponse'
+      security:
+      - BearerAuth: []
+      summary: Create or update template activity line
+      tags:
+      - Template Activity Lines
+  /template-activity-lines/template-activity/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find template activity line by template activity id
+      parameters:
+      - description: Template Activity ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TemplateActivityLineResponse'
+      security:
+      - BearerAuth: []
+      summary: Find template activity line by template activity id
+      tags:
+      - Template Activity Lines
+  /universities:
+    get:
+      consumes:
+      - application/json
+      description: Find all universities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UniversityResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all universities
+      tags:
+      - Universities
+  /user-profiles:
+    get:
+      consumes:
+      - application/json
+      description: Find all user profiles paginated
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserProfileResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all user profiles paginated
+      tags:
+      - User Profiles
+    post:
+      consumes:
+      - multipart/form-data
+      description: Fill user profile
+      parameters:
+      - description: ID
+        in: formData
+        name: id
+        type: string
+      - description: Name
+        in: formData
+        name: name
+        type: string
+      - description: Marital Status
+        in: formData
+        name: marital_status
+        required: true
+        type: string
+      - description: Gender
+        in: formData
+        name: gender
+        required: true
+        type: string
+      - description: Phone Number
+        in: formData
+        name: phone_number
+        required: true
+        type: string
+      - description: Age
+        in: formData
+        name: age
+        required: true
+        type: integer
+      - description: Birth Date
+        in: formData
+        name: birth_date
+        required: true
+        type: string
+      - description: Birth Place
+        in: formData
+        name: birth_place
+        required: true
+        type: string
+      - description: KTP
+        in: formData
+        name: ktp
+        type: file
+      - description: Curriculum Vitae
+        in: formData
+        name: curriculum_vitae
+        type: file
+      - description: KTP Path
+        in: formData
+        name: ktp_path
+        type: string
+      - description: CV Path
+        in: formData
+        name: cv_path
+        type: string
+      - description: Work Experience ID
+        in: formData
+        name: work_experiences.id
+        type: string
+      - description: Work Experience Name
+        in: formData
+        name: work_experiences.name
+        type: string
+      - description: Work Experience Company Name
+        in: formData
+        name: work_experiences.company_name
+        type: string
+      - description: Work Experience Year
+        in: formData
+        name: work_experiences.year_experience
+        type: integer
+      - description: Work Experience Job Description
+        in: formData
+        name: work_experiences.job_description
+        type: string
+      - description: Work Experience Certificate
+        in: formData
+        name: work_experiences.certificate
+        type: file
+      - description: Education ID
+        in: formData
+        name: educations.id
+        type: string
+      - description: Education Level
+        in: formData
+        name: educations.education_level
+        type: string
+      - description: Education Major
+        in: formData
+        name: educations.major
+        type: string
+      - description: Education School Name
+        in: formData
+        name: educations.school_name
+        type: string
+      - description: Education Graduate Year
+        in: formData
+        name: educations.graduate_year
+        type: integer
+      - description: Education End Date
+        in: formData
+        name: educations.end_date
+        type: string
+      - description: Education Certificate
+        in: formData
+        name: educations.certificate
+        type: file
+      - description: Education GPA
+        in: formData
+        name: educations.gpa
+        type: number
+      - description: Skill ID
+        in: formData
+        name: skills.id
+        type: string
+      - description: Skill Name
+        in: formData
+        name: skills.name
+        type: string
+      - description: Skill Description
+        in: formData
+        name: skills.description
+        type: string
+      - description: Skill Level
+        in: formData
+        name: skills.level
+        type: integer
+      - description: Skill Certificate
+        in: formData
+        name: skills.certificate
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserProfileResponse'
+      security:
+      - BearerAuth: []
+      summary: Fill user profile
+      tags:
+      - User Profiles
+  /user-profiles/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user profile
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete user profile
+      tags:
+      - User Profiles
+    get:
+      consumes:
+      - application/json
+      description: Find user profile by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserProfileResponse'
+      security:
+      - BearerAuth: []
+      summary: Find user profile by id
+      tags:
+      - User Profiles
+  /user-profiles/update-status:
+    put:
+      consumes:
+      - application/json
+      description: Update status user profile
+      parameters:
+      - description: Update Status User Profile
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStatusUserProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserProfileResponse'
+      security:
+      - BearerAuth: []
+      summary: Update status user profile
+      tags:
+      - User Profiles
+  /user-profiles/user:
+    get:
+      consumes:
+      - application/json
+      description: Find user profile by user id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserProfileResponse'
+      security:
+      - BearerAuth: []
+      summary: Find user profile by user id
+      tags:
+      - User Profiles
 securityDefinitions:
   BearerAuth:
     description: Bearer token for authentication

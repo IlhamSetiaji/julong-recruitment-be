@@ -53,6 +53,17 @@ func TemplateActivityHandlerFactory(
 	return NewTemplateActivityHandler(log, viper, validate, useCase)
 }
 
+// CreateTemplateActivity create template activity
+//
+//	@Summary		Create template activity
+//	@Description	Create template activity
+//	@Tags			Template Activities
+//	@Accept			json
+//	@Produce		json
+//	@Param			body body request.CreateTemplateActivityRequest true "Create Template Activity"
+//	@Success		201	{object} response.TemplateActivityResponse
+//	@Security BearerAuth
+//	@Router			/template-activities [post]
 func (h *TemplateActivityHandler) CreateTemplateActivity(ctx *gin.Context) {
 	var req request.CreateTemplateActivityRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -77,6 +88,20 @@ func (h *TemplateActivityHandler) CreateTemplateActivity(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusCreated, "success", resp)
 }
 
+// FindAllPaginated find all template activities paginated
+//
+//	@Summary		Find all template activities paginated
+//	@Description	Find all template activities paginated
+//	@Tags			Template Activities
+//	@Accept			json
+//	@Produce		json
+//	@Param			page query int false "Page"
+//	@Param			page_size query int false "Page Size"
+//	@Param			search query string false "Search"
+//	@Param			created_at query string false "Created At"
+//	@Success		200 {object} response.TemplateActivityResponse
+//	@Security BearerAuth
+//	@Router			/template-activities [get]
 func (h *TemplateActivityHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
@@ -115,6 +140,17 @@ func (h *TemplateActivityHandler) FindAllPaginated(ctx *gin.Context) {
 	})
 }
 
+// FindByID find template activity by id
+//
+//	@Summary		Find template activity by id
+//	@Description	Find template activity by id
+//	@Tags			Template Activities
+//	@Accept			json
+//	@Produce		json
+//	@Param			id path string true "ID"
+//	@Success		200 {object} response.TemplateActivityResponse
+//	@Security BearerAuth
+//	@Router			/template-activities/{id} [get]
 func (h *TemplateActivityHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -140,6 +176,17 @@ func (h *TemplateActivityHandler) FindByID(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success", templateActivity)
 }
 
+// UpdateTemplateActivity update template activity
+//
+//	@Summary		Update template activity
+//	@Description	Update template activity
+//	@Tags			Template Activities
+//	@Accept			json
+//	@Produce		json
+//	@Param			body body request.UpdateTemplateActivityRequest true "Update Template Activity"
+//	@Success		200 {object} response.TemplateActivityResponse
+//	@Security BearerAuth
+//	@Router			/template-activities/update [put]
 func (h *TemplateActivityHandler) UpdateTemplateActivity(ctx *gin.Context) {
 	var req request.UpdateTemplateActivityRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -164,6 +211,17 @@ func (h *TemplateActivityHandler) UpdateTemplateActivity(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success", resp)
 }
 
+// DeleteTemplateActivity delete template activity
+//
+//	@Summary		Delete template activity
+//	@Description	Delete template activity
+//	@Tags			Template Activities
+//	@Accept			json
+//	@Produce		json
+//	@Param			id path string true "ID"
+//	@Success		200 {string} string
+//	@Security BearerAuth
+//	@Router			/template-activities/{id} [delete]
 func (h *TemplateActivityHandler) DeleteTemplateActivity(ctx *gin.Context) {
 	id := ctx.Param("id")
 

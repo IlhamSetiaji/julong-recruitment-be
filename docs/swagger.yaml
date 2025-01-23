@@ -696,6 +696,10 @@ definitions:
         type: string
       status:
         $ref: '#/definitions/entity.TestScheduleStatus'
+      template_activity_line:
+        $ref: '#/definitions/entity.TemplateActivityLine'
+      template_activity_line_id:
+        type: string
       test_applicants:
         items:
           $ref: '#/definitions/entity.TestApplicant'
@@ -1114,6 +1118,8 @@ definitions:
         type: string
       status:
         type: string
+      template_activity_line_id:
+        type: string
       test_type_id:
         type: string
       total_candidate:
@@ -1132,6 +1138,7 @@ definitions:
     - start_date
     - start_time
     - status
+    - template_activity_line_id
     - test_type_id
     - total_candidate
     type: object
@@ -1291,6 +1298,8 @@ definitions:
         type: string
       status:
         type: string
+      template_activity_line_id:
+        type: string
       test_type_id:
         type: string
       total_candidate:
@@ -1310,6 +1319,7 @@ definitions:
     - start_date
     - start_time
     - status
+    - template_activity_line_id
     - test_type_id
     - total_candidate
     type: object
@@ -3415,6 +3425,32 @@ paths:
       security:
       - BearerAuth: []
       summary: Create or update project recruitment lines
+      tags:
+      - Project Recruitment Lines
+  /project-recruitment-lines/header/{project_recruitment_header_id}:
+    get:
+      consumes:
+      - application/json
+      description: Find all project recruitment lines by project recruitment header
+        id
+      parameters:
+      - description: project recruitment header id
+        in: path
+        name: project_recruitment_header_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Find all project recruitment lines by project recruitment header id
       tags:
       - Project Recruitment Lines
   /recruitment-types:

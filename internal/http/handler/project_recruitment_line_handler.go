@@ -9,12 +9,14 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 type IProjectRecruitmentLineHandler interface {
 	CreateOrUpdateProjectRecruitmentLines(ctx *gin.Context)
+	FindAllByProjectRecruitmentHeaderID(ctx *gin.Context)
 }
 
 type ProjectRecruitmentLineHandler struct {
@@ -80,4 +82,36 @@ func (h *ProjectRecruitmentLineHandler) CreateOrUpdateProjectRecruitmentLines(ct
 	}
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "success", res)
+}
+
+// FindAllByProjectRecruitmentHeaderID find all project recruitment lines by project recruitment header id
+//
+//	@Summary		Find all project recruitment lines by project recruitment header id
+//	@Description	Find all project recruitment lines by project recruitment header id
+//	@Tags			Project Recruitment Lines
+//	@Accept			json
+//	@Produce		json
+//	@Param			project_recruitment_header_id path string true "project recruitment header id"
+//	@Success		200	{array} response.ProjectRecruitmentLineResponse
+//	@Security BearerAuth
+//	@Router			/project-recruitment-lines/header/{project_recruitment_header_id} [get]
+func (h *ProjectRecruitmentLineHandler) FindAllByProjectRecruitmentHeaderID(ctx *gin.Context) {
+	projectRecruitmentHeaderID := ctx.Param("project_recruitment_header_id")
+	parsedID, err := uuid.Parse(projectRecruitmentHeaderID)
+	if err != nil {
+		h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderID] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.GetAllByKeys(map[string]interface{}{
+		"project_recruitment_header_id": parsedID,
+	})
+	if err != nil {
+		h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
 }

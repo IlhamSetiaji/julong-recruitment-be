@@ -2208,6 +2208,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/project-recruitment-lines/header/{project_recruitment_header_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all project recruitment lines by project recruitment header id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Lines"
+                ],
+                "summary": "Find all project recruitment lines by project recruitment header id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "project recruitment header id",
+                        "name": "project_recruitment_header_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/recruitment-types": {
             "get": {
                 "security": [
@@ -3968,6 +4008,12 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/entity.TestScheduleStatus"
                 },
+                "template_activity_line": {
+                    "$ref": "#/definitions/entity.TemplateActivityLine"
+                },
+                "template_activity_line_id": {
+                    "type": "string"
+                },
                 "test_applicants": {
                     "type": "array",
                     "items": {
@@ -4555,6 +4601,7 @@ const docTemplate = `{
                 "start_date",
                 "start_time",
                 "status",
+                "template_activity_line_id",
                 "test_type_id",
                 "total_candidate"
             ],
@@ -4598,6 +4645,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                },
+                "template_activity_line_id": {
                     "type": "string"
                 },
                 "test_type_id": {
@@ -4802,6 +4852,7 @@ const docTemplate = `{
                 "start_date",
                 "start_time",
                 "status",
+                "template_activity_line_id",
                 "test_type_id",
                 "total_candidate"
             ],
@@ -4848,6 +4899,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                },
+                "template_activity_line_id": {
                     "type": "string"
                 },
                 "test_type_id": {

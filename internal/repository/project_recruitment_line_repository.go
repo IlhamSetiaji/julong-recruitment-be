@@ -15,6 +15,7 @@ type IProjectRecruitmentLineRepository interface {
 	UpdateProjectRecruitmentLine(ent *entity.ProjectRecruitmentLine) (*entity.ProjectRecruitmentLine, error)
 	DeleteProjectRecruitmentLine(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.ProjectRecruitmentLine, error)
+	GetAllByKeys(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error)
 }
 
 type ProjectRecruitmentLineRepository struct {
@@ -118,4 +119,13 @@ func (r *ProjectRecruitmentLineRepository) FindByID(id uuid.UUID) (*entity.Proje
 	}
 
 	return &projectRecruitmentLine, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) GetAllByKeys(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLines []entity.ProjectRecruitmentLine
+	if err := r.DB.Where(keys).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
+		return nil, err
+	}
+
+	return projectRecruitmentLines, nil
 }

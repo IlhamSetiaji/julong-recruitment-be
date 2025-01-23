@@ -15,6 +15,7 @@ import (
 
 type IProjectRecruitmentLineUseCase interface {
 	CreateOrUpdateProjectRecruitmentLines(req *request.CreateOrUpdateProjectRecruitmentLinesRequest) (*response.ProjectRecruitmentHeaderResponse, error)
+	GetAllByKeys(keys map[string]interface{}) ([]*response.ProjectRecruitmentLineResponse, error)
 }
 
 type ProjectRecruitmentLineUseCase struct {
@@ -224,4 +225,19 @@ func (uc *ProjectRecruitmentLineUseCase) CreateOrUpdateProjectRecruitmentLines(r
 	}
 
 	return uc.ProjectRecruitmentHeaderDTO.ConvertEntityToResponse(prhExist), nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) GetAllByKeys(keys map[string]interface{}) ([]*response.ProjectRecruitmentLineResponse, error) {
+	data, err := uc.Repository.GetAllByKeys(keys)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.GetAllByKeys] error when getting project recruitment lines: %s", err.Error())
+		return nil, err
+	}
+
+	responses := make([]*response.ProjectRecruitmentLineResponse, 0)
+	for _, d := range data {
+		responses = append(responses, uc.DTO.ConvertEntityToResponse(&d))
+	}
+
+	return responses, nil
 }

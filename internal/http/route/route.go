@@ -137,6 +137,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// project recruitment lines
 			projectRecruitmentLineRoute := apiRoute.Group("/project-recruitment-lines")
 			{
+				projectRecruitmentLineRoute.GET("/header/:project_recruitment_header_id", c.ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderID)
 				projectRecruitmentLineRoute.POST("", c.ProjectRecruitmentLineHandler.CreateOrUpdateProjectRecruitmentLines)
 			}
 			// job postings

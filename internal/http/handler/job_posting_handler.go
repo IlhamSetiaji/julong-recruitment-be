@@ -21,6 +21,7 @@ import (
 type IJobPostingHandler interface {
 	CreateJobPosting(ctx *gin.Context)
 	FindAllPaginated(ctx *gin.Context)
+	FindAllPaginatedWithoutUserID(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	UpdateJobPosting(ctx *gin.Context)
 	DeleteJobPosting(ctx *gin.Context)
@@ -207,6 +208,65 @@ func (h *JobPostingHandler) FindAllPaginated(ctx *gin.Context) {
 	if err != nil {
 		h.Log.Error("failed to find all paginated job postings: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", gin.H{
+		"job_postings": res,
+		"total":        total,
+	})
+}
+
+// FindAllPaginatedWithoutUserID find all job postings without user id
+//
+//		@Summary		Find all job postings without user id
+//		@Description	Find all job postings without user id
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Param			page	query	int	false	"Page"
+//		@Param			page_size	query	int	false	"Page Size"
+//		@Param			search	query	string	false	"Search"
+//		@Param			created_at	query	string	false	"Created At"
+//		@Param			status	query	string	false	"Status"
+//		@Success		200	{object} response.JobPostingResponse
+//	 @Security BearerAuth
+//		@Router			/api/no-auth/job-postings [get]
+func (h *JobPostingHandler) FindAllPaginatedWithoutUserID(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	res, total, err := h.UseCase.FindAllPaginatedWithoutUserID(page, pageSize, search, sort, filter)
+	if err != nil {
+		h.Log.Error("failed to find all paginated job postings without user id: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings without user id", err.Error())
 		return
 	}
 

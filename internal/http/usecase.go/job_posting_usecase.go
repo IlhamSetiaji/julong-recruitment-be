@@ -16,6 +16,7 @@ import (
 
 type IJobPostingUseCase interface {
 	CreateJobPosting(req *request.CreateJobPostingRequest) (*response.JobPostingResponse, error)
+	FindAllPaginatedWithoutUserID(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID) (*[]response.JobPostingResponse, int64, error)
 	FindByID(id uuid.UUID, userID uuid.UUID) (*response.JobPostingResponse, error)
 	UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error)
@@ -147,6 +148,21 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 	}
 
 	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
+}
+
+func (uc *JobPostingUseCase) FindAllPaginatedWithoutUserID(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error) {
+	jobPostings, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllPaginatedWithoutUserID] " + err.Error())
+		return nil, 0, err
+	}
+
+	jobPostingResponses := make([]response.JobPostingResponse, 0)
+	for _, jobPosting := range *jobPostings {
+		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
+	}
+
+	return &jobPostingResponses, total, nil
 }
 
 func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID) (*[]response.JobPostingResponse, int64, error) {

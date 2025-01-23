@@ -45,6 +45,7 @@ func (c *RouteConfig) SetupRoutes() {
 	})
 
 	c.App.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	c.App.GET("/api/no-auth/job-postings", c.JobPostingHandler.FindAllPaginatedWithoutUserID)
 	c.SetupAPIRoutes()
 }
 

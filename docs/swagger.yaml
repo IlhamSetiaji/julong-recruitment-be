@@ -2049,6 +2049,44 @@ paths:
       summary: find all answer types
       tags:
       - Answer Types
+  /api/no-auth/job-postings:
+    get:
+      consumes:
+      - application/json
+      description: Find all job postings without user id
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.JobPostingResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all job postings without user id
+      tags:
+      - Job Postings
   /api/project-recruitment-headers:
     get:
       consumes:

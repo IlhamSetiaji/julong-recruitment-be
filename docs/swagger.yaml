@@ -1,5 +1,182 @@
 basePath: /api
 definitions:
+  entity.AnswerType:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      questions:
+        items:
+          $ref: '#/definitions/entity.Question'
+        type: array
+    type: object
+  entity.Applicant:
+    properties:
+      applied_date:
+        type: string
+      document_sendings:
+        items:
+          $ref: '#/definitions/entity.DocumentSending'
+        type: array
+      id:
+        type: string
+      job_posting:
+        $ref: '#/definitions/entity.JobPosting'
+      job_posting_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.ApplicantStatus'
+      user_profile:
+        $ref: '#/definitions/entity.UserProfile'
+      user_profile_id:
+        type: string
+    type: object
+  entity.ApplicantStatus:
+    enum:
+    - APPLIED
+    - SHORTLIST
+    - REJECTED
+    - HIRED
+    type: string
+    x-enum-varnames:
+    - APPLICANT_STATUS_APPLIED
+    - APPLICANT_STATUS_SHORTLIST
+    - APPLICANT_STATUS_REJECTED
+    - APPLICANT_STATUS_HIRED
+  entity.DocumentSending:
+    properties:
+      applicant:
+        $ref: '#/definitions/entity.Applicant'
+      applicant_id:
+        type: string
+      basic_wage:
+        type: number
+      document_date:
+        type: string
+      document_number:
+        type: string
+      document_setup:
+        $ref: '#/definitions/entity.DocumentSetup'
+      document_setup_id:
+        type: string
+      home_location:
+        type: string
+      hometrip_ticket:
+        type: string
+      id:
+        type: string
+      job_id:
+        type: string
+      job_level_id:
+        type: string
+      job_location:
+        type: string
+      meal_allowance:
+        type: number
+      operational_allowance:
+        type: number
+      period_agreement:
+        type: string
+      positional_allowance:
+        type: number
+      project_recruitment_line:
+        $ref: '#/definitions/entity.ProjectRecruitmentLine'
+      project_recruitment_line_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.DocumentSendingStatus'
+    type: object
+  entity.DocumentSendingStatus:
+    enum:
+    - PENDING
+    - SENT
+    - FAILED
+    type: string
+    x-enum-varnames:
+    - DOCUMENT_SENDING_STATUS_PENDING
+    - DOCUMENT_SENDING_STATUS_SENT
+    - DOCUMENT_SENDING_STATUS_FAILED
+  entity.DocumentSetup:
+    properties:
+      body:
+        type: string
+      document_sendings:
+        items:
+          $ref: '#/definitions/entity.DocumentSending'
+        type: array
+      document_type:
+        $ref: '#/definitions/entity.DocumentType'
+      document_type_id:
+        type: string
+      footer:
+        type: string
+      header:
+        type: string
+      id:
+        type: string
+      recruitment_type:
+        $ref: '#/definitions/entity.ProjectRecruitmentType'
+      template_questions:
+        items:
+          $ref: '#/definitions/entity.TemplateQuestion'
+        type: array
+      title:
+        type: string
+    type: object
+  entity.DocumentType:
+    properties:
+      document_setups:
+        items:
+          $ref: '#/definitions/entity.DocumentSetup'
+        type: array
+      id:
+        type: string
+      mail_templates:
+        items:
+          $ref: '#/definitions/entity.MailTemplate'
+        type: array
+      name:
+        type: string
+    type: object
+  entity.DocumentVerification:
+    properties:
+      format:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      template_question:
+        $ref: '#/definitions/entity.TemplateQuestion'
+      template_question_id:
+        type: string
+    type: object
+  entity.Education:
+    properties:
+      certificate:
+        type: string
+      education_level:
+        $ref: '#/definitions/entity.EducationLevelEnum'
+      end_date:
+        type: string
+      gpa:
+        type: number
+      graduate_year:
+        type: integer
+      id:
+        type: string
+      major:
+        type: string
+      school_name:
+        type: string
+      user_profile:
+        allOf:
+        - $ref: '#/definitions/entity.UserProfile'
+        description: Applicant *Applicant `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+      user_profile_id:
+        type: string
+    type: object
   entity.EducationLevelEnum:
     enum:
     - 1 - Doctoral / Professor
@@ -40,6 +217,67 @@ definitions:
     - FINAL_RESULT_STATUS_COMPLETED
     - FINAL_RESULT_STATUS_ACCEPTED
     - FINAL_RESULT_STATUS_REJECTED
+  entity.JobPosting:
+    properties:
+      applicants:
+        items:
+          $ref: '#/definitions/entity.Applicant'
+        type: array
+      content_description:
+        type: string
+      document_date:
+        type: string
+      document_number:
+        type: string
+      end_date:
+        type: string
+      for_organization_id:
+        type: string
+      for_organization_location:
+        type: string
+      for_organization_location_id:
+        type: string
+      for_organization_name:
+        type: string
+      for_organization_structure:
+        type: string
+      id:
+        type: string
+      is_applied:
+        type: boolean
+      job_id:
+        type: string
+      job_name:
+        type: string
+      link:
+        type: string
+      mp_request:
+        $ref: '#/definitions/entity.MPRequest'
+      mp_request_id:
+        type: string
+      organization_logo:
+        type: string
+      poster:
+        type: string
+      project_recruitment_header:
+        $ref: '#/definitions/entity.ProjectRecruitmentHeader'
+      project_recruitment_header_id:
+        type: string
+      recruitment_type:
+        $ref: '#/definitions/entity.ProjectRecruitmentType'
+      salary_max:
+        type: string
+      salary_min:
+        type: string
+      start_date:
+        type: string
+      status:
+        $ref: '#/definitions/entity.JobPostingStatus'
+      test_schedule_headers:
+        items:
+          $ref: '#/definitions/entity.TestScheduleHeader'
+        type: array
+    type: object
   entity.JobPostingStatus:
     enum:
     - DRAFT
@@ -58,6 +296,45 @@ definitions:
     - JOB_POSTING_STATUS_CLOSE
     - JOB_POSTING_STATUS_IN_PROGRESS
     - JOB_POSTING_STATUS_COMPLETED
+  entity.MPRequest:
+    properties:
+      id:
+        type: string
+      job_posting:
+        $ref: '#/definitions/entity.JobPosting'
+      mp_request_interface:
+        additionalProperties: true
+        type: object
+      mpr_clone_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.MPRequestStatus'
+    type: object
+  entity.MPRequestStatus:
+    enum:
+    - OPEN
+    - ON_GOING
+    - COMPLETED
+    type: string
+    x-enum-varnames:
+    - MPR_STATUS_OPEN
+    - MPR_STATUS_ON_GOING
+    - MPR_STATUS_COMPLETED
+  entity.MailTemplate:
+    properties:
+      body:
+        type: string
+      document_type:
+        $ref: '#/definitions/entity.DocumentType'
+      document_type_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      subject:
+        type: string
+    type: object
   entity.MaritalStatusEnum:
     enum:
     - single
@@ -72,6 +349,56 @@ definitions:
     - MARITAL_STATUS_ENUM_DIVORCED
     - MARITAL_STATUS_ENUM_WIDOWED
     - MARITAL_STATUS_ENUM_ANY
+  entity.ProjectPic:
+    properties:
+      administrative_total:
+        type: integer
+      employee_id:
+        type: string
+      id:
+        type: string
+      project_recruitment_line:
+        $ref: '#/definitions/entity.ProjectRecruitmentLine'
+      project_recruitment_line_id:
+        type: string
+      test_schedule_headers:
+        items:
+          $ref: '#/definitions/entity.TestScheduleHeader'
+        type: array
+    type: object
+  entity.ProjectRecruitmentHeader:
+    properties:
+      description:
+        type: string
+      document_date:
+        type: string
+      document_number:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      job_postings:
+        items:
+          $ref: '#/definitions/entity.JobPosting'
+        type: array
+      name:
+        type: string
+      project_recruitment_lines:
+        items:
+          $ref: '#/definitions/entity.ProjectRecruitmentLine'
+        type: array
+      recruitment_type:
+        $ref: '#/definitions/entity.ProjectRecruitmentType'
+      start_date:
+        type: string
+      status:
+        $ref: '#/definitions/entity.ProjectRecruitmentHeaderStatus'
+      template_activity:
+        $ref: '#/definitions/entity.TemplateActivity'
+      template_activity_id:
+        type: string
+    type: object
   entity.ProjectRecruitmentHeaderStatus:
     enum:
     - DRAFT
@@ -90,6 +417,31 @@ definitions:
     - PROJECT_RECRUITMENT_HEADER_STATUS_CLOSE
     - PROJECT_RECRUITMENT_HEADER_STATUS_IN_PROGRESS
     - PROJECT_RECRUITMENT_HEADER_STATUS_COMPLETED
+  entity.ProjectRecruitmentLine:
+    properties:
+      document_sendings:
+        items:
+          $ref: '#/definitions/entity.DocumentSending'
+        type: array
+      end_date:
+        type: string
+      id:
+        type: string
+      project_pics:
+        items:
+          $ref: '#/definitions/entity.ProjectPic'
+        type: array
+      project_recruitment_header:
+        $ref: '#/definitions/entity.ProjectRecruitmentHeader'
+      project_recruitment_header_id:
+        type: string
+      start_date:
+        type: string
+      template_activity_line:
+        $ref: '#/definitions/entity.TemplateActivityLine'
+      template_activity_line_id:
+        type: string
+    type: object
   entity.ProjectRecruitmentType:
     enum:
     - MT_Management Trainee
@@ -100,6 +452,114 @@ definitions:
     - PROJECT_RECRUITMENT_TYPE_MT
     - PROJECT_RECRUITMENT_TYPE_PH
     - PROJECT_RECRUITMENT_TYPE_NS
+  entity.Question:
+    properties:
+      answer_type:
+        $ref: '#/definitions/entity.AnswerType'
+      answer_type_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      question_options:
+        items:
+          $ref: '#/definitions/entity.QuestionOption'
+        type: array
+      question_responses:
+        items:
+          $ref: '#/definitions/entity.QuestionResponse'
+        type: array
+      template_question:
+        $ref: '#/definitions/entity.TemplateQuestion'
+      template_question_id:
+        type: string
+    type: object
+  entity.QuestionOption:
+    properties:
+      id:
+        type: string
+      option_text:
+        type: string
+      question:
+        $ref: '#/definitions/entity.Question'
+      question_id:
+        type: string
+    type: object
+  entity.QuestionResponse:
+    properties:
+      answer:
+        type: string
+      id:
+        type: string
+      question:
+        $ref: '#/definitions/entity.Question'
+      question_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  entity.Skill:
+    properties:
+      certificate:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      level:
+        type: integer
+      name:
+        type: string
+      user_profile:
+        allOf:
+        - $ref: '#/definitions/entity.UserProfile'
+        description: Applicant *Applicant `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+      user_profile_id:
+        type: string
+    type: object
+  entity.TemplateActivity:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      recruitment_type:
+        $ref: '#/definitions/entity.ProjectRecruitmentType'
+      status:
+        $ref: '#/definitions/entity.TemplateActivityStatus'
+      template_activity_lines:
+        items:
+          $ref: '#/definitions/entity.TemplateActivityLine'
+        type: array
+    type: object
+  entity.TemplateActivityLine:
+    properties:
+      color_hex_code:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      project_recruitment_lines:
+        items:
+          $ref: '#/definitions/entity.ProjectRecruitmentLine'
+        type: array
+      question_template_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.TemplateActivityLineStatus'
+      template_activity:
+        $ref: '#/definitions/entity.TemplateActivity'
+      template_activity_id:
+        type: string
+      template_question:
+        $ref: '#/definitions/entity.TemplateQuestion'
+    type: object
   entity.TemplateActivityLineStatus:
     enum:
     - ACTIVE
@@ -116,6 +576,33 @@ definitions:
     x-enum-varnames:
     - TEMPLATE_ACTIVITY_STATUS_ACTIVE
     - TEMPLATE_ACTIVITY_STATUS_INACTIVE
+  entity.TemplateQuestion:
+    properties:
+      description:
+        type: string
+      document_setup:
+        $ref: '#/definitions/entity.DocumentSetup'
+      document_setup_id:
+        type: string
+      document_verifications:
+        items:
+          $ref: '#/definitions/entity.DocumentVerification'
+        type: array
+      duration:
+        type: integer
+      form_type:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      questions:
+        items:
+          $ref: '#/definitions/entity.Question'
+        type: array
+      status:
+        $ref: '#/definitions/entity.TemplateQuestionStatus'
+    type: object
   entity.TemplateQuestionFormType:
     enum:
     - ADMINISTRATIVE_SELECTION
@@ -152,6 +639,72 @@ definitions:
     x-enum-varnames:
     - TEMPLATE_QUESTION_STATUS_ACTIVE
     - TEMPLATE_QUESTION_STATUS_INACTIVE
+  entity.TestApplicant:
+    properties:
+      end_time:
+        type: string
+      final_result:
+        $ref: '#/definitions/entity.FinalResultStatus'
+      id:
+        type: string
+      start_time:
+        type: string
+      test_schedule_header:
+        $ref: '#/definitions/entity.TestScheduleHeader'
+      test_schedule_header_id:
+        type: string
+      user_profile:
+        $ref: '#/definitions/entity.UserProfile'
+      user_profile_id:
+        type: string
+    type: object
+  entity.TestScheduleHeader:
+    properties:
+      description:
+        type: string
+      document_number:
+        type: string
+      end_date:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: string
+      job_id:
+        type: string
+      job_name:
+        type: string
+      job_posting:
+        $ref: '#/definitions/entity.JobPosting'
+      job_posting_id:
+        type: string
+      link:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      project_pic:
+        $ref: '#/definitions/entity.ProjectPic'
+      project_pic_id:
+        type: string
+      start_date:
+        type: string
+      start_time:
+        type: string
+      status:
+        $ref: '#/definitions/entity.TestScheduleStatus'
+      test_applicants:
+        items:
+          $ref: '#/definitions/entity.TestApplicant'
+        type: array
+      test_type:
+        $ref: '#/definitions/entity.TestType'
+      test_type_id:
+        type: string
+      total_candidate:
+        type: integer
+    type: object
   entity.TestScheduleStatus:
     enum:
     - DRAFT
@@ -162,6 +715,21 @@ definitions:
     - TEST_SCHEDULE_STATUS_DRAFT
     - TEST_SCHEDULE_STATUS_IN_PROGRESS
     - TEST_SCHEDULE_STATUS_COMPLETED
+  entity.TestType:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      recruitment_type:
+        $ref: '#/definitions/entity.ProjectRecruitmentType'
+      status:
+        $ref: '#/definitions/entity.TestTypeStatus'
+      test_schedule_headers:
+        items:
+          $ref: '#/definitions/entity.TestScheduleHeader'
+        type: array
+    type: object
   entity.TestTypeStatus:
     enum:
     - ACTIVE
@@ -178,6 +746,53 @@ definitions:
     x-enum-varnames:
     - MALE
     - FEMALE
+  entity.UserProfile:
+    properties:
+      age:
+        type: integer
+      applicants:
+        items:
+          $ref: '#/definitions/entity.Applicant'
+        type: array
+      birth_date:
+        type: string
+      birth_place:
+        type: string
+      curriculum_vitae:
+        type: string
+      educations:
+        items:
+          $ref: '#/definitions/entity.Education'
+        type: array
+      gender:
+        $ref: '#/definitions/entity.UserGender'
+      id:
+        type: string
+      ktp:
+        type: string
+      marital_status:
+        $ref: '#/definitions/entity.MaritalStatusEnum'
+      name:
+        type: string
+      phone_number:
+        type: string
+      skills:
+        items:
+          $ref: '#/definitions/entity.Skill'
+        type: array
+      status:
+        $ref: '#/definitions/entity.UserStatus'
+      test_applicants:
+        items:
+          $ref: '#/definitions/entity.TestApplicant'
+        type: array
+      user_id:
+        type: string
+      work_experiences:
+        items:
+          $ref: '#/definitions/entity.WorkExperience'
+        type: array
+    type: object
   entity.UserStatus:
     enum:
     - ACTIVE
@@ -188,6 +803,49 @@ definitions:
     - USER_ACTIVE
     - USER_INACTIVE
     - USER_PENDING
+  entity.WorkExperience:
+    properties:
+      certificate:
+        type: string
+      company_name:
+        type: string
+      id:
+        type: string
+      job_description:
+        type: string
+      name:
+        type: string
+      user_profile:
+        allOf:
+        - $ref: '#/definitions/entity.UserProfile'
+        description: Applicant *Applicant `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+      user_profile_id:
+        type: string
+      year_experienced:
+        type: integer
+    type: object
+  request.CreateDocumentSetupRequest:
+    properties:
+      body:
+        type: string
+      document_type_id:
+        type: string
+      footer:
+        type: string
+      header:
+        type: string
+      recruitment_type:
+        type: string
+      title:
+        type: string
+    required:
+    - body
+    - document_type_id
+    - footer
+    - header
+    - recruitment_type
+    - title
+    type: object
   request.CreateOrUpdateQuestions:
     properties:
       deleted_question_ids:
@@ -325,6 +983,31 @@ definitions:
     - test_type_id
     - total_candidate
     type: object
+  request.UpdateDocumentSetupRequest:
+    properties:
+      body:
+        type: string
+      document_type_id:
+        type: string
+      footer:
+        type: string
+      header:
+        type: string
+      id:
+        type: string
+      recruitment_type:
+        type: string
+      title:
+        type: string
+    required:
+    - body
+    - document_type_id
+    - footer
+    - header
+    - id
+    - recruitment_type
+    - title
+    type: object
   request.UpdateTemplateQuestion:
     properties:
       description:
@@ -410,6 +1093,27 @@ definitions:
       name:
         type: string
       updated_at:
+        type: string
+    type: object
+  response.ApplicantResponse:
+    properties:
+      applied_date:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      job_posting:
+        $ref: '#/definitions/response.JobPostingResponse'
+      job_posting_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.ApplicantStatus'
+      updated_at:
+        type: string
+      user_profile:
+        $ref: '#/definitions/response.UserProfileResponse'
+      user_profile_id:
         type: string
     type: object
   response.DocumentSetupResponse:
@@ -1051,6 +1755,25 @@ info:
   title: Julong Recruitment API Docs
   version: "1.0"
 paths:
+  /answer-types:
+    get:
+      consumes:
+      - application/json
+      description: find all answer types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.AnswerType'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: find all answer types
+      tags:
+      - Answer Types
   /api/questions:
     post:
       consumes:
@@ -1372,6 +2095,207 @@ paths:
       summary: Update test schedule header
       tags:
       - Test Schedule Headers
+  /applicants/apply:
+    post:
+      consumes:
+      - application/json
+      description: apply job posting
+      parameters:
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: apply job posting
+      tags:
+      - Applicants
+  /applicants/job-posting/{job_posting_id}:
+    get:
+      consumes:
+      - application/json
+      description: get applicants by job posting ID
+      parameters:
+      - description: Job Posting ID
+        in: path
+        name: job_posting_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.ApplicantResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: get applicants by job posting ID
+      tags:
+      - Applicants
+  /document-setups:
+    get:
+      consumes:
+      - application/json
+      description: Find all document setups paginated
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success find all document setups
+          schema:
+            $ref: '#/definitions/response.DocumentSetupResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all document setups paginated
+      tags:
+      - Document Setups
+    post:
+      consumes:
+      - application/json
+      description: Create document setup
+      parameters:
+      - description: Create document setup
+        in: body
+        name: document_type_name
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateDocumentSetupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: success create document setup
+          schema:
+            $ref: '#/definitions/response.DocumentSetupResponse'
+      security:
+      - BearerAuth: []
+      summary: Create document setup
+      tags:
+      - Document Setups
+  /document-setups/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete document setup
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success delete document setup
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete document setup
+      tags:
+      - Document Setups
+    get:
+      consumes:
+      - application/json
+      description: Find document setup by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success find document setup
+          schema:
+            $ref: '#/definitions/response.DocumentSetupResponse'
+      security:
+      - BearerAuth: []
+      summary: Find document setup by id
+      tags:
+      - Document Setups
+    put:
+      consumes:
+      - application/json
+      description: Update document setup
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update document setup
+        in: body
+        name: document_type_name
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDocumentSetupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success update document setup
+          schema:
+            $ref: '#/definitions/response.DocumentSetupResponse'
+      security:
+      - BearerAuth: []
+      summary: Update document setup
+      tags:
+      - Document Setups
+  /document-setups/document-type:
+    get:
+      consumes:
+      - application/json
+      description: Find document setups by document type name
+      parameters:
+      - description: Name
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success find document setups by document type name
+          schema:
+            $ref: '#/definitions/response.DocumentSetupResponse'
+      security:
+      - BearerAuth: []
+      summary: Find document setups by document type name
+      tags:
+      - Document Setups
 securityDefinitions:
   BearerAuth:
     description: Bearer token for authentication

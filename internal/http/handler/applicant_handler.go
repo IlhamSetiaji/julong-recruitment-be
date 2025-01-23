@@ -59,6 +59,17 @@ func ApplicantHandlerFactory(
 	return NewApplicantHandler(log, viper, validate, useCase, upUseCase, userHelper)
 }
 
+// ApplyJobPosting apply job posting
+//
+// @Summary apply job posting
+// @Description apply job posting
+// @Tags Applicants
+// @Accept json
+// @Produce json
+// @Param job_posting_id query string true "Job Posting ID"
+// @Success 200 {object} response.ApplicantResponse
+// @Security BearerAuth
+// @Router /applicants/apply [post]
 func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 	jobPostingID, err := uuid.Parse(ctx.Query("job_posting_id"))
 	if err != nil {
@@ -114,6 +125,17 @@ func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "Successfully applied job posting", applicant)
 }
 
+// GetApplicantsByJobPostingID get applicants by job posting ID
+//
+// @Summary get applicants by job posting ID
+// @Description get applicants by job posting ID
+// @Tags Applicants
+// @Accept json
+// @Produce json
+// @Param job_posting_id path string true "Job Posting ID"
+// @Success 200 {array} response.ApplicantResponse
+// @Security BearerAuth
+// @Router /applicants/job-posting/{job_posting_id} [get]
 func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 	jobPostingID, err := uuid.Parse(ctx.Param("job_posting_id"))
 	if err != nil {

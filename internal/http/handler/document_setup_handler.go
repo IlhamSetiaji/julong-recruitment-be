@@ -54,6 +54,17 @@ func DocumentSetupHandlerFactory(
 	return NewDocumentSetupHandler(log, viper, validate, useCase)
 }
 
+// CreateDocumentSetup create document setup
+//
+//		@Summary		Create document setup
+//		@Description	Create document setup
+//		@Tags			Document Setups
+//		@Accept json
+//		@Produce json
+//		@Param			document_type_name	body	request.CreateDocumentSetupRequest	true	"Create document setup"
+//		@Success	201	{object}	response.DocumentSetupResponse	"success create document setup"
+//	 @Security BearerAuth
+//		@Router	/document-setups [post]
 func (h *DocumentSetupHandler) CreateDocumentSetup(ctx *gin.Context) {
 	var payload request.CreateDocumentSetupRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -78,6 +89,20 @@ func (h *DocumentSetupHandler) CreateDocumentSetup(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusCreated, "success create document setup", documentSetup)
 }
 
+// FindAllPaginated find all document setups paginated
+//
+//		@Summary		Find all document setups paginated
+//		@Description	Find all document setups paginated
+//		@Tags			Document Setups
+//		@Accept json
+//		@Produce json
+//		@Param			page	query	int	false	"Page"
+//		@Param			page_size	query	int	false	"Page Size"
+//		@Param			search	query	string	false	"Search"
+//		@Param			created_at	query	string	false	"Created At"
+//		@Success	200	{object}	response.DocumentSetupResponse	"success find all document setups"
+//	 @Security BearerAuth
+//		@Router	/document-setups [get]
 func (h *DocumentSetupHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
@@ -116,6 +141,17 @@ func (h *DocumentSetupHandler) FindAllPaginated(ctx *gin.Context) {
 	})
 }
 
+// FindByID find document setup by id
+//
+//		@Summary		Find document setup by id
+//		@Description	Find document setup by id
+//		@Tags			Document Setups
+//		@Accept			json
+//		@Produce		json
+//		@Param			id	path	string	true	"ID"
+//		@Success		200	{object}	response.DocumentSetupResponse	"success find document setup"
+//	  @Security BearerAuth
+//		@Router	/document-setups/{id} [get]
 func (h *DocumentSetupHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -140,6 +176,18 @@ func (h *DocumentSetupHandler) FindByID(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success find document setup", documentSetup)
 }
 
+// UpdateDocumentSetup update document setup
+//
+//		@Summary		Update document setup
+//		@Description	Update document setup
+//		@Tags			Document Setups
+//		@Accept json
+//		@Produce json
+//		@Param			id	path	string	true	"ID"
+//		@Param			document_type_name	body	request.UpdateDocumentSetupRequest	true	"Update document setup"
+//		@Success	200	{object}	response.DocumentSetupResponse	"success update document setup"
+//	  @Security BearerAuth
+//		@Router	/document-setups/{id} [put]
 func (h *DocumentSetupHandler) UpdateDocumentSetup(ctx *gin.Context) {
 	var payload request.UpdateDocumentSetupRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -176,6 +224,17 @@ func (h *DocumentSetupHandler) UpdateDocumentSetup(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success update document setup", documentSetup)
 }
 
+// DeleteDocumentSetup delete document setup
+//
+//		@Summary		Delete document setup
+//		@Description	Delete document setup
+//		@Tags			Document Setups
+//		@Accept			json
+//		@Produce		json
+//		@Param			id	path	string	true	"ID"
+//		@Success		200			{string}	string	"success delete document setup"
+//	  @Security BearerAuth
+//		@Router	/document-setups/{id} [delete]
 func (h *DocumentSetupHandler) DeleteDocumentSetup(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -207,6 +266,17 @@ func (h *DocumentSetupHandler) DeleteDocumentSetup(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success delete document setup", nil)
 }
 
+// FindByDocumentTypeName find document setups by document type name
+//
+//		@Summary		Find document setups by document type name
+//		@Description	Find document setups by document type name
+//		@Tags			Document Setups
+//		@Accept			json
+//		@Produce		json
+//		@Param			name	query	string	true	"Name"
+//		@Success		200	{object}	response.DocumentSetupResponse	"success find document setups by document type name"
+//	  @Security BearerAuth
+//		@Router	/document-setups/document-type [get]
 func (h *DocumentSetupHandler) FindByDocumentTypeName(ctx *gin.Context) {
 	name := ctx.Query("name")
 	if name == "" {

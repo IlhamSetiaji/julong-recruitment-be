@@ -33,6 +33,16 @@ func AnswerTypeRepositoryFactory(
 	return NewAnswerTypeRepository(log, db)
 }
 
+// FindAll find all answer types
+//
+// @Summary find all answer types
+// @Description find all answer types
+// @Tags Answer Types
+// @Accept json
+// @Produce json
+// @Success 200 {array} entity.AnswerType
+// @Security BearerAuth
+// @Router /answer-types [get]
 func (r *AnswerTypeRepository) FindAll() ([]*entity.AnswerType, error) {
 	var answerTypes []*entity.AnswerType
 	if err := r.DB.Find(&answerTypes).Error; err != nil {

@@ -24,6 +24,37 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/answer-types": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "find all answer types",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Answer Types"
+                ],
+                "summary": "find all answer types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.AnswerType"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/questions": {
             "post": {
                 "security": [
@@ -538,9 +569,596 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/applicants/apply": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "apply job posting",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applicants"
+                ],
+                "summary": "apply job posting",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/applicants/job-posting/{job_posting_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "get applicants by job posting ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applicants"
+                ],
+                "summary": "get applicants by job posting ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ApplicantResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/document-setups": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all document setups paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Setups"
+                ],
+                "summary": "Find all document setups paginated",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created At",
+                        "name": "created_at",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success find all document setups",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSetupResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create document setup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Setups"
+                ],
+                "summary": "Create document setup",
+                "parameters": [
+                    {
+                        "description": "Create document setup",
+                        "name": "document_type_name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateDocumentSetupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "success create document setup",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSetupResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-setups/document-type": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find document setups by document type name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Setups"
+                ],
+                "summary": "Find document setups by document type name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success find document setups by document type name",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSetupResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-setups/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find document setup by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Setups"
+                ],
+                "summary": "Find document setup by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success find document setup",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSetupResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update document setup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Setups"
+                ],
+                "summary": "Update document setup",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update document setup",
+                        "name": "document_type_name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateDocumentSetupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success update document setup",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSetupResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete document setup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Setups"
+                ],
+                "summary": "Delete document setup",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success delete document setup",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "entity.AnswerType": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Question"
+                    }
+                }
+            }
+        },
+        "entity.Applicant": {
+            "type": "object",
+            "properties": {
+                "applied_date": {
+                    "type": "string"
+                },
+                "document_sendings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DocumentSending"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/entity.JobPosting"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.ApplicantStatus"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/entity.UserProfile"
+                },
+                "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.ApplicantStatus": {
+            "type": "string",
+            "enum": [
+                "APPLIED",
+                "SHORTLIST",
+                "REJECTED",
+                "HIRED"
+            ],
+            "x-enum-varnames": [
+                "APPLICANT_STATUS_APPLIED",
+                "APPLICANT_STATUS_SHORTLIST",
+                "APPLICANT_STATUS_REJECTED",
+                "APPLICANT_STATUS_HIRED"
+            ]
+        },
+        "entity.DocumentSending": {
+            "type": "object",
+            "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/entity.Applicant"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
+                "basic_wage": {
+                    "type": "number"
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "document_setup": {
+                    "$ref": "#/definitions/entity.DocumentSetup"
+                },
+                "document_setup_id": {
+                    "type": "string"
+                },
+                "home_location": {
+                    "type": "string"
+                },
+                "hometrip_ticket": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_id": {
+                    "type": "string"
+                },
+                "job_level_id": {
+                    "type": "string"
+                },
+                "job_location": {
+                    "type": "string"
+                },
+                "meal_allowance": {
+                    "type": "number"
+                },
+                "operational_allowance": {
+                    "type": "number"
+                },
+                "period_agreement": {
+                    "type": "string"
+                },
+                "positional_allowance": {
+                    "type": "number"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentLine"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.DocumentSendingStatus"
+                }
+            }
+        },
+        "entity.DocumentSendingStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "SENT",
+                "FAILED"
+            ],
+            "x-enum-varnames": [
+                "DOCUMENT_SENDING_STATUS_PENDING",
+                "DOCUMENT_SENDING_STATUS_SENT",
+                "DOCUMENT_SENDING_STATUS_FAILED"
+            ]
+        },
+        "entity.DocumentSetup": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "document_sendings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DocumentSending"
+                    }
+                },
+                "document_type": {
+                    "$ref": "#/definitions/entity.DocumentType"
+                },
+                "document_type_id": {
+                    "type": "string"
+                },
+                "footer": {
+                    "type": "string"
+                },
+                "header": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentType"
+                },
+                "template_questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TemplateQuestion"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.DocumentType": {
+            "type": "object",
+            "properties": {
+                "document_setups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DocumentSetup"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "mail_templates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.MailTemplate"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.DocumentVerification": {
+            "type": "object",
+            "properties": {
+                "format": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "template_question": {
+                    "$ref": "#/definitions/entity.TemplateQuestion"
+                },
+                "template_question_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Education": {
+            "type": "object",
+            "properties": {
+                "certificate": {
+                    "type": "string"
+                },
+                "education_level": {
+                    "$ref": "#/definitions/entity.EducationLevelEnum"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "gpa": {
+                    "type": "number"
+                },
+                "graduate_year": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "school_name": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "description": "Applicant *Applicant ` + "`" + `json:\"applicant\" gorm:\"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE\"` + "`" + `",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.UserProfile"
+                        }
+                    ]
+                },
+                "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.EducationLevelEnum": {
             "type": "string",
             "enum": [
@@ -587,6 +1205,98 @@ const docTemplate = `{
                 "FINAL_RESULT_STATUS_REJECTED"
             ]
         },
+        "entity.JobPosting": {
+            "type": "object",
+            "properties": {
+                "applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Applicant"
+                    }
+                },
+                "content_description": {
+                    "type": "string"
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "for_organization_id": {
+                    "type": "string"
+                },
+                "for_organization_location": {
+                    "type": "string"
+                },
+                "for_organization_location_id": {
+                    "type": "string"
+                },
+                "for_organization_name": {
+                    "type": "string"
+                },
+                "for_organization_structure": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_applied": {
+                    "type": "boolean"
+                },
+                "job_id": {
+                    "type": "string"
+                },
+                "job_name": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "mp_request": {
+                    "$ref": "#/definitions/entity.MPRequest"
+                },
+                "mp_request_id": {
+                    "type": "string"
+                },
+                "organization_logo": {
+                    "type": "string"
+                },
+                "poster": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentHeader"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentType"
+                },
+                "salary_max": {
+                    "type": "string"
+                },
+                "salary_min": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.JobPostingStatus"
+                },
+                "test_schedule_headers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TestScheduleHeader"
+                    }
+                }
+            }
+        },
         "entity.JobPostingStatus": {
             "type": "string",
             "enum": [
@@ -608,6 +1318,63 @@ const docTemplate = `{
                 "JOB_POSTING_STATUS_COMPLETED"
             ]
         },
+        "entity.MPRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/entity.JobPosting"
+                },
+                "mp_request_interface": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "mpr_clone_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.MPRequestStatus"
+                }
+            }
+        },
+        "entity.MPRequestStatus": {
+            "type": "string",
+            "enum": [
+                "OPEN",
+                "ON_GOING",
+                "COMPLETED"
+            ],
+            "x-enum-varnames": [
+                "MPR_STATUS_OPEN",
+                "MPR_STATUS_ON_GOING",
+                "MPR_STATUS_COMPLETED"
+            ]
+        },
+        "entity.MailTemplate": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "document_type": {
+                    "$ref": "#/definitions/entity.DocumentType"
+                },
+                "document_type_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.MaritalStatusEnum": {
             "type": "string",
             "enum": [
@@ -624,6 +1391,82 @@ const docTemplate = `{
                 "MARITAL_STATUS_ENUM_WIDOWED",
                 "MARITAL_STATUS_ENUM_ANY"
             ]
+        },
+        "entity.ProjectPic": {
+            "type": "object",
+            "properties": {
+                "administrative_total": {
+                    "type": "integer"
+                },
+                "employee_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentLine"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "test_schedule_headers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TestScheduleHeader"
+                    }
+                }
+            }
+        },
+        "entity.ProjectRecruitmentHeader": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_postings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.JobPosting"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_recruitment_lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.ProjectRecruitmentLine"
+                    }
+                },
+                "recruitment_type": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentType"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentHeaderStatus"
+                },
+                "template_activity": {
+                    "$ref": "#/definitions/entity.TemplateActivity"
+                },
+                "template_activity_id": {
+                    "type": "string"
+                }
+            }
         },
         "entity.ProjectRecruitmentHeaderStatus": {
             "type": "string",
@@ -646,6 +1489,44 @@ const docTemplate = `{
                 "PROJECT_RECRUITMENT_HEADER_STATUS_COMPLETED"
             ]
         },
+        "entity.ProjectRecruitmentLine": {
+            "type": "object",
+            "properties": {
+                "document_sendings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DocumentSending"
+                    }
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "project_pics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.ProjectPic"
+                    }
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentHeader"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "template_activity_line": {
+                    "$ref": "#/definitions/entity.TemplateActivityLine"
+                },
+                "template_activity_line_id": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.ProjectRecruitmentType": {
             "type": "string",
             "enum": [
@@ -658,6 +1539,173 @@ const docTemplate = `{
                 "PROJECT_RECRUITMENT_TYPE_PH",
                 "PROJECT_RECRUITMENT_TYPE_NS"
             ]
+        },
+        "entity.Question": {
+            "type": "object",
+            "properties": {
+                "answer_type": {
+                    "$ref": "#/definitions/entity.AnswerType"
+                },
+                "answer_type_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "question_options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.QuestionOption"
+                    }
+                },
+                "question_responses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.QuestionResponse"
+                    }
+                },
+                "template_question": {
+                    "$ref": "#/definitions/entity.TemplateQuestion"
+                },
+                "template_question_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.QuestionOption": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "option_text": {
+                    "type": "string"
+                },
+                "question": {
+                    "$ref": "#/definitions/entity.Question"
+                },
+                "question_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.QuestionResponse": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "question": {
+                    "$ref": "#/definitions/entity.Question"
+                },
+                "question_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Skill": {
+            "type": "object",
+            "properties": {
+                "certificate": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "description": "Applicant *Applicant ` + "`" + `json:\"applicant\" gorm:\"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE\"` + "`" + `",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.UserProfile"
+                        }
+                    ]
+                },
+                "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.TemplateActivity": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentType"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.TemplateActivityStatus"
+                },
+                "template_activity_lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TemplateActivityLine"
+                    }
+                }
+            }
+        },
+        "entity.TemplateActivityLine": {
+            "type": "object",
+            "properties": {
+                "color_hex_code": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_recruitment_lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.ProjectRecruitmentLine"
+                    }
+                },
+                "question_template_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.TemplateActivityLineStatus"
+                },
+                "template_activity": {
+                    "$ref": "#/definitions/entity.TemplateActivity"
+                },
+                "template_activity_id": {
+                    "type": "string"
+                },
+                "template_question": {
+                    "$ref": "#/definitions/entity.TemplateQuestion"
+                }
+            }
         },
         "entity.TemplateActivityLineStatus": {
             "type": "string",
@@ -680,6 +1728,47 @@ const docTemplate = `{
                 "TEMPLATE_ACTIVITY_STATUS_ACTIVE",
                 "TEMPLATE_ACTIVITY_STATUS_INACTIVE"
             ]
+        },
+        "entity.TemplateQuestion": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_setup": {
+                    "$ref": "#/definitions/entity.DocumentSetup"
+                },
+                "document_setup_id": {
+                    "type": "string"
+                },
+                "document_verifications": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DocumentVerification"
+                    }
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "form_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Question"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.TemplateQuestionStatus"
+                }
+            }
         },
         "entity.TemplateQuestionFormType": {
             "type": "string",
@@ -723,6 +1812,106 @@ const docTemplate = `{
                 "TEMPLATE_QUESTION_STATUS_INACTIVE"
             ]
         },
+        "entity.TestApplicant": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "type": "string"
+                },
+                "final_result": {
+                    "$ref": "#/definitions/entity.FinalResultStatus"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "test_schedule_header": {
+                    "$ref": "#/definitions/entity.TestScheduleHeader"
+                },
+                "test_schedule_header_id": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/entity.UserProfile"
+                },
+                "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.TestScheduleHeader": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_id": {
+                    "type": "string"
+                },
+                "job_name": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/entity.JobPosting"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/entity.ProjectPic"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.TestScheduleStatus"
+                },
+                "test_applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TestApplicant"
+                    }
+                },
+                "test_type": {
+                    "$ref": "#/definitions/entity.TestType"
+                },
+                "test_type_id": {
+                    "type": "string"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                }
+            }
+        },
         "entity.TestScheduleStatus": {
             "type": "string",
             "enum": [
@@ -735,6 +1924,29 @@ const docTemplate = `{
                 "TEST_SCHEDULE_STATUS_IN_PROGRESS",
                 "TEST_SCHEDULE_STATUS_COMPLETED"
             ]
+        },
+        "entity.TestType": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentType"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.TestTypeStatus"
+                },
+                "test_schedule_headers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TestScheduleHeader"
+                    }
+                }
+            }
         },
         "entity.TestTypeStatus": {
             "type": "string",
@@ -758,6 +1970,77 @@ const docTemplate = `{
                 "FEMALE"
             ]
         },
+        "entity.UserProfile": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer"
+                },
+                "applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Applicant"
+                    }
+                },
+                "birth_date": {
+                    "type": "string"
+                },
+                "birth_place": {
+                    "type": "string"
+                },
+                "curriculum_vitae": {
+                    "type": "string"
+                },
+                "educations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Education"
+                    }
+                },
+                "gender": {
+                    "$ref": "#/definitions/entity.UserGender"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ktp": {
+                    "type": "string"
+                },
+                "marital_status": {
+                    "$ref": "#/definitions/entity.MaritalStatusEnum"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Skill"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.UserStatus"
+                },
+                "test_applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TestApplicant"
+                    }
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "work_experiences": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.WorkExperience"
+                    }
+                }
+            }
+        },
         "entity.UserStatus": {
             "type": "string",
             "enum": [
@@ -770,6 +2053,71 @@ const docTemplate = `{
                 "USER_INACTIVE",
                 "USER_PENDING"
             ]
+        },
+        "entity.WorkExperience": {
+            "type": "object",
+            "properties": {
+                "certificate": {
+                    "type": "string"
+                },
+                "company_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "description": "Applicant *Applicant ` + "`" + `json:\"applicant\" gorm:\"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE\"` + "`" + `",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/entity.UserProfile"
+                        }
+                    ]
+                },
+                "user_profile_id": {
+                    "type": "string"
+                },
+                "year_experienced": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateDocumentSetupRequest": {
+            "type": "object",
+            "required": [
+                "body",
+                "document_type_id",
+                "footer",
+                "header",
+                "recruitment_type",
+                "title"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "document_type_id": {
+                    "type": "string"
+                },
+                "footer": {
+                    "type": "string"
+                },
+                "header": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
         },
         "request.CreateOrUpdateQuestions": {
             "type": "object",
@@ -968,6 +2316,41 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateDocumentSetupRequest": {
+            "type": "object",
+            "required": [
+                "body",
+                "document_type_id",
+                "footer",
+                "header",
+                "id",
+                "recruitment_type",
+                "title"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "document_type_id": {
+                    "type": "string"
+                },
+                "footer": {
+                    "type": "string"
+                },
+                "header": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "recruitment_type": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateTemplateQuestion": {
             "type": "object",
             "required": [
@@ -1086,6 +2469,38 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ApplicantResponse": {
+            "type": "object",
+            "properties": {
+                "applied_date": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.ApplicantStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/response.UserProfileResponse"
+                },
+                "user_profile_id": {
                     "type": "string"
                 }
             }

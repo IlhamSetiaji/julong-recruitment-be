@@ -54,6 +54,20 @@ func TemplateQuestionHandlerFactory(
 	return NewTemplateQuestionHandler(log, viper, validate, useCase)
 }
 
+// FindAllPaginated find all template questions paginated
+//
+//	@Summary		Find all template questions paginated
+//	@Description	Find all template questions paginated
+//	@Tags			Template Questions
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query	int	false	"Page"
+//	@Param			page_size	query	int	false	"Page Size"
+//	@Param			search	query	string	false	"Search"
+//	@Param			created_at	query	string	false	"Created At"
+//	@Success		200	{object}	response.TemplateQuestionResponse
+//	@Security BearerAuth
+//	@Router			/api/template-questions	[get]
 func (h *TemplateQuestionHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
@@ -92,6 +106,17 @@ func (h *TemplateQuestionHandler) FindAllPaginated(ctx *gin.Context) {
 	})
 }
 
+// CreateTemplateQuestion create template question
+//
+//	@Summary		Create template question
+//	@Description	Create template question
+//	@Tags			Template Questions
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body	request.CreateTemplateQuestion	true	"Payload"
+//	@Success		201	{object}	response.TemplateQuestionResponse
+//	@Security BearerAuth
+//	@Router			/api/template-questions	[post]
 func (h *TemplateQuestionHandler) CreateTemplateQuestion(ctx *gin.Context) {
 	var payload request.CreateTemplateQuestion
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -116,6 +141,16 @@ func (h *TemplateQuestionHandler) CreateTemplateQuestion(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusCreated, "success", response)
 }
 
+// FindAllFormTypes find all form types
+//
+//	@Summary		Find all form types
+//	@Description	Find all form types
+//	@Tags			Template Questions
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	response.FormTypeResponse
+//	@Security BearerAuth
+//	@Router			/api/template-questions/form-types	[get]
 func (h *TemplateQuestionHandler) FindAllFormTypes(ctx *gin.Context) {
 	formTypes, err := h.UseCase.FindAllFormTypes()
 	if err != nil {
@@ -127,6 +162,17 @@ func (h *TemplateQuestionHandler) FindAllFormTypes(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success", formTypes)
 }
 
+// FindByID find template question by id
+//
+//	@Summary		Find template question by id
+//	@Description	Find template question by id
+//	@Tags			Template Questions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Success		200	{object}	response.TemplateQuestionResponse
+//	@Security BearerAuth
+//	@Router			/api/template-questions/{id}	[get]
 func (h *TemplateQuestionHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
@@ -157,6 +203,18 @@ func (h *TemplateQuestionHandler) FindByID(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success", response)
 }
 
+// UpdateTemplateQuestion update template question
+//
+//	@Summary		Update template question
+//	@Description	Update template question
+//	@Tags			Template Questions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Param			payload	body	request.UpdateTemplateQuestion	true	"Payload"
+//	@Success		200	{object}	response.TemplateQuestionResponse
+//	@Security BearerAuth
+//	@Router			/api/template-questions/{id}	[put]
 func (h *TemplateQuestionHandler) UpdateTemplateQuestion(ctx *gin.Context) {
 	var payload request.UpdateTemplateQuestion
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -193,6 +251,17 @@ func (h *TemplateQuestionHandler) UpdateTemplateQuestion(ctx *gin.Context) {
 	utils.SuccessResponse(ctx, http.StatusOK, "success", response)
 }
 
+// DeleteTemplateQuestion delete template question
+//
+//	@Summary		Delete template question
+//	@Description	Delete template question
+//	@Tags			Template Questions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path	string	true	"ID"
+//	@Success		200	{string}	string
+//	@Security BearerAuth
+//	@Router			/api/template-questions/{id}	[delete]
 func (h *TemplateQuestionHandler) DeleteTemplateQuestion(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {

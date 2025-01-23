@@ -255,6 +255,25 @@ definitions:
     - test_applicants
     - test_schedule_header_id
     type: object
+  request.CreateTemplateQuestion:
+    properties:
+      description:
+        type: string
+      document_setup_id:
+        type: string
+      duration:
+        minimum: 0
+        type: integer
+      form_type:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    required:
+    - name
+    - status
+    type: object
   request.CreateTestScheduleHeaderRequest:
     properties:
       description:
@@ -305,6 +324,28 @@ definitions:
     - status
     - test_type_id
     - total_candidate
+    type: object
+  request.UpdateTemplateQuestion:
+    properties:
+      description:
+        type: string
+      document_setup_id:
+        type: string
+      duration:
+        minimum: 0
+        type: integer
+      form_type:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    required:
+    - id
+    - name
+    - status
     type: object
   request.UpdateTestScheduleHeaderRequest:
     properties:
@@ -441,6 +482,11 @@ definitions:
       updated_at:
         type: string
       user_profile_id:
+        type: string
+    type: object
+  response.FormTypeResponse:
+    properties:
+      value:
         type: string
     type: object
   response.JobPostingResponse:
@@ -1029,6 +1075,153 @@ paths:
       summary: Create or update questions
       tags:
       - Questions
+  /api/template-questions:
+    get:
+      consumes:
+      - application/json
+      description: Find all template questions paginated
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TemplateQuestionResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all template questions paginated
+      tags:
+      - Template Questions
+    post:
+      consumes:
+      - application/json
+      description: Create template question
+      parameters:
+      - description: Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTemplateQuestion'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.TemplateQuestionResponse'
+      security:
+      - BearerAuth: []
+      summary: Create template question
+      tags:
+      - Template Questions
+  /api/template-questions/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete template question
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete template question
+      tags:
+      - Template Questions
+    get:
+      consumes:
+      - application/json
+      description: Find template question by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TemplateQuestionResponse'
+      security:
+      - BearerAuth: []
+      summary: Find template question by id
+      tags:
+      - Template Questions
+    put:
+      consumes:
+      - application/json
+      description: Update template question
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateTemplateQuestion'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TemplateQuestionResponse'
+      security:
+      - BearerAuth: []
+      summary: Update template question
+      tags:
+      - Template Questions
+  /api/template-questions/form-types:
+    get:
+      consumes:
+      - application/json
+      description: Find all form types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FormTypeResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all form types
+      tags:
+      - Template Questions
   /api/test-applicants:
     post:
       consumes:
@@ -1063,7 +1256,7 @@ paths:
         in: query
         name: page
         type: integer
-      - description: Page size
+      - description: Page Size
         in: query
         name: page_size
         type: integer
@@ -1071,9 +1264,9 @@ paths:
         in: query
         name: search
         type: string
-      - description: Sort
+      - description: Created At
         in: query
-        name: sort
+        name: created_at
         type: string
       produces:
       - application/json

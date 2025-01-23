@@ -125,18 +125,18 @@ func (h *TestScheduleHeaderHandler) UpdateTestScheduleHeader(ctx *gin.Context) {
 
 // FindAllPaginated find all test schedule headers paginated
 //
-//	@Summary		Find all test schedule headers paginated
-//	@Description	Find all test schedule headers paginated
-//	@Tags			Test Schedule Headers
-//	@Accept			json
-//	@Produce		json
-//	@Param			page	query	int	false	"Page"
-//	@Param			page_size	query	int	false	"Page size"
-//	@Param			search	query	string	false	"Search"
-//	@Param			sort	query	string	false	"Sort"
-//	@Success		200			{object}	response.TestScheduleHeaderResponse
-//	@Security		BearerAuth
-//	@Router			/api/test-schedule-headers [get]
+//		@Summary		Find all test schedule headers paginated
+//		@Description	Find all test schedule headers paginated
+//		@Tags			Test Schedule Headers
+//		@Accept			json
+//		@Produce		json
+//	 	@Param			page	query	int	false	"Page"
+//		@Param			page_size	query	int	false	"Page Size"
+//		@Param			search	query	string	false	"Search"
+//		@Param			created_at	query	string	false	"Created At"
+//		@Success		200			{object}	response.TestScheduleHeaderResponse
+//		@Security		BearerAuth
+//		@Router			/api/test-schedule-headers [get]
 func (h *TestScheduleHeaderHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {

@@ -23,6 +23,8 @@ type IJobPostingRepository interface {
 	InsertSavedJob(userProfileID, jobPostingID uuid.UUID) error
 	FindAllSavedJobsByUserProfileID(userProfileID uuid.UUID) (*[]entity.JobPosting, error)
 	GetSavedJobsByKeys(keys map[string]interface{}) (*[]entity.SavedJob, error)
+	DeleteSavedJob(userProfileID, jobPostingID uuid.UUID) error
+	FindSavedJob(userProfileID, jobPostingID uuid.UUID) (*entity.SavedJob, error)
 }
 
 type JobPostingRepository struct {
@@ -257,4 +259,34 @@ func (r *JobPostingRepository) GetSavedJobsByKeys(keys map[string]interface{}) (
 		return nil, err
 	}
 	return &entities, nil
+}
+
+func (r *JobPostingRepository) DeleteSavedJob(userProfileID, jobPostingID uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return errors.New("[JobPostingRepository.DeleteSavedJob] failed to begin transaction: " + tx.Error.Error())
+	}
+
+	if err := tx.Where("user_profile_id = ? AND job_posting_id = ?", userProfileID, jobPostingID).Delete(&entity.SavedJob{}).Error; err != nil {
+		tx.Rollback()
+		return errors.New("[JobPostingRepository.DeleteSavedJob] " + err.Error())
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return errors.New("[JobPostingRepository.DeleteSavedJob] failed to commit transaction: " + err.Error())
+	}
+
+	return nil
+}
+
+func (r *JobPostingRepository) FindSavedJob(userProfileID, jobPostingID uuid.UUID) (*entity.SavedJob, error) {
+	var entity entity.SavedJob
+	if err := r.DB.Where("user_profile_id = ? AND job_posting_id = ?", userProfileID, jobPostingID).First(&entity).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		r.Log.Errorf("[JobPostingRepository.FindSavedJob] error when querying data: %v", err)
+		return nil, err
+	}
+	return &entity, nil
 }

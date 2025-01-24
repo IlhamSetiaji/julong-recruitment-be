@@ -585,7 +585,7 @@ func (h *JobPostingHandler) InsertSavedJob(ctx *gin.Context) {
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusOK, "saved job inserted", nil)
+	utils.SuccessResponse(ctx, http.StatusOK, "success", nil)
 }
 
 // FindAllSavedJobsByUserID find all saved jobs by user id

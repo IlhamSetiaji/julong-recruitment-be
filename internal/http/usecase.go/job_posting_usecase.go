@@ -27,6 +27,7 @@ type IJobPostingUseCase interface {
 	FindAllAppliedJobPostingByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error)
 	InsertSavedJob(userID, jobPostingID uuid.UUID) error
 	FindAllSavedJobsByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error)
+	DeleteSavedJob(userID, jobPostingID uuid.UUID) error
 }
 
 type JobPostingUseCase struct {
@@ -465,10 +466,23 @@ func (uc *JobPostingUseCase) InsertSavedJob(userID, jobPostingID uuid.UUID) erro
 		return err
 	}
 
-	err = uc.Repository.InsertSavedJob(userProfileExist.ID, jobPostingID)
+	savedJob, err := uc.Repository.FindSavedJob(userProfileExist.ID, jobPostingID)
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.InsertSavedJob] " + err.Error())
 		return err
+	}
+	if savedJob != nil {
+		err = uc.Repository.DeleteSavedJob(userProfileExist.ID, jobPostingID)
+		if err != nil {
+			uc.Log.Error("[JobPostingUseCase.InsertSavedJob] " + err.Error())
+			return err
+		}
+	} else {
+		err = uc.Repository.InsertSavedJob(userProfileExist.ID, jobPostingID)
+		if err != nil {
+			uc.Log.Error("[JobPostingUseCase.InsertSavedJob] " + err.Error())
+			return err
+		}
 	}
 
 	return nil
@@ -497,4 +511,24 @@ func (uc *JobPostingUseCase) FindAllSavedJobsByUserID(userID uuid.UUID) (*[]resp
 	}
 
 	return &jobPostingResponses, nil
+}
+
+func (uc *JobPostingUseCase) DeleteSavedJob(userID, jobPostingID uuid.UUID) error {
+	userProfileExist, err := uc.UserProfileRepository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.DeleteSavedJob] " + err.Error())
+		return err
+	}
+	if userProfileExist == nil {
+		uc.Log.Error("[JobPostingUseCase.DeleteSavedJob] " + "User Profile not found")
+		return err
+	}
+
+	err = uc.Repository.DeleteSavedJob(userProfileExist.ID, jobPostingID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.DeleteSavedJob] " + err.Error())
+		return err
+	}
+
+	return nil
 }

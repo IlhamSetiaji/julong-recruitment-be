@@ -44,6 +44,7 @@ type JobPosting struct {
 	MPRequest                *MPRequest                `json:"mp_request" gorm:"foreignKey:MPRequestID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Applicants               []Applicant               `json:"applicants" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	TestScheduleHeaders      []TestScheduleHeader      `json:"test_schedule_headers" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserProfiles             []UserProfile             `json:"user_profiles" gorm:"many2many:saved_jobs;foreignKey:ID;joinForeignKey:JobPostingID;References:ID;JoinReferences:UserProfileID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	ForOrganizationName      string `json:"for_organization_name" gorm:"-"`
 	ForOrganizationLocation  string `json:"for_organization_location" gorm:"-"`

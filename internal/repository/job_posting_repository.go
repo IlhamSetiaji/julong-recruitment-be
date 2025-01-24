@@ -20,6 +20,8 @@ type IJobPostingRepository interface {
 	UpdateJobPostingPosterToNull(id uuid.UUID) error
 	GetHighestDocumentNumberByDate(date string) (int, error)
 	GetByIDs(ids []uuid.UUID) (*[]entity.JobPosting, error)
+	InsertSavedJob(userProfileID, jobPostingID uuid.UUID) error
+	FindAllSavedJobsByUserProfileID(userProfileID uuid.UUID) (*[]entity.JobPosting, error)
 }
 
 type JobPostingRepository struct {
@@ -206,6 +208,42 @@ func (r *JobPostingRepository) GetByIDs(ids []uuid.UUID) (*[]entity.JobPosting, 
 	var entities []entity.JobPosting
 	if err := r.DB.Preload("ProjectRecruitmentHeader").Where("id IN ?", ids).Find(&entities).Error; err != nil {
 		r.Log.Errorf("[JobPostingRepository.GetByIDs] error when querying data: %v", err)
+		return nil, err
+	}
+	return &entities, nil
+}
+
+func (r *JobPostingRepository) InsertSavedJob(userProfileID, jobPostingID uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return errors.New("[JobPostingRepository.InsertSavedJob] failed to begin transaction: " + tx.Error.Error())
+	}
+
+	savedJob := entity.SavedJob{
+		JobPostingID:  jobPostingID,
+		UserProfileID: userProfileID,
+	}
+
+	if err := tx.Create(&savedJob).Error; err != nil {
+		tx.Rollback()
+		return errors.New("[JobPostingRepository.InsertSavedJob] " + err.Error())
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return errors.New("[JobPostingRepository.InsertSavedJob] failed to commit transaction: " + err.Error())
+	}
+
+	return nil
+}
+
+func (r *JobPostingRepository) FindAllSavedJobsByUserProfileID(userProfileID uuid.UUID) (*[]entity.JobPosting, error) {
+	var entities []entity.JobPosting
+	if err := r.DB.
+		Preload("ProjectRecruitmentHeader").
+		Joins("JOIN saved_jobs ON job_postings.id = saved_jobs.job_posting_id").
+		Where("saved_jobs.user_profile_id = ?", userProfileID).
+		Find(&entities).Error; err != nil {
+		r.Log.Errorf("[JobPostingRepository.FindAllSavedJobsByUserProfileID] error when querying data: %v", err)
 		return nil, err
 	}
 	return &entities, nil

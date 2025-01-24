@@ -1707,6 +1707,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/job-postings/save": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Insert saved job",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Job Postings"
+                ],
+                "summary": "Insert saved job",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/job-postings/saved": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all saved jobs by user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Job Postings"
+                ],
+                "summary": "Find all saved jobs by user id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.JobPostingResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/job-postings/update": {
             "put": {
                 "security": [
@@ -3441,6 +3506,12 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/entity.TestScheduleHeader"
                     }
+                },
+                "user_profiles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.UserProfile"
+                    }
                 }
             }
         },
@@ -4158,6 +4229,12 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "job_postings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.JobPosting"
+                    }
                 },
                 "ktp": {
                     "type": "string"

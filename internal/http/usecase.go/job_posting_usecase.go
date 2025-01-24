@@ -25,6 +25,8 @@ type IJobPostingUseCase interface {
 	UpdateJobPostingOrganizationLogoToNull(id uuid.UUID) error
 	UpdateJobPostingPosterToNull(id uuid.UUID) error
 	FindAllAppliedJobPostingByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error)
+	InsertSavedJob(userID, jobPostingID uuid.UUID) error
+	FindAllSavedJobsByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error)
 }
 
 type JobPostingUseCase struct {
@@ -422,6 +424,61 @@ func (uc *JobPostingUseCase) FindAllAppliedJobPostingByUserID(userID uuid.UUID) 
 		}
 
 		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(jobPosting))
+	}
+
+	return &jobPostingResponses, nil
+}
+
+func (uc *JobPostingUseCase) InsertSavedJob(userID, jobPostingID uuid.UUID) error {
+	jobPostingExist, err := uc.Repository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.InsertSavedJob] " + err.Error())
+		return err
+	}
+	if jobPostingExist == nil {
+		uc.Log.Error("[JobPostingUseCase.InsertSavedJob] " + "Job Posting not found")
+		return err
+	}
+
+	userProfileExist, err := uc.UserProfileRepository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.InsertSavedJob] " + err.Error())
+		return err
+	}
+	if userProfileExist == nil {
+		uc.Log.Error("[JobPostingUseCase.InsertSavedJob] " + "User Profile not found")
+		return err
+	}
+
+	err = uc.Repository.InsertSavedJob(userProfileExist.ID, jobPostingID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.InsertSavedJob] " + err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (uc *JobPostingUseCase) FindAllSavedJobsByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error) {
+	userProfileExist, err := uc.UserProfileRepository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllSavedJobsByUserID] " + err.Error())
+		return nil, err
+	}
+	if userProfileExist == nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllSavedJobsByUserID] " + "User Profile not found")
+		return nil, err
+	}
+
+	savedJobs, err := uc.Repository.FindAllSavedJobsByUserProfileID(userProfileExist.ID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllSavedJobsByUserID] " + err.Error())
+		return nil, err
+	}
+
+	jobPostingResponses := make([]response.JobPostingResponse, 0)
+	for _, savedJob := range *savedJobs {
+		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&savedJob))
 	}
 
 	return &jobPostingResponses, nil

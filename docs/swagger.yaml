@@ -277,6 +277,10 @@ definitions:
         items:
           $ref: '#/definitions/entity.TestScheduleHeader'
         type: array
+      user_profiles:
+        items:
+          $ref: '#/definitions/entity.UserProfile'
+        type: array
     type: object
   entity.JobPostingStatus:
     enum:
@@ -774,6 +778,10 @@ definitions:
         $ref: '#/definitions/entity.UserGender'
       id:
         type: string
+      job_postings:
+        items:
+          $ref: '#/definitions/entity.JobPosting'
+        type: array
       ktp:
         type: string
       marital_status:
@@ -3147,6 +3155,46 @@ paths:
       security:
       - BearerAuth: []
       summary: Generate document number
+      tags:
+      - Job Postings
+  /job-postings/save:
+    get:
+      consumes:
+      - application/json
+      description: Insert saved job
+      parameters:
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Insert saved job
+      tags:
+      - Job Postings
+  /job-postings/saved:
+    get:
+      consumes:
+      - application/json
+      description: Find all saved jobs by user id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.JobPostingResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all saved jobs by user id
       tags:
       - Job Postings
   /job-postings/update:

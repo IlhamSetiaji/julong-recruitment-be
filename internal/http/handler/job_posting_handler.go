@@ -27,6 +27,8 @@ type IJobPostingHandler interface {
 	DeleteJobPosting(ctx *gin.Context)
 	GenerateDocumentNumber(ctx *gin.Context)
 	FindAllAppliedJobPostingByUserID(ctx *gin.Context)
+	InsertSavedJob(ctx *gin.Context)
+	FindAllSavedJobsByUserID(ctx *gin.Context)
 }
 
 type JobPostingHandler struct {
@@ -531,6 +533,94 @@ func (h *JobPostingHandler) FindAllAppliedJobPostingByUserID(ctx *gin.Context) {
 	if err != nil {
 		h.Log.Error("failed to find all applied job posting by user id: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all applied job posting by user id", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
+}
+
+// InsertSavedJob insert saved job
+//
+//		@Summary		Insert saved job
+//		@Description	Insert saved job
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Param			job_posting_id	query	string	true	"Job Posting ID"
+//		@Success		200	{string}	string
+//	 @Security BearerAuth
+//		@Router			/job-postings/save [get]
+func (h *JobPostingHandler) InsertSavedJob(ctx *gin.Context) {
+	jobPostingID := ctx.Query("job_posting_id")
+
+	parsedJobPostingID, err := uuid.Parse(jobPostingID)
+	if err != nil {
+		h.Log.Error("failed to parse job posting id: ", err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "failed to parse job posting id", err.Error())
+		return
+	}
+
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	err = h.UseCase.InsertSavedJob(userUUID, parsedJobPostingID)
+	if err != nil {
+		h.Log.Error("failed to insert saved job: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to insert saved job", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "saved job inserted", nil)
+}
+
+// FindAllSavedJobsByUserID find all saved jobs by user id
+//
+//		@Summary		Find all saved jobs by user id
+//		@Description	Find all saved jobs by user id
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Success		200	{object} response.JobPostingResponse
+//	 @Security BearerAuth
+//		@Router			/job-postings/saved [get]
+func (h *JobPostingHandler) FindAllSavedJobsByUserID(ctx *gin.Context) {
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindAllSavedJobsByUserID(userUUID)
+	if err != nil {
+		h.Log.Error("failed to find all saved jobs by user id: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all saved jobs by user id", err.Error())
 		return
 	}
 

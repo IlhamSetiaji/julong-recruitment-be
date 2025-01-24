@@ -1,6 +1,8 @@
 package response
 
 import (
+	"time"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/google/uuid"
 )
@@ -26,6 +28,8 @@ type JobPostingResponse struct {
 	Link                       string                        `json:"link"`
 	IsApplied                  bool                          `json:"is_applied"`
 	IsSaved                    bool                          `json:"is_saved"`
+	AppliedDate                time.Time                     `json:"applied_date"`
+	ApplicantStatus            entity.ApplicantStatus        `json:"apply_status"`
 
 	ForOrganizationName     string `json:"for_organization_name"`
 	ForOrganizationLocation string `json:"for_organization_location"`

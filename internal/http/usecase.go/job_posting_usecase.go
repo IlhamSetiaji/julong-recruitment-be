@@ -439,6 +439,9 @@ func (uc *JobPostingUseCase) FindAllAppliedJobPostingByUserID(userID uuid.UUID) 
 			return nil, err
 		}
 
+		jobPosting.AppliedDate = applicant.AppliedDate
+		jobPosting.ApplicantStatus = applicant.Status
+
 		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(jobPosting))
 	}
 

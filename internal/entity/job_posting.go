@@ -46,12 +46,14 @@ type JobPosting struct {
 	TestScheduleHeaders      []TestScheduleHeader      `json:"test_schedule_headers" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	UserProfiles             []UserProfile             `json:"user_profiles" gorm:"many2many:saved_jobs;foreignKey:ID;joinForeignKey:JobPostingID;References:ID;JoinReferences:UserProfileID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
-	ForOrganizationName      string `json:"for_organization_name" gorm:"-"`
-	ForOrganizationLocation  string `json:"for_organization_location" gorm:"-"`
-	ForOrganizationStructure string `json:"for_organization_structure" gorm:"-"`
-	JobName                  string `json:"job_name" gorm:"-"`
-	IsApplied                bool   `json:"is_applied" gorm:"-"`
-	IsSaved                  bool   `json:"is_saved" gorm:"-"`
+	ForOrganizationName      string          `json:"for_organization_name" gorm:"-"`
+	ForOrganizationLocation  string          `json:"for_organization_location" gorm:"-"`
+	ForOrganizationStructure string          `json:"for_organization_structure" gorm:"-"`
+	JobName                  string          `json:"job_name" gorm:"-"`
+	IsApplied                bool            `json:"is_applied" gorm:"-"`
+	IsSaved                  bool            `json:"is_saved" gorm:"-"`
+	AppliedDate              time.Time       `json:"applied_date" gorm:"-"`
+	ApplicantStatus          ApplicantStatus `json:"apply_status" gorm:"-"`
 }
 
 func (jp *JobPosting) BeforeCreate(tx *gorm.DB) (err error) {

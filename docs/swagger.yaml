@@ -223,6 +223,10 @@ definitions:
         items:
           $ref: '#/definitions/entity.Applicant'
         type: array
+      applied_date:
+        type: string
+      apply_status:
+        $ref: '#/definitions/entity.ApplicantStatus'
       content_description:
         type: string
       document_date:
@@ -1444,6 +1448,10 @@ definitions:
     type: object
   response.JobPostingResponse:
     properties:
+      applied_date:
+        type: string
+      apply_status:
+        $ref: '#/definitions/entity.ApplicantStatus'
       content_description:
         type: string
       document_date:

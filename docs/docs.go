@@ -3458,6 +3458,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/entity.Applicant"
                     }
                 },
+                "applied_date": {
+                    "type": "string"
+                },
+                "apply_status": {
+                    "$ref": "#/definitions/entity.ApplicantStatus"
+                },
                 "content_description": {
                     "type": "string"
                 },
@@ -5231,6 +5237,12 @@ const docTemplate = `{
         "response.JobPostingResponse": {
             "type": "object",
             "properties": {
+                "applied_date": {
+                    "type": "string"
+                },
+                "apply_status": {
+                    "$ref": "#/definitions/entity.ApplicantStatus"
+                },
                 "content_description": {
                     "type": "string"
                 },

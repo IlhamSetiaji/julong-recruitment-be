@@ -22,6 +22,7 @@ type IJobPostingRepository interface {
 	GetByIDs(ids []uuid.UUID) (*[]entity.JobPosting, error)
 	InsertSavedJob(userProfileID, jobPostingID uuid.UUID) error
 	FindAllSavedJobsByUserProfileID(userProfileID uuid.UUID) (*[]entity.JobPosting, error)
+	GetSavedJobsByKeys(keys map[string]interface{}) (*[]entity.SavedJob, error)
 }
 
 type JobPostingRepository struct {
@@ -244,6 +245,15 @@ func (r *JobPostingRepository) FindAllSavedJobsByUserProfileID(userProfileID uui
 		Where("saved_jobs.user_profile_id = ?", userProfileID).
 		Find(&entities).Error; err != nil {
 		r.Log.Errorf("[JobPostingRepository.FindAllSavedJobsByUserProfileID] error when querying data: %v", err)
+		return nil, err
+	}
+	return &entities, nil
+}
+
+func (r *JobPostingRepository) GetSavedJobsByKeys(keys map[string]interface{}) (*[]entity.SavedJob, error) {
+	var entities []entity.SavedJob
+	if err := r.DB.Where(keys).Find(&entities).Error; err != nil {
+		r.Log.Errorf("[JobPostingRepository.GetSavedJobsByKeys] error when querying data: %v", err)
 		return nil, err
 	}
 	return &entities, nil

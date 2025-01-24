@@ -25,6 +25,7 @@ type JobPostingResponse struct {
 	Poster                     *string                       `json:"poster"`
 	Link                       string                        `json:"link"`
 	IsApplied                  bool                          `json:"is_applied"`
+	IsSaved                    bool                          `json:"is_saved"`
 
 	ForOrganizationName     string `json:"for_organization_name"`
 	ForOrganizationLocation string `json:"for_organization_location"`

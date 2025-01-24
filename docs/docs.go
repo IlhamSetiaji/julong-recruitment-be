@@ -3459,6 +3459,9 @@ const docTemplate = `{
                 "is_applied": {
                     "type": "boolean"
                 },
+                "is_saved": {
+                    "type": "boolean"
+                },
                 "job_id": {
                     "type": "string"
                 },
@@ -5224,6 +5227,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "is_applied": {
+                    "type": "boolean"
+                },
+                "is_saved": {
                     "type": "boolean"
                 },
                 "job_id": {

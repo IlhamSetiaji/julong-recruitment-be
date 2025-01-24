@@ -245,6 +245,8 @@ definitions:
         type: string
       is_applied:
         type: boolean
+      is_saved:
+        type: boolean
       job_id:
         type: string
       job_name:
@@ -1461,6 +1463,8 @@ definitions:
       id:
         type: string
       is_applied:
+        type: boolean
+      is_saved:
         type: boolean
       job_id:
         type: string

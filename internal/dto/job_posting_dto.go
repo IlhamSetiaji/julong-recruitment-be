@@ -90,6 +90,7 @@ func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *respo
 		SalaryMin:                  ent.SalaryMin,
 		SalaryMax:                  ent.SalaryMax,
 		IsApplied:                  ent.IsApplied,
+		IsSaved:                    ent.IsSaved,
 		ContentDescription:         ent.ContentDescription,
 		OrganizationLogo: func() *string {
 			if ent.OrganizationLogo != "" {

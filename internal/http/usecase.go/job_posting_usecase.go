@@ -201,7 +201,22 @@ func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string,
 			isApplied = true
 		}
 
+		savedJob, err := uc.Repository.GetSavedJobsByKeys(map[string]interface{}{
+			"user_profile_id": userProfile.ID,
+			"job_posting_id":  jobPosting.ID,
+		})
+		if err != nil {
+			uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
+			return nil, 0, err
+		}
+
+		isSaved := false
+		if savedJob != nil {
+			isSaved = true
+		}
+
 		jobPosting.IsApplied = isApplied
+		jobPosting.IsSaved = isSaved
 
 		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 	}

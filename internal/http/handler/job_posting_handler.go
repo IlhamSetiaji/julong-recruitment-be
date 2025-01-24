@@ -605,10 +605,45 @@ func (h *JobPostingHandler) InsertSavedJob(ctx *gin.Context) {
 //		@Tags			Job Postings
 //		@Accept			json
 //		@Produce		json
+//		@Param			page	query	int	false	"Page"
+//		@Param			page_size	query	int	false	"Page Size"
+//		@Param			search	query	string	false	"Search"
+//		@Param			created_at	query	string	false	"Created At"
+//		@Param			status	query	string	false	"Status"
 //		@Success		200	{object} response.JobPostingResponse
 //	 @Security BearerAuth
 //		@Router			/job-postings/saved [get]
 func (h *JobPostingHandler) FindAllSavedJobsByUserID(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
 	user, err := middleware.GetUser(ctx, h.Log)
 	if err != nil {
 		h.Log.Errorf("Error when getting user: %v", err)
@@ -627,12 +662,15 @@ func (h *JobPostingHandler) FindAllSavedJobsByUserID(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.UseCase.FindAllSavedJobsByUserID(userUUID)
+	res, total, err := h.UseCase.FindAllSavedJobsByUserID(userUUID, page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("failed to find all saved jobs by user id: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all saved jobs by user id", err.Error())
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
+	utils.SuccessResponse(ctx, http.StatusOK, "success", gin.H{
+		"job_postings": res,
+		"total":        total,
+	})
 }

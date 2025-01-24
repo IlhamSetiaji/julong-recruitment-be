@@ -146,7 +146,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				jobPostingRoute.GET("", c.JobPostingHandler.FindAllPaginated)
 				jobPostingRoute.GET("save", c.JobPostingHandler.InsertSavedJob)
-				jobPostingRoute.GET("saved", c.JobPostingHandler.FindAllAppliedJobPostingByUserID)
+				jobPostingRoute.GET("saved", c.JobPostingHandler.FindAllSavedJobsByUserID)
 				jobPostingRoute.GET("/document-number", c.JobPostingHandler.GenerateDocumentNumber)
 				jobPostingRoute.GET("/applied", c.JobPostingHandler.FindAllAppliedJobPostingByUserID)
 				jobPostingRoute.GET("/:id", c.JobPostingHandler.FindByID)

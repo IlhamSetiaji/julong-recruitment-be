@@ -3189,6 +3189,27 @@ paths:
       consumes:
       - application/json
       description: Find all saved jobs by user id
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:

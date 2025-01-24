@@ -21,7 +21,7 @@ type IJobPostingRepository interface {
 	GetHighestDocumentNumberByDate(date string) (int, error)
 	GetByIDs(ids []uuid.UUID) (*[]entity.JobPosting, error)
 	InsertSavedJob(userProfileID, jobPostingID uuid.UUID) error
-	FindAllSavedJobsByUserProfileID(userProfileID uuid.UUID) (*[]entity.JobPosting, error)
+	FindAllSavedJobsByUserProfileID(userProfileID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.JobPosting, int64, error)
 	GetSavedJobsByKeys(keys map[string]interface{}) (*[]entity.SavedJob, error)
 	DeleteSavedJob(userProfileID, jobPostingID uuid.UUID) error
 	FindSavedJob(userProfileID, jobPostingID uuid.UUID) (*entity.SavedJob, error)
@@ -239,17 +239,39 @@ func (r *JobPostingRepository) InsertSavedJob(userProfileID, jobPostingID uuid.U
 	return nil
 }
 
-func (r *JobPostingRepository) FindAllSavedJobsByUserProfileID(userProfileID uuid.UUID) (*[]entity.JobPosting, error) {
+func (r *JobPostingRepository) FindAllSavedJobsByUserProfileID(userProfileID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.JobPosting, int64, error) {
 	var entities []entity.JobPosting
-	if err := r.DB.
+	var total int64
+
+	query := r.DB.
 		Preload("ProjectRecruitmentHeader").
 		Joins("JOIN saved_jobs ON job_postings.id = saved_jobs.job_posting_id").
-		Where("saved_jobs.user_profile_id = ?", userProfileID).
-		Find(&entities).Error; err != nil {
-		r.Log.Errorf("[JobPostingRepository.FindAllSavedJobsByUserProfileID] error when querying data: %v", err)
-		return nil, err
+		Where("saved_jobs.user_profile_id = ?", userProfileID)
+
+	if search != "" {
+		query = query.Where("document_number ILIKE ?", "%"+search+"%")
 	}
-	return &entities, nil
+
+	if filter["status"] != nil {
+		query = query.Where("status = ?", filter["status"])
+	}
+
+	for key, value := range sort {
+		query = query.Order(key + " " + value.(string))
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&entities).Error; err != nil {
+		r.Log.Errorf("[JobPostingRepository.FindAllSavedJobsByUserProfileID] error when querying data: %v", err)
+		return nil, 0, err
+	}
+
+	if err := r.DB.Model(&entity.JobPosting{}).Joins("JOIN saved_jobs ON job_postings.id = saved_jobs.job_posting_id").
+		Where("saved_jobs.user_profile_id = ?", userProfileID).Count(&total).Error; err != nil {
+		r.Log.Errorf("[JobPostingRepository.FindAllSavedJobsByUserProfileID] error when querying total data: %v", err)
+		return nil, 0, err
+	}
+
+	return &entities, total, nil
 }
 
 func (r *JobPostingRepository) GetSavedJobsByKeys(keys map[string]interface{}) (*[]entity.SavedJob, error) {

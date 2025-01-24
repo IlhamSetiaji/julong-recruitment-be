@@ -26,7 +26,7 @@ type IJobPostingUseCase interface {
 	UpdateJobPostingPosterToNull(id uuid.UUID) error
 	FindAllAppliedJobPostingByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error)
 	InsertSavedJob(userID, jobPostingID uuid.UUID) error
-	FindAllSavedJobsByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error)
+	FindAllSavedJobsByUserID(userID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	DeleteSavedJob(userID, jobPostingID uuid.UUID) error
 }
 
@@ -488,29 +488,29 @@ func (uc *JobPostingUseCase) InsertSavedJob(userID, jobPostingID uuid.UUID) erro
 	return nil
 }
 
-func (uc *JobPostingUseCase) FindAllSavedJobsByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error) {
+func (uc *JobPostingUseCase) FindAllSavedJobsByUserID(userID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error) {
 	userProfileExist, err := uc.UserProfileRepository.FindByUserID(userID)
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllSavedJobsByUserID] " + err.Error())
-		return nil, err
+		return nil, 0, err
 	}
 	if userProfileExist == nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllSavedJobsByUserID] " + "User Profile not found")
-		return nil, err
+		return nil, 0, err
 	}
 
-	savedJobs, err := uc.Repository.FindAllSavedJobsByUserProfileID(userProfileExist.ID)
+	jobPostings, total, err := uc.Repository.FindAllSavedJobsByUserProfileID(userProfileExist.ID, page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllSavedJobsByUserID] " + err.Error())
-		return nil, err
+		return nil, 0, err
 	}
 
 	jobPostingResponses := make([]response.JobPostingResponse, 0)
-	for _, savedJob := range *savedJobs {
-		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&savedJob))
+	for _, jobPosting := range *jobPostings {
+		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 	}
 
-	return &jobPostingResponses, nil
+	return &jobPostingResponses, total, nil
 }
 
 func (uc *JobPostingUseCase) DeleteSavedJob(userID, jobPostingID uuid.UUID) error {

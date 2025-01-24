@@ -112,7 +112,7 @@ func (r *TemplateActivityLineRepository) DeleteTemplateActivityLine(id uuid.UUID
 
 func (r *TemplateActivityLineRepository) FindByID(id uuid.UUID) (*entity.TemplateActivityLine, error) {
 	var templateActivityLine entity.TemplateActivityLine
-	if err := r.DB.Preload("TemplateActivity").First(&templateActivityLine, id).Error; err != nil {
+	if err := r.DB.Preload("TemplateActivity").Preload("TemplateQuestion.Questions.AnswerType").Preload("TemplateQuestion.Questions.QuestionOptions").First(&templateActivityLine, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

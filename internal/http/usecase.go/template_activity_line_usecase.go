@@ -15,6 +15,7 @@ import (
 type ITemplateActivityLineUseCase interface {
 	CreateOrUpdateTemplateActivityLine(req *request.CreateOrUpdateTemplateActivityLineRequest) (*response.TemplateActivityResponse, error)
 	FindByTemplateActivityID(templateActivityID string) (*[]response.TemplateActivityLineResponse, error)
+	FindByID(id uuid.UUID) (*response.TemplateActivityLineResponse, error)
 }
 
 type TemplateActivityLineUseCase struct {
@@ -170,4 +171,18 @@ func (uc *TemplateActivityLineUseCase) FindByTemplateActivityID(templateActivity
 	}
 
 	return &templateActivityLineResponses, nil
+}
+
+func (uc *TemplateActivityLineUseCase) FindByID(id uuid.UUID) (*response.TemplateActivityLineResponse, error) {
+	templateActivityLine, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Errorf("[TemplateActivityLineUseCase.FindByID] error when finding template activity line by id: %s", err.Error())
+		return nil, err
+	}
+
+	if templateActivityLine == nil {
+		return nil, errors.New("[TemplateActivityLineUseCase.FindByID] template activity line not found")
+	}
+
+	return uc.DTO.ConvertEntityToResponse(templateActivityLine), nil
 }

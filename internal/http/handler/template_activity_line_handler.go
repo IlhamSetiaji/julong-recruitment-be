@@ -9,6 +9,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -16,6 +17,7 @@ import (
 type ITemplateActivityLineHandler interface {
 	CreateOrUpdateTemplateActivityLine(ctx *gin.Context)
 	FindByTemplateActivityID(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
 }
 
 type TemplateActivityLineHandler struct {
@@ -100,6 +102,35 @@ func (h *TemplateActivityLineHandler) FindByTemplateActivityID(ctx *gin.Context)
 	tal, err := h.UseCase.FindByTemplateActivityID(templateActivityID)
 	if err != nil {
 		h.Log.Error("[TemplateActivityLineHandler.FindByTemplateActivityID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", tal)
+}
+
+// FindByID find template activity line by id
+//
+//	@Summary		Find template activity line by id
+//	@Description	Find template activity line by id
+//	@Tags			Template Activity Lines
+//	@Accept			json
+//	@Produce		json
+//	@Param			id path string true "Template Activity Line ID"
+//	@Success		200	{object} response.TemplateActivityLineResponse
+//	@Security BearerAuth
+//	@Router			/template-activity-lines/{id} [get]
+func (h *TemplateActivityLineHandler) FindByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[TemplateActivityLineHandler.FindByID] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+	tal, err := h.UseCase.FindByID(parsedID)
+	if err != nil {
+		h.Log.Error("[TemplateActivityLineHandler.FindByID] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
 		return
 	}

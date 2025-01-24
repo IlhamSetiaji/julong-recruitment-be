@@ -2554,6 +2554,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/template-activity-lines/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find template activity line by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Template Activity Lines"
+                ],
+                "summary": "Find template activity line by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Template Activity Line ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TemplateActivityLineResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/universities": {
             "get": {
                 "security": [

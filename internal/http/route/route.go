@@ -121,6 +121,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// template activity lines
 			templateActivityLineRoute := apiRoute.Group("/template-activity-lines")
 			{
+				templateActivityLineRoute.GET("/:id", c.TemplateActivityLineHandler.FindByID)
 				templateActivityLineRoute.GET("/template-activity/:id", c.TemplateActivityLineHandler.FindByTemplateActivityID)
 				templateActivityLineRoute.POST("", c.TemplateActivityLineHandler.CreateOrUpdateTemplateActivityLine)
 			}

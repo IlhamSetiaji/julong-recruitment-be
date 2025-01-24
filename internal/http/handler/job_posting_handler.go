@@ -265,11 +265,21 @@ func (h *JobPostingHandler) FindAllPaginatedWithoutUserID(ctx *gin.Context) {
 		filter["status"] = status
 	}
 
+	logged := middleware.CheckLoggedIn(ctx, h.Log)
+
 	res, total, err := h.UseCase.FindAllPaginatedWithoutUserID(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("failed to find all paginated job postings without user id: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings without user id", err.Error())
 		return
+	}
+
+	if !logged {
+		h.Log.Info("User not logged in, hiding salary")
+		for i := range *res {
+			(*res)[i].SalaryMin = ""
+			(*res)[i].SalaryMax = ""
+		}
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success", gin.H{

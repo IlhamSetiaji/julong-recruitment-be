@@ -84,3 +84,12 @@ func GetUser(c *gin.Context, log *logrus.Logger) (map[string]interface{}, error)
 
 	return messageResponse.User, nil
 }
+
+func CheckLoggedIn(c *gin.Context, log *logrus.Logger) bool {
+	_, exists := c.Get("auth")
+	if !exists {
+		return false
+	}
+
+	return true
+}

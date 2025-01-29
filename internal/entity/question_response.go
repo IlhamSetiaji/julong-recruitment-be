@@ -8,13 +8,14 @@ import (
 )
 
 type QuestionResponse struct {
-	gorm.Model `json:"-"`
-	ID         uuid.UUID  `json:"id" gorm:"type:char(36);primaryKey;"`
-	QuestionID uuid.UUID  `json:"question_id" gorm:"type:char(36);primaryKey;not null"`
-	UserID     *uuid.UUID `json:"user_id" gorm:"type:char(36);primaryKey;not null"`
-	Answer     string     `json:"answer" gorm:"type:text;default"`
+	gorm.Model    `json:"-"`
+	ID            uuid.UUID `json:"id" gorm:"type:char(36);primaryKey;"`
+	QuestionID    uuid.UUID `json:"question_id" gorm:"type:char(36);primaryKey;not null"`
+	UserProfileID uuid.UUID `json:"user_profile_id" gorm:"type:char(36);primaryKey;not null"`
+	Answer        string    `json:"answer" gorm:"type:text;default"`
 
-	Question *Question `json:"question" gorm:"foreignKey:QuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Question    *Question    `json:"question" gorm:"foreignKey:QuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserProfile *UserProfile `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (qr *QuestionResponse) BeforeCreate(tx *gorm.DB) (err error) {

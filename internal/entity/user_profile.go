@@ -46,12 +46,13 @@ type UserProfile struct {
 	Ktp             string            `json:"ktp" gorm:"type:varchar(255);not null"`
 	CurriculumVitae string            `json:"curriculum_vitae" gorm:"type:text;not null"`
 
-	Applicants      []Applicant      `json:"applicants" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	WorkExperiences []WorkExperience `json:"work_experiences" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Educations      []Education      `json:"educations" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Skills          []Skill          `json:"skills" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TestApplicants  []TestApplicant  `json:"test_applicants" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	JobPostings     []JobPosting     `json:"job_postings" gorm:"many2many:saved_jobs;foreignKey:ID;joinForeignKey:UserProfileID;References:ID;JoinReferences:JobPostingID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Applicants        []Applicant        `json:"applicants" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	WorkExperiences   []WorkExperience   `json:"work_experiences" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Educations        []Education        `json:"educations" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Skills            []Skill            `json:"skills" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TestApplicants    []TestApplicant    `json:"test_applicants" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	JobPostings       []JobPosting       `json:"job_postings" gorm:"many2many:saved_jobs;foreignKey:ID;joinForeignKey:UserProfileID;References:ID;JoinReferences:JobPostingID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	QuestionResponses []QuestionResponse `json:"question_responses" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (up *UserProfile) BeforeCreate(tx *gorm.DB) (err error) {

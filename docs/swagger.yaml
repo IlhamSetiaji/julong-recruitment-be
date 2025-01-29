@@ -574,7 +574,13 @@ definitions:
     properties:
       answer:
         type: string
+      answer_file:
+        type: string
       id:
+        type: string
+      job_posting:
+        $ref: '#/definitions/entity.JobPosting'
+      job_posting_id:
         type: string
       question:
         $ref: '#/definitions/entity.Question'
@@ -1869,9 +1875,15 @@ definitions:
     properties:
       answer:
         type: string
+      answer_file:
+        type: string
       created_at:
         type: string
       id:
+        type: string
+      job_posting:
+        $ref: '#/definitions/response.JobPostingResponse'
+      job_posting_id:
         type: string
       question:
         $ref: '#/definitions/response.QuestionResponse'
@@ -2367,6 +2379,57 @@ paths:
       summary: Update project recruitment header
       tags:
       - Project Recruitment Headers
+  /api/question-responses:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create or update question responses
+      parameters:
+      - description: Question ID
+        in: formData
+        name: question_id
+        required: true
+        type: string
+      - description: Answer ID
+        in: formData
+        name: answers.id
+        required: true
+        type: string
+      - description: Job Posting ID
+        in: formData
+        name: answers.job_posting_id
+        required: true
+        type: string
+      - description: User Profile ID
+        in: formData
+        name: answers.user_profile_id
+        required: true
+        type: string
+      - description: Answer
+        in: formData
+        name: answers.answer
+        required: true
+        type: string
+      - description: Answer File
+        in: formData
+        name: answers[][answer_file]
+        type: file
+      - description: Deleted Answer IDs
+        in: formData
+        name: deleted_answer_ids[]
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.QuestionResponse'
+      security:
+      - BearerAuth: []
+      summary: Create or update question responses
+      tags:
+      - Question Responses
   /api/questions:
     post:
       consumes:
@@ -2389,6 +2452,29 @@ paths:
       security:
       - BearerAuth: []
       summary: Create or update questions
+      tags:
+      - Questions
+  /api/questions/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find by id and user id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.QuestionResponse'
+      security:
+      - BearerAuth: []
+      summary: Find by id and user id
       tags:
       - Questions
   /api/template-questions:

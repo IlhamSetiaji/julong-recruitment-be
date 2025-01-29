@@ -345,6 +345,83 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/question-responses": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update question responses",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Question Responses"
+                ],
+                "summary": "Create or update question responses",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Question ID",
+                        "name": "question_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Answer ID",
+                        "name": "answers.id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "answers.job_posting_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Profile ID",
+                        "name": "answers.user_profile_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Answer",
+                        "name": "answers.answer",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Answer File",
+                        "name": "answers[][answer_file]",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Deleted Answer IDs",
+                        "name": "deleted_answer_ids[]",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.QuestionResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/questions": {
             "post": {
                 "security": [
@@ -379,6 +456,43 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/response.TemplateQuestionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/questions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find by id and user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "summary": "Find by id and user id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.QuestionResponse"
                         }
                     }
                 }
@@ -3965,7 +4079,16 @@ const docTemplate = `{
                 "answer": {
                     "type": "string"
                 },
+                "answer_file": {
+                    "type": "string"
+                },
                 "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/entity.JobPosting"
+                },
+                "job_posting_id": {
                     "type": "string"
                 },
                 "question": {
@@ -5867,10 +5990,19 @@ const docTemplate = `{
                 "answer": {
                     "type": "string"
                 },
+                "answer_file": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
                     "type": "string"
                 },
                 "question": {

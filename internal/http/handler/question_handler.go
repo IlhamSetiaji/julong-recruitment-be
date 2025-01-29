@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase.go"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -15,13 +17,15 @@ import (
 
 type IQuestionHandler interface {
 	CreateOrUpdateQuestions(ctx *gin.Context)
+	FindByIDAndUserID(ctx *gin.Context)
 }
 
 type QuestionHandler struct {
-	Log      *logrus.Logger
-	Viper    *viper.Viper
-	Validate *validator.Validate
-	UseCase  usecase.IQuestionUseCase
+	Log        *logrus.Logger
+	Viper      *viper.Viper
+	Validate   *validator.Validate
+	UseCase    usecase.IQuestionUseCase
+	UserHelper helper.IUserHelper
 }
 
 func NewQuestionHandler(
@@ -29,12 +33,14 @@ func NewQuestionHandler(
 	viper *viper.Viper,
 	validate *validator.Validate,
 	useCase usecase.IQuestionUseCase,
+	userHelper helper.IUserHelper,
 ) IQuestionHandler {
 	return &QuestionHandler{
-		Log:      log,
-		Viper:    viper,
-		Validate: validate,
-		UseCase:  useCase,
+		Log:        log,
+		Viper:      viper,
+		Validate:   validate,
+		UseCase:    useCase,
+		UserHelper: userHelper,
 	}
 }
 
@@ -44,7 +50,8 @@ func QuestionHandlerFactory(
 ) IQuestionHandler {
 	useCase := usecase.QuestionUseCaseFactory(log)
 	validate := config.NewValidator(viper)
-	return NewQuestionHandler(log, viper, validate, useCase)
+	userHelper := helper.UserHelperFactory(log)
+	return NewQuestionHandler(log, viper, validate, useCase, userHelper)
 }
 
 // CreateOrUpdateQuestions create or update questions
@@ -80,4 +87,46 @@ func (h *QuestionHandler) CreateOrUpdateQuestions(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "success", tq)
+}
+
+// FindByIDAndUserID find by id and user id
+//
+//	@Summary		Find by id and user id
+//	@Description	Find by id and user id
+//	@Tags			Questions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string	true	"ID"
+//	@Success		200		{object}	response.QuestionResponse
+//	@Security		BearerAuth
+//	@Router			/api/questions/{id} [get]
+func (h *QuestionHandler) FindByIDAndUserID(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	qr, err := h.UseCase.FindByIDAndUserID(id, userUUID.String())
+	if err != nil {
+		h.Log.Error("[QuestionHandler.FindByIDAndUserID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", qr)
 }

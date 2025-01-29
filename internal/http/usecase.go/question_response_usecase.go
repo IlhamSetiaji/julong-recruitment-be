@@ -73,6 +73,8 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 		return nil, err
 	}
 
+	var userProfileUUID uuid.UUID
+
 	// create or update answers
 	for _, ans := range req.Answers {
 		parsedJobPostingID, err := uuid.Parse(ans.JobPostingID)
@@ -95,6 +97,7 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 			uc.Log.Errorf("[QuestionResponseUseCase.CreateOrUpdateQuestionResponses] error when parsing user profile id: %s", err.Error())
 			return nil, err
 		}
+		userProfileUUID = parsedUserProfileID
 		up, err := uc.UserProfileRepository.FindByID(parsedUserProfileID)
 		if err != nil {
 			uc.Log.Errorf("[QuestionResponseUseCase.CreateOrUpdateQuestionResponses] error when finding user profile by id: %s", err.Error())
@@ -106,8 +109,8 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 		}
 
 		// check if answer is exist
-		if ans.ID != "" && ans.ID != uuid.Nil.String() {
-			parsedAnswerID, err := uuid.Parse(ans.ID)
+		if ans.ID != nil {
+			parsedAnswerID, err := uuid.Parse(*ans.ID)
 			if err != nil {
 				uc.Log.Errorf("[QuestionResponseUseCase.CreateOrUpdateQuestionResponses] error when parsing answer id: %s", err.Error())
 				return nil, err
@@ -176,7 +179,7 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 		}
 	}
 
-	rQuestion, err := uc.QuestionRepository.FindByID(question.ID)
+	rQuestion, err := uc.QuestionRepository.FindQuestionWithResponsesByIDAndUserProfileID(question.ID, userProfileUUID)
 	if err != nil {
 		uc.Log.Errorf("[QuestionResponseUseCase.CreateOrUpdateQuestionResponses] error when finding question by id: %s", err.Error())
 		return nil, err
@@ -184,6 +187,14 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 	if rQuestion == nil {
 		uc.Log.Errorf("[QuestionResponseUseCase.CreateOrUpdateQuestionResponses] question with id %s not found", req.QuestionID)
 		return nil, err
+	}
+
+	// embed url to answer file
+	for _, qr := range rQuestion.QuestionResponses {
+		if qr.AnswerFile != "" {
+			qr.AnswerFile = uc.Viper.GetString("app.url") + "/" + qr.AnswerFile
+			uc.Log.Infof("[QuestionResponseUseCase.CreateOrUpdateQuestionResponses] answer file url: %s", qr.AnswerFile)
+		}
 	}
 
 	return uc.QuestionDTO.ConvertEntityToResponse(rQuestion), nil

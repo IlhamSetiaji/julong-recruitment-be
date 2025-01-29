@@ -15,6 +15,7 @@ type IQuestionRepository interface {
 	UpdateQuestion(ent *entity.Question) (*entity.Question, error)
 	DeleteQuestion(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.Question, error)
+	FindQuestionWithResponsesByIDAndUserProfileID(questionID, userProfileID uuid.UUID) (*entity.Question, error)
 }
 
 type QuestionRepository struct {
@@ -64,6 +65,8 @@ func (r *QuestionRepository) CreateQuestion(ent *entity.Question) (*entity.Quest
 		return nil, errors.New("[QuestionRepository.Create] error when preloading associations " + err.Error())
 	}
 
+	r.Log.Infof("[QuestionRepository.Create] question created: %v", ent)
+
 	return ent, nil
 }
 
@@ -85,6 +88,8 @@ func (r *QuestionRepository) UpdateQuestion(ent *entity.Question) (*entity.Quest
 	if err := r.DB.Preload("AnswerType").First(ent, ent.ID).Error; err != nil {
 		return nil, errors.New("[QuestionRepository.Update] error when preloading associations " + err.Error())
 	}
+
+	r.Log.Infof("[QuestionRepository.Update] question updated: %v", ent)
 
 	return ent, nil
 }
@@ -120,7 +125,25 @@ func (r *QuestionRepository) FindByID(id uuid.UUID) (*entity.Question, error) {
 
 	if err := r.DB.
 		Where("id = ?", id).
-		Preload("QuestionOptions").Preload("AnswerType").Preload("QuestionResponses").
+		Preload("QuestionOptions").Preload("AnswerType").Preload("QuestionResponses.UserProfile").
+		First(&q).
+		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &q, nil
+}
+
+func (r *QuestionRepository) FindQuestionWithResponsesByIDAndUserProfileID(questionID, userProfileID uuid.UUID) (*entity.Question, error) {
+	var q entity.Question
+
+	if err := r.DB.
+		Preload("QuestionResponses", "user_profile_id = ?", userProfileID).Preload("QuestionResponses.UserProfile").
+		Where("id = ?", questionID).
 		First(&q).
 		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

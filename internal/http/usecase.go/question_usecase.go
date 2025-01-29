@@ -14,6 +14,7 @@ import (
 
 type IQuestionUseCase interface {
 	CreateOrUpdateQuestions(req *request.CreateOrUpdateQuestions) (*response.TemplateQuestionResponse, error)
+	FindByIDAndUserID(questionID, userID string) (*response.QuestionResponse, error)
 }
 
 type QuestionUseCase struct {
@@ -23,6 +24,7 @@ type QuestionUseCase struct {
 	QuestionOptionRepository   repository.IQuestionOptionRepository
 	TemplateQuestionRepository repository.ITemplateQuestionRepository
 	TemplateQuestionDTO        dto.ITemplateQuestionDTO
+	UserProfileRepository      repository.IUserProfileRepository
 }
 
 func NewQuestionUseCase(
@@ -32,6 +34,7 @@ func NewQuestionUseCase(
 	qoRepository repository.IQuestionOptionRepository,
 	tqRepository repository.ITemplateQuestionRepository,
 	tqDTO dto.ITemplateQuestionDTO,
+	userProfileRepository repository.IUserProfileRepository,
 ) IQuestionUseCase {
 	return &QuestionUseCase{
 		Log:                        log,
@@ -40,6 +43,7 @@ func NewQuestionUseCase(
 		QuestionOptionRepository:   qoRepository,
 		TemplateQuestionRepository: tqRepository,
 		TemplateQuestionDTO:        tqDTO,
+		UserProfileRepository:      userProfileRepository,
 	}
 }
 
@@ -49,7 +53,8 @@ func QuestionUseCaseFactory(log *logrus.Logger) IQuestionUseCase {
 	qoRepository := repository.QuestionOptionRepositoryFactory(log)
 	tqRepository := repository.TemplateQuestionRepositoryFactory(log)
 	tqDTO := dto.TemplateQuestionDTOFactory(log)
-	return NewQuestionUseCase(log, repo, qDTO, qoRepository, tqRepository, tqDTO)
+	userProfileRepository := repository.UserProfileRepositoryFactory(log)
+	return NewQuestionUseCase(log, repo, qDTO, qoRepository, tqRepository, tqDTO, userProfileRepository)
 }
 
 func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQuestions) (*response.TemplateQuestionResponse, error) {
@@ -174,4 +179,41 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 	}
 
 	return uc.TemplateQuestionDTO.ConvertEntityToResponse(tQuestion), nil
+}
+
+func (uc *QuestionUseCase) FindByIDAndUserID(questionID, userID string) (*response.QuestionResponse, error) {
+	q, err := uc.Repository.FindByID(uuid.MustParse(questionID))
+	if err != nil {
+		uc.Log.Errorf("[QuestionUseCase.FindByIDAndUserID] error when finding question by id: %s", err.Error())
+		return nil, errors.New("[QuestionUseCase.FindByIDAndUserID] error when finding question by id: " + err.Error())
+	}
+
+	if q == nil {
+		uc.Log.Errorf("[QuestionUseCase.FindByIDAndUserID] question with id %s not found", questionID)
+		return nil, errors.New("[QuestionUseCase.FindByIDAndUserID] question with id " + questionID + " not found")
+	}
+
+	up, err := uc.UserProfileRepository.FindByUserID(uuid.MustParse(userID))
+	if err != nil {
+		uc.Log.Errorf("[QuestionUseCase.FindByIDAndUserID] error when finding user profile by user id: %s", err.Error())
+		return nil, errors.New("[QuestionUseCase.FindByIDAndUserID] error when finding user profile by user id: " + err.Error())
+	}
+
+	if up == nil {
+		uc.Log.Errorf("[QuestionUseCase.FindByIDAndUserID] user profile with user id %s not found", userID)
+		return nil, errors.New("[QuestionUseCase.FindByIDAndUserID] user profile with user id " + userID + " not found")
+	}
+
+	qr, err := uc.Repository.FindQuestionWithResponsesByIDAndUserProfileID(q.ID, up.ID)
+	if err != nil {
+		uc.Log.Errorf("[QuestionUseCase.FindByIDAndUserID] error when finding question with responses by id and user profile id: %s", err.Error())
+		return nil, errors.New("[QuestionUseCase.FindByIDAndUserID] error when finding question with responses by id and user profile id: " + err.Error())
+	}
+
+	if qr == nil {
+		uc.Log.Errorf("[QuestionUseCase.FindByIDAndUserID] question response not found")
+		return nil, errors.New("[QuestionUseCase.FindByIDAndUserID] question response not found")
+	}
+
+	return uc.DTO.ConvertEntityToResponse(qr), nil
 }

@@ -120,7 +120,7 @@ func (r *QuestionRepository) FindByID(id uuid.UUID) (*entity.Question, error) {
 
 	if err := r.DB.
 		Where("id = ?", id).
-		Preload("QuestionOptions").
+		Preload("QuestionOptions").Preload("AnswerType").Preload("QuestionResponses").
 		First(&q).
 		Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

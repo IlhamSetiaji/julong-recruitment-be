@@ -13,7 +13,7 @@ import (
 )
 
 type IQuestionUseCase interface {
-CreateOrUpdateQuestions(req *request.CreateOrUpdateQuestions) (*response.TemplateQuestionResponse, error)
+	CreateOrUpdateQuestions(req *request.CreateOrUpdateQuestions) (*response.TemplateQuestionResponse, error)
 }
 
 type QuestionUseCase struct {

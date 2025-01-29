@@ -14,6 +14,7 @@ type QuestionResponse struct {
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
 
-	AnswerTypeResponse *AnswerTypeResponse       `json:"answer_types"`
-	QuestionOptions    *[]QuestionOptionResponse `json:"question_options"`
+	AnswerTypeResponse *AnswerTypeResponse         `json:"answer_types"`
+	QuestionOptions    *[]QuestionOptionResponse   `json:"question_options"`
+	QuestionResponses  *[]QuestionResponseResponse `json:"question_responses"`
 }

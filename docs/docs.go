@@ -3137,6 +3137,99 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "entity.AdministrativeResult": {
+            "type": "object",
+            "properties": {
+                "administrative_selection": {
+                    "$ref": "#/definitions/entity.AdministrativeSelection"
+                },
+                "administrative_selection_id": {
+                    "type": "string"
+                },
+                "applicant": {
+                    "$ref": "#/definitions/entity.Applicant"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.AdministrativeResultStatus"
+                }
+            }
+        },
+        "entity.AdministrativeResultStatus": {
+            "type": "string",
+            "enum": [
+                "ACCEPTED",
+                "REJECTED",
+                "SHORTLISTED"
+            ],
+            "x-enum-varnames": [
+                "ADMINISTRATIVE_RESULT_STATUS_ACCEPTED",
+                "ADMINISTRATIVE_RESULT_STATUS_REJECTED",
+                "ADMINISTRATIVE_RESULT_STATUS_SHORTLISTED"
+            ]
+        },
+        "entity.AdministrativeSelection": {
+            "type": "object",
+            "properties": {
+                "administrative_results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.AdministrativeResult"
+                    }
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/entity.JobPosting"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/entity.ProjectPic"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.AdministrativeSelectionStatus"
+                },
+                "total_applicants": {
+                    "type": "integer"
+                },
+                "verified_at": {
+                    "type": "string"
+                },
+                "verified_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.AdministrativeSelectionStatus": {
+            "type": "string",
+            "enum": [
+                "DRAFT",
+                "IN PROGRESS",
+                "COMPLETED"
+            ],
+            "x-enum-varnames": [
+                "ADMINISTRATIVE_SELECTION_STATUS_DRAFT",
+                "ADMINISTRATIVE_SELECTION_STATUS_IN_PROGRESS",
+                "ADMINISTRATIVE_SELECTION_STATUS_COMPLETED"
+            ]
+        },
         "entity.AnswerType": {
             "type": "object",
             "properties": {
@@ -3452,6 +3545,12 @@ const docTemplate = `{
         "entity.JobPosting": {
             "type": "object",
             "properties": {
+                "administrative_selections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.AdministrativeSelection"
+                    }
+                },
                 "applicants": {
                     "type": "array",
                     "items": {
@@ -3657,6 +3756,12 @@ const docTemplate = `{
         "entity.ProjectPic": {
             "type": "object",
             "properties": {
+                "administrative_selections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.AdministrativeSelection"
+                    }
+                },
                 "administrative_total": {
                     "type": "integer"
                 },
@@ -3869,7 +3974,10 @@ const docTemplate = `{
                 "question_id": {
                     "type": "string"
                 },
-                "user_id": {
+                "user_profile": {
+                    "$ref": "#/definitions/entity.UserProfile"
+                },
+                "user_profile_id": {
                     "type": "string"
                 }
             }
@@ -4288,6 +4396,12 @@ const docTemplate = `{
                 },
                 "phone_number": {
                     "type": "string"
+                },
+                "question_responses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.QuestionResponse"
+                    }
                 },
                 "skills": {
                     "type": "array",
@@ -5733,10 +5847,45 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.QuestionOptionResponse"
                     }
                 },
+                "question_responses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.QuestionResponseResponse"
+                    }
+                },
                 "template_question_id": {
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.QuestionResponseResponse": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "question": {
+                    "$ref": "#/definitions/response.QuestionResponse"
+                },
+                "question_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/response.UserProfileResponse"
+                },
+                "user_profile_id": {
                     "type": "string"
                 }
             }

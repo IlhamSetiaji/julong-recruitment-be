@@ -11,27 +11,31 @@ type IQuestionDTO interface {
 }
 
 type QuestionDTO struct {
-	Log               *logrus.Logger
-	AnswerTypeDTO     IAnswerTypeDTO
-	QuestionOptionDTO IQuestionOptionDTO
+	Log                 *logrus.Logger
+	AnswerTypeDTO       IAnswerTypeDTO
+	QuestionOptionDTO   IQuestionOptionDTO
+	QuestionResponseDTO IQuestionResponseDTO
 }
 
 func NewQuestionDTO(
 	log *logrus.Logger,
 	answerTypeDTO IAnswerTypeDTO,
 	questionOptionDTO IQuestionOptionDTO,
+	questionResponseDTO IQuestionResponseDTO,
 ) IQuestionDTO {
 	return &QuestionDTO{
-		Log:               log,
-		AnswerTypeDTO:     answerTypeDTO,
-		QuestionOptionDTO: questionOptionDTO,
+		Log:                 log,
+		AnswerTypeDTO:       answerTypeDTO,
+		QuestionOptionDTO:   questionOptionDTO,
+		QuestionResponseDTO: questionResponseDTO,
 	}
 }
 
 func QuestionDTOFactory(log *logrus.Logger) IQuestionDTO {
 	answerTypeDTO := AnswerTypeDTOFactory(log)
 	questionOptionDTO := QuestionOptionDTOFactory(log)
-	return NewQuestionDTO(log, answerTypeDTO, questionOptionDTO)
+	questionResponseDTO := QuestionResponseDTOFactory(log)
+	return NewQuestionDTO(log, answerTypeDTO, questionOptionDTO, questionResponseDTO)
 }
 
 func (dto *QuestionDTO) ConvertEntityToResponse(ent *entity.Question) *response.QuestionResponse {
@@ -57,6 +61,16 @@ func (dto *QuestionDTO) ConvertEntityToResponse(ent *entity.Question) *response.
 				questionOptionResponses = append(questionOptionResponses, *dto.QuestionOptionDTO.ConvertEntityToResponse(&questionOption))
 			}
 			return &questionOptionResponses
+		}(),
+		QuestionResponses: func() *[]response.QuestionResponseResponse {
+			var questionResponseResponses []response.QuestionResponseResponse
+			if ent.QuestionResponses == nil || len(ent.QuestionResponses) == 0 {
+				return nil
+			}
+			for _, questionResponse := range ent.QuestionResponses {
+				questionResponseResponses = append(questionResponseResponses, *dto.QuestionResponseDTO.ConvertEntityToResponse(&questionResponse))
+			}
+			return &questionResponseResponses
 		}(),
 	}
 }

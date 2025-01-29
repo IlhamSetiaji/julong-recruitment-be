@@ -39,6 +39,8 @@ func main() {
 		&entity.TestScheduleHeader{},
 		&entity.TestApplicant{},
 		&entity.SavedJob{},
+		&entity.AdministrativeSelection{},
+		&entity.AdministrativeResult{},
 	)
 	if err != nil {
 		log.Fatal(err)

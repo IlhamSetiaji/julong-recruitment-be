@@ -24,6 +24,203 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/administrative-selections": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all administrative selection paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Selection"
+                ],
+                "summary": "Find all administrative selection paginated",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.AdministrativeSelectionResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create administrative selection",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Selection"
+                ],
+                "summary": "Create administrative selection",
+                "parameters": [
+                    {
+                        "description": "Create Document Verification",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateAdministrativeSelectionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.AdministrativeSelectionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/administrative-selections/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find administrative selection by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Selection"
+                ],
+                "summary": "Find administrative selection by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.AdministrativeSelectionResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update administrative selection",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Selection"
+                ],
+                "summary": "Update administrative selection",
+                "parameters": [
+                    {
+                        "description": "Update Administrative Selection",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateAdministrativeSelectionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.AdministrativeSelectionResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete administrative selection",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Selection"
+                ],
+                "summary": "Delete administrative selection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/answer-types": {
             "get": {
                 "security": [
@@ -4599,6 +4796,33 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateAdministrativeSelectionRequest": {
+            "type": "object",
+            "required": [
+                "document_date",
+                "document_number",
+                "job_posting_id",
+                "project_pic_id",
+                "status"
+            ],
+            "properties": {
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateDocumentSetupRequest": {
             "type": "object",
             "required": [
@@ -5050,6 +5274,37 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateAdministrativeSelectionRequest": {
+            "type": "object",
+            "required": [
+                "document_date",
+                "document_number",
+                "id",
+                "job_posting_id",
+                "project_pic_id",
+                "status"
+            ],
+            "properties": {
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateDocumentSetupRequest": {
             "type": "object",
             "required": [
@@ -5301,6 +5556,82 @@ const docTemplate = `{
                 },
                 "total_candidate": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.AdministrativeResultResponse": {
+            "type": "object",
+            "properties": {
+                "administrative_selection_id": {
+                    "type": "string"
+                },
+                "applicant": {
+                    "$ref": "#/definitions/response.ApplicantResponse"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.AdministrativeResultStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.AdministrativeSelectionResponse": {
+            "type": "object",
+            "properties": {
+                "administrative_results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.AdministrativeResultResponse"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/response.ProjectPicResponse"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.AdministrativeSelectionStatus"
+                },
+                "total_applicants": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "verified_at": {
+                    "type": "string"
+                },
+                "verified_by": {
+                    "type": "string"
                 }
             }
         },

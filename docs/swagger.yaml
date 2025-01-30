@@ -928,6 +928,25 @@ definitions:
       year_experienced:
         type: integer
     type: object
+  request.CreateAdministrativeSelectionRequest:
+    properties:
+      document_date:
+        type: string
+      document_number:
+        type: string
+      job_posting_id:
+        type: string
+      project_pic_id:
+        type: string
+      status:
+        type: string
+    required:
+    - document_date
+    - document_number
+    - job_posting_id
+    - project_pic_id
+    - status
+    type: object
   request.CreateDocumentSetupRequest:
     properties:
       body:
@@ -1240,6 +1259,28 @@ definitions:
     - test_type_id
     - total_candidate
     type: object
+  request.UpdateAdministrativeSelectionRequest:
+    properties:
+      document_date:
+        type: string
+      document_number:
+        type: string
+      id:
+        type: string
+      job_posting_id:
+        type: string
+      project_pic_id:
+        type: string
+      status:
+        type: string
+    required:
+    - document_date
+    - document_number
+    - id
+    - job_posting_id
+    - project_pic_id
+    - status
+    type: object
   request.UpdateDocumentSetupRequest:
     properties:
       body:
@@ -1420,6 +1461,56 @@ definitions:
     - template_activity_line_id
     - test_type_id
     - total_candidate
+    type: object
+  response.AdministrativeResultResponse:
+    properties:
+      administrative_selection_id:
+        type: string
+      applicant:
+        $ref: '#/definitions/response.ApplicantResponse'
+      applicant_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.AdministrativeResultStatus'
+      updated_at:
+        type: string
+    type: object
+  response.AdministrativeSelectionResponse:
+    properties:
+      administrative_results:
+        items:
+          $ref: '#/definitions/response.AdministrativeResultResponse'
+        type: array
+      created_at:
+        type: string
+      document_date:
+        type: string
+      document_number:
+        type: string
+      id:
+        type: string
+      job_posting:
+        $ref: '#/definitions/response.JobPostingResponse'
+      job_posting_id:
+        type: string
+      project_pic:
+        $ref: '#/definitions/response.ProjectPicResponse'
+      project_pic_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.AdministrativeSelectionStatus'
+      total_applicants:
+        type: integer
+      updated_at:
+        type: string
+      verified_at:
+        type: string
+      verified_by:
+        type: string
     type: object
   response.AnswerTypeResponse:
     properties:
@@ -2179,6 +2270,129 @@ info:
   title: Julong Recruitment API Docs
   version: "1.0"
 paths:
+  /administrative-selections:
+    get:
+      consumes:
+      - application/json
+      description: Find all administrative selection paginated
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: pageSize
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.AdministrativeSelectionResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all administrative selection paginated
+      tags:
+      - Administrative Selection
+    post:
+      consumes:
+      - application/json
+      description: Create administrative selection
+      parameters:
+      - description: Create Document Verification
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateAdministrativeSelectionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.AdministrativeSelectionResponse'
+      security:
+      - BearerAuth: []
+      summary: Create administrative selection
+      tags:
+      - Administrative Selection
+  /administrative-selections/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete administrative selection
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Delete administrative selection
+      tags:
+      - Administrative Selection
+    get:
+      consumes:
+      - application/json
+      description: Find administrative selection by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.AdministrativeSelectionResponse'
+      security:
+      - BearerAuth: []
+      summary: Find administrative selection by id
+      tags:
+      - Administrative Selection
+    put:
+      consumes:
+      - application/json
+      description: Update administrative selection
+      parameters:
+      - description: Update Administrative Selection
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateAdministrativeSelectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.AdministrativeSelectionResponse'
+      security:
+      - BearerAuth: []
+      summary: Update administrative selection
+      tags:
+      - Administrative Selection
   /answer-types:
     get:
       consumes:

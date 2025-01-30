@@ -36,6 +36,7 @@ type RouteConfig struct {
 	TestScheduleHeaderHandler       handler.ITestScheduleHeaderHandler
 	TestApplicantHandler            handler.ITestApplicantHandler
 	QuestionResponseHandler         handler.IQuestionResponseHandler
+	AdministrativeSelectionHandler  handler.IAdministrativeSelectionHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -215,6 +216,15 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				questionResponseRoute.POST("", c.QuestionResponseHandler.CreateOrUpdateQuestionResponses)
 			}
+			// administrative selections
+			administrativeSelectionRoute := apiRoute.Group("/administrative-selections")
+			{
+				administrativeSelectionRoute.GET("", c.AdministrativeSelectionHandler.FindAllPaginated)
+				administrativeSelectionRoute.GET("/:id", c.AdministrativeSelectionHandler.FindByID)
+				administrativeSelectionRoute.POST("", c.AdministrativeSelectionHandler.CreateAdministrativeSelection)
+				administrativeSelectionRoute.PUT("/update", c.AdministrativeSelectionHandler.UpdateAdministrativeSelection)
+				administrativeSelectionRoute.DELETE("/:id", c.AdministrativeSelectionHandler.DeleteAdministrativeSelection)
+			}
 		}
 	}
 }
@@ -241,6 +251,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	testScheduleHeaderHandler := handler.TestScheduleHeaderHandlerFactory(log, viper)
 	testApplicantHandler := handler.TestApplicantHandlerFactory(log, viper)
 	questionResponseHandler := handler.QuestionResponseHandlerFactory(log, viper)
+	administrativeSelectionHandler := handler.AdministrativeSelectionHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -267,5 +278,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		TestScheduleHeaderHandler:       testScheduleHeaderHandler,
 		TestApplicantHandler:            testApplicantHandler,
 		QuestionResponseHandler:         questionResponseHandler,
+		AdministrativeSelectionHandler:  administrativeSelectionHandler,
 	}
 }

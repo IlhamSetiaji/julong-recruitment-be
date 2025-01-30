@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
@@ -23,6 +24,7 @@ type IAdministrativeSelectionHandler interface {
 	UpdateAdministrativeSelection(ctx *gin.Context)
 	DeleteAdministrativeSelection(ctx *gin.Context)
 	VerifyAdministrativeSelection(ctx *gin.Context)
+	GenerateDocumentNumber(ctx *gin.Context)
 }
 
 type AdministrativeSelectionHandler struct {
@@ -304,4 +306,27 @@ func (h *AdministrativeSelectionHandler) VerifyAdministrativeSelection(ctx *gin.
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Administrative selection verified successfully", nil)
+}
+
+// GenerateDocumentNumber generate document number
+//
+//	@Summary		Generate document number
+//	@Description	Generate document number
+//	@Tags			Administrative Selection
+//	@Accept			json
+//	@Produce		json
+//	@Success		200
+//	@Security BearerAuth
+//	@Router			/administrative-selections/document-number [get]
+func (h *AdministrativeSelectionHandler) GenerateDocumentNumber(ctx *gin.Context) {
+	dateNow := time.Now()
+
+	res, err := h.UseCase.GenerateDocumentNumber(dateNow)
+	if err != nil {
+		h.Log.Error("[AdministrativeSelectionHandler.GenerateDocumentNumber] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when generating document number", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Document number generated successfully", res)
 }

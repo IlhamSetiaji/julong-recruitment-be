@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -21,6 +22,7 @@ type ITestScheduleHeaderHandler interface {
 	FindAllPaginated(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	DeleteTestScheduleHeader(ctx *gin.Context)
+	GenerateDocumentNumber(ctx *gin.Context)
 }
 
 type TestScheduleHeaderHandler struct {
@@ -245,4 +247,26 @@ func (h *TestScheduleHeaderHandler) DeleteTestScheduleHeader(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Test schedule header deleted", nil)
+}
+
+// GenerateDocumentNumber generate document number
+//
+//	@Summary		Generate document number
+//	@Description	Generate document number
+//	@Tags			Test Schedule Headers
+//	@Accept			json
+//	@Produce		json
+//	@Success		200			{string}	string
+//	@Security		BearerAuth
+//	@Router			/api/test-schedule-headers/document-number [get]
+func (h *TestScheduleHeaderHandler) GenerateDocumentNumber(ctx *gin.Context) {
+	dateNow := time.Now()
+	documentNumber, err := h.UseCase.GenerateDocumentNumber(dateNow)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to generate document number", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Document number generated", documentNumber)
 }

@@ -497,7 +497,7 @@ func (h *JobPostingHandler) DeleteJobPosting(ctx *gin.Context) {
 //		@Produce		json
 //		@Success		200	{string}	string
 //	 @Security BearerAuth
-//		@Router			/job-postings/generate-document-number [get]
+//		@Router			/job-postings/document-number [get]
 func (h *JobPostingHandler) GenerateDocumentNumber(ctx *gin.Context) {
 	dateNow := time.Now()
 	documentNumber, err := h.UseCase.GenerateDocumentNumber(dateNow)

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -21,6 +22,7 @@ type IAdministrativeSelectionUsecase interface {
 	UpdateAdministrativeSelection(req *request.UpdateAdministrativeSelectionRequest) (*response.AdministrativeSelectionResponse, error)
 	DeleteAdministrativeSelection(id string) error
 	VerifyAdministrativeSelection(id, verifiedBy string) error
+	GenerateDocumentNumber(dateNow time.Time) (string, error)
 }
 
 type AdministrativeSelectionUsecase struct {
@@ -252,4 +254,17 @@ func (uc *AdministrativeSelectionUsecase) VerifyAdministrativeSelection(id, veri
 	}
 
 	return uc.Repository.VerifyAdministrativeSelection(parsedID, parsedVerifiedBy)
+}
+
+func (uc *AdministrativeSelectionUsecase) GenerateDocumentNumber(dateNow time.Time) (string, error) {
+	dateStr := dateNow.Format("2006-01-02")
+	highestNumber, err := uc.Repository.GetHighestDocumentNumberByDate(dateStr)
+	if err != nil {
+		uc.Log.Errorf("[AdministrativeSelectionUsecase.GenerateDocumentNumber] " + err.Error())
+		return "", err
+	}
+
+	newNumber := highestNumber + 1
+	documentNumber := fmt.Sprintf("JP/%s/%03d", dateNow.Format("20060102"), newNumber)
+	return documentNumber, nil
 }

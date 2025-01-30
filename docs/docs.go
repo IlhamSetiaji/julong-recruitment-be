@@ -115,6 +115,31 @@ const docTemplate = `{
                 }
             }
         },
+        "/administrative-selections/document-number": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate document number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Selection"
+                ],
+                "summary": "Generate document number",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/administrative-selections/verify/{id}": {
             "get": {
                 "security": [
@@ -1170,6 +1195,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/test-schedule-headers/document-number": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate document number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test Schedule Headers"
+                ],
+                "summary": "Generate document number",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/test-schedule-headers/update": {
             "put": {
                 "security": [
@@ -2100,7 +2153,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/job-postings/generate-document-number": {
+        "/job-postings/document-number": {
             "get": {
                 "security": [
                     {

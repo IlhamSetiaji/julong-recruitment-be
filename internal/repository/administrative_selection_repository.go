@@ -18,6 +18,7 @@ type IAdministrativeSelectionRepository interface {
 	UpdateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error)
 	DeleteAdministrativeSelection(id uuid.UUID) error
 	VerifyAdministrativeSelection(id uuid.UUID, verifiedBy uuid.UUID) error
+	GetHighestDocumentNumberByDate(date string) (int, error)
 }
 
 type AdministrativeSelectionRepository struct {
@@ -195,4 +196,18 @@ func (r *AdministrativeSelectionRepository) VerifyAdministrativeSelection(id uui
 	}
 
 	return nil
+}
+
+func (r *AdministrativeSelectionRepository) GetHighestDocumentNumberByDate(date string) (int, error) {
+	var maxNumber int
+	err := r.DB.Raw(`
+			SELECT COALESCE(MAX(CAST(SUBSTRING(document_number FROM '[0-9]+$') AS INTEGER)), 0)
+			FROM administrative_selections
+			WHERE DATE(created_at) = ?
+	`, date).Scan(&maxNumber).Error
+	if err != nil {
+		r.Log.Errorf("[JobPostingRepository.GetHighestDocumentNumberByDate] error when querying max document number: %v", err)
+		return 0, err
+	}
+	return maxNumber, nil
 }

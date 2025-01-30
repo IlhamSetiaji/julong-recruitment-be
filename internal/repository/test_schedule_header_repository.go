@@ -16,6 +16,7 @@ type ITestScheduleHeaderRepository interface {
 	FindByID(id uuid.UUID) (*entity.TestScheduleHeader, error)
 	UpdateTestScheduleHeader(tsh *entity.TestScheduleHeader) (*entity.TestScheduleHeader, error)
 	DeleteTestScheduleHeader(id uuid.UUID) error
+	GetHighestDocumentNumberByDate(date string) (int, error)
 }
 
 type TestScheduleHeaderRepository struct {
@@ -155,4 +156,18 @@ func (r *TestScheduleHeaderRepository) DeleteTestScheduleHeader(id uuid.UUID) er
 	}
 
 	return nil
+}
+
+func (r *TestScheduleHeaderRepository) GetHighestDocumentNumberByDate(date string) (int, error) {
+	var maxNumber int
+	err := r.DB.Raw(`
+			SELECT COALESCE(MAX(CAST(SUBSTRING(document_number FROM '[0-9]+$') AS INTEGER)), 0)
+			FROM test_schedule_headers
+			WHERE DATE(created_at) = ?
+	`, date).Scan(&maxNumber).Error
+	if err != nil {
+		r.Log.Errorf("[TestScheduleHeaderRepository.GetHighestDocumentNumberByDate] error when querying max document number: %v", err)
+		return 0, err
+	}
+	return maxNumber, nil
 }

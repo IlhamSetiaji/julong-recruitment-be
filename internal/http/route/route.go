@@ -202,6 +202,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			testScheduleHeaderRoute := apiRoute.Group("/test-schedule-headers")
 			{
 				testScheduleHeaderRoute.GET("", c.TestScheduleHeaderHandler.FindAllPaginated)
+				testScheduleHeaderRoute.GET("/document-number", c.TestScheduleHeaderHandler.GenerateDocumentNumber)
 				testScheduleHeaderRoute.GET("/:id", c.TestScheduleHeaderHandler.FindByID)
 				testScheduleHeaderRoute.POST("", c.TestScheduleHeaderHandler.CreateTestScheduleHeader)
 				testScheduleHeaderRoute.PUT("/update", c.TestScheduleHeaderHandler.UpdateTestScheduleHeader)
@@ -221,6 +222,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			administrativeSelectionRoute := apiRoute.Group("/administrative-selections")
 			{
 				administrativeSelectionRoute.GET("", c.AdministrativeSelectionHandler.FindAllPaginated)
+				administrativeSelectionRoute.GET("/document-number", c.AdministrativeSelectionHandler.GenerateDocumentNumber)
 				administrativeSelectionRoute.GET("/verify/:id", c.AdministrativeSelectionHandler.VerifyAdministrativeSelection)
 				administrativeSelectionRoute.GET("/:id", c.AdministrativeSelectionHandler.FindByID)
 				administrativeSelectionRoute.POST("", c.AdministrativeSelectionHandler.CreateAdministrativeSelection)

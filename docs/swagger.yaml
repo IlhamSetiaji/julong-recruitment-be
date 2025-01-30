@@ -2423,6 +2423,21 @@ paths:
       summary: Update administrative selection
       tags:
       - Administrative Selection
+  /administrative-selections/document-number:
+    get:
+      consumes:
+      - application/json
+      description: Generate document number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Generate document number
+      tags:
+      - Administrative Selection
   /administrative-selections/verify/{id}:
     get:
       consumes:
@@ -3062,6 +3077,23 @@ paths:
       summary: Find test schedule header by id
       tags:
       - Test Schedule Headers
+  /api/test-schedule-headers/document-number:
+    get:
+      consumes:
+      - application/json
+      description: Generate document number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Generate document number
+      tags:
+      - Test Schedule Headers
   /api/test-schedule-headers/update:
     put:
       consumes:
@@ -3651,7 +3683,7 @@ paths:
       summary: Find all applied job posting by user id
       tags:
       - Job Postings
-  /job-postings/generate-document-number:
+  /job-postings/document-number:
     get:
       consumes:
       - application/json

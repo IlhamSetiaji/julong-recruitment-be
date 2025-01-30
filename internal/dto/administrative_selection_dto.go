@@ -42,12 +42,12 @@ func (dto *AdministrativeSelectionDTO) ConvertEntityToResponse(ent *entity.Admin
 	}
 
 	return &response.AdministrativeSelectionResponse{
-		ID:                    ent.ID,
-		JobPostingID:          ent.JobPostingID,
-		ProjectPicID:          ent.ProjectPicID,
-		Status:                ent.Status,
-		VerifiedAt:            ent.VerifiedAt,
-		VerifiedBy:            &ent.VerifiedBy,
+		ID:           ent.ID,
+		JobPostingID: ent.JobPostingID,
+		ProjectPicID: ent.ProjectPicID,
+		Status:       ent.Status,
+		// VerifiedAt:            ent.VerifiedAt,
+		// VerifiedBy:            &ent.VerifiedBy,
 		DocumentDate:          ent.DocumentDate,
 		DocumentNumber:        ent.DocumentNumber,
 		TotalApplicants:       len(ent.AdministrativeResults),

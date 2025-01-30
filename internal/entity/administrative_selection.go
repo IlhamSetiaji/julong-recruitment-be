@@ -16,15 +16,15 @@ const (
 )
 
 type AdministrativeSelection struct {
-	gorm.Model     `json:"-"`
-	ID             uuid.UUID                     `json:"id" gorm:"type:char(36);primaryKey;"`
-	JobPostingID   uuid.UUID                     `json:"job_posting_id" gorm:"type:char(36);not null"`
-	ProjectPicID   uuid.UUID                     `json:"project_pic_id" gorm:"type:char(36);not null"`
-	Status         AdministrativeSelectionStatus `json:"status" gorm:"not null"`
-	VerifiedAt     time.Time                     `json:"verified_at" gorm:"type:timestamp;null"`
-	VerifiedBy     uuid.UUID                     `json:"verified_by" gorm:"type:char(36);null"`
-	DocumentDate   time.Time                     `json:"document_date" gorm:"type:date;not null"`
-	DocumentNumber string                        `json:"document_number" gorm:"type:varchar(255);not null"`
+	gorm.Model   `json:"-"`
+	ID           uuid.UUID                     `json:"id" gorm:"type:char(36);primaryKey;"`
+	JobPostingID uuid.UUID                     `json:"job_posting_id" gorm:"type:char(36);not null"`
+	ProjectPicID uuid.UUID                     `json:"project_pic_id" gorm:"type:char(36);not null"`
+	Status       AdministrativeSelectionStatus `json:"status" gorm:"not null"`
+	// VerifiedAt     time.Time                     `json:"verified_at" gorm:"type:timestamp;null"`
+	// VerifiedBy     uuid.UUID                     `json:"verified_by" gorm:"type:char(36);null"`
+	DocumentDate   time.Time `json:"document_date" gorm:"type:date;not null"`
+	DocumentNumber string    `json:"document_number" gorm:"type:varchar(255);not null"`
 
 	JobPosting            *JobPosting            `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectPIC            *ProjectPic            `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

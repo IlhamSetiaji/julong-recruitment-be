@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
@@ -179,6 +180,7 @@ func (r *AdministrativeSelectionRepository) VerifyAdministrativeSelection(id uui
 	}
 
 	ent.VerifiedBy = verifiedBy
+	ent.VerifiedAt = time.Now()
 
 	if err := tx.Model(&entity.AdministrativeSelection{}).Where("id = ?", id).Updates(ent).Error; err != nil {
 		tx.Rollback()

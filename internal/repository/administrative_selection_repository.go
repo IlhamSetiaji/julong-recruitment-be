@@ -1,0 +1,164 @@
+package repository
+
+import (
+	"errors"
+
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
+)
+
+type IAdministrativeSelectionRepository interface {
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.AdministrativeSelection, int64, error)
+	CreateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error)
+	FindByID(id uuid.UUID) (*entity.AdministrativeSelection, error)
+	UpdateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error)
+	DeleteAdministrativeSelection(id uuid.UUID) error
+}
+
+type AdministrativeSelectionRepository struct {
+	Log *logrus.Logger
+	DB  *gorm.DB
+}
+
+func NewAdministrativeSelectionRepository(
+	log *logrus.Logger,
+	db *gorm.DB,
+) *AdministrativeSelectionRepository {
+	return &AdministrativeSelectionRepository{
+		Log: log,
+		DB:  db,
+	}
+}
+
+func AdministrativeSelectionRepositoryFactory(
+	log *logrus.Logger,
+) IAdministrativeSelectionRepository {
+	db := config.NewDatabase()
+	return NewAdministrativeSelectionRepository(log, db)
+}
+
+func (r *AdministrativeSelectionRepository) CreateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error) {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.CreateAdministrativeSelection] " + tx.Error.Error())
+		return nil, tx.Error
+	}
+
+	if err := tx.Create(ent).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.CreateAdministrativeSelection] " + err.Error())
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.CreateAdministrativeSelection] " + err.Error())
+		return nil, err
+	}
+
+	if err := r.DB.Preload("JobPosting").Preload("ProjectPIC").First(ent, ent.ID).Error; err != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.CreateAdministrativeSelection] " + err.Error())
+		return nil, err
+	}
+
+	return ent, nil
+}
+
+func (r *AdministrativeSelectionRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.AdministrativeSelection, int64, error) {
+	var entities []entity.AdministrativeSelection
+	var total int64
+
+	query := r.DB.Preload("JobPosting").Preload("ProjectPIC")
+
+	if search != "" {
+		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
+	for key, value := range sort {
+		query = query.Order(key + " " + value.(string))
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&entities).Error; err != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	return &entities, total, nil
+}
+
+func (r *AdministrativeSelectionRepository) FindByID(id uuid.UUID) (*entity.AdministrativeSelection, error) {
+	var ent entity.AdministrativeSelection
+	if err := r.DB.Preload("JobPosting").Preload("ProjectPIC").First(&ent, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			r.Log.Error("[AdministrativeSelectionRepository.FindByID] " + err.Error())
+			return nil, err
+		}
+	}
+	return &ent, nil
+}
+
+func (r *AdministrativeSelectionRepository) UpdateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error) {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.UpdateAdministrativeSelection] " + tx.Error.Error())
+		return nil, tx.Error
+	}
+
+	if err := tx.Model(&entity.AdministrativeSelection{}).Where("id = ?", ent.ID).Updates(ent).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.UpdateAdministrativeSelection] " + err.Error())
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.UpdateAdministrativeSelection] " + err.Error())
+		return nil, err
+	}
+
+	if err := r.DB.Preload("JobPosting").Preload("ProjectPIC").First(ent, ent.ID).Error; err != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.UpdateAdministrativeSelection] " + err.Error())
+		return nil, err
+	}
+
+	return ent, nil
+}
+
+func (r *AdministrativeSelectionRepository) DeleteAdministrativeSelection(id uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.DeleteAdministrativeSelection] " + tx.Error.Error())
+		return tx.Error
+	}
+
+	var ent entity.AdministrativeSelection
+	if err := tx.First(&ent, id).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.DeleteAdministrativeSelection] " + err.Error())
+		return err
+	}
+
+	if err := tx.Where("id = ?", id).Delete(&ent).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.DeleteAdministrativeSelection] " + err.Error())
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.DeleteAdministrativeSelection] " + err.Error())
+		return err
+	}
+
+	return nil
+}

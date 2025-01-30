@@ -3657,6 +3657,7 @@ const docTemplate = `{
                     }
                 },
                 "document_date": {
+                    "description": "VerifiedAt     time.Time                     ` + "`" + `json:\"verified_at\" gorm:\"type:timestamp;null\"` + "`" + `\nVerifiedBy     uuid.UUID                     ` + "`" + `json:\"verified_by\" gorm:\"type:char(36);null\"` + "`" + `",
                     "type": "string"
                 },
                 "document_number": {
@@ -3682,12 +3683,6 @@ const docTemplate = `{
                 },
                 "total_applicants": {
                     "type": "integer"
-                },
-                "verified_at": {
-                    "type": "string"
-                },
-                "verified_by": {
-                    "type": "string"
                 }
             }
         },
@@ -3744,6 +3739,12 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/entity.ApplicantStatus"
+                },
+                "template_question": {
+                    "$ref": "#/definitions/entity.TemplateQuestion"
+                },
+                "template_question_id": {
+                    "type": "string"
                 },
                 "user_profile": {
                     "$ref": "#/definitions/entity.UserProfile"
@@ -4345,6 +4346,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "order": {
+                    "type": "integer"
+                },
                 "project_pics": {
                     "type": "array",
                     "items": {
@@ -4585,6 +4589,12 @@ const docTemplate = `{
         "entity.TemplateQuestion": {
             "type": "object",
             "properties": {
+                "applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Applicant"
+                    }
+                },
                 "description": {
                     "type": "string"
                 },
@@ -5129,6 +5139,7 @@ const docTemplate = `{
                         "type": "object",
                         "required": [
                             "end_date",
+                            "order",
                             "project_pics",
                             "start_date",
                             "template_activity_line_id"
@@ -5139,6 +5150,10 @@ const docTemplate = `{
                             },
                             "id": {
                                 "type": "string"
+                            },
+                            "order": {
+                                "type": "integer",
+                                "minimum": 1
                             },
                             "project_pics": {
                                 "type": "array",
@@ -5806,6 +5821,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "document_date": {
+                    "description": "VerifiedAt      time.Time                            ` + "`" + `json:\"verified_at\"` + "`" + `\nVerifiedBy      *uuid.UUID                           ` + "`" + `json:\"verified_by\"` + "`" + `",
                     "type": "string"
                 },
                 "document_number": {
@@ -5833,12 +5849,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "updated_at": {
-                    "type": "string"
-                },
-                "verified_at": {
-                    "type": "string"
-                },
-                "verified_by": {
                     "type": "string"
                 }
             }
@@ -6441,6 +6451,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "order": {
+                    "type": "integer"
                 },
                 "project_pics": {
                     "type": "array",

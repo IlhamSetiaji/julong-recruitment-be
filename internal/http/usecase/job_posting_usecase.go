@@ -39,6 +39,9 @@ type JobPostingUseCase struct {
 	Viper                              *viper.Viper
 	ApplicantRepository                repository.IApplicantRepository
 	UserProfileRepository              repository.IUserProfileRepository
+	ProjectRecruitmentLineRepository   repository.IProjectRecruitmentLineRepository
+	AdministrativeSelectionRepository  repository.IAdministrativeSelectionRepository
+	AdministrativeResultRepository     repository.IAdministrativeResultRepository
 }
 
 func NewJobPostingUseCase(
@@ -50,6 +53,9 @@ func NewJobPostingUseCase(
 	viper *viper.Viper,
 	applicantRepository repository.IApplicantRepository,
 	userProfileRepository repository.IUserProfileRepository,
+	prlRepository repository.IProjectRecruitmentLineRepository,
+	asRepo repository.IAdministrativeSelectionRepository,
+	arRepo repository.IAdministrativeResultRepository,
 ) IJobPostingUseCase {
 	return &JobPostingUseCase{
 		Log:                                log,
@@ -60,6 +66,9 @@ func NewJobPostingUseCase(
 		Viper:                              viper,
 		ApplicantRepository:                applicantRepository,
 		UserProfileRepository:              userProfileRepository,
+		ProjectRecruitmentLineRepository:   prlRepository,
+		AdministrativeSelectionRepository:  asRepo,
+		AdministrativeResultRepository:     arRepo,
 	}
 }
 
@@ -70,6 +79,9 @@ func JobPostingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IJobPostin
 	mpRequestRepository := repository.MPRequestRepositoryFactory(log)
 	applicantRepository := repository.ApplicantRepositoryFactory(log)
 	userProfileRepository := repository.UserProfileRepositoryFactory(log)
+	prlRepository := repository.ProjectRecruitmentLineRepositoryFactory(log)
+	asRepo := repository.AdministrativeSelectionRepositoryFactory(log)
+	arRepo := repository.AdministrativeResultRepositoryFactory(log)
 	return NewJobPostingUseCase(
 		log,
 		repo,
@@ -79,6 +91,9 @@ func JobPostingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IJobPostin
 		viper,
 		applicantRepository,
 		userProfileRepository,
+		prlRepository,
+		asRepo,
+		arRepo,
 	)
 }
 
@@ -148,6 +163,32 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + err.Error())
 		return nil, err
+	}
+
+	// get project recruitment lines
+	prls, err := uc.ProjectRecruitmentLineRepository.GetAllByKeys(map[string]interface{}{
+		"project_recruitment_header_id": prhID,
+	})
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	for _, prl := range prls {
+		for _, pic := range prl.ProjectPics {
+			_, err = uc.AdministrativeSelectionRepository.CreateAdministrativeSelection(&entity.AdministrativeSelection{
+				JobPostingID:    jobPosting.ID,
+				ProjectPicID:    pic.ID,
+				Status:          entity.ADMINISTRATIVE_SELECTION_STATUS_IN_PROGRESS,
+				DocumentDate:    jobPosting.DocumentDate,
+				DocumentNumber:  jobPosting.DocumentNumber,
+				TotalApplicants: 0,
+			})
+			if err != nil {
+				uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + err.Error())
+				return nil, err
+			}
+		}
 	}
 
 	return uc.DTO.ConvertEntityToResponse(jobPosting), nil

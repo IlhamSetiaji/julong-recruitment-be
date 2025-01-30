@@ -32,6 +32,9 @@ definitions:
           $ref: '#/definitions/entity.AdministrativeResult'
         type: array
       document_date:
+        description: |-
+          VerifiedAt     time.Time                     `json:"verified_at" gorm:"type:timestamp;null"`
+          VerifiedBy     uuid.UUID                     `json:"verified_by" gorm:"type:char(36);null"`
         type: string
       document_number:
         type: string
@@ -49,10 +52,6 @@ definitions:
         $ref: '#/definitions/entity.AdministrativeSelectionStatus'
       total_applicants:
         type: integer
-      verified_at:
-        type: string
-      verified_by:
-        type: string
     type: object
   entity.AdministrativeSelectionStatus:
     enum:
@@ -91,6 +90,10 @@ definitions:
         type: string
       status:
         $ref: '#/definitions/entity.ApplicantStatus'
+      template_question:
+        $ref: '#/definitions/entity.TemplateQuestion'
+      template_question_id:
+        type: string
       user_profile:
         $ref: '#/definitions/entity.UserProfile'
       user_profile_id:
@@ -511,6 +514,8 @@ definitions:
         type: string
       id:
         type: string
+      order:
+        type: integer
       project_pics:
         items:
           $ref: '#/definitions/entity.ProjectPic'
@@ -670,6 +675,10 @@ definitions:
     - TEMPLATE_ACTIVITY_STATUS_INACTIVE
   entity.TemplateQuestion:
     properties:
+      applicants:
+        items:
+          $ref: '#/definitions/entity.Applicant'
+        type: array
       description:
         type: string
       document_setup:
@@ -1045,6 +1054,9 @@ definitions:
               type: string
             id:
               type: string
+            order:
+              minimum: 1
+              type: integer
             project_pics:
               items:
                 properties:
@@ -1062,6 +1074,7 @@ definitions:
               type: string
           required:
           - end_date
+          - order
           - project_pics
           - start_date
           - template_activity_line_id
@@ -1518,6 +1531,9 @@ definitions:
       created_at:
         type: string
       document_date:
+        description: |-
+          VerifiedAt      time.Time                            `json:"verified_at"`
+          VerifiedBy      *uuid.UUID                           `json:"verified_by"`
         type: string
       document_number:
         type: string
@@ -1536,10 +1552,6 @@ definitions:
       total_applicants:
         type: integer
       updated_at:
-        type: string
-      verified_at:
-        type: string
-      verified_by:
         type: string
     type: object
   response.AnswerTypeResponse:
@@ -1939,6 +1951,8 @@ definitions:
         type: string
       id:
         type: string
+      order:
+        type: integer
       project_pics:
         items:
           $ref: '#/definitions/response.ProjectPicResponse'

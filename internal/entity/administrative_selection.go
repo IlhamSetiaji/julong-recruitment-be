@@ -23,14 +23,13 @@ type AdministrativeSelection struct {
 	Status       AdministrativeSelectionStatus `json:"status" gorm:"not null"`
 	// VerifiedAt     time.Time                     `json:"verified_at" gorm:"type:timestamp;null"`
 	// VerifiedBy     uuid.UUID                     `json:"verified_by" gorm:"type:char(36);null"`
-	DocumentDate   time.Time `json:"document_date" gorm:"type:date;not null"`
-	DocumentNumber string    `json:"document_number" gorm:"type:varchar(255);not null"`
+	DocumentDate    time.Time `json:"document_date" gorm:"type:date;not null"`
+	DocumentNumber  string    `json:"document_number" gorm:"type:varchar(255);not null"`
+	TotalApplicants int       `json:"total_applicants" gorm:"type:int;not null;default:0"`
 
 	JobPosting            *JobPosting            `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectPIC            *ProjectPic            `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	AdministrativeResults []AdministrativeResult `json:"administrative_results" gorm:"foreignKey:AdministrativeSelectionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-
-	TotalApplicants int `json:"total_applicants" gorm:"-"`
 }
 
 func (a *AdministrativeSelection) BeforeCreate(tx *gorm.DB) (err error) {

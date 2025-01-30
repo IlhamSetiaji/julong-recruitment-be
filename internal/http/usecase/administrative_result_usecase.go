@@ -1,6 +1,9 @@
 package usecase
 
 import (
+	"errors"
+	"time"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -24,6 +27,8 @@ type AdministrativeResultUseCase struct {
 	Viper                             *viper.Viper
 	UserProfileRepository             repository.IUserProfileRepository
 	AdministrativeSelectionRepository repository.IAdministrativeSelectionRepository
+	JobPostingRepository              repository.IJobPostingRepository
+	ApplicantRepository               repository.IApplicantRepository
 }
 
 func NewAdministrativeResultUseCase(
@@ -34,6 +39,8 @@ func NewAdministrativeResultUseCase(
 	viper *viper.Viper,
 	userProfileRepository repository.IUserProfileRepository,
 	asRepository repository.IAdministrativeSelectionRepository,
+	jpRepo repository.IJobPostingRepository,
+	applicantRepo repository.IApplicantRepository,
 ) IAdministrativeResultUseCase {
 	return &AdministrativeResultUseCase{
 		Log:                               log,
@@ -43,6 +50,8 @@ func NewAdministrativeResultUseCase(
 		Viper:                             viper,
 		UserProfileRepository:             userProfileRepository,
 		AdministrativeSelectionRepository: asRepository,
+		JobPostingRepository:              jpRepo,
+		ApplicantRepository:               applicantRepo,
 	}
 }
 
@@ -52,7 +61,9 @@ func AdministrativeResultUseCaseFactory(log *logrus.Logger, viper *viper.Viper) 
 	asDTO := dto.AdministrativeSelectionDTOFactory(log, viper)
 	userProfileRepository := repository.UserProfileRepositoryFactory(log)
 	asRepository := repository.AdministrativeSelectionRepositoryFactory(log)
-	return NewAdministrativeResultUseCase(log, repo, arDTO, asDTO, viper, userProfileRepository, asRepository)
+	jpRepo := repository.JobPostingRepositoryFactory(log)
+	applicantRepo := repository.ApplicantRepositoryFactory(log)
+	return NewAdministrativeResultUseCase(log, repo, arDTO, asDTO, viper, userProfileRepository, asRepository, jpRepo, applicantRepo)
 }
 
 func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *request.CreateOrUpdateAdministrativeResults) (*response.AdministrativeSelectionResponse, error) {
@@ -125,6 +136,42 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 				if err != nil {
 					uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
 					return nil, err
+				}
+
+				if entity.AdministrativeResultStatus(administrativeResult.Status) == entity.ADMINISTRATIVE_RESULT_STATUS_ACCEPTED {
+					jpExist, err := uc.JobPostingRepository.FindByID(as.JobPostingID)
+					if err != nil {
+						uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+						return nil, err
+					}
+
+					if jpExist == nil {
+						uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + "Job Posting not found")
+						return nil, errors.New("job posting not found")
+					}
+
+					applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+						"user_profile_id": parsedUserProfileID,
+						"job_posting_id":  as.JobPostingID,
+					})
+					if err != nil {
+						uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+						return nil, err
+					}
+					if applicant != nil {
+						_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+							UserProfileID:      parsedUserProfileID,
+							JobPostingID:       as.JobPostingID,
+							Status:             entity.APPLICANT_STATUS_APPLIED,
+							AppliedDate:        time.Now(),
+							Order:              applicant.Order + 1,
+							TemplateQuestionID: applicant.TemplateQuestionID,
+						})
+						if err != nil {
+							uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+							return nil, err
+						}
+					}
 				}
 			}
 		} else {

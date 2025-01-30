@@ -11,6 +11,7 @@ import (
 
 type IApplicantRepository interface {
 	CreateApplicant(applicant *entity.Applicant) (*entity.Applicant, error)
+	UpdateApplicant(applicant *entity.Applicant) (*entity.Applicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.Applicant, error)
 	GetAllByKeys(keys map[string]interface{}) ([]entity.Applicant, error)
 }
@@ -74,9 +75,36 @@ func (r *ApplicantRepository) FindByKeys(keys map[string]interface{}) (*entity.A
 
 func (r *ApplicantRepository) GetAllByKeys(keys map[string]interface{}) ([]entity.Applicant, error) {
 	var applicants []entity.Applicant
-	if err := r.DB.Where(keys).Preload("UserProfile").Preload("JobPosting").Find(&applicants).Error; err != nil {
+	if err := r.DB.Where(keys).Preload("UserProfile").Preload("JobPosting").Preload("TemplateQuestion").Find(&applicants).Error; err != nil {
 		return nil, err
 	}
 
 	return applicants, nil
+}
+
+func (r *ApplicantRepository) UpdateApplicant(applicant *entity.Applicant) (*entity.Applicant, error) {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[ApplicantRepository.UpdateApplicant] " + tx.Error.Error())
+		return nil, tx.Error
+	}
+
+	if err := tx.Model(&entity.Applicant{}).Where("id = ?", applicant.ID).Updates(applicant).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[ApplicantRepository.UpdateApplicant] " + err.Error())
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[ApplicantRepository.UpdateApplicant] " + err.Error())
+		return nil, err
+	}
+
+	if err := r.DB.Preload("UserProfile").Preload("JobPosting").First(applicant, applicant.ID).Error; err != nil {
+		r.Log.Error("[ApplicantRepository.UpdateApplicant] " + err.Error())
+		return nil, err
+	}
+
+	return applicant, nil
 }

@@ -12,25 +12,34 @@ type IApplicantDTO interface {
 }
 
 type ApplicantDTO struct {
-	Log            *logrus.Logger
-	UserProfileDTO IUserProfileDTO
-	JobPostingDTO  IJobPostingDTO
-	Viper          *viper.Viper
+	Log                 *logrus.Logger
+	UserProfileDTO      IUserProfileDTO
+	JobPostingDTO       IJobPostingDTO
+	Viper               *viper.Viper
+	TemplateQuestionDTO ITemplateQuestionDTO
 }
 
-func NewApplicantDTO(log *logrus.Logger, userProfileDTO IUserProfileDTO, jobPostingDTO IJobPostingDTO, viper *viper.Viper) IApplicantDTO {
+func NewApplicantDTO(
+	log *logrus.Logger,
+	userProfileDTO IUserProfileDTO,
+	jobPostingDTO IJobPostingDTO,
+	viper *viper.Viper,
+	tqDTO ITemplateQuestionDTO,
+) IApplicantDTO {
 	return &ApplicantDTO{
-		Log:            log,
-		UserProfileDTO: userProfileDTO,
-		JobPostingDTO:  jobPostingDTO,
-		Viper:          viper,
+		Log:                 log,
+		UserProfileDTO:      userProfileDTO,
+		JobPostingDTO:       jobPostingDTO,
+		Viper:               viper,
+		TemplateQuestionDTO: tqDTO,
 	}
 }
 
 func ApplicantDTOFactory(log *logrus.Logger, viper *viper.Viper) IApplicantDTO {
 	userProfileDTO := UserProfileDTOFactory(log, viper)
 	jobPostingDTO := JobPostingDTOFactory(log, viper)
-	return NewApplicantDTO(log, userProfileDTO, jobPostingDTO, viper)
+	tqDTO := TemplateQuestionDTOFactory(log)
+	return NewApplicantDTO(log, userProfileDTO, jobPostingDTO, viper, tqDTO)
 }
 
 func (dto *ApplicantDTO) ConvertEntityToResponse(ent *entity.Applicant) (*response.ApplicantResponse, error) {
@@ -47,10 +56,23 @@ func (dto *ApplicantDTO) ConvertEntityToResponse(ent *entity.Applicant) (*respon
 		UserProfileID: ent.UserProfileID,
 		JobPostingID:  ent.JobPostingID,
 		AppliedDate:   ent.AppliedDate,
+		Order:         ent.Order,
 		Status:        ent.Status,
 		CreatedAt:     ent.CreatedAt,
 		UpdatedAt:     ent.UpdatedAt,
-		UserProfile:   userProfile,
-		JobPosting:    jobPosting,
+		TemplateQuestion: func() *response.TemplateQuestionResponse {
+			if ent.TemplateQuestion == nil {
+				return nil
+			}
+
+			tq := dto.TemplateQuestionDTO.ConvertEntityToResponse(ent.TemplateQuestion)
+			if err != nil {
+				dto.Log.Error("[ApplicantDTO.ConvertEntityToResponse] " + err.Error())
+				return nil
+			}
+			return tq
+		}(),
+		UserProfile: userProfile,
+		JobPosting:  jobPosting,
 	}, nil
 }

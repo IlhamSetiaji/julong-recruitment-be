@@ -1249,6 +1249,7 @@ definitions:
       status:
         type: string
     required:
+    - form_type
     - name
     - status
     type: object
@@ -1448,6 +1449,7 @@ definitions:
       status:
         type: string
     required:
+    - form_type
     - id
     - name
     - status
@@ -1581,8 +1583,12 @@ definitions:
         $ref: '#/definitions/response.JobPostingResponse'
       job_posting_id:
         type: string
+      order:
+        type: integer
       status:
         $ref: '#/definitions/entity.ApplicantStatus'
+      template_question:
+        $ref: '#/definitions/response.TemplateQuestionResponse'
       updated_at:
         type: string
       user_profile:
@@ -3169,6 +3175,10 @@ paths:
         in: path
         name: job_posting_id
         required: true
+        type: string
+      - description: Order
+        in: query
+        name: order
         type: string
       produces:
       - application/json

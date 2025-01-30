@@ -244,3 +244,26 @@ func (uc *ProjectRecruitmentLineUseCase) GetAllByKeys(keys map[string]interface{
 
 	return responses, nil
 }
+
+func (uc *ProjectRecruitmentLineUseCase) generateOrder(prhID uuid.UUID) (int, error) {
+	data, err := uc.Repository.GetAllByKeys(map[string]interface{}{
+		"project_recruitment_header_id": prhID,
+	})
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.generateOrder] error when getting project recruitment lines: %s", err.Error())
+		return 0, err
+	}
+
+	if len(data) == 0 {
+		return 1, nil
+	}
+
+	maxOrder := 0
+	for _, d := range data {
+		if d.Order > maxOrder {
+			maxOrder = d.Order
+		}
+	}
+
+	return maxOrder + 1, nil
+}

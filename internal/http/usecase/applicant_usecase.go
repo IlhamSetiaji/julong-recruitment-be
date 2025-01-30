@@ -15,7 +15,7 @@ import (
 
 type IApplicantUseCase interface {
 	ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error)
-	GetApplicantsByJobPostingID(jobPostingID uuid.UUID) (*[]response.ApplicantResponse, error)
+	GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order int) (*[]response.ApplicantResponse, error)
 }
 
 type ApplicantUseCase struct {
@@ -173,9 +173,10 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 	return applicantResponse, nil
 }
 
-func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID) (*[]response.ApplicantResponse, error) {
+func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order int) (*[]response.ApplicantResponse, error) {
 	applicants, err := uc.Repository.GetAllByKeys(map[string]interface{}{
 		"job_posting_id": jobPostingID,
+		"order":          order,
 	})
 	if err != nil {
 		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())

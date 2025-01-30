@@ -1396,6 +1396,12 @@ const docTemplate = `{
                         "name": "job_posting_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order",
+                        "name": "order",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -5404,6 +5410,7 @@ const docTemplate = `{
         "request.CreateTemplateQuestion": {
             "type": "object",
             "required": [
+                "form_type",
                 "name",
                 "status"
             ],
@@ -5681,6 +5688,7 @@ const docTemplate = `{
         "request.UpdateTemplateQuestion": {
             "type": "object",
             "required": [
+                "form_type",
                 "id",
                 "name",
                 "status"
@@ -5893,8 +5901,14 @@ const docTemplate = `{
                 "job_posting_id": {
                     "type": "string"
                 },
+                "order": {
+                    "type": "integer"
+                },
                 "status": {
                     "$ref": "#/definitions/entity.ApplicantStatus"
+                },
+                "template_question": {
+                    "$ref": "#/definitions/response.TemplateQuestionResponse"
                 },
                 "updated_at": {
                     "type": "string"

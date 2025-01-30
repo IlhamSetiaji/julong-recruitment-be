@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
@@ -133,6 +134,7 @@ func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param job_posting_id path string true "Job Posting ID"
+// @Param order query string false "Order"
 // @Success 200 {array} response.ApplicantResponse
 // @Security BearerAuth
 // @Router /applicants/job-posting/{job_posting_id} [get]
@@ -144,7 +146,19 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 		return
 	}
 
-	applicants, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID)
+	orderStr := ctx.Query("order")
+	if orderStr == "" {
+		orderStr = "1"
+	}
+
+	order, err := strconv.Atoi(orderStr)
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when converting order to int: %v", err)
+		utils.BadRequestResponse(ctx, "order is not a valid integer", err)
+		return
+	}
+
+	applicants, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID, order)
 	if err != nil {
 		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when getting applicants: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get applicants", err.Error())

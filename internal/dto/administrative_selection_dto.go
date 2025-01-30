@@ -50,7 +50,7 @@ func (dto *AdministrativeSelectionDTO) ConvertEntityToResponse(ent *entity.Admin
 		// VerifiedBy:            &ent.VerifiedBy,
 		DocumentDate:          ent.DocumentDate,
 		DocumentNumber:        ent.DocumentNumber,
-		TotalApplicants:       len(ent.AdministrativeResults),
+		TotalApplicants:       ent.TotalApplicants,
 		CreatedAt:             ent.CreatedAt,
 		UpdatedAt:             ent.UpdatedAt,
 		JobPosting:            nil,

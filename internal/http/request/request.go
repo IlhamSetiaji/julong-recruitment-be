@@ -249,3 +249,18 @@ func AdministrativeSelectionStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func AdministrativeResultStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.AdministrativeResultStatus(status) {
+	case entity.ADMINISTRATIVE_RESULT_STATUS_ACCEPTED,
+		entity.ADMINISTRATIVE_RESULT_STATUS_REJECTED,
+		entity.ADMINISTRATIVE_RESULT_STATUS_SHORTLISTED:
+		return true
+	default:
+		return false
+	}
+}

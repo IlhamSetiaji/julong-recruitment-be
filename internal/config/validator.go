@@ -23,5 +23,6 @@ func NewValidator(viper *viper.Viper) *validator.Validate {
 	validate.RegisterValidation("test_schedule_header_status_validation", request.TestScheduleHeaderStatusValidation)
 	validate.RegisterValidation("test_applicant_status_validation", request.TestApplicantStatusValidation)
 	validate.RegisterValidation("administrative_selection_status_validation", request.AdministrativeSelectionStatusValidation)
+	validate.RegisterValidation("administrative_result_status_validation", request.AdministrativeResultStatusValidation)
 	return validate
 }

@@ -41,6 +41,7 @@ func (dto *ProjectRecruitmentLineDTO) ConvertEntityToResponse(ent *entity.Projec
 		TemplateActivityLineID:     ent.TemplateActivityLineID,
 		StartDate:                  ent.StartDate,
 		EndDate:                    ent.EndDate,
+		Order:                      ent.Order,
 		CreatedAt:                  ent.CreatedAt,
 		UpdatedAt:                  ent.UpdatedAt,
 		ProjectPics: func() []response.ProjectPicResponse {

@@ -97,6 +97,7 @@ func (uc *ProjectRecruitmentLineUseCase) CreateOrUpdateProjectRecruitmentLines(r
 					ProjectRecruitmentHeaderID: prh.ID,
 					StartDate:                  parsedStartDate,
 					EndDate:                    parsedEndDate,
+					Order:                      line.Order,
 				})
 				if err != nil {
 					uc.Log.Errorf("[ProjectRecruitmentLineUseCase.CreateOrUpdateProjectRecruitmentLines] error when creating project recruitment line: %s", err.Error())
@@ -127,6 +128,7 @@ func (uc *ProjectRecruitmentLineUseCase) CreateOrUpdateProjectRecruitmentLines(r
 					ProjectRecruitmentHeaderID: prh.ID,
 					StartDate:                  parsedStartDate,
 					EndDate:                    parsedEndDate,
+					Order:                      line.Order,
 				})
 				if err != nil {
 					uc.Log.Errorf("[ProjectRecruitmentLineUseCase.CreateOrUpdateProjectRecruitmentLines] error when updating project recruitment line: %s", err.Error())
@@ -175,6 +177,7 @@ func (uc *ProjectRecruitmentLineUseCase) CreateOrUpdateProjectRecruitmentLines(r
 				ProjectRecruitmentHeaderID: prh.ID,
 				StartDate:                  parsedStartDate,
 				EndDate:                    parsedEndDate,
+				Order:                      line.Order,
 			})
 			if err != nil {
 				uc.Log.Errorf("[ProjectRecruitmentLineUseCase.CreateOrUpdateProjectRecruitmentLines] error when creating project recruitment line: %s", err.Error())

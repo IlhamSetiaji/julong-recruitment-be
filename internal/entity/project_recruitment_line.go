@@ -14,6 +14,7 @@ type ProjectRecruitmentLine struct {
 	TemplateActivityLineID     uuid.UUID `json:"template_activity_line_id" gorm:"type:char(36);not null"`
 	StartDate                  time.Time `json:"start_date" gorm:"type:date;not null"`
 	EndDate                    time.Time `json:"end_date" gorm:"type:date;not null"`
+	Order                      int       `json:"order" gorm:"default:0"`
 
 	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	TemplateActivityLine     *TemplateActivityLine     `json:"template_activity_line" gorm:"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

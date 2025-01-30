@@ -12,6 +12,7 @@ type ProjectRecruitmentLineResponse struct {
 	TemplateActivityLineID     uuid.UUID `json:"template_activity_id"`
 	StartDate                  time.Time `json:"start_date"`
 	EndDate                    time.Time `json:"end_date"`
+	Order                      int       `json:"order"`
 	CreatedAt                  time.Time `json:"created_at"`
 	UpdatedAt                  time.Time `json:"updated_at"`
 

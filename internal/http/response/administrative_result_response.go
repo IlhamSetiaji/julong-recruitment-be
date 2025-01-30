@@ -8,10 +8,10 @@ import (
 type AdministrativeResultResponse struct {
 	ID                        uuid.UUID                         `json:"id"`
 	AdministrativeSelectionID uuid.UUID                         `json:"administrative_selection_id"`
-	ApplicantID               uuid.UUID                         `json:"applicant_id"`
+	UserProfileID             uuid.UUID                         `json:"user_profile_id"`
 	Status                    entity.AdministrativeResultStatus `json:"status"`
 	CreatedAt                 string                            `json:"created_at"`
 	UpdatedAt                 string                            `json:"updated_at"`
 
-	Applicant *ApplicantResponse `json:"applicant"`
+	UserProfile *UserProfileResponse `json:"user_profile"`
 }

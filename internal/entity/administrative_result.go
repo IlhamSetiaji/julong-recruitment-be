@@ -17,11 +17,11 @@ type AdministrativeResult struct {
 	gorm.Model                `json:"-"`
 	ID                        uuid.UUID                  `json:"id" gorm:"type:char(36);primaryKey;"`
 	AdministrativeSelectionID uuid.UUID                  `json:"administrative_selection_id" gorm:"type:char(36);not null"`
-	ApplicantID               uuid.UUID                  `json:"applicant_id" gorm:"type:char(36);not null"`
+	UserProfileID             uuid.UUID                  `json:"user_profile_id" gorm:"type:char(36);not null"`
 	Status                    AdministrativeResultStatus `json:"status" gorm:"not null"`
 
 	AdministrativeSelection *AdministrativeSelection `json:"administrative_selection" gorm:"foreignKey:AdministrativeSelectionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Applicant               *Applicant               `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserProfile             *UserProfile             `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (a *AdministrativeResult) BeforeCreate(tx *gorm.DB) (err error) {

@@ -44,6 +44,7 @@ type TemplateQuestion struct {
 	Questions             []Question             `json:"questions" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DocumentSetup         *DocumentSetup         `json:"document_setup" gorm:"foreignKey:DocumentSetupID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DocumentVerifications []DocumentVerification `json:"document_verifications" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Applicants            []Applicant            `json:"applicants" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (tq *TemplateQuestion) BeforeCreate(tx *gorm.DB) (err error) {

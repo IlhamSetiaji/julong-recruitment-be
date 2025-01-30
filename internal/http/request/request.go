@@ -258,6 +258,7 @@ func AdministrativeResultStatusValidation(fl validator.FieldLevel) bool {
 	switch entity.AdministrativeResultStatus(status) {
 	case entity.ADMINISTRATIVE_RESULT_STATUS_ACCEPTED,
 		entity.ADMINISTRATIVE_RESULT_STATUS_REJECTED,
+		entity.ADMINISTRATIVE_RESULT_STATUS_PENDING,
 		entity.ADMINISTRATIVE_RESULT_STATUS_SHORTLISTED:
 		return true
 	default:

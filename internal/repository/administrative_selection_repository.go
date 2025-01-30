@@ -18,6 +18,7 @@ type IAdministrativeSelectionRepository interface {
 	DeleteAdministrativeSelection(id uuid.UUID) error
 	VerifyAdministrativeSelection(id uuid.UUID, verifiedBy uuid.UUID) error
 	GetHighestDocumentNumberByDate(date string) (int, error)
+	FindAllByJobPostingID(jobPostingID uuid.UUID) (*[]entity.AdministrativeSelection, error)
 }
 
 type AdministrativeSelectionRepository struct {
@@ -209,4 +210,13 @@ func (r *AdministrativeSelectionRepository) GetHighestDocumentNumberByDate(date 
 		return 0, err
 	}
 	return maxNumber, nil
+}
+
+func (r *AdministrativeSelectionRepository) FindAllByJobPostingID(jobPostingID uuid.UUID) (*[]entity.AdministrativeSelection, error) {
+	var entities []entity.AdministrativeSelection
+	if err := r.DB.Preload("JobPosting").Preload("ProjectPIC").Preload("AdministrativeResults").Where("job_posting_id = ?", jobPostingID).Order("total_applicants desc").Find(&entities).Error; err != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.FindAllByJobPostingID] " + err.Error())
+		return nil, err
+	}
+	return &entities, nil
 }

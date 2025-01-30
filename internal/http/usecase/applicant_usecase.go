@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -18,12 +19,14 @@ type IApplicantUseCase interface {
 }
 
 type ApplicantUseCase struct {
-	Log                   *logrus.Logger
-	Repository            repository.IApplicantRepository
-	DTO                   dto.IApplicantDTO
-	Viper                 *viper.Viper
-	JobPostingRepository  repository.IJobPostingRepository
-	UserProfileRepository repository.IUserProfileRepository
+	Log                               *logrus.Logger
+	Repository                        repository.IApplicantRepository
+	DTO                               dto.IApplicantDTO
+	Viper                             *viper.Viper
+	JobPostingRepository              repository.IJobPostingRepository
+	UserProfileRepository             repository.IUserProfileRepository
+	AdministrativeSelectionRepository repository.IAdministrativeSelectionRepository
+	AdministrativeResultRepository    repository.IAdministrativeResultRepository
 }
 
 func NewApplicantUseCase(
@@ -33,14 +36,18 @@ func NewApplicantUseCase(
 	viper *viper.Viper,
 	jpRepo repository.IJobPostingRepository,
 	upRepo repository.IUserProfileRepository,
+	asRepo repository.IAdministrativeSelectionRepository,
+	arRepo repository.IAdministrativeResultRepository,
 ) IApplicantUseCase {
 	return &ApplicantUseCase{
-		Log:                   log,
-		Repository:            repo,
-		DTO:                   applicantDTO,
-		Viper:                 viper,
-		JobPostingRepository:  jpRepo,
-		UserProfileRepository: upRepo,
+		Log:                               log,
+		Repository:                        repo,
+		DTO:                               applicantDTO,
+		Viper:                             viper,
+		JobPostingRepository:              jpRepo,
+		UserProfileRepository:             upRepo,
+		AdministrativeSelectionRepository: asRepo,
+		AdministrativeResultRepository:    arRepo,
 	}
 }
 
@@ -49,7 +56,9 @@ func ApplicantUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IApplicantU
 	applicantDTO := dto.ApplicantDTOFactory(log, viper)
 	jpRepo := repository.JobPostingRepositoryFactory(log)
 	upRepo := repository.UserProfileRepositoryFactory(log)
-	return NewApplicantUseCase(log, repo, applicantDTO, viper, jpRepo, upRepo)
+	asRepo := repository.AdministrativeSelectionRepositoryFactory(log)
+	arRepo := repository.AdministrativeResultRepositoryFactory(log)
+	return NewApplicantUseCase(log, repo, applicantDTO, viper, jpRepo, upRepo, asRepo, arRepo)
 }
 
 func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error) {
@@ -90,11 +99,65 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 		return nil, err
 	}
 
+	// Retrieve administrative selections by job posting ID
+	adminSelections, err := uc.AdministrativeSelectionRepository.FindAllByJobPostingID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	// Find the project PIC with the least number of applicants
+	var selectedAdminSelection *entity.AdministrativeSelection
+	for i := range *adminSelections {
+		if selectedAdminSelection == nil || (*adminSelections)[i].TotalApplicants < selectedAdminSelection.TotalApplicants {
+			selectedAdminSelection = &(*adminSelections)[i]
+		}
+	}
+
+	if selectedAdminSelection == nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + "No administrative selection found")
+		return nil, errors.New("no administrative selection found")
+	}
+
+	// Increment the total_applicants for the selected project PIC
+	selectedAdminSelection.TotalApplicants++
+
+	// Save the updated administrative selection
+	_, err = uc.AdministrativeSelectionRepository.UpdateAdministrativeSelection(selectedAdminSelection)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	// Create administrative result for the applicant
+	_, err = uc.AdministrativeResultRepository.CreateAdministrativeResult(&entity.AdministrativeResult{
+		AdministrativeSelectionID: selectedAdminSelection.ID,
+		UserProfileID:             applicantID,
+		Status:                    entity.ADMINISTRATIVE_RESULT_STATUS_PENDING,
+	})
+
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	// Filter job posting -> project recruitment header -> project recruitment lines that have order 1
+	var projectRecruitmentLine *entity.ProjectRecruitmentLine
+	for i := range jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines {
+		if jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == 1 {
+			projectRecruitmentLine = &jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i]
+			break
+		}
+	}
+
+	// Create applicant
 	applicant, err := uc.Repository.CreateApplicant(&entity.Applicant{
-		UserProfileID: applicantID,
-		JobPostingID:  jobPostingID,
-		Status:        entity.APPLICANT_STATUS_APPLIED,
-		AppliedDate:   time.Now(),
+		UserProfileID:      applicantID,
+		JobPostingID:       jobPostingID,
+		Status:             entity.APPLICANT_STATUS_APPLIED,
+		AppliedDate:        time.Now(),
+		Order:              1,
+		TemplateQuestionID: projectRecruitmentLine.TemplateActivityLine.QuestionTemplateID,
 	})
 	if err != nil {
 		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())

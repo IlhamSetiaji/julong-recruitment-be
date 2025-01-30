@@ -11,6 +11,7 @@ const (
 	ADMINISTRATIVE_RESULT_STATUS_ACCEPTED    AdministrativeResultStatus = "ACCEPTED"
 	ADMINISTRATIVE_RESULT_STATUS_REJECTED    AdministrativeResultStatus = "REJECTED"
 	ADMINISTRATIVE_RESULT_STATUS_SHORTLISTED AdministrativeResultStatus = "SHORTLISTED"
+	ADMINISTRATIVE_RESULT_STATUS_PENDING     AdministrativeResultStatus = "PENDING"
 )
 
 type AdministrativeResult struct {

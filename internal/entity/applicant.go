@@ -22,6 +22,7 @@ type Applicant struct {
 	UserProfileID      uuid.UUID       `json:"user_profile_id" gorm:"type:char(36);not null"`
 	JobPostingID       uuid.UUID       `json:"job_posting_id" gorm:"type:char(36);not null"`
 	TemplateQuestionID uuid.UUID       `json:"template_question_id" gorm:"type:char(36);not null"`
+	Order              int             `json:"order" gorm:"type:int;not null;default:1"`
 	AppliedDate        time.Time       `json:"applied_date" gorm:"type:date;not null"`
 	Status             ApplicantStatus `json:"status" gorm:"not null"`
 

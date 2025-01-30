@@ -3639,12 +3639,14 @@ const docTemplate = `{
             "enum": [
                 "ACCEPTED",
                 "REJECTED",
-                "SHORTLISTED"
+                "SHORTLISTED",
+                "PENDING"
             ],
             "x-enum-varnames": [
                 "ADMINISTRATIVE_RESULT_STATUS_ACCEPTED",
                 "ADMINISTRATIVE_RESULT_STATUS_REJECTED",
-                "ADMINISTRATIVE_RESULT_STATUS_SHORTLISTED"
+                "ADMINISTRATIVE_RESULT_STATUS_SHORTLISTED",
+                "ADMINISTRATIVE_RESULT_STATUS_PENDING"
             ]
         },
         "entity.AdministrativeSelection": {
@@ -3736,6 +3738,9 @@ const docTemplate = `{
                 },
                 "job_posting_id": {
                     "type": "string"
+                },
+                "order": {
+                    "type": "integer"
                 },
                 "status": {
                     "$ref": "#/definitions/entity.ApplicantStatus"

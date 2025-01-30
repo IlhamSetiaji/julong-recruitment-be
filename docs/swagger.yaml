@@ -20,11 +20,13 @@ definitions:
     - ACCEPTED
     - REJECTED
     - SHORTLISTED
+    - PENDING
     type: string
     x-enum-varnames:
     - ADMINISTRATIVE_RESULT_STATUS_ACCEPTED
     - ADMINISTRATIVE_RESULT_STATUS_REJECTED
     - ADMINISTRATIVE_RESULT_STATUS_SHORTLISTED
+    - ADMINISTRATIVE_RESULT_STATUS_PENDING
   entity.AdministrativeSelection:
     properties:
       administrative_results:
@@ -88,6 +90,8 @@ definitions:
         $ref: '#/definitions/entity.JobPosting'
       job_posting_id:
         type: string
+      order:
+        type: integer
       status:
         $ref: '#/definitions/entity.ApplicantStatus'
       template_question:

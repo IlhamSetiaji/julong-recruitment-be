@@ -70,7 +70,7 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 
 	if jpExist == nil {
 		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + "Job Posting not found")
-		return nil, err
+		return nil, errors.New("job posting not found")
 	}
 
 	upExist, err := uc.UserProfileRepository.FindByID(applicantID)
@@ -81,7 +81,7 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 
 	if upExist == nil {
 		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + "User Profile not found")
-		return nil, err
+		return nil, errors.New("user profile not found")
 	}
 
 	applicantExist, err := uc.Repository.FindByKeys(map[string]interface{}{
@@ -96,7 +96,7 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 
 	if applicantExist != nil {
 		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + "Applicant already applied")
-		return nil, err
+		return nil, errors.New("applicant already applied")
 	}
 
 	// Retrieve administrative selections by job posting ID

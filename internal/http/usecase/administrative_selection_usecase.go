@@ -20,6 +20,7 @@ type IAdministrativeSelectionUsecase interface {
 	FindByID(id string) (*response.AdministrativeSelectionResponse, error)
 	UpdateAdministrativeSelection(req *request.UpdateAdministrativeSelectionRequest) (*response.AdministrativeSelectionResponse, error)
 	DeleteAdministrativeSelection(id string) error
+	VerifyAdministrativeSelection(id, verifiedBy string) error
 }
 
 type AdministrativeSelectionUsecase struct {
@@ -225,4 +226,30 @@ func (uc *AdministrativeSelectionUsecase) DeleteAdministrativeSelection(id strin
 	}
 
 	return uc.Repository.DeleteAdministrativeSelection(parsedID)
+}
+
+func (uc *AdministrativeSelectionUsecase) VerifyAdministrativeSelection(id, verifiedBy string) error {
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		uc.Log.Error("[AdministrativeSelectionUsecase.VerifyAdministrativeSelection] " + err.Error())
+		return err
+	}
+
+	parsedVerifiedBy, err := uuid.Parse(verifiedBy)
+	if err != nil {
+		uc.Log.Error("[AdministrativeSelectionUsecase.VerifyAdministrativeSelection] " + err.Error())
+		return err
+	}
+
+	entity, err := uc.Repository.FindByID(parsedID)
+	if err != nil {
+		uc.Log.Error("[AdministrativeSelectionUsecase.VerifyAdministrativeSelection] " + err.Error())
+		return err
+	}
+
+	if entity == nil {
+		return errors.New("Administrative Selection not found")
+	}
+
+	return uc.Repository.VerifyAdministrativeSelection(parsedID, parsedVerifiedBy)
 }

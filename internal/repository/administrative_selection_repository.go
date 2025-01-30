@@ -16,6 +16,7 @@ type IAdministrativeSelectionRepository interface {
 	FindByID(id uuid.UUID) (*entity.AdministrativeSelection, error)
 	UpdateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error)
 	DeleteAdministrativeSelection(id uuid.UUID) error
+	VerifyAdministrativeSelection(id uuid.UUID, verifiedBy uuid.UUID) error
 }
 
 type AdministrativeSelectionRepository struct {
@@ -157,6 +158,37 @@ func (r *AdministrativeSelectionRepository) DeleteAdministrativeSelection(id uui
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
 		r.Log.Error("[AdministrativeSelectionRepository.DeleteAdministrativeSelection] " + err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (r *AdministrativeSelectionRepository) VerifyAdministrativeSelection(id uuid.UUID, verifiedBy uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.VerifyAdministrativeSelection] " + tx.Error.Error())
+		return tx.Error
+	}
+
+	var ent entity.AdministrativeSelection
+	if err := tx.First(&ent, id).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.VerifyAdministrativeSelection] " + err.Error())
+		return err
+	}
+
+	ent.VerifiedBy = verifiedBy
+
+	if err := tx.Model(&entity.AdministrativeSelection{}).Where("id = ?", id).Updates(ent).Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.VerifyAdministrativeSelection] " + err.Error())
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		r.Log.Error("[AdministrativeSelectionRepository.VerifyAdministrativeSelection] " + err.Error())
 		return err
 	}
 

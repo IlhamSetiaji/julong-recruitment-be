@@ -220,6 +220,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			administrativeSelectionRoute := apiRoute.Group("/administrative-selections")
 			{
 				administrativeSelectionRoute.GET("", c.AdministrativeSelectionHandler.FindAllPaginated)
+				administrativeSelectionRoute.GET("/verify/:id", c.AdministrativeSelectionHandler.VerifyAdministrativeSelection)
 				administrativeSelectionRoute.GET("/:id", c.AdministrativeSelectionHandler.FindByID)
 				administrativeSelectionRoute.POST("", c.AdministrativeSelectionHandler.CreateAdministrativeSelection)
 				administrativeSelectionRoute.PUT("/update", c.AdministrativeSelectionHandler.UpdateAdministrativeSelection)

@@ -286,6 +286,82 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/administrative-results": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update administrative results",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Result"
+                ],
+                "summary": "Create or update administrative results",
+                "parameters": [
+                    {
+                        "description": "Create or update administrative results",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrUpdateAdministrativeResults"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.AdministrativeSelectionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/administrative-results/administrative-selection/{administrativeSelectionID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all administrative results by administrative selection id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Result"
+                ],
+                "summary": "Find all administrative results by administrative selection id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Administrative Selection ID",
+                        "name": "administrativeSelectionID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.AdministrativeResultResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/no-auth/job-postings": {
             "get": {
                 "security": [
@@ -3491,17 +3567,17 @@ const docTemplate = `{
                 "administrative_selection_id": {
                     "type": "string"
                 },
-                "applicant": {
-                    "$ref": "#/definitions/entity.Applicant"
-                },
-                "applicant_id": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "string"
                 },
                 "status": {
                     "$ref": "#/definitions/entity.AdministrativeResultStatus"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/entity.UserProfile"
+                },
+                "user_profile_id": {
+                    "type": "string"
                 }
             }
         },
@@ -4703,6 +4779,12 @@ const docTemplate = `{
         "entity.UserProfile": {
             "type": "object",
             "properties": {
+                "administrative_results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.AdministrativeResult"
+                    }
+                },
                 "age": {
                     "type": "integer"
                 },
@@ -4930,6 +5012,45 @@ const docTemplate = `{
                 },
                 "subject": {
                     "type": "string"
+                }
+            }
+        },
+        "request.CreateOrUpdateAdministrativeResults": {
+            "type": "object",
+            "required": [
+                "administrative_results",
+                "administrative_selection_id"
+            ],
+            "properties": {
+                "administrative_results": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "status",
+                            "user_profile_id"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "user_profile_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "administrative_selection_id": {
+                    "type": "string"
+                },
+                "deleted_administrative_result_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -5599,12 +5720,6 @@ const docTemplate = `{
                 "administrative_selection_id": {
                     "type": "string"
                 },
-                "applicant": {
-                    "$ref": "#/definitions/response.ApplicantResponse"
-                },
-                "applicant_id": {
-                    "type": "string"
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -5615,6 +5730,12 @@ const docTemplate = `{
                     "$ref": "#/definitions/entity.AdministrativeResultStatus"
                 },
                 "updated_at": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/response.UserProfileResponse"
+                },
+                "user_profile_id": {
                     "type": "string"
                 }
             }

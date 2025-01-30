@@ -37,6 +37,7 @@ type RouteConfig struct {
 	TestApplicantHandler            handler.ITestApplicantHandler
 	QuestionResponseHandler         handler.IQuestionResponseHandler
 	AdministrativeSelectionHandler  handler.IAdministrativeSelectionHandler
+	AdministrativeResultHandler     handler.IAdministrativeResultHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -226,6 +227,12 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				administrativeSelectionRoute.PUT("/update", c.AdministrativeSelectionHandler.UpdateAdministrativeSelection)
 				administrativeSelectionRoute.DELETE("/:id", c.AdministrativeSelectionHandler.DeleteAdministrativeSelection)
 			}
+			// administrative results
+			administrativeResultRoute := apiRoute.Group("/administrative-results")
+			{
+				administrativeResultRoute.GET("/administrative-selection/:id", c.AdministrativeResultHandler.FindAllByAdministrativeSelectionID)
+				administrativeResultRoute.POST("", c.AdministrativeResultHandler.CreateOrUpdateAdministrativeResults)
+			}
 		}
 	}
 }
@@ -253,6 +260,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	testApplicantHandler := handler.TestApplicantHandlerFactory(log, viper)
 	questionResponseHandler := handler.QuestionResponseHandlerFactory(log, viper)
 	administrativeSelectionHandler := handler.AdministrativeSelectionHandlerFactory(log, viper)
+	administrativeResultHandler := handler.AdministrativeResultHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -280,5 +288,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		TestApplicantHandler:            testApplicantHandler,
 		QuestionResponseHandler:         questionResponseHandler,
 		AdministrativeSelectionHandler:  administrativeSelectionHandler,
+		AdministrativeResultHandler:     administrativeResultHandler,
 	}
 }

@@ -6,14 +6,14 @@ definitions:
         $ref: '#/definitions/entity.AdministrativeSelection'
       administrative_selection_id:
         type: string
-      applicant:
-        $ref: '#/definitions/entity.Applicant'
-      applicant_id:
-        type: string
       id:
         type: string
       status:
         $ref: '#/definitions/entity.AdministrativeResultStatus'
+      user_profile:
+        $ref: '#/definitions/entity.UserProfile'
+      user_profile_id:
+        type: string
     type: object
   entity.AdministrativeResultStatus:
     enum:
@@ -844,6 +844,10 @@ definitions:
     - FEMALE
   entity.UserProfile:
     properties:
+      administrative_results:
+        items:
+          $ref: '#/definitions/entity.AdministrativeResult'
+        type: array
       age:
         type: integer
       applicants:
@@ -999,6 +1003,32 @@ definitions:
     - form_type
     - name
     - subject
+    type: object
+  request.CreateOrUpdateAdministrativeResults:
+    properties:
+      administrative_results:
+        items:
+          properties:
+            id:
+              type: string
+            status:
+              type: string
+            user_profile_id:
+              type: string
+          required:
+          - status
+          - user_profile_id
+          type: object
+        type: array
+      administrative_selection_id:
+        type: string
+      deleted_administrative_result_ids:
+        items:
+          type: string
+        type: array
+    required:
+    - administrative_results
+    - administrative_selection_id
     type: object
   request.CreateOrUpdateProjectRecruitmentLinesRequest:
     properties:
@@ -1466,10 +1496,6 @@ definitions:
     properties:
       administrative_selection_id:
         type: string
-      applicant:
-        $ref: '#/definitions/response.ApplicantResponse'
-      applicant_id:
-        type: string
       created_at:
         type: string
       id:
@@ -1477,6 +1503,10 @@ definitions:
       status:
         $ref: '#/definitions/entity.AdministrativeResultStatus'
       updated_at:
+        type: string
+      user_profile:
+        $ref: '#/definitions/response.UserProfileResponse'
+      user_profile_id:
         type: string
     type: object
   response.AdministrativeSelectionResponse:
@@ -2433,6 +2463,53 @@ paths:
       summary: find all answer types
       tags:
       - Answer Types
+  /api/administrative-results:
+    post:
+      consumes:
+      - application/json
+      description: Create or update administrative results
+      parameters:
+      - description: Create or update administrative results
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrUpdateAdministrativeResults'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.AdministrativeSelectionResponse'
+      security:
+      - BearerAuth: []
+      summary: Create or update administrative results
+      tags:
+      - Administrative Result
+  /api/administrative-results/administrative-selection/{administrativeSelectionID}:
+    get:
+      consumes:
+      - application/json
+      description: Find all administrative results by administrative selection id
+      parameters:
+      - description: Administrative Selection ID
+        in: path
+        name: administrativeSelectionID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.AdministrativeResultResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all administrative results by administrative selection id
+      tags:
+      - Administrative Result
   /api/no-auth/job-postings:
     get:
       consumes:

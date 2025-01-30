@@ -9,7 +9,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
-	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase.go"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"

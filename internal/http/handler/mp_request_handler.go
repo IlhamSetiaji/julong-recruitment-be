@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
-	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase.go"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"

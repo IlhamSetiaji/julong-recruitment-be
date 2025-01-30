@@ -234,3 +234,18 @@ func TestApplicantStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func AdministrativeSelectionStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.AdministrativeSelectionStatus(status) {
+	case entity.ADMINISTRATIVE_SELECTION_STATUS_DRAFT,
+		entity.ADMINISTRATIVE_SELECTION_STATUS_IN_PROGRESS,
+		entity.ADMINISTRATIVE_SELECTION_STATUS_COMPLETED:
+		return true
+	default:
+		return false
+	}
+}

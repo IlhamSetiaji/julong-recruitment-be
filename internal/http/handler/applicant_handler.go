@@ -20,6 +20,7 @@ import (
 type IApplicantHandler interface {
 	ApplyJobPosting(ctx *gin.Context)
 	GetApplicantsByJobPostingID(ctx *gin.Context)
+	FindApplicantByJobPostingIDAndUserID(ctx *gin.Context)
 }
 
 type ApplicantHandler struct {
@@ -166,4 +167,51 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Successfully get applicants", applicants)
+}
+
+// FindApplicantByJobPostingIDAndUserID find applicant by job posting ID and user ID
+//
+// @Summary find applicant by job posting ID and user ID
+// @Description find applicant by job posting ID and user ID
+// @Tags Applicants
+// @Accept json
+// @Produce json
+// @Param job_posting_id path string true "Job Posting ID"
+// @Success 200 {object} response.ApplicantResponse
+// @Security BearerAuth
+// @Router /applicants/me [get]
+func (h *ApplicantHandler) FindApplicantByJobPostingIDAndUserID(ctx *gin.Context) {
+	jobPostingID, err := uuid.Parse(ctx.Param("job_posting_id"))
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.FindApplicantByJobPostingIDAndUserID] error when parsing job_posting_id: %v", err)
+		utils.BadRequestResponse(ctx, "job_posting_id is not a valid UUID", err)
+		return
+	}
+
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	applicant, err := h.UseCase.FindApplicantByJobPostingIDAndUserID(jobPostingID, userUUID)
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.FindApplicantByJobPostingIDAndUserID] error when finding applicant: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find applicant", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Successfully find applicant", applicant)
 }

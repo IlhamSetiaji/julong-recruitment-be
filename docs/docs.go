@@ -1423,6 +1423,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/applicants/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "find applicant by job posting ID and user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applicants"
+                ],
+                "summary": "find applicant by job posting ID and user ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/document-setups": {
             "get": {
                 "security": [

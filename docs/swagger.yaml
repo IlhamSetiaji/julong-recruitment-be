@@ -3196,6 +3196,29 @@ paths:
       summary: get applicants by job posting ID
       tags:
       - Applicants
+  /applicants/me:
+    get:
+      consumes:
+      - application/json
+      description: find applicant by job posting ID and user ID
+      parameters:
+      - description: Job Posting ID
+        in: path
+        name: job_posting_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: find applicant by job posting ID and user ID
+      tags:
+      - Applicants
   /document-setups:
     get:
       consumes:

@@ -16,6 +16,7 @@ import (
 type IApplicantUseCase interface {
 	ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error)
 	GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order int) (*[]response.ApplicantResponse, error)
+	FindApplicantByJobPostingIDAndUserID(jobPostingID, userID uuid.UUID) (*response.ApplicantResponse, error)
 }
 
 type ApplicantUseCase struct {
@@ -195,4 +196,51 @@ func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, 
 	}
 
 	return &applicantResponses, nil
+}
+
+func (uc *ApplicantUseCase) FindApplicantByJobPostingIDAndUserID(jobPostingID, userID uuid.UUID) (*response.ApplicantResponse, error) {
+	jp, err := uc.JobPostingRepository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.FindApplicantByJobPostingIDAndUserID] " + err.Error())
+		return nil, err
+	}
+
+	if jp == nil {
+		uc.Log.Error("[ApplicantUseCase.FindApplicantByJobPostingIDAndUserID] " + "Job Posting not found")
+		return nil, errors.New("job posting not found")
+	}
+
+	up, err := uc.UserProfileRepository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.FindApplicantByJobPostingIDAndUserID] " + err.Error())
+		return nil, err
+	}
+
+	if up == nil {
+		uc.Log.Error("[ApplicantUseCase.FindApplicantByJobPostingIDAndUserID] " + "User Profile not found")
+		return nil, errors.New("user profile not found")
+	}
+
+	applicant, err := uc.Repository.FindByKeys(map[string]interface{}{
+		"user_profile_id": up.ID,
+		"job_posting_id":  jobPostingID,
+	})
+
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.FindApplicantByJobPostingIDAndUserID] " + err.Error())
+		return nil, err
+	}
+
+	if applicant == nil {
+		uc.Log.Error("[ApplicantUseCase.FindApplicantByJobPostingIDAndUserID] " + "Applicant not found")
+		return nil, errors.New("applicant not found")
+	}
+
+	applicantResponse, err := uc.DTO.ConvertEntityToResponse(applicant)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.FindApplicantByJobPostingIDAndUserID] " + err.Error())
+		return nil, err
+	}
+
+	return applicantResponse, nil
 }

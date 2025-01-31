@@ -159,13 +159,23 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 						return nil, err
 					}
 					if applicant != nil {
+						var TemplateQuestionID *uuid.UUID
+						for i := range jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines {
+							if jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == applicant.Order+1 {
+								projectRecruitmentLine := &jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i]
+								TemplateQuestionID = &projectRecruitmentLine.TemplateActivityLine.QuestionTemplateID
+								break
+							} else {
+								TemplateQuestionID = &applicant.TemplateQuestionID
+							}
+						}
 						_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
 							UserProfileID:      parsedUserProfileID,
 							JobPostingID:       as.JobPostingID,
 							Status:             entity.APPLICANT_STATUS_APPLIED,
 							AppliedDate:        time.Now(),
 							Order:              applicant.Order + 1,
-							TemplateQuestionID: applicant.TemplateQuestionID,
+							TemplateQuestionID: *TemplateQuestionID,
 						})
 						if err != nil {
 							uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())

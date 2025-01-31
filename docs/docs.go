@@ -3165,6 +3165,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/template-activity-lines/job-posting/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all template activity line by job posting id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Template Activity Lines"
+                ],
+                "summary": "Find all template activity line by job posting id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TemplateActivityLineResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/template-activity-lines/template-activity/{id}": {
             "get": {
                 "security": [
@@ -4825,10 +4862,16 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "platform": {
+                    "type": "string"
+                },
                 "project_pic": {
                     "$ref": "#/definitions/entity.ProjectPic"
                 },
                 "project_pic_id": {
+                    "type": "string"
+                },
+                "schedule_date": {
                     "type": "string"
                 },
                 "start_date": {
@@ -5518,6 +5561,7 @@ const docTemplate = `{
                 "location",
                 "name",
                 "project_pic_id",
+                "schedule_date",
                 "start_date",
                 "start_time",
                 "status",
@@ -5555,7 +5599,13 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 255
                 },
+                "platform": {
+                    "type": "string"
+                },
                 "project_pic_id": {
+                    "type": "string"
+                },
+                "schedule_date": {
                     "type": "string"
                 },
                 "start_date": {
@@ -5801,6 +5851,7 @@ const docTemplate = `{
                 "location",
                 "name",
                 "project_pic_id",
+                "schedule_date",
                 "start_date",
                 "start_time",
                 "status",
@@ -5841,7 +5892,13 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 255
                 },
+                "platform": {
+                    "type": "string"
+                },
                 "project_pic_id": {
+                    "type": "string"
+                },
+                "schedule_date": {
                     "type": "string"
                 },
                 "start_date": {
@@ -6884,10 +6941,16 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "platform": {
+                    "type": "string"
+                },
                 "project_pic": {
                     "$ref": "#/definitions/response.ProjectPicResponse"
                 },
                 "project_pic_id": {
+                    "type": "string"
+                },
+                "schedule_date": {
                     "type": "string"
                 },
                 "start_date": {

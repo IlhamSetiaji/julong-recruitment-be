@@ -16,6 +16,7 @@ type ITemplateActivityLineUseCase interface {
 	CreateOrUpdateTemplateActivityLine(req *request.CreateOrUpdateTemplateActivityLineRequest) (*response.TemplateActivityResponse, error)
 	FindByTemplateActivityID(templateActivityID string) (*[]response.TemplateActivityLineResponse, error)
 	FindByID(id uuid.UUID) (*response.TemplateActivityLineResponse, error)
+	FindAllByJobPostingID(jobPostingID string) (*[]response.TemplateActivityLineResponse, error)
 }
 
 type TemplateActivityLineUseCase struct {
@@ -25,6 +26,7 @@ type TemplateActivityLineUseCase struct {
 	TemplateQuestionRepository repository.ITemplateQuestionRepository
 	TemplateActivityRepository repository.ITemplateActivityRepository
 	TemplateActivityDTO        dto.ITemplateActivityDTO
+	JobPostingRepository       repository.IJobPostingRepository
 }
 
 func NewTemplateActivityLineUseCase(
@@ -34,6 +36,7 @@ func NewTemplateActivityLineUseCase(
 	tqRepository repository.ITemplateQuestionRepository,
 	taRepository repository.ITemplateActivityRepository,
 	taDTO dto.ITemplateActivityDTO,
+	jpRepository repository.IJobPostingRepository,
 ) ITemplateActivityLineUseCase {
 	return &TemplateActivityLineUseCase{
 		Log:                        log,
@@ -42,6 +45,7 @@ func NewTemplateActivityLineUseCase(
 		TemplateQuestionRepository: tqRepository,
 		TemplateActivityRepository: taRepository,
 		TemplateActivityDTO:        taDTO,
+		JobPostingRepository:       jpRepository,
 	}
 }
 
@@ -51,7 +55,8 @@ func TemplateActivityLineUseCaseFactory(log *logrus.Logger) ITemplateActivityLin
 	tqRepository := repository.TemplateQuestionRepositoryFactory(log)
 	taRepository := repository.TemplateActivityRepositoryFactory(log)
 	taDTO := dto.TemplateActivityDTOFactory(log)
-	return NewTemplateActivityLineUseCase(log, repo, talDTO, tqRepository, taRepository, taDTO)
+	jpRepository := repository.JobPostingRepositoryFactory(log)
+	return NewTemplateActivityLineUseCase(log, repo, talDTO, tqRepository, taRepository, taDTO, jpRepository)
 }
 
 func (uc *TemplateActivityLineUseCase) CreateOrUpdateTemplateActivityLine(req *request.CreateOrUpdateTemplateActivityLineRequest) (*response.TemplateActivityResponse, error) {
@@ -185,4 +190,37 @@ func (uc *TemplateActivityLineUseCase) FindByID(id uuid.UUID) (*response.Templat
 	}
 
 	return uc.DTO.ConvertEntityToResponse(templateActivityLine), nil
+}
+
+func (uc *TemplateActivityLineUseCase) FindAllByJobPostingID(jobPostingID string) (*[]response.TemplateActivityLineResponse, error) {
+	parsedJobPostingID, err := uuid.Parse(jobPostingID)
+	if err != nil {
+		uc.Log.Errorf("[TemplateActivityLineUseCase.FindAllByJobPostingID] error when parsing job posting id: %s", err.Error())
+		return nil, err
+	}
+
+	jp, err := uc.JobPostingRepository.FindByID(parsedJobPostingID)
+	if err != nil {
+		uc.Log.Errorf("[TemplateActivityLineUseCase.FindAllByJobPostingID] error when finding job posting by id: %s", err.Error())
+		return nil, err
+	}
+
+	if jp == nil {
+		uc.Log.Errorf("[TemplateActivityLineUseCase.FindAllByJobPostingID] job posting not found")
+		return nil, errors.New("[TemplateActivityLineUseCase.FindAllByJobPostingID] job posting not found")
+	}
+
+	if jp.ProjectRecruitmentHeader == nil {
+		uc.Log.Errorf("[TemplateActivityLineUseCase.FindAllByJobPostingID] project recruitment header not found")
+		return nil, errors.New("[TemplateActivityLineUseCase.FindAllByJobPostingID] project recruitment header not found")
+	}
+
+	var templateActivityLineResponses []response.TemplateActivityLineResponse
+	for _, projectRecruitmentLine := range jp.ProjectRecruitmentHeader.ProjectRecruitmentLines {
+		if projectRecruitmentLine.TemplateActivityLine != nil {
+			templateActivityLineResponses = append(templateActivityLineResponses, *uc.DTO.ConvertEntityToResponse(projectRecruitmentLine.TemplateActivityLine))
+		}
+	}
+
+	return &templateActivityLineResponses, nil
 }

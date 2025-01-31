@@ -18,6 +18,7 @@ type ITemplateActivityLineHandler interface {
 	CreateOrUpdateTemplateActivityLine(ctx *gin.Context)
 	FindByTemplateActivityID(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	FindAllByJobPostingID(ctx *gin.Context)
 }
 
 type TemplateActivityLineHandler struct {
@@ -131,6 +132,30 @@ func (h *TemplateActivityLineHandler) FindByID(ctx *gin.Context) {
 	tal, err := h.UseCase.FindByID(parsedID)
 	if err != nil {
 		h.Log.Error("[TemplateActivityLineHandler.FindByID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", tal)
+}
+
+// FindAllByJobPostingID find all template activity line by job posting id
+//
+//	@Summary		Find all template activity line by job posting id
+//	@Description	Find all template activity line by job posting id
+//	@Tags			Template Activity Lines
+//	@Accept			json
+//	@Produce		json
+//	@Param			id path string true "Job Posting ID"
+//	@Success		200	{object} response.TemplateActivityLineResponse
+//	@Security BearerAuth
+//	@Router			/template-activity-lines/job-posting/{id} [get]
+func (h *TemplateActivityLineHandler) FindAllByJobPostingID(ctx *gin.Context) {
+	jobPostingID := ctx.Param("id")
+
+	tal, err := h.UseCase.FindAllByJobPostingID(jobPostingID)
+	if err != nil {
+		h.Log.Error("[TemplateActivityLineHandler.FindAllByJobPostingID] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
 		return
 	}

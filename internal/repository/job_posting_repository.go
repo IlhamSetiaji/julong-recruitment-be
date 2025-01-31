@@ -99,6 +99,7 @@ func (r *JobPostingRepository) FindByID(id uuid.UUID) (*entity.JobPosting, error
 
 	if err := r.DB.Preload("ProjectRecruitmentHeader.ProjectRecruitmentLines.TemplateActivityLine").First(&ent, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			r.Log.Warn("[JobPostingRepository.FindByID] data not found")
 			return nil, nil
 		} else {
 			r.Log.Error("[JobPostingRepository.FindByID] " + err.Error())

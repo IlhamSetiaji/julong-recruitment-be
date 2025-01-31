@@ -789,9 +789,13 @@ definitions:
         type: string
       name:
         type: string
+      platform:
+        type: string
       project_pic:
         $ref: '#/definitions/entity.ProjectPic'
       project_pic_id:
+        type: string
+      schedule_date:
         type: string
       start_date:
         type: string
@@ -1273,7 +1277,11 @@ definitions:
       name:
         maxLength: 255
         type: string
+      platform:
+        type: string
       project_pic_id:
+        type: string
+      schedule_date:
         type: string
       start_date:
         type: string
@@ -1298,6 +1306,7 @@ definitions:
     - location
     - name
     - project_pic_id
+    - schedule_date
     - start_date
     - start_time
     - status
@@ -1476,7 +1485,11 @@ definitions:
       name:
         maxLength: 255
         type: string
+      platform:
+        type: string
       project_pic_id:
+        type: string
+      schedule_date:
         type: string
       start_date:
         type: string
@@ -1502,6 +1515,7 @@ definitions:
     - location
     - name
     - project_pic_id
+    - schedule_date
     - start_date
     - start_time
     - status
@@ -2185,9 +2199,13 @@ definitions:
         type: string
       name:
         type: string
+      platform:
+        type: string
       project_pic:
         $ref: '#/definitions/response.ProjectPicResponse'
       project_pic_id:
+        type: string
+      schedule_date:
         type: string
       start_date:
         type: string
@@ -4323,6 +4341,29 @@ paths:
       security:
       - BearerAuth: []
       summary: Find template activity line by id
+      tags:
+      - Template Activity Lines
+  /template-activity-lines/job-posting/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find all template activity line by job posting id
+      parameters:
+      - description: Job Posting ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TemplateActivityLineResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all template activity line by job posting id
       tags:
       - Template Activity Lines
   /template-activity-lines/template-activity/{id}:

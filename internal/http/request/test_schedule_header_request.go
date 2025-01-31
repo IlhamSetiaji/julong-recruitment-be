@@ -17,6 +17,8 @@ type CreateTestScheduleHeaderRequest struct {
 	Description            string `json:"description" validate:"required"`
 	TotalCandidate         int    `json:"total_candidate" validate:"required"`
 	Status                 string `json:"status" validate:"required,test_schedule_header_status_validation"`
+	ScheduleDate           string `json:"schedule_date" validate:"required,datetime=2006-01-02"`
+	Platform               string `json:"platform"`
 }
 
 type UpdateTestScheduleHeaderRequest struct {
@@ -37,4 +39,6 @@ type UpdateTestScheduleHeaderRequest struct {
 	Description            string `json:"description" validate:"required"`
 	TotalCandidate         int    `json:"total_candidate" validate:"required"`
 	Status                 string `json:"status" validate:"required,test_schedule_header_status_validation"`
+	ScheduleDate           string `json:"schedule_date" validate:"required,datetime=2006-01-02"`
+	Platform               string `json:"platform"`
 }

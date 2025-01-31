@@ -64,6 +64,8 @@ func (dto *TestScheduleHeaderDTO) ConvertEntityToResponse(ent *entity.TestSchedu
 		Description:    ent.Description,
 		TotalCandidate: ent.TotalCandidate,
 		Status:         ent.Status,
+		ScheduleDate:   ent.ScheduleDate,
+		Platform:       ent.Platform,
 		CreatedAt:      ent.CreatedAt,
 		UpdatedAt:      ent.UpdatedAt,
 		JobPosting: func() *response.JobPostingResponse {

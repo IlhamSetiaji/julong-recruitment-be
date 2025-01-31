@@ -178,6 +178,12 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		return nil, err
 	}
 
+	parsedScheduleDate, err := time.Parse("2006-01-02", req.ScheduleDate)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+
 	testScheduleHeader, err := uc.Repository.CreateTestScheduleHeader(&entity.TestScheduleHeader{
 		JobPostingID:           parsedJobPostingID,
 		TestTypeID:             parsedTestTypeID,
@@ -195,6 +201,8 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		Description:            req.Description,
 		TotalCandidate:         req.TotalCandidate,
 		Status:                 entity.TestScheduleStatus(req.Status),
+		ScheduleDate:           parsedScheduleDate,
+		Platform:               req.Platform,
 	})
 
 	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
@@ -308,6 +316,12 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 		return nil, err
 	}
 
+	parsedScheduleDate, err := time.Parse("2006-01-02", req.ScheduleDate)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+
 	testScheduleHeader, err := uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
 		ID:                     parsedID,
 		JobPostingID:           parsedJobPostingID,
@@ -325,6 +339,8 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 		Location:               req.Location,
 		Description:            req.Description,
 		TotalCandidate:         req.TotalCandidate,
+		ScheduleDate:           parsedScheduleDate,
+		Platform:               req.Platform,
 		Status:                 entity.TestScheduleStatus(req.Status),
 	})
 

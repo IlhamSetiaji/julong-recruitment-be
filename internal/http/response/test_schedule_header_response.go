@@ -24,6 +24,8 @@ type TestScheduleHeaderResponse struct {
 	Description    string                    `json:"description"`
 	TotalCandidate int                       `json:"total_candidate"`
 	Status         entity.TestScheduleStatus `json:"status"`
+	ScheduleDate   time.Time                 `json:"schedule_date"`
+	Platform       string                    `json:"platform"`
 	CreatedAt      time.Time                 `json:"created_at"`
 	UpdatedAt      time.Time                 `json:"updated_at"`
 

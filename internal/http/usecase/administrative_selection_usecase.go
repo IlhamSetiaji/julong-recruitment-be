@@ -233,13 +233,13 @@ func (uc *AdministrativeSelectionUsecase) DeleteAdministrativeSelection(id strin
 func (uc *AdministrativeSelectionUsecase) VerifyAdministrativeSelection(id, verifiedBy string) error {
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		uc.Log.Error("[AdministrativeSelectionUsecase.VerifyAdministrativeSelection] " + err.Error())
+		uc.Log.Error("[AdministrativeSelectionUsecase.VerifyAdministrativeSelection - parsed ID] " + err.Error())
 		return err
 	}
 
 	parsedVerifiedBy, err := uuid.Parse(verifiedBy)
 	if err != nil {
-		uc.Log.Error("[AdministrativeSelectionUsecase.VerifyAdministrativeSelection] " + err.Error())
+		uc.Log.Error("[AdministrativeSelectionUsecase.VerifyAdministrativeSelection - parsed verified by] " + err.Error())
 		return err
 	}
 

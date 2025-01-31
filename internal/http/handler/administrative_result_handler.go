@@ -100,7 +100,7 @@ func (h *AdministrativeResultHandler) CreateOrUpdateAdministrativeResults(ctx *g
 //	 @Security BearerAuth
 //	 @Router /api/administrative-results/administrative-selection/{administrativeSelectionID} [get]
 func (h *AdministrativeResultHandler) FindAllByAdministrativeSelectionID(ctx *gin.Context) {
-	administrativeSelectionID := ctx.Param("administrativeSelectionID")
+	administrativeSelectionID := ctx.Param("administrative_selection_id")
 
 	res, err := h.UseCase.FindAllByAdministrativeSelectionID(administrativeSelectionID)
 	if err != nil {

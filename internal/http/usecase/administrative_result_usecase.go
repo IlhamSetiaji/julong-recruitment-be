@@ -273,7 +273,7 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 func (uc *AdministrativeResultUseCase) FindAllByAdministrativeSelectionID(administrativeSelectionID string) (*[]response.AdministrativeResultResponse, error) {
 	parsedAdministrativeSelectionID, err := uuid.Parse(administrativeSelectionID)
 	if err != nil {
-		uc.Log.Error("[AdministrativeResultUseCase.FindByAdministrativeSelectionID] " + err.Error())
+		uc.Log.Error("[AdministrativeResultUseCase.FindByAdministrativeSelectionID - parsed id]" + err.Error())
 		return nil, err
 	}
 

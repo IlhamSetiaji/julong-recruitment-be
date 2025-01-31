@@ -129,6 +129,10 @@ func (uc *ProjectRecruitmentHeaderUseCase) FindByID(id uuid.UUID) (*response.Pro
 		return nil, err
 	}
 
+	if projectRecruitmentHeader == nil {
+		return nil, nil
+	}
+
 	projectRecruitmentHeaderResponse := uc.DTO.ConvertEntityToResponse(projectRecruitmentHeader)
 	return projectRecruitmentHeaderResponse, nil
 }

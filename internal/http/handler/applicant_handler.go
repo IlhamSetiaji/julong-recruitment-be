@@ -110,9 +110,9 @@ func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 		return
 	}
 
-	if userProfile.Status != entity.USER_INACTIVE {
-		h.Log.Errorf("[ApplicantHandler.ApplyJobPosting] user profile is not inactive")
-		utils.ErrorResponse(ctx, http.StatusForbidden, "User profile is not inactive", "")
+	if userProfile.Status != entity.USER_ACTIVE {
+		h.Log.Errorf("[ApplicantHandler.ApplyJobPosting] user profile is not active")
+		utils.ErrorResponse(ctx, http.StatusForbidden, "User profile is not active", "")
 		return
 	}
 

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"strconv"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -176,6 +177,45 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 							AppliedDate:        time.Now(),
 							Order:              applicant.Order + 1,
 							TemplateQuestionID: *TemplateQuestionID,
+						})
+						if err != nil {
+							uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+							return nil, err
+						}
+					}
+				} else if entity.AdministrativeResultStatus(administrativeResult.Status) == entity.ADMINISTRATIVE_RESULT_STATUS_REJECTED {
+					jpExist, err := uc.JobPostingRepository.FindByID(as.JobPostingID)
+					if err != nil {
+						uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+						return nil, err
+					}
+
+					if jpExist == nil {
+						uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + "Job Posting not found")
+						return nil, errors.New("job posting not found")
+					}
+
+					applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+						"user_profile_id": parsedUserProfileID,
+						"job_posting_id":  as.JobPostingID,
+					})
+					if err != nil {
+						uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+						return nil, err
+					}
+					zero, err := strconv.Atoi("0")
+					if err != nil {
+						uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+						return nil, err
+					}
+					if applicant != nil {
+						_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+							UserProfileID:      parsedUserProfileID,
+							JobPostingID:       as.JobPostingID,
+							Status:             entity.APPLICANT_STATUS_APPLIED,
+							AppliedDate:        time.Now(),
+							Order:              zero,
+							TemplateQuestionID: uuid.Nil,
 						})
 						if err != nil {
 							uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())

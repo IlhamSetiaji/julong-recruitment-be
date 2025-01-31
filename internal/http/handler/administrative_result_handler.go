@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
@@ -90,24 +91,62 @@ func (h *AdministrativeResultHandler) CreateOrUpdateAdministrativeResults(ctx *g
 
 // FindAllByAdministrativeSelectionID find all administrative results by administrative selection id
 //
-//		@Summary		Find all administrative results by administrative selection id
-//		@Description	Find all administrative results by administrative selection id
-//	 @Tags Administrative Result
-//		@Accept		json
-//		@Produce		json
-//	 @Param administrativeSelectionID path string true "Administrative Selection ID"
-//	 @Success 200 {object} response.AdministrativeResultResponse
-//	 @Security BearerAuth
-//	 @Router /api/administrative-results/administrative-selection/{administrativeSelectionID} [get]
+//			@Summary		Find all administrative results by administrative selection id
+//			@Description	Find all administrative results by administrative selection id
+//		 @Tags Administrative Result
+//			@Accept		json
+//			@Produce		json
+//		 @Param administrativeSelectionID path string true "Administrative Selection ID"
+//	  @Param			page	query	int	false	"Page"
+//			@Param			page_size	query	int	false	"Page Size"
+//			@Param			search	query	string	false	"Search"
+//			@Param			created_at	query	string	false	"Created At"
+//			@Param			status	query	string	false	"Status"
+//		 @Success 200 {object} response.AdministrativeResultResponse
+//		 @Security BearerAuth
+//		 @Router /api/administrative-results/administrative-selection/{administrativeSelectionID} [get]
 func (h *AdministrativeResultHandler) FindAllByAdministrativeSelectionID(ctx *gin.Context) {
 	administrativeSelectionID := ctx.Param("administrative_selection_id")
 
-	res, err := h.UseCase.FindAllByAdministrativeSelectionID(administrativeSelectionID)
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	res, total, err := h.UseCase.FindAllByAdministrativeSelectionID(administrativeSelectionID, page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("[AdministrativeResultHandler.FindAllByAdministrativeSelectionID] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when find all administrative results by administrative selection id", err.Error())
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
+	utils.SuccessResponse(ctx, http.StatusOK, "success", gin.H{
+		"administrative_results": res,
+		"total":                  total,
+	})
 }

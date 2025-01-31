@@ -17,7 +17,7 @@ import (
 
 type IAdministrativeResultUseCase interface {
 	CreateOrUpdateAdministrativeResults(req *request.CreateOrUpdateAdministrativeResults) (*response.AdministrativeSelectionResponse, error)
-	FindAllByAdministrativeSelectionID(administrativeSelectionID string) (*[]response.AdministrativeResultResponse, error)
+	FindAllByAdministrativeSelectionID(administrativeSelectionID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.AdministrativeResultResponse, int64, error)
 }
 
 type AdministrativeResultUseCase struct {
@@ -270,28 +270,29 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 	return res, nil
 }
 
-func (uc *AdministrativeResultUseCase) FindAllByAdministrativeSelectionID(administrativeSelectionID string) (*[]response.AdministrativeResultResponse, error) {
+func (uc *AdministrativeResultUseCase) FindAllByAdministrativeSelectionID(administrativeSelectionID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.AdministrativeResultResponse, int64, error) {
 	parsedAdministrativeSelectionID, err := uuid.Parse(administrativeSelectionID)
 	if err != nil {
-		uc.Log.Error("[AdministrativeResultUseCase.FindByAdministrativeSelectionID - parsed id]" + err.Error())
-		return nil, err
+		uc.Log.Error("[AdministrativeResultUseCase.FindAllByAdministrativeSelectionID] " + err.Error())
+		return nil, 0, err
 	}
 
-	administrativeResults, err := uc.Repository.FindAllByAdministrativeSelectionID(parsedAdministrativeSelectionID)
+	entities, total, err := uc.Repository.FindAllByAdministrativeSelectionID(parsedAdministrativeSelectionID, page, pageSize, search, sort, filter)
 	if err != nil {
-		uc.Log.Error("[AdministrativeResultUseCase.FindByAdministrativeSelectionID] " + err.Error())
-		return nil, err
+		uc.Log.Error("[AdministrativeResultUseCase.FindAllByAdministrativeSelectionID] " + err.Error())
+		return nil, 0, err
 	}
 
-	res := make([]response.AdministrativeResultResponse, 0)
-	for _, administrativeResult := range *administrativeResults {
-		r, err := uc.DTO.ConvertEntityToResponse(&administrativeResult)
+	var res []response.AdministrativeResultResponse
+	for _, entity := range *entities {
+		response, err := uc.DTO.ConvertEntityToResponse(&entity)
 		if err != nil {
-			uc.Log.Error("[AdministrativeResultUseCase.FindByAdministrativeSelectionID] " + err.Error())
-			return nil, err
+			uc.Log.Error("[AdministrativeResultUseCase.FindAllByAdministrativeSelectionID] " + err.Error())
+			return nil, 0, err
 		}
-		res = append(res, *r)
+
+		res = append(res, *response)
 	}
 
-	return &res, nil
+	return &res, total, nil
 }

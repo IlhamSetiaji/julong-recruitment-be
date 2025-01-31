@@ -2607,6 +2607,10 @@ paths:
         in: query
         name: created_at
         type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
       produces:
       - application/json
       responses:

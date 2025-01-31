@@ -15,7 +15,7 @@ import (
 
 type IProjectRecruitmentHeaderUseCase interface {
 	CreateProjectRecruitmentHeader(req *request.CreateProjectRecruitmentHeader) (*response.ProjectRecruitmentHeaderResponse, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.ProjectRecruitmentHeaderResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.ProjectRecruitmentHeaderResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.ProjectRecruitmentHeaderResponse, error)
 	UpdateProjectRecruitmentHeader(req *request.UpdateProjectRecruitmentHeader) (*response.ProjectRecruitmentHeaderResponse, error)
 	DeleteProjectRecruitmentHeader(id uuid.UUID) error
@@ -107,8 +107,8 @@ func (uc *ProjectRecruitmentHeaderUseCase) GenerateDocumentNumber(dateNow time.T
 	return documentNumber, nil
 }
 
-func (uc *ProjectRecruitmentHeaderUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.ProjectRecruitmentHeaderResponse, int64, error) {
-	projectRecruitmentHeaders, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+func (uc *ProjectRecruitmentHeaderUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.ProjectRecruitmentHeaderResponse, int64, error) {
+	projectRecruitmentHeaders, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.FindAllPaginated] " + err.Error())
 		return nil, 0, err

@@ -125,6 +125,7 @@ func (h *ProjectRecruitmentHeaderHandler) CreateProjectRecruitmentHeader(ctx *gi
 // @Param			page_size	query	int	false	"Page Size"
 // @Param			search	query	string	false	"Search"
 // @Param			created_at	query	string	false	"Created At"
+// @Param			status	query	string	false	"Status"
 // @Success		200	{object} response.ProjectRecruitmentHeaderResponse
 // @Security BearerAuth
 // @Router			/api/project-recruitment-headers [get]
@@ -149,11 +150,17 @@ func (h *ProjectRecruitmentHeaderHandler) FindAllPaginated(ctx *gin.Context) {
 		createdAt = "DESC"
 	}
 
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
 	sort := map[string]interface{}{
 		"created_at": createdAt,
 	}
 
-	responses, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	responses, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("[ProjectRecruitmentHeaderHandler.FindAllPaginated] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error", err.Error())

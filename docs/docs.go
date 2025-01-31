@@ -489,6 +489,12 @@ const docTemplate = `{
                         "description": "Created At",
                         "name": "created_at",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {

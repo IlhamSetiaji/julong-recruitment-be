@@ -12,7 +12,7 @@ import (
 
 type IProjectRecruitmentHeaderRepository interface {
 	CreateProjectRecruitmentHeader(ent *entity.ProjectRecruitmentHeader) (*entity.ProjectRecruitmentHeader, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.ProjectRecruitmentHeader, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.ProjectRecruitmentHeader, int64, error)
 	FindByID(id uuid.UUID) (*entity.ProjectRecruitmentHeader, error)
 	UpdateProjectRecruitmentHeader(ent *entity.ProjectRecruitmentHeader) (*entity.ProjectRecruitmentHeader, error)
 	DeleteProjectRecruitmentHeader(id uuid.UUID) error
@@ -82,7 +82,7 @@ func (r *ProjectRecruitmentHeaderRepository) GetHighestDocumentNumberByDate(date
 	return maxNumber, nil
 }
 
-func (r *ProjectRecruitmentHeaderRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.ProjectRecruitmentHeader, int64, error) {
+func (r *ProjectRecruitmentHeaderRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.ProjectRecruitmentHeader, int64, error) {
 	var projectRecruitmentHeaders []entity.ProjectRecruitmentHeader
 	var total int64
 
@@ -90,6 +90,10 @@ func (r *ProjectRecruitmentHeaderRepository) FindAllPaginated(page, pageSize int
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
+	if filter["status"] != nil {
+		query = query.Where("status = ?", filter["status"])
 	}
 
 	for key, value := range sort {

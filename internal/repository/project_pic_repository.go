@@ -13,6 +13,7 @@ type IProjectPicRepository interface {
 	DeleteProjectPic(id uuid.UUID) (*entity.ProjectPic, error)
 	DeleteProjectPicByProjectRecruitmentLineID(projectRecruitmentLineID uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.ProjectPic, error)
+	FindAllByEmployeeID(employeeID uuid.UUID) ([]entity.ProjectPic, error)
 }
 
 type ProjectPicRepository struct {
@@ -116,4 +117,17 @@ func (r *ProjectPicRepository) FindByID(id uuid.UUID) (*entity.ProjectPic, error
 	}
 
 	return &projectPic, nil
+}
+
+func (r *ProjectPicRepository) FindAllByEmployeeID(employeeID uuid.UUID) ([]entity.ProjectPic, error) {
+	var projectPics []entity.ProjectPic
+
+	if err := r.DB.
+		Where("employee_id = ?", employeeID).Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader.JobPostings").
+		Find(&projectPics).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return projectPics, nil
 }

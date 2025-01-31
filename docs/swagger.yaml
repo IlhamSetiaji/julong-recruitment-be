@@ -3730,6 +3730,23 @@ paths:
       summary: Generate document number
       tags:
       - Job Postings
+  /job-postings/pic:
+    get:
+      consumes:
+      - application/json
+      description: Find all jobs by employee
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.JobPostingResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all jobs by employee
+      tags:
+      - Job Postings
   /job-postings/save:
     get:
       consumes:

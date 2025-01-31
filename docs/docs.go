@@ -2193,6 +2193,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/job-postings/pic": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all jobs by employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Job Postings"
+                ],
+                "summary": "Find all jobs by employee",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.JobPostingResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/job-postings/save": {
             "get": {
                 "security": [

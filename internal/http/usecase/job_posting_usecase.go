@@ -28,6 +28,7 @@ type IJobPostingUseCase interface {
 	InsertSavedJob(userID, jobPostingID uuid.UUID) error
 	FindAllSavedJobsByUserID(userID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	DeleteSavedJob(userID, jobPostingID uuid.UUID) error
+	FindAllJobPostingsByEmployeeID(employeeID uuid.UUID) (*[]response.JobPostingResponse, error)
 }
 
 type JobPostingUseCase struct {
@@ -42,6 +43,7 @@ type JobPostingUseCase struct {
 	ProjectRecruitmentLineRepository   repository.IProjectRecruitmentLineRepository
 	AdministrativeSelectionRepository  repository.IAdministrativeSelectionRepository
 	AdministrativeResultRepository     repository.IAdministrativeResultRepository
+	ProjectPicRepository               repository.IProjectPicRepository
 }
 
 func NewJobPostingUseCase(
@@ -56,6 +58,7 @@ func NewJobPostingUseCase(
 	prlRepository repository.IProjectRecruitmentLineRepository,
 	asRepo repository.IAdministrativeSelectionRepository,
 	arRepo repository.IAdministrativeResultRepository,
+	projectPicRepo repository.IProjectPicRepository,
 ) IJobPostingUseCase {
 	return &JobPostingUseCase{
 		Log:                                log,
@@ -69,6 +72,7 @@ func NewJobPostingUseCase(
 		ProjectRecruitmentLineRepository:   prlRepository,
 		AdministrativeSelectionRepository:  asRepo,
 		AdministrativeResultRepository:     arRepo,
+		ProjectPicRepository:               projectPicRepo,
 	}
 }
 
@@ -82,6 +86,7 @@ func JobPostingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IJobPostin
 	prlRepository := repository.ProjectRecruitmentLineRepositoryFactory(log)
 	asRepo := repository.AdministrativeSelectionRepositoryFactory(log)
 	arRepo := repository.AdministrativeResultRepositoryFactory(log)
+	projectPicRepo := repository.ProjectPicRepositoryFactory(log)
 	return NewJobPostingUseCase(
 		log,
 		repo,
@@ -94,6 +99,7 @@ func JobPostingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IJobPostin
 		prlRepository,
 		asRepo,
 		arRepo,
+		projectPicRepo,
 	)
 }
 
@@ -575,4 +581,26 @@ func (uc *JobPostingUseCase) DeleteSavedJob(userID, jobPostingID uuid.UUID) erro
 	}
 
 	return nil
+}
+
+func (uc *JobPostingUseCase) FindAllJobPostingsByEmployeeID(employeeID uuid.UUID) (*[]response.JobPostingResponse, error) {
+	pics, err := uc.ProjectPicRepository.FindAllByEmployeeID(employeeID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllJobPostingsByEmployeeID] " + err.Error())
+		return nil, err
+	}
+
+	jobPostingResponses := make([]response.JobPostingResponse, 0)
+	jobPostingIDs := make(map[uuid.UUID]bool)
+
+	for _, pic := range pics {
+		for _, jp := range pic.ProjectRecruitmentLine.ProjectRecruitmentHeader.JobPostings {
+			if _, exists := jobPostingIDs[jp.ID]; !exists {
+				jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jp))
+				jobPostingIDs[jp.ID] = true
+			}
+		}
+	}
+
+	return &jobPostingResponses, nil
 }

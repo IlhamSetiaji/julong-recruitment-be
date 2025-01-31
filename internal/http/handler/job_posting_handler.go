@@ -29,6 +29,7 @@ type IJobPostingHandler interface {
 	FindAllAppliedJobPostingByUserID(ctx *gin.Context)
 	InsertSavedJob(ctx *gin.Context)
 	FindAllSavedJobsByUserID(ctx *gin.Context)
+	FindAllJobsByEmployee(ctx *gin.Context)
 }
 
 type JobPostingHandler struct {
@@ -673,4 +674,43 @@ func (h *JobPostingHandler) FindAllSavedJobsByUserID(ctx *gin.Context) {
 		"job_postings": res,
 		"total":        total,
 	})
+}
+
+// FindAllJobsByEmployee find all jobs by employee
+//
+//		@Summary		Find all jobs by employee
+//		@Description	Find all jobs by employee
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Success		200	{object} response.JobPostingResponse
+//	 @Security BearerAuth
+//		@Router			/job-postings/pic [get]
+func (h *JobPostingHandler) FindAllJobsByEmployee(ctx *gin.Context) {
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	employeUUID, err := h.UserHelper.GetEmployeeId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting employee id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindAllJobPostingsByEmployeeID(employeUUID)
+	if err != nil {
+		h.Log.Error("failed to find all job postings by employee: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all job postings by employee", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
 }

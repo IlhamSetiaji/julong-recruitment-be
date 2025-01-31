@@ -1077,10 +1077,8 @@ definitions:
             template_activity_line_id:
               type: string
           required:
-          - end_date
           - order
           - project_pics
-          - start_date
           - template_activity_line_id
           type: object
         type: array

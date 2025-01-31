@@ -5,8 +5,8 @@ type CreateOrUpdateProjectRecruitmentLinesRequest struct {
 	ProjectRecruitmentLines    []struct {
 		ID                     string `json:"id" validate:"omitempty,uuid"`
 		TemplateActivityLineID string `json:"template_activity_line_id" validate:"required,uuid"`
-		StartDate              string `json:"start_date" validate:"required,datetime=2006-01-02"`
-		EndDate                string `json:"end_date" validate:"required,datetime=2006-01-02"`
+		StartDate              string `json:"start_date" validate:"omitempty,datetime=2006-01-02"`
+		EndDate                string `json:"end_date" validate:"omitempty,datetime=2006-01-02"`
 		Order                  int    `json:"order" validate:"required,gte=1"`
 		ProjectPics            []struct {
 			EmployeeID          string `json:"employee_id" validate:"required,uuid"`

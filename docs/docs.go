@@ -5149,10 +5149,8 @@ const docTemplate = `{
                     "items": {
                         "type": "object",
                         "required": [
-                            "end_date",
                             "order",
                             "project_pics",
-                            "start_date",
                             "template_activity_line_id"
                         ],
                         "properties": {

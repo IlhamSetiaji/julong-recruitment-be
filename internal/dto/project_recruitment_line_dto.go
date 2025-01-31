@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/sirupsen/logrus"
@@ -35,12 +37,26 @@ func ProjectRecruitmentLineDTOFactory(log *logrus.Logger) IProjectRecruitmentLin
 }
 
 func (dto *ProjectRecruitmentLineDTO) ConvertEntityToResponse(ent *entity.ProjectRecruitmentLine) *response.ProjectRecruitmentLineResponse {
+	var startDate *time.Time
+	if !ent.StartDate.IsZero() {
+		startDate = &ent.StartDate
+	} else {
+		startDate = nil
+	}
+
+	var endDate *time.Time
+	if !ent.EndDate.IsZero() {
+		endDate = &ent.EndDate
+	} else {
+		endDate = nil
+	}
+
 	return &response.ProjectRecruitmentLineResponse{
 		ID:                         ent.ID,
 		ProjectRecruitmentHeaderID: ent.ProjectRecruitmentHeaderID,
 		TemplateActivityLineID:     ent.TemplateActivityLineID,
-		StartDate:                  ent.StartDate,
-		EndDate:                    ent.EndDate,
+		StartDate:                  *startDate,
+		EndDate:                    *endDate,
 		Order:                      ent.Order,
 		CreatedAt:                  ent.CreatedAt,
 		UpdatedAt:                  ent.UpdatedAt,

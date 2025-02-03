@@ -29,6 +29,7 @@ type IJobPostingUseCase interface {
 	FindAllSavedJobsByUserID(userID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	DeleteSavedJob(userID, jobPostingID uuid.UUID) error
 	FindAllJobPostingsByEmployeeID(employeeID uuid.UUID) (*[]response.JobPostingResponse, error)
+	FindAllByProjectRecruitmentHeaderID(prhID uuid.UUID) (*[]response.JobPostingResponse, error)
 }
 
 type JobPostingUseCase struct {
@@ -600,6 +601,23 @@ func (uc *JobPostingUseCase) FindAllJobPostingsByEmployeeID(employeeID uuid.UUID
 				jobPostingIDs[jp.ID] = true
 			}
 		}
+	}
+
+	return &jobPostingResponses, nil
+}
+
+func (uc *JobPostingUseCase) FindAllByProjectRecruitmentHeaderID(prhID uuid.UUID) (*[]response.JobPostingResponse, error) {
+	jobPostings, err := uc.Repository.GetAllByKeys(map[string]interface{}{
+		"project_recruitment_header_id": prhID,
+	})
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllByProjectRecruitmentHeaderID] " + err.Error())
+		return nil, err
+	}
+
+	jobPostingResponses := make([]response.JobPostingResponse, 0)
+	for _, jobPosting := range *jobPostings {
+		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 	}
 
 	return &jobPostingResponses, nil

@@ -493,6 +493,10 @@ definitions:
         $ref: '#/definitions/entity.TemplateActivity'
       template_activity_id:
         type: string
+      test_schedule_headers:
+        items:
+          $ref: '#/definitions/entity.TestScheduleHeader'
+        type: array
     type: object
   entity.ProjectRecruitmentHeaderStatus:
     enum:
@@ -538,6 +542,10 @@ definitions:
         $ref: '#/definitions/entity.TemplateActivityLine'
       template_activity_line_id:
         type: string
+      test_schedule_headers:
+        items:
+          $ref: '#/definitions/entity.TestScheduleHeader'
+        type: array
     type: object
   entity.ProjectRecruitmentType:
     enum:
@@ -802,6 +810,14 @@ definitions:
       project_pic:
         $ref: '#/definitions/entity.ProjectPic'
       project_pic_id:
+        type: string
+      project_recruitment_header:
+        $ref: '#/definitions/entity.ProjectRecruitmentHeader'
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_line:
+        $ref: '#/definitions/entity.ProjectRecruitmentLine'
+      project_recruitment_line_id:
         type: string
       schedule_date:
         type: string
@@ -1292,6 +1308,10 @@ definitions:
         type: string
       project_pic_id:
         type: string
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_line_id:
+        type: string
       schedule_date:
         type: string
       start_date:
@@ -1317,11 +1337,12 @@ definitions:
     - location
     - name
     - project_pic_id
+    - project_recruitment_header_id
+    - project_recruitment_line_id
     - schedule_date
     - start_date
     - start_time
     - status
-    - template_activity_line_id
     - test_type_id
     - total_candidate
     type: object
@@ -1500,6 +1521,10 @@ definitions:
         type: string
       project_pic_id:
         type: string
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_line_id:
+        type: string
       schedule_date:
         type: string
       start_date:
@@ -1526,11 +1551,12 @@ definitions:
     - location
     - name
     - project_pic_id
+    - project_recruitment_header_id
+    - project_recruitment_line_id
     - schedule_date
     - start_date
     - start_time
     - status
-    - template_activity_line_id
     - test_type_id
     - total_candidate
     type: object
@@ -3847,6 +3873,29 @@ paths:
       security:
       - BearerAuth: []
       summary: Find all jobs by employee
+      tags:
+      - Job Postings
+  /job-postings/project-recruitment-header/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find all by project recruitment header id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.JobPostingResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all by project recruitment header id
       tags:
       - Job Postings
   /job-postings/save:

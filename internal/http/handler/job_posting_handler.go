@@ -30,6 +30,7 @@ type IJobPostingHandler interface {
 	InsertSavedJob(ctx *gin.Context)
 	FindAllSavedJobsByUserID(ctx *gin.Context)
 	FindAllJobsByEmployee(ctx *gin.Context)
+	FindAllByProjectRecruitmentHeaderID(ctx *gin.Context)
 }
 
 type JobPostingHandler struct {
@@ -709,6 +710,37 @@ func (h *JobPostingHandler) FindAllJobsByEmployee(ctx *gin.Context) {
 	if err != nil {
 		h.Log.Error("failed to find all job postings by employee: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all job postings by employee", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
+}
+
+// FindAllByProjectRecruitmentHeaderID find all by project recruitment header id
+//
+//		@Summary		Find all by project recruitment header id
+//		@Description	Find all by project recruitment header id
+//		@Tags			Job Postings
+//		@Accept			json
+//		@Produce		json
+//		@Param			id	path	string	true	"ID"
+//		@Success		200	{object} response.JobPostingResponse
+//	 @Security BearerAuth
+//		@Router			/job-postings/project-recruitment-header/{id} [get]
+func (h *JobPostingHandler) FindAllByProjectRecruitmentHeaderID(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("failed to parse id: ", err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "failed to parse id", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindAllByProjectRecruitmentHeaderID(parsedUUID)
+	if err != nil {
+		h.Log.Error("failed to find all by project recruitment header id: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all by project recruitment header id", err.Error())
 		return
 	}
 

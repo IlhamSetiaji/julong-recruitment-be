@@ -25,6 +25,7 @@ type IJobPostingRepository interface {
 	GetSavedJobsByKeys(keys map[string]interface{}) (*[]entity.SavedJob, error)
 	DeleteSavedJob(userProfileID, jobPostingID uuid.UUID) error
 	FindSavedJob(userProfileID, jobPostingID uuid.UUID) (*entity.SavedJob, error)
+	GetAllByKeys(keys map[string]interface{}) (*[]entity.JobPosting, error)
 }
 
 type JobPostingRepository struct {
@@ -312,4 +313,13 @@ func (r *JobPostingRepository) FindSavedJob(userProfileID, jobPostingID uuid.UUI
 		return nil, err
 	}
 	return &entity, nil
+}
+
+func (r *JobPostingRepository) GetAllByKeys(keys map[string]interface{}) (*[]entity.JobPosting, error) {
+	var entities []entity.JobPosting
+	if err := r.DB.Where(keys).Find(&entities).Error; err != nil {
+		r.Log.Errorf("[JobPostingRepository.GetAllByKeys] error when querying data: %v", err)
+		return nil, err
+	}
+	return &entities, nil
 }

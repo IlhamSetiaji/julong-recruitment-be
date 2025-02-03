@@ -2333,6 +2333,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/job-postings/project-recruitment-header/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all by project recruitment header id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Job Postings"
+                ],
+                "summary": "Find all by project recruitment header id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.JobPostingResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/job-postings/save": {
             "get": {
                 "security": [
@@ -4507,6 +4544,12 @@ const docTemplate = `{
                 },
                 "template_activity_id": {
                     "type": "string"
+                },
+                "test_schedule_headers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TestScheduleHeader"
+                    }
                 }
             }
         },
@@ -4569,6 +4612,12 @@ const docTemplate = `{
                 },
                 "template_activity_line_id": {
                     "type": "string"
+                },
+                "test_schedule_headers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TestScheduleHeader"
+                    }
                 }
             }
         },
@@ -4956,6 +5005,18 @@ const docTemplate = `{
                     "$ref": "#/definitions/entity.ProjectPic"
                 },
                 "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentHeader"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentLine"
+                },
+                "project_recruitment_line_id": {
                     "type": "string"
                 },
                 "schedule_date": {
@@ -5652,11 +5713,12 @@ const docTemplate = `{
                 "location",
                 "name",
                 "project_pic_id",
+                "project_recruitment_header_id",
+                "project_recruitment_line_id",
                 "schedule_date",
                 "start_date",
                 "start_time",
                 "status",
-                "template_activity_line_id",
                 "test_type_id",
                 "total_candidate"
             ],
@@ -5694,6 +5756,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line_id": {
                     "type": "string"
                 },
                 "schedule_date": {
@@ -5942,11 +6010,12 @@ const docTemplate = `{
                 "location",
                 "name",
                 "project_pic_id",
+                "project_recruitment_header_id",
+                "project_recruitment_line_id",
                 "schedule_date",
                 "start_date",
                 "start_time",
                 "status",
-                "template_activity_line_id",
                 "test_type_id",
                 "total_candidate"
             ],
@@ -5987,6 +6056,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line_id": {
                     "type": "string"
                 },
                 "schedule_date": {

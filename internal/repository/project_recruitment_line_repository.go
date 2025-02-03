@@ -16,6 +16,7 @@ type IProjectRecruitmentLineRepository interface {
 	DeleteProjectRecruitmentLine(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.ProjectRecruitmentLine, error)
 	GetAllByKeys(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error)
+	FindByKeys(keys map[string]interface{}) (*entity.ProjectRecruitmentLine, error)
 }
 
 type ProjectRecruitmentLineRepository struct {
@@ -128,4 +129,17 @@ func (r *ProjectRecruitmentLineRepository) GetAllByKeys(keys map[string]interfac
 	}
 
 	return projectRecruitmentLines, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) FindByKeys(keys map[string]interface{}) (*entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLine entity.ProjectRecruitmentLine
+	if err := r.DB.Where(keys).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine.TemplateQuestion").First(&projectRecruitmentLine).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &projectRecruitmentLine, nil
 }

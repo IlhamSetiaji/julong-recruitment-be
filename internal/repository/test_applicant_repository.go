@@ -15,6 +15,7 @@ type ITestApplicantRepository interface {
 	UpdateTestApplicant(ent *entity.TestApplicant) (*entity.TestApplicant, error)
 	DeleteTestApplicant(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.TestApplicant, error)
+	FindAllByApplicantIDs(applicantIDs []uuid.UUID) ([]entity.TestApplicant, error)
 }
 
 type TestApplicantRepository struct {
@@ -118,4 +119,14 @@ func (r *TestApplicantRepository) FindByID(id uuid.UUID) (*entity.TestApplicant,
 	}
 
 	return &testApplicant, nil
+}
+
+func (r *TestApplicantRepository) FindAllByApplicantIDs(applicantIDs []uuid.UUID) ([]entity.TestApplicant, error) {
+	var testApplicants []entity.TestApplicant
+
+	if err := r.DB.Preload("TestScheduleHeader").Preload("UserProfile").Where("applicant_id IN ?", applicantIDs).Find(&testApplicants).Error; err != nil {
+		return nil, err
+	}
+
+	return testApplicants, nil
 }

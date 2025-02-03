@@ -18,4 +18,5 @@ type TestApplicantResponse struct {
 	UpdatedAt            time.Time                `json:"updated_at"`
 
 	UserProfile *UserProfileResponse `json:"user_profile"`
+	Applicant   *ApplicantResponse   `json:"applicant"`
 }

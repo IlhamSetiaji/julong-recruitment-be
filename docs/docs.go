@@ -1490,6 +1490,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/applicants/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "find applicant by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applicants"
+                ],
+                "summary": "find applicant by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Applicant ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/document-setups": {
             "get": {
                 "security": [
@@ -3895,6 +3932,12 @@ const docTemplate = `{
                 "template_question_id": {
                     "type": "string"
                 },
+                "test_applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TestApplicant"
+                    }
+                },
                 "user_profile": {
                     "$ref": "#/definitions/entity.UserProfile"
                 },
@@ -4827,6 +4870,12 @@ const docTemplate = `{
         "entity.TestApplicant": {
             "type": "object",
             "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/entity.Applicant"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
                 "end_time": {
                     "type": "string"
                 },
@@ -5456,12 +5505,16 @@ const docTemplate = `{
                     "items": {
                         "type": "object",
                         "required": [
+                            "applicant_id",
                             "end_time",
                             "final_result",
                             "start_time",
                             "user_profile_id"
                         ],
                         "properties": {
+                            "applicant_id": {
+                                "type": "string"
+                            },
                             "end_time": {
                                 "type": "string"
                             },
@@ -6903,6 +6956,9 @@ const docTemplate = `{
         "response.TestApplicantResponse": {
             "type": "object",
             "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/response.ApplicantResponse"
+                },
                 "created_at": {
                     "type": "string"
                 },

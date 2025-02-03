@@ -17,6 +17,7 @@ type IApplicantUseCase interface {
 	ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error)
 	GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order int) (*[]response.ApplicantResponse, error)
 	FindApplicantByJobPostingIDAndUserID(jobPostingID, userID uuid.UUID) (*response.ApplicantResponse, error)
+	FindByID(id uuid.UUID) (*entity.Applicant, error)
 }
 
 type ApplicantUseCase struct {
@@ -28,6 +29,8 @@ type ApplicantUseCase struct {
 	UserProfileRepository             repository.IUserProfileRepository
 	AdministrativeSelectionRepository repository.IAdministrativeSelectionRepository
 	AdministrativeResultRepository    repository.IAdministrativeResultRepository
+	TestApplicantRepository           repository.ITestApplicantRepository
+	ProjectRecruitmentLineRepository  repository.IProjectRecruitmentLineRepository
 }
 
 func NewApplicantUseCase(
@@ -39,6 +42,8 @@ func NewApplicantUseCase(
 	upRepo repository.IUserProfileRepository,
 	asRepo repository.IAdministrativeSelectionRepository,
 	arRepo repository.IAdministrativeResultRepository,
+	taRepo repository.ITestApplicantRepository,
+	prlRepo repository.IProjectRecruitmentLineRepository,
 ) IApplicantUseCase {
 	return &ApplicantUseCase{
 		Log:                               log,
@@ -49,6 +54,8 @@ func NewApplicantUseCase(
 		UserProfileRepository:             upRepo,
 		AdministrativeSelectionRepository: asRepo,
 		AdministrativeResultRepository:    arRepo,
+		TestApplicantRepository:           taRepo,
+		ProjectRecruitmentLineRepository:  prlRepo,
 	}
 }
 
@@ -59,7 +66,9 @@ func ApplicantUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IApplicantU
 	upRepo := repository.UserProfileRepositoryFactory(log)
 	asRepo := repository.AdministrativeSelectionRepositoryFactory(log)
 	arRepo := repository.AdministrativeResultRepositoryFactory(log)
-	return NewApplicantUseCase(log, repo, applicantDTO, viper, jpRepo, upRepo, asRepo, arRepo)
+	taRepo := repository.TestApplicantRepositoryFactory(log)
+	prlRepo := repository.ProjectRecruitmentLineRepositoryFactory(log)
+	return NewApplicantUseCase(log, repo, applicantDTO, viper, jpRepo, upRepo, asRepo, arRepo, taRepo, prlRepo)
 }
 
 func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error) {
@@ -175,6 +184,17 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 }
 
 func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order int) (*[]response.ApplicantResponse, error) {
+	// find job posting
+	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
+		return nil, err
+	}
+	if jobPosting == nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + "Job Posting not found")
+		return nil, errors.New("job posting not found")
+	}
+
 	applicants, err := uc.Repository.GetAllByKeys(map[string]interface{}{
 		"job_posting_id": jobPostingID,
 		"order":          order,
@@ -184,8 +204,63 @@ func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, 
 		return nil, err
 	}
 
-	applicantResponses := []response.ApplicantResponse{}
+	applicantIDs := []uuid.UUID{}
 	for _, applicant := range applicants {
+		applicantIDs = append(applicantIDs, applicant.ID)
+	}
+
+	// find project recruitment line that has order
+	projectRecruitmentLine, err := uc.ProjectRecruitmentLineRepository.FindByKeys(map[string]interface{}{
+		"project_recruitment_header_id": jobPosting.ProjectRecruitmentHeaderID,
+		"order":                         order,
+	})
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
+		return nil, err
+	}
+	if projectRecruitmentLine == nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + "Project Recruitment Line not found")
+		return nil, errors.New("project recruitment line not found")
+	}
+
+	applicantIDs = []uuid.UUID{}
+	for _, applicant := range applicants {
+		applicantIDs = append(applicantIDs, applicant.ID)
+	}
+
+	resultApplicants := &[]entity.Applicant{}
+	*resultApplicants = applicants
+
+	if projectRecruitmentLine.TemplateActivityLine != nil {
+		if projectRecruitmentLine.TemplateActivityLine.TemplateQuestion != nil {
+			if projectRecruitmentLine.TemplateActivityLine.TemplateQuestion.FormType == string(entity.TQ_FORM_TYPE_TEST) {
+				testApplicants, err := uc.TestApplicantRepository.FindAllByApplicantIDs(applicantIDs)
+				if err != nil {
+					uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
+					return nil, err
+				}
+
+				// filter applicants that have not taken the test
+				resultApplicants = &[]entity.Applicant{}
+				for _, applicant := range applicants {
+					var found bool
+					for _, testApplicant := range testApplicants {
+						if applicant.ID == testApplicant.ApplicantID {
+							found = true
+							break
+						}
+					}
+
+					if !found {
+						*resultApplicants = append(*resultApplicants, applicant)
+					}
+				}
+			}
+		}
+	}
+
+	applicantResponses := []response.ApplicantResponse{}
+	for _, applicant := range *resultApplicants {
 		applicantResponse, err := uc.DTO.ConvertEntityToResponse(&applicant)
 		if err != nil {
 			uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
@@ -243,4 +318,21 @@ func (uc *ApplicantUseCase) FindApplicantByJobPostingIDAndUserID(jobPostingID, u
 	}
 
 	return applicantResponse, nil
+}
+
+func (uc *ApplicantUseCase) FindByID(id uuid.UUID) (*entity.Applicant, error) {
+	applicant, err := uc.Repository.FindByKeys(map[string]interface{}{
+		"id": id,
+	})
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.FindByID] " + err.Error())
+		return nil, err
+	}
+
+	if applicant == nil {
+		uc.Log.Error("[ApplicantUseCase.FindByID] " + "Applicant not found")
+		return nil, errors.New("applicant not found")
+	}
+
+	return applicant, nil
 }

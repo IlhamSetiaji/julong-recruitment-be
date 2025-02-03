@@ -21,6 +21,7 @@ type IApplicantHandler interface {
 	ApplyJobPosting(ctx *gin.Context)
 	GetApplicantsByJobPostingID(ctx *gin.Context)
 	FindApplicantByJobPostingIDAndUserID(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
 }
 
 type ApplicantHandler struct {
@@ -209,6 +210,35 @@ func (h *ApplicantHandler) FindApplicantByJobPostingIDAndUserID(ctx *gin.Context
 	applicant, err := h.UseCase.FindApplicantByJobPostingIDAndUserID(jobPostingID, userUUID)
 	if err != nil {
 		h.Log.Errorf("[ApplicantHandler.FindApplicantByJobPostingIDAndUserID] error when finding applicant: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find applicant", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Successfully find applicant", applicant)
+}
+
+// FindByID find applicant by ID
+//
+// @Summary find applicant by ID
+// @Description find applicant by ID
+// @Tags Applicants
+// @Accept json
+// @Produce json
+// @Param id path string true "Applicant ID"
+// @Success 200 {object} response.ApplicantResponse
+// @Security BearerAuth
+// @Router /applicants/{id} [get]
+func (h *ApplicantHandler) FindByID(ctx *gin.Context) {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.FindByID] error when parsing id: %v", err)
+		utils.BadRequestResponse(ctx, "id is not a valid UUID", err)
+		return
+	}
+
+	applicant, err := h.UseCase.FindByID(id)
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.FindByID] error when finding applicant: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find applicant", err.Error())
 		return
 	}

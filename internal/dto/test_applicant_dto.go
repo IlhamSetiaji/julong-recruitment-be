@@ -14,6 +14,7 @@ type ITestApplicantDTO interface {
 type TestApplicantDTO struct {
 	Log            *logrus.Logger
 	UserProfileDTO IUserProfileDTO
+	ApplicantDTO   IApplicantDTO
 	Viper          *viper.Viper
 }
 
@@ -21,17 +22,20 @@ func NewTestApplicantDTO(
 	log *logrus.Logger,
 	userProfileDTO IUserProfileDTO,
 	viper *viper.Viper,
+	applicantDTO IApplicantDTO,
 ) ITestApplicantDTO {
 	return &TestApplicantDTO{
 		Log:            log,
 		UserProfileDTO: userProfileDTO,
 		Viper:          viper,
+		ApplicantDTO:   applicantDTO,
 	}
 }
 
 func TestApplicantDTOFactory(log *logrus.Logger, viper *viper.Viper) ITestApplicantDTO {
 	userProfileDTO := UserProfileDTOFactory(log, viper)
-	return NewTestApplicantDTO(log, userProfileDTO, viper)
+	applicantDTO := ApplicantDTOFactory(log, viper)
+	return NewTestApplicantDTO(log, userProfileDTO, viper, applicantDTO)
 }
 
 func (dto *TestApplicantDTO) ConvertEntityToResponse(ent *entity.TestApplicant) (*response.TestApplicantResponse, error) {
@@ -59,6 +63,16 @@ func (dto *TestApplicantDTO) ConvertEntityToResponse(ent *entity.TestApplicant) 
 			// }
 			// return resp
 			return userProfileResponse
+		}(),
+		Applicant: func() *response.ApplicantResponse {
+			if ent.Applicant == nil {
+				return nil
+			}
+			resp, err := dto.ApplicantDTO.ConvertEntityToResponse(ent.Applicant)
+			if err != nil {
+				return nil
+			}
+			return resp
 		}(),
 	}, nil
 }

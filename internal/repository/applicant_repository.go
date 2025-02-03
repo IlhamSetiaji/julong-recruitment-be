@@ -62,7 +62,7 @@ func (r *ApplicantRepository) CreateApplicant(applicant *entity.Applicant) (*ent
 
 func (r *ApplicantRepository) FindByKeys(keys map[string]interface{}) (*entity.Applicant, error) {
 	var applicant entity.Applicant
-	if err := r.DB.Where(keys).Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("JobPosting").First(&applicant).Error; err != nil {
+	if err := r.DB.Where(keys).Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("UserProfile.Educations").Preload("JobPosting").First(&applicant).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

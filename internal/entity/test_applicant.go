@@ -21,6 +21,7 @@ type TestApplicant struct {
 	gorm.Model           `json:"-"`
 	ID                   uuid.UUID         `json:"id" gorm:"type:char(36);primaryKey;"`
 	TestScheduleHeaderID uuid.UUID         `json:"test_schedule_header_id" gorm:"type:char(36);not null"`
+	ApplicantID          uuid.UUID         `json:"applicant_id" gorm:"type:char(36);default:null"`
 	UserProfileID        uuid.UUID         `json:"user_profile_id" gorm:"type:char(36);not null"`
 	StartTime            time.Time         `json:"start_time" gorm:"type:time;not null"`
 	EndTime              time.Time         `json:"end_time" gorm:"type:time;not null"`
@@ -28,6 +29,7 @@ type TestApplicant struct {
 
 	TestScheduleHeader *TestScheduleHeader `json:"test_schedule_header" gorm:"foreignKey:TestScheduleHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	UserProfile        *UserProfile        `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Applicant          *Applicant          `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (ta *TestApplicant) BeforeCreate(tx *gorm.DB) (err error) {

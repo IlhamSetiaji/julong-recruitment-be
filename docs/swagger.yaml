@@ -2912,6 +2912,29 @@ paths:
       summary: Find by id and user id
       tags:
       - Questions
+  /api/questions/id-only/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find by id only
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.QuestionResponse'
+      security:
+      - BearerAuth: []
+      summary: Find by id only
+      tags:
+      - Questions
   /api/questions/result:
     get:
       consumes:

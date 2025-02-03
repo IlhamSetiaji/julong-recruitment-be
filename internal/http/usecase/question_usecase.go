@@ -16,6 +16,7 @@ type IQuestionUseCase interface {
 	CreateOrUpdateQuestions(req *request.CreateOrUpdateQuestions) (*response.TemplateQuestionResponse, error)
 	FindByIDAndUserID(questionID, userID string) (*response.QuestionResponse, error)
 	FindAllByProjectRecruitmentLineIDAndJobPostingID(projectRecruitmentLineID uuid.UUID, jobPostingID uuid.UUID) (*[]response.QuestionResponse, error)
+	FindByID(questionID string) (*entity.Question, error)
 }
 
 type QuestionUseCase struct {
@@ -273,4 +274,20 @@ func (uc *QuestionUseCase) FindAllByProjectRecruitmentLineIDAndJobPostingID(proj
 	}
 
 	return &responses, nil
+}
+
+func (uc *QuestionUseCase) FindByID(questionID string) (*entity.Question, error) {
+	parsedID, err := uuid.Parse(questionID)
+	if err != nil {
+		uc.Log.Errorf("[QuestionUseCase.FindByID] error when parsing question id: %s", err.Error())
+		return nil, errors.New("[QuestionUseCase.FindByID] error when parsing question id: " + err.Error())
+	}
+
+	q, err := uc.Repository.FindByID(parsedID)
+	if err != nil {
+		uc.Log.Errorf("[QuestionUseCase.FindByID] error when finding question by id: %s", err.Error())
+		return nil, errors.New("[QuestionUseCase.FindByID] error when finding question by id: " + err.Error())
+	}
+
+	return q, nil
 }

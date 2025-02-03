@@ -20,6 +20,7 @@ type IQuestionHandler interface {
 	CreateOrUpdateQuestions(ctx *gin.Context)
 	FindByIDAndUserID(ctx *gin.Context)
 	FindAllByProjectRecruitmentLineIDAndJobPostingID(ctx *gin.Context)
+	FindByIDOnly(ctx *gin.Context)
 }
 
 type QuestionHandler struct {
@@ -177,6 +178,30 @@ func (h *QuestionHandler) FindAllByProjectRecruitmentLineIDAndJobPostingID(ctx *
 	qr, err := h.UseCase.FindAllByProjectRecruitmentLineIDAndJobPostingID(parsedPrhID, parsedJpID)
 	if err != nil {
 		h.Log.Error("[QuestionHandler.FindAllByProjectRecruitmentLineIDAndJobPostingID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", qr)
+}
+
+// FindByIDOnly find by id only
+//
+//	@Summary		Find by id only
+//	@Description	Find by id only
+//	@Tags			Questions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path	string	true	"ID"
+//	@Success		200		{object}	response.QuestionResponse
+//	@Security		BearerAuth
+//	@Router			/api/questions/id-only/{id} [get]
+func (h *QuestionHandler) FindByIDOnly(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	qr, err := h.UseCase.FindByID(id)
+	if err != nil {
+		h.Log.Error("[QuestionHandler.FindByIDOnly] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
 		return
 	}

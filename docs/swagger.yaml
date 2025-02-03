@@ -3287,6 +3287,10 @@ paths:
         in: query
         name: order
         type: string
+      - description: Total
+        in: query
+        name: total
+        type: string
       produces:
       - application/json
       responses:

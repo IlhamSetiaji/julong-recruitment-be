@@ -15,7 +15,7 @@ import (
 
 type IApplicantUseCase interface {
 	ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error)
-	GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order int) (*[]response.ApplicantResponse, error)
+	GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order int, total int) (*[]response.ApplicantResponse, error)
 	FindApplicantByJobPostingIDAndUserID(jobPostingID, userID uuid.UUID) (*response.ApplicantResponse, error)
 	FindByID(id uuid.UUID) (*entity.Applicant, error)
 }
@@ -183,7 +183,7 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 	return applicantResponse, nil
 }
 
-func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order int) (*[]response.ApplicantResponse, error) {
+func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order int, total int) (*[]response.ApplicantResponse, error) {
 	// find job posting
 	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
 	if err != nil {
@@ -256,6 +256,12 @@ func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, 
 					}
 				}
 			}
+		}
+	}
+
+	if total > 0 {
+		if len(*resultApplicants) > total {
+			*resultApplicants = (*resultApplicants)[:total]
 		}
 	}
 

@@ -16,6 +16,7 @@ type IQuestionResponseRepository interface {
 	DeleteQuestionResponse(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.QuestionResponse, error)
 	FindAllByQuestionID(questionID uuid.UUID) ([]entity.QuestionResponse, error)
+	GetAllByKeys(keys map[string]interface{}) ([]entity.QuestionResponse, error)
 }
 
 type QuestionResponseRepository struct {
@@ -128,6 +129,16 @@ func (r *QuestionResponseRepository) FindAllByQuestionID(questionID uuid.UUID) (
 	var questions []entity.QuestionResponse
 
 	if err := r.DB.Where("question_id = ?", questionID).Find(&questions).Error; err != nil {
+		return nil, err
+	}
+
+	return questions, nil
+}
+
+func (r *QuestionResponseRepository) GetAllByKeys(keys map[string]interface{}) ([]entity.QuestionResponse, error) {
+	var questions []entity.QuestionResponse
+
+	if err := r.DB.Preload("Question.TemplateQuestion").Where(keys).Find(&questions).Error; err != nil {
 		return nil, err
 	}
 

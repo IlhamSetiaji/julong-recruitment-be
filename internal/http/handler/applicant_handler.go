@@ -137,6 +137,7 @@ func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 // @Produce json
 // @Param job_posting_id path string true "Job Posting ID"
 // @Param order query string false "Order"
+// @Param total query string false "Total"
 // @Success 200 {array} response.ApplicantResponse
 // @Security BearerAuth
 // @Router /applicants/job-posting/{job_posting_id} [get]
@@ -153,6 +154,11 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 		orderStr = "1"
 	}
 
+	totalStr := ctx.Query("total")
+	if totalStr == "" {
+		totalStr = "0"
+	}
+
 	order, err := strconv.Atoi(orderStr)
 	if err != nil {
 		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when converting order to int: %v", err)
@@ -160,7 +166,14 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 		return
 	}
 
-	applicants, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID, order)
+	total, err := strconv.Atoi(totalStr)
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when converting total to int: %v", err)
+		utils.BadRequestResponse(ctx, "total is not a valid integer", err)
+		return
+	}
+
+	applicants, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID, order, total)
 	if err != nil {
 		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when getting applicants: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get applicants", err.Error())

@@ -1446,6 +1446,12 @@ const docTemplate = `{
                         "description": "Order",
                         "name": "order",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Total",
+                        "name": "total",
+                        "in": "query"
                     }
                 ],
                 "responses": {

@@ -16,6 +16,7 @@ import (
 type IProjectRecruitmentLineUseCase interface {
 	CreateOrUpdateProjectRecruitmentLines(req *request.CreateOrUpdateProjectRecruitmentLinesRequest) (*response.ProjectRecruitmentHeaderResponse, error)
 	GetAllByKeys(keys map[string]interface{}) ([]*response.ProjectRecruitmentLineResponse, error)
+	FindAllByFormType(formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error)
 }
 
 type ProjectRecruitmentLineUseCase struct {
@@ -26,6 +27,7 @@ type ProjectRecruitmentLineUseCase struct {
 	ProjectRecruitmentHeaderRepository repository.IProjectRecruitmentHeaderRepository
 	ProjectPicRepository               repository.IProjectPicRepository
 	ProjectRecruitmentHeaderDTO        dto.IProjectRecruitmentHeaderDTO
+	TemplateQuestionRepository         repository.ITemplateQuestionRepository
 }
 
 func NewProjectRecruitmentLineUseCase(
@@ -36,6 +38,7 @@ func NewProjectRecruitmentLineUseCase(
 	prhRepo repository.IProjectRecruitmentHeaderRepository,
 	picRepo repository.IProjectPicRepository,
 	prhDTO dto.IProjectRecruitmentHeaderDTO,
+	tqRepo repository.ITemplateQuestionRepository,
 ) IProjectRecruitmentLineUseCase {
 	return &ProjectRecruitmentLineUseCase{
 		Log:                                log,
@@ -45,6 +48,7 @@ func NewProjectRecruitmentLineUseCase(
 		ProjectRecruitmentHeaderRepository: prhRepo,
 		ProjectPicRepository:               picRepo,
 		ProjectRecruitmentHeaderDTO:        prhDTO,
+		TemplateQuestionRepository:         tqRepo,
 	}
 }
 
@@ -55,7 +59,8 @@ func ProjectRecruitmentLineUseCaseFactory(log *logrus.Logger) IProjectRecruitmen
 	prhRepo := repository.ProjectRecruitmentHeaderRepositoryFactory(log)
 	picRepo := repository.ProjectPicRepositoryFactory(log)
 	prhDTO := dto.ProjectRecruitmentHeaderDTOFactory(log)
-	return NewProjectRecruitmentLineUseCase(log, repo, prlDTO, talRepo, prhRepo, picRepo, prhDTO)
+	tqRepo := repository.TemplateQuestionRepositoryFactory(log)
+	return NewProjectRecruitmentLineUseCase(log, repo, prlDTO, talRepo, prhRepo, picRepo, prhDTO, tqRepo)
 }
 
 func (uc *ProjectRecruitmentLineUseCase) CreateOrUpdateProjectRecruitmentLines(req *request.CreateOrUpdateProjectRecruitmentLinesRequest) (*response.ProjectRecruitmentHeaderResponse, error) {
@@ -266,4 +271,41 @@ func (uc *ProjectRecruitmentLineUseCase) generateOrder(prhID uuid.UUID) (int, er
 	}
 
 	return maxOrder + 1, nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) FindAllByFormType(formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error) {
+	tQuestions, err := uc.TemplateQuestionRepository.FindAllByFormType(formType)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByFormType] error when finding template questions by form type: %s", err.Error())
+		return nil, err
+	}
+
+	questionIDs := make([]uuid.UUID, 0)
+	for _, tq := range *tQuestions {
+		questionIDs = append(questionIDs, tq.ID)
+	}
+
+	tActivityLines, err := uc.TemplateActivityLineRepository.FindAllByTemplateQuestionIDs(questionIDs)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByFormType] error when finding template activity lines by template question ids: %s", err.Error())
+		return nil, err
+	}
+
+	tActivityLineIDs := make([]uuid.UUID, 0)
+	for _, tal := range *tActivityLines {
+		tActivityLineIDs = append(tActivityLineIDs, tal.ID)
+	}
+
+	data, err := uc.Repository.FindAllByTemplateActivityLineIDs(tActivityLineIDs)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByFormType] error when finding project recruitment lines by template activity line ids: %s", err.Error())
+		return nil, err
+	}
+
+	responses := make([]*response.ProjectRecruitmentLineResponse, 0)
+	for _, d := range *data {
+		responses = append(responses, uc.DTO.ConvertEntityToResponse(&d))
+	}
+
+	return responses, nil
 }

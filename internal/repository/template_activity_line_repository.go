@@ -16,6 +16,7 @@ type ITemplateActivityLineRepository interface {
 	DeleteTemplateActivityLine(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.TemplateActivityLine, error)
 	FindByTemplateActivityID(templateActivityID uuid.UUID) (*[]entity.TemplateActivityLine, error)
+	FindAllByTemplateQuestionIDs(templateQuestionIDs []uuid.UUID) (*[]entity.TemplateActivityLine, error)
 }
 
 type TemplateActivityLineRepository struct {
@@ -126,6 +127,15 @@ func (r *TemplateActivityLineRepository) FindByID(id uuid.UUID) (*entity.Templat
 func (r *TemplateActivityLineRepository) FindByTemplateActivityID(templateActivityID uuid.UUID) (*[]entity.TemplateActivityLine, error) {
 	var templateActivityLines []entity.TemplateActivityLine
 	if err := r.DB.Preload("TemplateQuestion.Questions.QuestionOptions").Preload("TemplateQuestion.Questions.AnswerType").Preload("TemplateQuestion.Questions.QuestionResponses").Where("template_activity_id = ?", templateActivityID).Find(&templateActivityLines).Error; err != nil {
+		return nil, err
+	}
+
+	return &templateActivityLines, nil
+}
+
+func (r *TemplateActivityLineRepository) FindAllByTemplateQuestionIDs(templateQuestionIDs []uuid.UUID) (*[]entity.TemplateActivityLine, error) {
+	var templateActivityLines []entity.TemplateActivityLine
+	if err := r.DB.Preload("TemplateQuestion.Questions.QuestionOptions").Preload("TemplateQuestion.Questions.AnswerType").Preload("TemplateQuestion.Questions.QuestionResponses").Where("question_template_id IN ?", templateQuestionIDs).Find(&templateActivityLines).Error; err != nil {
 		return nil, err
 	}
 

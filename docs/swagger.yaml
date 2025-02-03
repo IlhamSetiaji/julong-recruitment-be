@@ -4237,6 +4237,31 @@ paths:
       summary: Create or update project recruitment lines
       tags:
       - Project Recruitment Lines
+  /project-recruitment-lines/form-type/{form_type}:
+    get:
+      consumes:
+      - application/json
+      description: Find all project recruitment lines by form type
+      parameters:
+      - description: form type
+        in: query
+        name: form_type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Find all project recruitment lines by form type
+      tags:
+      - Project Recruitment Lines
   /project-recruitment-lines/header/{project_recruitment_header_id}:
     get:
       consumes:

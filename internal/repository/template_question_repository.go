@@ -17,6 +17,7 @@ type ITemplateQuestionRepository interface {
 	GetAllFormTypes() ([]*entity.TemplateQuestionFormType, error)
 	UpdateTemplateQuestion(ent *entity.TemplateQuestion) (*entity.TemplateQuestion, error)
 	DeleteTemplateQuestion(id uuid.UUID) error
+	FindAllByFormType(formType entity.TemplateQuestionFormType) (*[]entity.TemplateQuestion, error)
 }
 
 type TemplateQuestionRepository struct {
@@ -168,4 +169,21 @@ func (r *TemplateQuestionRepository) DeleteTemplateQuestion(id uuid.UUID) error 
 	}
 
 	return nil
+}
+
+func (r *TemplateQuestionRepository) FindAllByFormType(formType entity.TemplateQuestionFormType) (*[]entity.TemplateQuestion, error) {
+	var templateQuestions []entity.TemplateQuestion
+
+	if err := r.DB.
+		Where("form_type = ?", formType).
+		Preload("Questions.AnswerType").
+		Preload("Questions.QuestionOptions").
+		Preload("DocumentSetup").
+		Find(&templateQuestions).
+		Error; err != nil {
+		r.Log.Errorf("[TemplateQuestionRepository.FindAllByFormType] error when finding template questions by form type: %v", err.Error())
+		return nil, err
+	}
+
+	return &templateQuestions, nil
 }

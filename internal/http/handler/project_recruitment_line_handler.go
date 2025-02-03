@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -17,6 +18,7 @@ import (
 type IProjectRecruitmentLineHandler interface {
 	CreateOrUpdateProjectRecruitmentLines(ctx *gin.Context)
 	FindAllByProjectRecruitmentHeaderID(ctx *gin.Context)
+	FindAllByFormType(ctx *gin.Context)
 }
 
 type ProjectRecruitmentLineHandler struct {
@@ -109,6 +111,35 @@ func (h *ProjectRecruitmentLineHandler) FindAllByProjectRecruitmentHeaderID(ctx 
 	})
 	if err != nil {
 		h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
+}
+
+// FindAllByFormType find all project recruitment lines by form type
+//
+//	@Summary		Find all project recruitment lines by form type
+//	@Description	Find all project recruitment lines by form type
+//	@Tags			Project Recruitment Lines
+//	@Accept			json
+//	@Produce		json
+//	@Param			form_type query string true "form type"
+//	@Success		200	{array} response.ProjectRecruitmentLineResponse
+//	@Security BearerAuth
+//	@Router			/project-recruitment-lines/form-type/{form_type} [get]
+func (h *ProjectRecruitmentLineHandler) FindAllByFormType(ctx *gin.Context) {
+	formType := ctx.Query("form_type")
+	if formType == "" {
+		h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByFormType] form type is required")
+		utils.BadRequestResponse(ctx, "bad request", "form type is required")
+		return
+	}
+
+	res, err := h.UseCase.FindAllByFormType(entity.TemplateQuestionFormType(formType))
+	if err != nil {
+		h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByFormType] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
 		return
 	}

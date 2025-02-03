@@ -2968,6 +2968,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/project-recruitment-lines/form-type/{form_type}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all project recruitment lines by form type",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Lines"
+                ],
+                "summary": "Find all project recruitment lines by form type",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "form type",
+                        "name": "form_type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/project-recruitment-lines/header/{project_recruitment_header_id}": {
             "get": {
                 "security": [

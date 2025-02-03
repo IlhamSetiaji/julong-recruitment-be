@@ -30,6 +30,7 @@ type JobPostingResponse struct {
 	IsSaved                    bool                          `json:"is_saved"`
 	AppliedDate                time.Time                     `json:"applied_date"`
 	ApplicantStatus            entity.ApplicantStatus        `json:"apply_status"`
+	MinimumWorkExperience      string                        `json:"minimum_work_experience"`
 
 	ForOrganizationName     string `json:"for_organization_name"`
 	ForOrganizationLocation string `json:"for_organization_location"`

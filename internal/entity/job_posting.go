@@ -39,6 +39,7 @@ type JobPosting struct {
 	OrganizationLogo           string                 `json:"organization_logo" gorm:"type:text;default:null"`
 	Poster                     string                 `json:"poster" gorm:"type:text;default:null"`
 	Link                       string                 `json:"link" gorm:"type:text;default:null"`
+	MinimumWorkExperience      string                 `json:"minimum_work_experience" gorm:"type:varchar(255);default:null"`
 
 	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	MPRequest                *MPRequest                `json:"mp_request" gorm:"foreignKey:MPRequestID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

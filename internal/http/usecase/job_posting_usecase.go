@@ -166,6 +166,7 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 		OrganizationLogo:           req.OrganizationLogoPath,
 		Poster:                     req.PosterPath,
 		Link:                       req.Link,
+		MinimumWorkExperience:      req.MinimumWorkExperience,
 	})
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + err.Error())
@@ -374,6 +375,7 @@ func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingReque
 		OrganizationLogo:           req.OrganizationLogoPath,
 		Poster:                     req.PosterPath,
 		Link:                       req.Link,
+		MinimumWorkExperience:      req.MinimumWorkExperience,
 	})
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())

@@ -20,6 +20,7 @@ type CreateJobPostingRequest struct {
 	OrganizationLogo           *multipart.FileHeader `form:"organization_logo" validate:"omitempty"`
 	Poster                     *multipart.FileHeader `form:"poster" validate:"omitempty"`
 	Link                       string                `form:"link" validate:"omitempty"`
+	MinimumWorkExperience      string                `form:"minimum_work_experience" validate:"omitempty"`
 	OrganizationLogoPath       string                `form:"organization_logo_path" validate:"omitempty"`
 	PosterPath                 string                `form:"poster_path" validate:"omitempty"`
 }
@@ -43,6 +44,7 @@ type UpdateJobPostingRequest struct {
 	OrganizationLogo           *multipart.FileHeader `form:"organization_logo" validate:"omitempty"`
 	Poster                     *multipart.FileHeader `form:"poster" validate:"omitempty"`
 	Link                       string                `form:"link" validate:"omitempty"`
+	MinimumWorkExperience      string                `form:"minimum_work_experience" validate:"omitempty"`
 	OrganizationLogoPath       string                `form:"organization_logo_path" validate:"omitempty"`
 	PosterPath                 string                `form:"poster_path" validate:"omitempty"`
 	DeletedOrganizationLogo    string                `form:"deleted_organization_logo" validate:"omitempty"`

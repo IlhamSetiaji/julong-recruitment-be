@@ -11,7 +11,7 @@ import (
 )
 
 type IAdministrativeSelectionRepository interface {
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.AdministrativeSelection, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.AdministrativeSelection, int64, error)
 	CreateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error)
 	FindByID(id uuid.UUID) (*entity.AdministrativeSelection, error)
 	UpdateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error)
@@ -70,7 +70,7 @@ func (r *AdministrativeSelectionRepository) CreateAdministrativeSelection(ent *e
 	return ent, nil
 }
 
-func (r *AdministrativeSelectionRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.AdministrativeSelection, int64, error) {
+func (r *AdministrativeSelectionRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.AdministrativeSelection, int64, error) {
 	var entities []entity.AdministrativeSelection
 	var total int64
 
@@ -78,6 +78,10 @@ func (r *AdministrativeSelectionRepository) FindAllPaginated(page, pageSize int,
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
+	if filter["status"] != nil {
+		query = query.Where("status = ?", filter["status"])
 	}
 
 	for key, value := range sort {

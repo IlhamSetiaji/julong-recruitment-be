@@ -66,6 +66,12 @@ const docTemplate = `{
                         "description": "Sort",
                         "name": "sort",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -140,6 +146,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/administrative-selections/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update administrative selection",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Selection"
+                ],
+                "summary": "Update administrative selection",
+                "parameters": [
+                    {
+                        "description": "Update Administrative Selection",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateAdministrativeSelectionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.AdministrativeSelectionResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/administrative-selections/verify/{id}": {
             "get": {
                 "security": [
@@ -199,43 +244,6 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.AdministrativeSelectionResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Update administrative selection",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Administrative Selection"
-                ],
-                "summary": "Update administrative selection",
-                "parameters": [
-                    {
-                        "description": "Update Administrative Selection",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.UpdateAdministrativeSelectionRequest"
-                        }
                     }
                 ],
                 "responses": {

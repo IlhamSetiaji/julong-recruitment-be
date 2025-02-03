@@ -20,6 +20,7 @@ type ProjectRecruitmentLine struct {
 	TemplateActivityLine     *TemplateActivityLine     `json:"template_activity_line" gorm:"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectPics              []ProjectPic              `json:"project_pics" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DocumentSendings         []DocumentSending         `json:"document_sendings" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TestScheduleHeaders      []TestScheduleHeader      `json:"test_schedule_headers" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (prl *ProjectRecruitmentLine) BeforeCreate(tx *gorm.DB) (err error) {

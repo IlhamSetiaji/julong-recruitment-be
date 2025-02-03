@@ -16,7 +16,7 @@ import (
 )
 
 type IAdministrativeSelectionUsecase interface {
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.AdministrativeSelectionResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.AdministrativeSelectionResponse, int64, error)
 	CreateAdministrativeSelection(req *request.CreateAdministrativeSelectionRequest) (*response.AdministrativeSelectionResponse, error)
 	FindByID(id string) (*response.AdministrativeSelectionResponse, error)
 	UpdateAdministrativeSelection(req *request.UpdateAdministrativeSelectionRequest) (*response.AdministrativeSelectionResponse, error)
@@ -60,8 +60,8 @@ func AdministrativeSelectionUsecaseFactory(log *logrus.Logger, viper *viper.Vipe
 	return NewAdministrativeSelectionUsecase(log, repo, asDto, viper, jpRepo, ppRepo)
 }
 
-func (uc *AdministrativeSelectionUsecase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.AdministrativeSelectionResponse, int64, error) {
-	entities, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+func (uc *AdministrativeSelectionUsecase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.AdministrativeSelectionResponse, int64, error) {
+	entities, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[AdministrativeSelectionUsecase.FindAllPaginated] " + err.Error())
 		return nil, 0, err

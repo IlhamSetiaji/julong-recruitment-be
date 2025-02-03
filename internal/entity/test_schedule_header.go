@@ -16,32 +16,36 @@ const (
 )
 
 type TestScheduleHeader struct {
-	gorm.Model             `json:"-"`
-	ID                     uuid.UUID          `json:"id" gorm:"type:char(36);primaryKey;"`
-	JobPostingID           uuid.UUID          `json:"job_posting_id" gorm:"type:char(36);not null"`
-	TestTypeID             uuid.UUID          `json:"test_type_id" gorm:"type:char(36);not null"`
-	ProjectPicID           uuid.UUID          `json:"project_pic_id" gorm:"type:char(36);not null"`
-	TemplateActivityLineID uuid.UUID          `json:"template_activity_line_id" gorm:"type:char(36);not null"`
-	JobID                  *uuid.UUID         `json:"job_id" gorm:"type:char(36);not null"`
-	Name                   string             `json:"name" gorm:"type:text;not null"`
-	DocumentNumber         string             `json:"document_number" gorm:"type:text;not null"`
-	StartDate              time.Time          `json:"start_date" gorm:"type:date;not null"`
-	EndDate                time.Time          `json:"end_date" gorm:"type:date;not null"`
-	StartTime              time.Time          `json:"start_time" gorm:"type:time;not null"`
-	EndTime                time.Time          `json:"end_time" gorm:"type:time;not null"`
-	Link                   string             `json:"link" gorm:"type:text;not null"`
-	Location               string             `json:"location" gorm:"type:text;not null"`
-	Description            string             `json:"description" gorm:"type:text;not null"`
-	TotalCandidate         int                `json:"total_candidate" gorm:"type:int;not null"`
-	Status                 TestScheduleStatus `json:"status" gorm:"type:varchar(255);default:'DRAFT'"`
-	ScheduleDate           time.Time          `json:"schedule_date" gorm:"type:date;not null"`
-	Platform               string             `json:"platform" gorm:"type:text;default:null"`
+	gorm.Model                 `json:"-"`
+	ID                         uuid.UUID          `json:"id" gorm:"type:char(36);primaryKey;"`
+	JobPostingID               uuid.UUID          `json:"job_posting_id" gorm:"type:char(36);not null"`
+	TestTypeID                 uuid.UUID          `json:"test_type_id" gorm:"type:char(36);not null"`
+	ProjectPicID               uuid.UUID          `json:"project_pic_id" gorm:"type:char(36);not null"`
+	TemplateActivityLineID     uuid.UUID          `json:"template_activity_line_id" gorm:"type:char(36);null"`
+	ProjectRecruitmentHeaderID uuid.UUID          `json:"project_recruitment_header_id" gorm:"type:char(36);default:null"`
+	ProjectRecruitmentLineID   uuid.UUID          `json:"project_recruitment_line_id" gorm:"type:char(36);default:null"`
+	JobID                      *uuid.UUID         `json:"job_id" gorm:"type:char(36);not null"`
+	Name                       string             `json:"name" gorm:"type:text;not null"`
+	DocumentNumber             string             `json:"document_number" gorm:"type:text;not null"`
+	StartDate                  time.Time          `json:"start_date" gorm:"type:date;not null"`
+	EndDate                    time.Time          `json:"end_date" gorm:"type:date;not null"`
+	StartTime                  time.Time          `json:"start_time" gorm:"type:time;not null"`
+	EndTime                    time.Time          `json:"end_time" gorm:"type:time;not null"`
+	Link                       string             `json:"link" gorm:"type:text;not null"`
+	Location                   string             `json:"location" gorm:"type:text;not null"`
+	Description                string             `json:"description" gorm:"type:text;not null"`
+	TotalCandidate             int                `json:"total_candidate" gorm:"type:int;not null"`
+	Status                     TestScheduleStatus `json:"status" gorm:"type:varchar(255);default:'DRAFT'"`
+	ScheduleDate               time.Time          `json:"schedule_date" gorm:"type:date;not null"`
+	Platform                   string             `json:"platform" gorm:"type:text;default:null"`
 
-	JobPosting           *JobPosting           `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TestType             *TestType             `json:"test_type" gorm:"foreignKey:TestTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	ProjectPic           *ProjectPic           `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TemplateActivityLine *TemplateActivityLine `json:"template_activity_line" gorm:"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TestApplicants       []TestApplicant       `json:"test_applicants" gorm:"foreignKey:TestScheduleHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	JobPosting               *JobPosting               `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TestType                 *TestType                 `json:"test_type" gorm:"foreignKey:TestTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectPic               *ProjectPic               `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TemplateActivityLine     *TemplateActivityLine     `json:"template_activity_line" gorm:"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	TestApplicants           []TestApplicant           `json:"test_applicants" gorm:"foreignKey:TestScheduleHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectRecruitmentLine   *ProjectRecruitmentLine   `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	JobName string `json:"job_name" gorm:"-"`
 }

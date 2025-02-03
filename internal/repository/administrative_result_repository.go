@@ -145,7 +145,7 @@ func (r *AdministrativeResultRepository) FindAllByAdministrativeSelectionID(admi
 	var entities []entity.AdministrativeResult
 	var total int64
 
-	query := r.DB.Preload("UserProfile").Where("administrative_selection_id = ?", administrativeSelectionID)
+	query := r.DB.Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("UserProfile.Educations").Where("administrative_selection_id = ?", administrativeSelectionID)
 
 	// if search != "" {
 	// 	query = query.Where("document_number ILIKE ?", "%"+search+"%")

@@ -25,13 +25,15 @@ type ITestScheduleHeaderUsecase interface {
 }
 
 type TestScheduleHeaderUsecase struct {
-	Log                  *logrus.Logger
-	Repository           repository.ITestScheduleHeaderRepository
-	DTO                  dto.ITestScheduleHeaderDTO
-	Viper                *viper.Viper
-	JobPostingRepository repository.IJobPostingRepository
-	TestTypeRepository   repository.ITestTypeRepository
-	ProjectPicRepository repository.IProjectPicRepository
+	Log                                *logrus.Logger
+	Repository                         repository.ITestScheduleHeaderRepository
+	DTO                                dto.ITestScheduleHeaderDTO
+	Viper                              *viper.Viper
+	JobPostingRepository               repository.IJobPostingRepository
+	TestTypeRepository                 repository.ITestTypeRepository
+	ProjectPicRepository               repository.IProjectPicRepository
+	ProjectRecruitmentHeaderRepository repository.IProjectRecruitmentHeaderRepository
+	ProjectRecruitmentLineRepository   repository.IProjectRecruitmentLineRepository
 }
 
 func NewTestScheduleHeaderUsecase(
@@ -42,15 +44,19 @@ func NewTestScheduleHeaderUsecase(
 	jpRepo repository.IJobPostingRepository,
 	ttRepo repository.ITestTypeRepository,
 	ppRepo repository.IProjectPicRepository,
+	prhRepo repository.IProjectRecruitmentHeaderRepository,
+	prlRepo repository.IProjectRecruitmentLineRepository,
 ) ITestScheduleHeaderUsecase {
 	return &TestScheduleHeaderUsecase{
-		Log:                  log,
-		Repository:           repo,
-		DTO:                  tshDTO,
-		Viper:                viper,
-		JobPostingRepository: jpRepo,
-		TestTypeRepository:   ttRepo,
-		ProjectPicRepository: ppRepo,
+		Log:                                log,
+		Repository:                         repo,
+		DTO:                                tshDTO,
+		Viper:                              viper,
+		JobPostingRepository:               jpRepo,
+		TestTypeRepository:                 ttRepo,
+		ProjectPicRepository:               ppRepo,
+		ProjectRecruitmentHeaderRepository: prhRepo,
+		ProjectRecruitmentLineRepository:   prlRepo,
 	}
 }
 
@@ -60,7 +66,9 @@ func TestScheduleHeaderUsecaseFactory(log *logrus.Logger, viper *viper.Viper) IT
 	jpRepo := repository.JobPostingRepositoryFactory(log)
 	ttRepo := repository.TestTypeRepositoryFactory(log)
 	ppRepo := repository.ProjectPicRepositoryFactory(log)
-	return NewTestScheduleHeaderUsecase(log, repo, tshDTO, viper, jpRepo, ttRepo, ppRepo)
+	prhRepo := repository.ProjectRecruitmentHeaderRepositoryFactory(log)
+	prlRepo := repository.ProjectRecruitmentLineRepositoryFactory(log)
+	return NewTestScheduleHeaderUsecase(log, repo, tshDTO, viper, jpRepo, ttRepo, ppRepo, prhRepo, prlRepo)
 }
 
 func (uc *TestScheduleHeaderUsecase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TestScheduleHeaderResponse, int64, error) {
@@ -148,11 +156,11 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		return nil, err
 	}
 
-	parsedTmplActLineID, err := uuid.Parse(req.TemplateActivityLineID)
-	if err != nil {
-		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
-		return nil, err
-	}
+	// parsedTmplActLineID, err := uuid.Parse(req.TemplateActivityLineID)
+	// if err != nil {
+	// 	uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+	// 	return nil, err
+	// }
 
 	parsedStartDate, err := time.Parse("2006-01-02", req.StartDate)
 	if err != nil {
@@ -184,26 +192,44 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		return nil, err
 	}
 
+	parsedPrhID, err := uuid.Parse(req.ProjectRecruitmentHeaderID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+
+	parsedPrlID, err := uuid.Parse(req.ProjectRecruitmentLineID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+
 	testScheduleHeader, err := uc.Repository.CreateTestScheduleHeader(&entity.TestScheduleHeader{
-		JobPostingID:           parsedJobPostingID,
-		TestTypeID:             parsedTestTypeID,
-		ProjectPicID:           parsedProjectPicID,
-		TemplateActivityLineID: parsedTmplActLineID,
-		JobID:                  &parsedJobID,
-		Name:                   req.Name,
-		DocumentNumber:         req.DocumentNumber,
-		StartDate:              parsedStartDate,
-		EndDate:                parsedEndDate,
-		StartTime:              parsedStartTime,
-		EndTime:                parsedEndTime,
-		Link:                   req.Link,
-		Location:               req.Location,
-		Description:            req.Description,
-		TotalCandidate:         req.TotalCandidate,
-		Status:                 entity.TestScheduleStatus(req.Status),
-		ScheduleDate:           parsedScheduleDate,
-		Platform:               req.Platform,
+		JobPostingID:               parsedJobPostingID,
+		TestTypeID:                 parsedTestTypeID,
+		ProjectPicID:               parsedProjectPicID,
+		ProjectRecruitmentHeaderID: parsedPrhID,
+		ProjectRecruitmentLineID:   parsedPrlID,
+		JobID:                      &parsedJobID,
+		Name:                       req.Name,
+		DocumentNumber:             req.DocumentNumber,
+		StartDate:                  parsedStartDate,
+		EndDate:                    parsedEndDate,
+		StartTime:                  parsedStartTime,
+		EndTime:                    parsedEndTime,
+		Link:                       req.Link,
+		Location:                   req.Location,
+		Description:                req.Description,
+		TotalCandidate:             req.TotalCandidate,
+		Status:                     entity.TestScheduleStatus(req.Status),
+		ScheduleDate:               parsedScheduleDate,
+		Platform:                   req.Platform,
 	})
+
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
 
 	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
 	if err != nil {
@@ -280,7 +306,19 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 		return nil, err
 	}
 
-	parsedTmplActLineID, err := uuid.Parse(req.TemplateActivityLineID)
+	// parsedTmplActLineID, err := uuid.Parse(req.TemplateActivityLineID)
+	// if err != nil {
+	// 	uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+	// 	return nil, err
+	// }
+
+	parsedPrhID, err := uuid.Parse(req.ProjectRecruitmentHeaderID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+
+	parsedPrlID, err := uuid.Parse(req.ProjectRecruitmentLineID)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
 		return nil, err
@@ -323,26 +361,32 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 	}
 
 	testScheduleHeader, err := uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
-		ID:                     parsedID,
-		JobPostingID:           parsedJobPostingID,
-		TestTypeID:             parsedTestTypeID,
-		ProjectPicID:           parsedProjectPicID,
-		JobID:                  &parsedJobID,
-		TemplateActivityLineID: parsedTmplActLineID,
-		Name:                   req.Name,
-		DocumentNumber:         req.DocumentNumber,
-		StartDate:              parsedStartDate,
-		EndDate:                parsedEndDate,
-		StartTime:              parsedStartTime,
-		EndTime:                parsedEndTime,
-		Link:                   req.Link,
-		Location:               req.Location,
-		Description:            req.Description,
-		TotalCandidate:         req.TotalCandidate,
-		ScheduleDate:           parsedScheduleDate,
-		Platform:               req.Platform,
-		Status:                 entity.TestScheduleStatus(req.Status),
+		ID:                         parsedID,
+		JobPostingID:               parsedJobPostingID,
+		TestTypeID:                 parsedTestTypeID,
+		ProjectPicID:               parsedProjectPicID,
+		JobID:                      &parsedJobID,
+		ProjectRecruitmentHeaderID: parsedPrhID,
+		ProjectRecruitmentLineID:   parsedPrlID,
+		Name:                       req.Name,
+		DocumentNumber:             req.DocumentNumber,
+		StartDate:                  parsedStartDate,
+		EndDate:                    parsedEndDate,
+		StartTime:                  parsedStartTime,
+		EndTime:                    parsedEndTime,
+		Link:                       req.Link,
+		Location:                   req.Location,
+		Description:                req.Description,
+		TotalCandidate:             req.TotalCandidate,
+		ScheduleDate:               parsedScheduleDate,
+		Platform:                   req.Platform,
+		Status:                     entity.TestScheduleStatus(req.Status),
 	})
+
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
 
 	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
 	if err != nil {

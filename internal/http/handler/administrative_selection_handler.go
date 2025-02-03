@@ -98,18 +98,19 @@ func (h *AdministrativeSelectionHandler) CreateAdministrativeSelection(ctx *gin.
 
 // FindAllPaginated find all administrative selection paginated
 //
-//	@Summary		Find all administrative selection paginated
-//	@Description	Find all administrative selection paginated
-//	@Tags			Administrative Selection
-//	@Accept			json
-//	@Produce		json
-//	@Param			page query int false "Page"
-//	@Param			pageSize query int false "Page Size"
-//	@Param			search query string false "Search"
-//	@Param			sort query string false "Sort"
-//	@Success		200 {object} response.AdministrativeSelectionResponse
-//	@Security BearerAuth
-//	@Router			/administrative-selections [get]
+//		@Summary		Find all administrative selection paginated
+//		@Description	Find all administrative selection paginated
+//		@Tags			Administrative Selection
+//		@Accept			json
+//		@Produce		json
+//		@Param			page query int false "Page"
+//		@Param			pageSize query int false "Page Size"
+//		@Param			search query string false "Search"
+//		@Param			sort query string false "Sort"
+//	 @Param			status query string false "Status"
+//		@Success		200 {object} response.AdministrativeSelectionResponse
+//		@Security BearerAuth
+//		@Router			/administrative-selections [get]
 func (h *AdministrativeSelectionHandler) FindAllPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
@@ -135,7 +136,13 @@ func (h *AdministrativeSelectionHandler) FindAllPaginated(ctx *gin.Context) {
 		"created_at": createdAt,
 	}
 
-	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("[AdministrativeSelectionHandler.FindAllPaginated] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when finding all administrative selection", err.Error())
@@ -187,7 +194,7 @@ func (h *AdministrativeSelectionHandler) FindByID(ctx *gin.Context) {
 //	@Param			payload body request.UpdateAdministrativeSelectionRequest true "Update Administrative Selection"
 //	@Success		200 {object} response.AdministrativeSelectionResponse
 //	@Security BearerAuth
-//	@Router			/administrative-selections/{id} [put]
+//	@Router			/administrative-selections/update [put]
 func (h *AdministrativeSelectionHandler) UpdateAdministrativeSelection(ctx *gin.Context) {
 	var payload request.UpdateAdministrativeSelectionRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {

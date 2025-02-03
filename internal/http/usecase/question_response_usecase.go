@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -89,7 +91,7 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 		}
 		if jp == nil {
 			uc.Log.Errorf("[QuestionResponseUseCase.CreateOrUpdateQuestionResponses] job posting with id %s not found", ans.JobPostingID)
-			return nil, err
+			return nil, errors.New("job posting not found")
 		}
 
 		parsedUserProfileID, err := uuid.Parse(ans.UserProfileID)
@@ -105,8 +107,9 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 		}
 		if up == nil {
 			uc.Log.Errorf("[QuestionResponseUseCase.CreateOrUpdateQuestionResponses] user profile with id %s not found", ans.UserProfileID)
-			return nil, err
+			return nil, errors.New("user profile not found")
 		}
+		uc.Log.Info("Halooo")
 
 		// check if answer is exist
 		if ans.ID != nil {
@@ -122,6 +125,7 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 			}
 
 			if exist == nil {
+				uc.Log.Infof("kontol: %+v", ans)
 				_, err := uc.Repository.CreateQuestionResponse(&entity.QuestionResponse{
 					QuestionID:    question.ID,
 					JobPostingID:  jp.ID,
@@ -134,6 +138,7 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 					return nil, err
 				}
 			} else {
+				uc.Log.Infof("memek: %+v", ans)
 				_, err := uc.Repository.UpdateQuestionResponse(&entity.QuestionResponse{
 					ID:            exist.ID,
 					QuestionID:    question.ID,
@@ -149,7 +154,8 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 				}
 			}
 		} else {
-			_, err := uc.Repository.CreateQuestionResponse(&entity.QuestionResponse{
+			uc.Log.Infof("cok: %+v", ans)
+			hasil, err := uc.Repository.CreateQuestionResponse(&entity.QuestionResponse{
 				QuestionID:    question.ID,
 				JobPostingID:  jp.ID,
 				UserProfileID: up.ID,
@@ -160,6 +166,8 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 				uc.Log.Errorf("[QuestionResponseUseCase.CreateOrUpdateQuestionResponses] error when creating answer: %s", err.Error())
 				return nil, err
 			}
+
+			uc.Log.Infof("hasil: %+v", hasil)
 		}
 	}
 

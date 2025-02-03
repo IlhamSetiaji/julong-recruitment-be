@@ -34,6 +34,9 @@ type TestScheduleHeaderUsecase struct {
 	ProjectPicRepository               repository.IProjectPicRepository
 	ProjectRecruitmentHeaderRepository repository.IProjectRecruitmentHeaderRepository
 	ProjectRecruitmentLineRepository   repository.IProjectRecruitmentLineRepository
+	UserProfileRepository              repository.IUserProfileRepository
+	ApplicantRepository                repository.IApplicantRepository
+	TestApplicantRepository            repository.ITestApplicantRepository
 }
 
 func NewTestScheduleHeaderUsecase(
@@ -46,6 +49,9 @@ func NewTestScheduleHeaderUsecase(
 	ppRepo repository.IProjectPicRepository,
 	prhRepo repository.IProjectRecruitmentHeaderRepository,
 	prlRepo repository.IProjectRecruitmentLineRepository,
+	upRepo repository.IUserProfileRepository,
+	applicantRepo repository.IApplicantRepository,
+	taRepo repository.ITestApplicantRepository,
 ) ITestScheduleHeaderUsecase {
 	return &TestScheduleHeaderUsecase{
 		Log:                                log,
@@ -57,6 +63,9 @@ func NewTestScheduleHeaderUsecase(
 		ProjectPicRepository:               ppRepo,
 		ProjectRecruitmentHeaderRepository: prhRepo,
 		ProjectRecruitmentLineRepository:   prlRepo,
+		UserProfileRepository:              upRepo,
+		ApplicantRepository:                applicantRepo,
+		TestApplicantRepository:            taRepo,
 	}
 }
 
@@ -68,7 +77,10 @@ func TestScheduleHeaderUsecaseFactory(log *logrus.Logger, viper *viper.Viper) IT
 	ppRepo := repository.ProjectPicRepositoryFactory(log)
 	prhRepo := repository.ProjectRecruitmentHeaderRepositoryFactory(log)
 	prlRepo := repository.ProjectRecruitmentLineRepositoryFactory(log)
-	return NewTestScheduleHeaderUsecase(log, repo, tshDTO, viper, jpRepo, ttRepo, ppRepo, prhRepo, prlRepo)
+	upRepo := repository.UserProfileRepositoryFactory(log)
+	applicantRepo := repository.ApplicantRepositoryFactory(log)
+	taRepo := repository.TestApplicantRepositoryFactory(log)
+	return NewTestScheduleHeaderUsecase(log, repo, tshDTO, viper, jpRepo, ttRepo, ppRepo, prhRepo, prlRepo, upRepo, applicantRepo, taRepo)
 }
 
 func (uc *TestScheduleHeaderUsecase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TestScheduleHeaderResponse, int64, error) {
@@ -441,4 +453,98 @@ func (uc *TestScheduleHeaderUsecase) GenerateDocumentNumber(dateNow time.Time) (
 	newNumber := highestNumber + 1
 	documentNumber := fmt.Sprintf("JP/%s/%03d", dateNow.Format("20060102"), newNumber)
 	return documentNumber, nil
+}
+
+func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID uuid.UUID, order int, total int) (*response.TestApplicantsPayload, error) {
+	// find job posting
+	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
+		return nil, err
+	}
+	if jobPosting == nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + "Job Posting not found")
+		return nil, errors.New("job posting not found")
+	}
+
+	applicants, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
+		"job_posting_id": jobPostingID,
+		"order":          order,
+	})
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
+		return nil, err
+	}
+
+	applicantIDs := []uuid.UUID{}
+	for _, applicant := range applicants {
+		applicantIDs = append(applicantIDs, applicant.ID)
+	}
+
+	// find project recruitment line that has order
+	projectRecruitmentLine, err := uc.ProjectRecruitmentLineRepository.FindByKeys(map[string]interface{}{
+		"project_recruitment_header_id": jobPosting.ProjectRecruitmentHeaderID,
+	})
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
+		return nil, err
+	}
+	if projectRecruitmentLine == nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + "Project Recruitment Line not found")
+		return nil, errors.New("project recruitment line not found")
+	}
+
+	applicantIDs = []uuid.UUID{}
+	for _, applicant := range applicants {
+		applicantIDs = append(applicantIDs, applicant.ID)
+	}
+
+	resultApplicants := &[]entity.Applicant{}
+	*resultApplicants = applicants
+
+	if projectRecruitmentLine.TemplateActivityLine != nil {
+		if projectRecruitmentLine.TemplateActivityLine.TemplateQuestion != nil {
+			if projectRecruitmentLine.TemplateActivityLine.TemplateQuestion.FormType == string(entity.TQ_FORM_TYPE_TEST) {
+				testApplicants, err := uc.TestApplicantRepository.FindAllByApplicantIDs(applicantIDs)
+				if err != nil {
+					uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
+					return nil, err
+				}
+
+				// filter applicants that have not taken the test
+				resultApplicants = &[]entity.Applicant{}
+				for _, applicant := range applicants {
+					var found bool
+					for _, testApplicant := range testApplicants {
+						if applicant.ID == testApplicant.ApplicantID {
+							found = true
+							break
+						}
+					}
+
+					if !found {
+						*resultApplicants = append(*resultApplicants, applicant)
+					}
+				}
+			}
+		}
+	}
+
+	if total > 0 {
+		if len(*resultApplicants) > total {
+			*resultApplicants = (*resultApplicants)[:total]
+		}
+	}
+
+	resultApplicantIDs := []uuid.UUID{}
+	userProfileIDs := []uuid.UUID{}
+	for _, applicant := range *resultApplicants {
+		resultApplicantIDs = append(resultApplicantIDs, applicant.ID)
+		userProfileIDs = append(userProfileIDs, applicant.UserProfileID)
+	}
+
+	return &response.TestApplicantsPayload{
+		ApplicantIDs:   resultApplicantIDs,
+		UserProfileIDs: userProfileIDs,
+	}, nil
 }

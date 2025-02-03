@@ -16,6 +16,7 @@ type IQuestionRepository interface {
 	DeleteQuestion(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.Question, error)
 	FindQuestionWithResponsesByIDAndUserProfileID(questionID, userProfileID uuid.UUID) (*entity.Question, error)
+	FindAllByTemplateQuestionIDsAndJobPostingID(templateQuestionIDs []uuid.UUID, jobPostingID uuid.UUID) (*[]entity.Question, error)
 }
 
 type QuestionRepository struct {
@@ -154,4 +155,21 @@ func (r *QuestionRepository) FindQuestionWithResponsesByIDAndUserProfileID(quest
 	}
 
 	return &q, nil
+}
+
+func (r *QuestionRepository) FindAllByTemplateQuestionIDsAndJobPostingID(templateQuestionIDs []uuid.UUID, jobPostingID uuid.UUID) (*[]entity.Question, error) {
+	var questions []entity.Question
+
+	if err := r.DB.
+		Where("template_question_id IN (?)", templateQuestionIDs).
+		Preload("QuestionResponses", "job_posting_id = ?", jobPostingID).
+		Preload("QuestionResponses.UserProfile").
+		Preload("QuestionOptions").
+		Preload("AnswerType").
+		Find(&questions).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return &questions, nil
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -18,6 +19,7 @@ import (
 type IQuestionHandler interface {
 	CreateOrUpdateQuestions(ctx *gin.Context)
 	FindByIDAndUserID(ctx *gin.Context)
+	FindAllByProjectRecruitmentLineIDAndJobPostingID(ctx *gin.Context)
 }
 
 type QuestionHandler struct {
@@ -124,6 +126,57 @@ func (h *QuestionHandler) FindByIDAndUserID(ctx *gin.Context) {
 	qr, err := h.UseCase.FindByIDAndUserID(id, userUUID.String())
 	if err != nil {
 		h.Log.Error("[QuestionHandler.FindByIDAndUserID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", qr)
+}
+
+// FindAllByProjectRecruitmentLineIDAndJobPostingID find all by project recruitment line id and job posting id
+//
+//	@Summary		Find all by project recruitment line id and job posting id
+//	@Description	Find all by project recruitment line id and job posting id
+//	@Tags			Questions
+//	@Accept			json
+//	@Produce		json
+//	@Param			project_recruitment_line_id	query	string	true	"Project Recruitment Line ID"
+//	@Param			job_posting_id				query	string	true	"Job Posting ID"
+//	@Success		200							{object}	response.QuestionResponse
+//	@Security		BearerAuth
+//	@Router			/api/questions/result [get]
+func (h *QuestionHandler) FindAllByProjectRecruitmentLineIDAndJobPostingID(ctx *gin.Context) {
+	projectRecruitmentLineID := ctx.Query("project_recruitment_line_id")
+	if projectRecruitmentLineID == "" {
+		h.Log.Error("[QuestionHandler.FindAllByProjectRecruitmentLineIDAndJobPostingID] project_recruitment_line_id is required")
+		utils.BadRequestResponse(ctx, "bad request", "project_recruitment_line_id is required")
+		return
+	}
+
+	jobPostingID := ctx.Query("job_posting_id")
+	if jobPostingID == "" {
+		h.Log.Error("[QuestionHandler.FindAllByProjectRecruitmentLineIDAndJobPostingID] job_posting_id is required")
+		utils.BadRequestResponse(ctx, "bad request", "job_posting_id is required")
+		return
+	}
+
+	parsedPrhID, err := uuid.Parse(projectRecruitmentLineID)
+	if err != nil {
+		h.Log.Error("[QuestionHandler.FindAllByProjectRecruitmentLineIDAndJobPostingID] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	parsedJpID, err := uuid.Parse(jobPostingID)
+	if err != nil {
+		h.Log.Error("[QuestionHandler.FindAllByProjectRecruitmentLineIDAndJobPostingID] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	qr, err := h.UseCase.FindAllByProjectRecruitmentLineIDAndJobPostingID(parsedPrhID, parsedJpID)
+	if err != nil {
+		h.Log.Error("[QuestionHandler.FindAllByProjectRecruitmentLineIDAndJobPostingID] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
 		return
 	}

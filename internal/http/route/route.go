@@ -85,6 +85,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// questions
 			questionRoute := apiRoute.Group("/questions")
 			{
+				questionRoute.GET("/result", c.QuestionHandler.FindAllByProjectRecruitmentLineIDAndJobPostingID)
 				questionRoute.GET("/:id", c.QuestionHandler.FindByIDAndUserID)
 				questionRoute.POST("", c.QuestionHandler.CreateOrUpdateQuestions)
 			}

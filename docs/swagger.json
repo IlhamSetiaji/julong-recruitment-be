@@ -831,6 +831,50 @@
                 }
             }
         },
+        "/api/questions/result": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all by project recruitment line id and job posting id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "summary": "Find all by project recruitment line id and job posting id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.QuestionResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/questions/{id}": {
             "get": {
                 "security": [

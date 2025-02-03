@@ -81,7 +81,7 @@ func (r *TestScheduleHeaderRepository) CreateTestScheduleHeader(tsh *entity.Test
 		return nil, err
 	}
 
-	if err := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants.UserProfile").First(tsh, tsh.ID).Error; err != nil {
+	if err := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants.UserProfile").First(&tsh, tsh.ID).Error; err != nil {
 		r.Log.Error("[TestScheduleHeaderRepository.CreateTestScheduleHeader] " + err.Error())
 		return nil, err
 	}

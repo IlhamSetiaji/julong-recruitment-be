@@ -119,6 +119,16 @@ definitions:
     - APPLICANT_STATUS_SHORTLIST
     - APPLICANT_STATUS_REJECTED
     - APPLICANT_STATUS_HIRED
+  entity.AssessmentStatus:
+    enum:
+    - DRAFT
+    - IN PROGRESS
+    - COMPLETED
+    type: string
+    x-enum-varnames:
+    - ASSESSMENT_STATUS_DRAFT
+    - ASSESSMENT_STATUS_IN_PROGRESS
+    - ASSESSMENT_STATUS_COMPLETED
   entity.DocumentSending:
     properties:
       applicant:
@@ -335,6 +345,8 @@ definitions:
       job_name:
         type: string
       link:
+        type: string
+      minimum_work_experience:
         type: string
       mp_request:
         $ref: '#/definitions/entity.MPRequest'
@@ -762,6 +774,8 @@ definitions:
         $ref: '#/definitions/entity.Applicant'
       applicant_id:
         type: string
+      assessment_status:
+        $ref: '#/definitions/entity.AssessmentStatus'
       end_time:
         type: string
       final_result:
@@ -814,6 +828,8 @@ definitions:
       project_recruitment_header:
         $ref: '#/definitions/entity.ProjectRecruitmentHeader'
       project_recruitment_header_id:
+        description: TemplateActivityLineID     uuid.UUID          `json:"template_activity_line_id"
+          gorm:"type:char(36);null"`
         type: string
       project_recruitment_line:
         $ref: '#/definitions/entity.ProjectRecruitmentLine'
@@ -827,11 +843,9 @@ definitions:
         type: string
       status:
         $ref: '#/definitions/entity.TestScheduleStatus'
-      template_activity_line:
-        $ref: '#/definitions/entity.TemplateActivityLine'
-      template_activity_line_id:
-        type: string
       test_applicants:
+        description: TemplateActivityLine     *TemplateActivityLine     `json:"template_activity_line"
+          gorm:"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
         items:
           $ref: '#/definitions/entity.TestApplicant'
         type: array
@@ -1755,6 +1769,8 @@ definitions:
       job_name:
         type: string
       link:
+        type: string
+      minimum_work_experience:
         type: string
       mp_request:
         $ref: '#/definitions/response.MPRequestHeaderResponse'

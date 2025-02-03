@@ -21,7 +21,7 @@ type TestScheduleHeader struct {
 	JobPostingID               uuid.UUID          `json:"job_posting_id" gorm:"type:char(36);not null"`
 	TestTypeID                 uuid.UUID          `json:"test_type_id" gorm:"type:char(36);not null"`
 	ProjectPicID               uuid.UUID          `json:"project_pic_id" gorm:"type:char(36);not null"`
-	TemplateActivityLineID     uuid.UUID          `json:"template_activity_line_id" gorm:"type:char(36);null"`
+	// TemplateActivityLineID     uuid.UUID          `json:"template_activity_line_id" gorm:"type:char(36);null"`
 	ProjectRecruitmentHeaderID uuid.UUID          `json:"project_recruitment_header_id" gorm:"type:char(36);default:null"`
 	ProjectRecruitmentLineID   uuid.UUID          `json:"project_recruitment_line_id" gorm:"type:char(36);default:null"`
 	JobID                      *uuid.UUID         `json:"job_id" gorm:"type:char(36);not null"`
@@ -42,7 +42,7 @@ type TestScheduleHeader struct {
 	JobPosting               *JobPosting               `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	TestType                 *TestType                 `json:"test_type" gorm:"foreignKey:TestTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectPic               *ProjectPic               `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	TemplateActivityLine     *TemplateActivityLine     `json:"template_activity_line" gorm:"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	// TemplateActivityLine     *TemplateActivityLine     `json:"template_activity_line" gorm:"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	TestApplicants           []TestApplicant           `json:"test_applicants" gorm:"foreignKey:TestScheduleHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectRecruitmentLine   *ProjectRecruitmentLine   `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

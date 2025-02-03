@@ -17,6 +17,14 @@ const (
 	FINAL_RESULT_STATUS_REJECTED    FinalResultStatus = "REJECTED"
 )
 
+type AssessmentStatus string
+
+const (
+	ASSESSMENT_STATUS_DRAFT       AssessmentStatus = "DRAFT"
+	ASSESSMENT_STATUS_IN_PROGRESS AssessmentStatus = "IN PROGRESS"
+	ASSESSMENT_STATUS_COMPLETED   AssessmentStatus = "COMPLETED"
+)
+
 type TestApplicant struct {
 	gorm.Model           `json:"-"`
 	ID                   uuid.UUID         `json:"id" gorm:"type:char(36);primaryKey;"`
@@ -25,6 +33,7 @@ type TestApplicant struct {
 	UserProfileID        uuid.UUID         `json:"user_profile_id" gorm:"type:char(36);not null"`
 	StartTime            time.Time         `json:"start_time" gorm:"type:time;not null"`
 	EndTime              time.Time         `json:"end_time" gorm:"type:time;not null"`
+	AssessmentStatus     AssessmentStatus  `json:"assessment_status" gorm:"type:text;default:null"`
 	FinalResult          FinalResultStatus `json:"final_result" gorm:"type:text;default:null"`
 
 	TestScheduleHeader *TestScheduleHeader `json:"test_schedule_header" gorm:"foreignKey:TestScheduleHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

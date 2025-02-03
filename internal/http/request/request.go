@@ -265,3 +265,35 @@ func AdministrativeResultStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func AssessmentStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.AssessmentStatus(status) {
+	case entity.ASSESSMENT_STATUS_DRAFT,
+		entity.ASSESSMENT_STATUS_IN_PROGRESS,
+		entity.ASSESSMENT_STATUS_COMPLETED:
+		return true
+	default:
+		return false
+	}
+}
+
+func FinalResultStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.FinalResultStatus(status) {
+	case entity.FINAL_RESULT_STATUS_DRAFT,
+		entity.FINAL_RESULT_STATUS_IN_PROGRESS,
+		entity.FINAL_RESULT_STATUS_COMPLETED,
+		entity.FINAL_RESULT_STATUS_ACCEPTED,
+		entity.FINAL_RESULT_STATUS_REJECTED:
+		return true
+	default:
+		return false
+	}
+}

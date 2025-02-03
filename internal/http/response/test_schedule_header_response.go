@@ -38,4 +38,5 @@ type TestScheduleHeaderResponse struct {
 type TestApplicantsPayload struct {
 	ApplicantIDs   []uuid.UUID `json:"applicant_ids"`
 	UserProfileIDs []uuid.UUID `json:"user_profile_ids"`
+	Total          int         `json:"total"`
 }

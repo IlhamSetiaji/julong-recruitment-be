@@ -4133,6 +4133,19 @@ const docTemplate = `{
                 "APPLICANT_STATUS_HIRED"
             ]
         },
+        "entity.AssessmentStatus": {
+            "type": "string",
+            "enum": [
+                "DRAFT",
+                "IN PROGRESS",
+                "COMPLETED"
+            ],
+            "x-enum-varnames": [
+                "ASSESSMENT_STATUS_DRAFT",
+                "ASSESSMENT_STATUS_IN_PROGRESS",
+                "ASSESSMENT_STATUS_COMPLETED"
+            ]
+        },
         "entity.DocumentSending": {
             "type": "object",
             "properties": {
@@ -4445,6 +4458,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "link": {
+                    "type": "string"
+                },
+                "minimum_work_experience": {
                     "type": "string"
                 },
                 "mp_request": {
@@ -5060,6 +5076,9 @@ const docTemplate = `{
                 "applicant_id": {
                     "type": "string"
                 },
+                "assessment_status": {
+                    "$ref": "#/definitions/entity.AssessmentStatus"
+                },
                 "end_time": {
                     "type": "string"
                 },
@@ -5138,6 +5157,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/entity.ProjectRecruitmentHeader"
                 },
                 "project_recruitment_header_id": {
+                    "description": "TemplateActivityLineID     uuid.UUID          ` + "`" + `json:\"template_activity_line_id\" gorm:\"type:char(36);null\"` + "`" + `",
                     "type": "string"
                 },
                 "project_recruitment_line": {
@@ -5158,13 +5178,8 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/entity.TestScheduleStatus"
                 },
-                "template_activity_line": {
-                    "$ref": "#/definitions/entity.TemplateActivityLine"
-                },
-                "template_activity_line_id": {
-                    "type": "string"
-                },
                 "test_applicants": {
+                    "description": "TemplateActivityLine     *TemplateActivityLine     ` + "`" + `json:\"template_activity_line\" gorm:\"foreignKey:TemplateActivityLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE\"` + "`" + `",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/entity.TestApplicant"
@@ -6507,6 +6522,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "link": {
+                    "type": "string"
+                },
+                "minimum_work_experience": {
                     "type": "string"
                 },
                 "mp_request": {

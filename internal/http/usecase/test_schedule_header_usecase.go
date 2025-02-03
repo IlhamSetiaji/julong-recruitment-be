@@ -243,7 +243,54 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		return nil, err
 	}
 
-	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
+	// get applicants
+	applicantsPayload, err := uc.getApplicantIDsByJobPostingID(parsedJobPostingID, parsedPrlID, 1, req.TotalCandidate)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+
+	// create test applicants
+	for i, applicantID := range applicantsPayload.ApplicantIDs {
+		_, err := uc.TestApplicantRepository.CreateTestApplicant(&entity.TestApplicant{
+			TestScheduleHeaderID: testScheduleHeader.ID,
+			ApplicantID:          applicantID,
+			UserProfileID:        applicantsPayload.UserProfileIDs[i],
+			StartTime:            parsedStartTime,
+			EndTime:              parsedEndTime,
+			FinalResult:          entity.FINAL_RESULT_STATUS_DRAFT,
+			AssessmentStatus:     entity.ASSESSMENT_STATUS_DRAFT,
+		})
+
+		if err != nil {
+			uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+			return nil, err
+		}
+	}
+
+	if applicantsPayload.Total < req.TotalCandidate {
+		uc.Log.Warn("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + "Total candidate is less than requested")
+		_, err := uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
+			ID:             testScheduleHeader.ID,
+			TotalCandidate: applicantsPayload.Total,
+		})
+		if err != nil {
+			uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+			return nil, err
+		}
+	}
+
+	findByID, err := uc.Repository.FindByID(testScheduleHeader.ID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+	if findByID == nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + "Test Schedule Header not found")
+		return nil, errors.New("Test Schedule Header not found")
+	}
+
+	resp, err := uc.DTO.ConvertEntityToResponse(findByID)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
 		return nil, err
@@ -455,7 +502,7 @@ func (uc *TestScheduleHeaderUsecase) GenerateDocumentNumber(dateNow time.Time) (
 	return documentNumber, nil
 }
 
-func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID uuid.UUID, order int, total int) (*response.TestApplicantsPayload, error) {
+func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID uuid.UUID, projectRecruitmentLineID uuid.UUID, order int, total int) (*response.TestApplicantsPayload, error) {
 	// find job posting
 	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
 	if err != nil {
@@ -481,9 +528,13 @@ func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID 
 		applicantIDs = append(applicantIDs, applicant.ID)
 	}
 
+	var totalResult int = total
+
 	// find project recruitment line that has order
 	projectRecruitmentLine, err := uc.ProjectRecruitmentLineRepository.FindByKeys(map[string]interface{}{
 		"project_recruitment_header_id": jobPosting.ProjectRecruitmentHeaderID,
+		"id":                            projectRecruitmentLineID,
+		// "order":                         order,
 	})
 	if err != nil {
 		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
@@ -533,6 +584,8 @@ func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID 
 	if total > 0 {
 		if len(*resultApplicants) > total {
 			*resultApplicants = (*resultApplicants)[:total]
+		} else {
+			totalResult = len(*resultApplicants)
 		}
 	}
 
@@ -546,5 +599,6 @@ func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID 
 	return &response.TestApplicantsPayload{
 		ApplicantIDs:   resultApplicantIDs,
 		UserProfileIDs: userProfileIDs,
+		Total:          totalResult,
 	}, nil
 }

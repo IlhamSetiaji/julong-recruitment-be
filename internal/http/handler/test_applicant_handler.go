@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -18,6 +19,7 @@ type ITestApplicantHandler interface {
 	CreateOrUpdateTestApplicants(ctx *gin.Context)
 	UpdateStatusTestApplicants(ctx *gin.Context)
 	FindByUserProfileIDAndTestScheduleHeaderID(ctx *gin.Context)
+	FindAllByTestScheduleHeaderIDPaginated(ctx *gin.Context)
 }
 
 type TestApplicantHandler struct {
@@ -164,4 +166,73 @@ func (h *TestApplicantHandler) FindByUserProfileIDAndTestScheduleHeaderID(ctx *g
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success find test applicant by user profile id and test schedule header id", res)
+}
+
+// FindAllByTestScheduleHeaderIDPaginated find all test applicants by test schedule header id paginated
+//
+//	@Summary		Find all test applicants by test schedule header id paginated
+//	@Description	Find all test applicants by test schedule header id paginated
+//	@Tags			Test Applicants
+//	@Accept			json
+//	@Produce		json
+//	@Param			test_schedule_header_id	path	string	true	"Test schedule header id"
+//	@Param			page	query	int	true	"Page"
+//	@Param			page_size	query	int	true	"Page size"
+//	@Param			search	query	string	false	"Search"
+//	@Param			sort	query	string	false	"Sort"
+//	@Param			filter	query	string	false	"Filter"
+//	@Success		200			{object}	response.TestApplicantResponse
+//	@Security		BearerAuth
+//	@Router			/api/test-applicants [get]
+func (h *TestApplicantHandler) FindAllByTestScheduleHeaderIDPaginated(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	testScheduleHeaderID := ctx.Param("test_schedule_header_id")
+
+	parsedTestScheduleHeaderID, err := uuid.Parse(testScheduleHeaderID)
+	if err != nil {
+		h.Log.Errorf("[TestApplicantHandler.FindAllByTestScheduleHeaderIDPaginated] error when parsing test schedule header id: %s", err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	res, total, err := h.UseCase.FindAllByTestScheduleHeaderIDPaginated(parsedTestScheduleHeaderID, page, pageSize, search, sort, filter)
+	if err != nil {
+		h.Log.Errorf("[TestApplicantHandler.FindAllByTestScheduleHeaderIDPaginated] error when finding all test applicants by test schedule header id paginated: %s", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success find all test applicants by test schedule header id paginated", gin.H{
+		"test_applicants": res,
+		"total":           total,
+	})
 }

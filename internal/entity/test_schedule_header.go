@@ -71,6 +71,12 @@ func (tsh *TestScheduleHeader) BeforeDelete(tx *gorm.DB) (err error) {
 
 	tsh.DocumentNumber = tsh.DocumentNumber + "_deleted" + randomString
 
+	if err := tx.Model(&TestApplicant{}).Where("test_schedule_header_id = ?", tsh.ID).Updates((map[string]interface{}{
+		"deleted_at": time.Now(),
+	})).Error; err != nil {
+		return err
+	}
+
 	if err := tx.Model(&tsh).Where("id = ?", tsh.ID).Updates((map[string]interface{}{
 		"document_number": tsh.DocumentNumber,
 	})).Error; err != nil {

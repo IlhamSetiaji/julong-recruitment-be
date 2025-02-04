@@ -17,6 +17,7 @@ type ITestApplicantRepository interface {
 	FindByID(id uuid.UUID) (*entity.TestApplicant, error)
 	FindAllByApplicantIDs(applicantIDs []uuid.UUID) ([]entity.TestApplicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.TestApplicant, error)
+	FindAllByTestScheduleHeaderIDPaginated(testScheduleHeaderID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.TestApplicant, int64, error)
 }
 
 type TestApplicantRepository struct {
@@ -144,4 +145,35 @@ func (r *TestApplicantRepository) FindByKeys(keys map[string]interface{}) (*enti
 	}
 
 	return &testApplicant, nil
+}
+
+func (r *TestApplicantRepository) FindAllByTestScheduleHeaderIDPaginated(testScheduleHeaderID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.TestApplicant, int64, error) {
+	var testApplicants []entity.TestApplicant
+	var total int64
+
+	db := r.DB.Model(&entity.TestApplicant{}).Preload("TestScheduleHeader").Preload("UserProfile").Where("test_schedule_header_id = ?", testScheduleHeaderID)
+
+	if search != "" {
+		db = db.Where("user_profile.name LIKE ?", "%"+search+"%")
+	}
+
+	if len(filter) > 0 {
+		db = db.Where(filter)
+	}
+
+	for key, value := range sort {
+		db = db.Order(key + " " + value.(string))
+	}
+
+	if err := db.Offset((page - 1) * pageSize).Limit(pageSize).Find(&testApplicants).Error; err != nil {
+		r.Log.Error("[TestApplicantRepository.FindAllByTestScheduleHeaderIDPaginated] " + err.Error())
+		return nil, 0, errors.New("[TestApplicantRepository.FindAllByTestScheduleHeaderIDPaginated] " + err.Error())
+	}
+
+	if err := r.DB.Model(&entity.TestApplicant{}).Count(&total).Error; err != nil {
+		r.Log.Error("[TestApplicantRepository.FindAllByTestScheduleHeaderIDPaginated] " + err.Error())
+		return nil, 0, errors.New("[TestApplicantRepository.FindAllByTestScheduleHeaderIDPaginated] " + err.Error())
+	}
+
+	return testApplicants, total, nil
 }

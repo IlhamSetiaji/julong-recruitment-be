@@ -18,6 +18,7 @@ type ITestApplicantUseCase interface {
 	CreateOrUpdateTestApplicants(req *request.CreateOrUpdateTestApplicantsRequest) (*response.TestScheduleHeaderResponse, error)
 	UpdateStatusTestApplicant(req *request.UpdateStatusTestApplicantRequest) (*response.TestApplicantResponse, error)
 	FindByUserProfileIDAndTestScheduleHeaderID(userProfileID, testScheduleHeaderID uuid.UUID) (*response.TestApplicantResponse, error)
+	FindAllByTestScheduleHeaderIDPaginated(testScheduleHeaderID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.TestApplicantResponse, int64, error)
 }
 
 type TestApplicantUseCase struct {
@@ -248,4 +249,24 @@ func (uc *TestApplicantUseCase) FindByUserProfileIDAndTestScheduleHeaderID(userP
 	}
 
 	return resp, nil
+}
+
+func (uc *TestApplicantUseCase) FindAllByTestScheduleHeaderIDPaginated(testScheduleHeaderID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.TestApplicantResponse, int64, error) {
+	ta, total, err := uc.Repository.FindAllByTestScheduleHeaderIDPaginated(testScheduleHeaderID, page, pageSize, search, sort, filter)
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.FindAllByTestScheduleHeaderIDPaginated] error when finding all test applicants by test schedule header id paginated: %s", err.Error())
+		return nil, 0, errors.New("[TestApplicantUseCase.FindAllByTestScheduleHeaderIDPaginated] error when finding all test applicants by test schedule header id paginated: " + err.Error())
+	}
+
+	var resp []response.TestApplicantResponse
+	for _, t := range ta {
+		r, err := uc.DTO.ConvertEntityToResponse(&t)
+		if err != nil {
+			uc.Log.Errorf("[TestApplicantUseCase.FindAllByTestScheduleHeaderIDPaginated] error when converting test applicant entity to response: %s", err.Error())
+			return nil, 0, errors.New("[TestApplicantUseCase.FindAllByTestScheduleHeaderIDPaginated] error when converting test applicant entity to response: " + err.Error())
+		}
+		resp = append(resp, *r)
+	}
+
+	return resp, total, nil
 }

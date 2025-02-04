@@ -53,6 +53,10 @@ func (a *AdministrativeSelection) BeforeDelete(tx *gorm.DB) (err error) {
 
 	a.DocumentNumber = a.DocumentNumber + "_deleted" + randomString
 
+	if err := tx.Model(&AdministrativeResult{}).Where("administrative_selection_id = ?", a.ID).Delete(&AdministrativeResult{}).Error; err != nil {
+		return err
+	}
+
 	if err := tx.Model(&a).Where("id = ?", a.ID).Updates((map[string]interface{}{
 		"document_number": a.DocumentNumber,
 	})).Error; err != nil {

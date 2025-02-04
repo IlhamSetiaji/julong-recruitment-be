@@ -255,7 +255,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// project pics
 			projectPicRoute := apiRoute.Group("/project-pics")
 			{
-				projectPicRoute.GET("/project-recruitment-line/:project_recruitment_line_id", c.ProjectPicHandler.FindByProjectRecruitmentLineIDAndEmployeeID)
+				projectPicRoute.GET("/project-recruitment-line/:project_recruitment_line_id/employee/:employee_id", c.ProjectPicHandler.FindByProjectRecruitmentLineIDAndEmployeeID)
 			}
 		}
 	}

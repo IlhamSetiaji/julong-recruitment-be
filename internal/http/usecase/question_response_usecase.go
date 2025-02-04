@@ -15,16 +15,19 @@ import (
 
 type IQuestionResponseUseCase interface {
 	CreateOrUpdateQuestionResponses(req *request.QuestionResponseRequest) (*response.QuestionResponse, error)
+	AnswerInterviewQuestionResponses(req *request.InterviewQuestionResponseRequest) (*response.TemplateQuestionResponse, error)
 }
 
 type QuestionResponseUseCase struct {
-	Log                   *logrus.Logger
-	Repository            repository.IQuestionResponseRepository
-	JobPostingRepository  repository.IJobPostingRepository
-	UserProfileRepository repository.IUserProfileRepository
-	QuestionRepository    repository.IQuestionRepository
-	QuestionDTO           dto.IQuestionDTO
-	Viper                 *viper.Viper
+	Log                        *logrus.Logger
+	Repository                 repository.IQuestionResponseRepository
+	JobPostingRepository       repository.IJobPostingRepository
+	UserProfileRepository      repository.IUserProfileRepository
+	QuestionRepository         repository.IQuestionRepository
+	QuestionDTO                dto.IQuestionDTO
+	Viper                      *viper.Viper
+	TemplateQuestionRepository repository.ITemplateQuestionRepository
+	TemplateQuestionDTO        dto.ITemplateQuestionDTO
 }
 
 func NewQuestionResponseUseCase(
@@ -35,15 +38,19 @@ func NewQuestionResponseUseCase(
 	qRepo repository.IQuestionRepository,
 	qDTO dto.IQuestionDTO,
 	viper *viper.Viper,
+	tqRepo repository.ITemplateQuestionRepository,
+	tqDTO dto.ITemplateQuestionDTO,
 ) IQuestionResponseUseCase {
 	return &QuestionResponseUseCase{
-		Log:                   log,
-		Repository:            repo,
-		JobPostingRepository:  jpRepo,
-		UserProfileRepository: upRepo,
-		QuestionRepository:    qRepo,
-		QuestionDTO:           qDTO,
-		Viper:                 viper,
+		Log:                        log,
+		Repository:                 repo,
+		JobPostingRepository:       jpRepo,
+		UserProfileRepository:      upRepo,
+		QuestionRepository:         qRepo,
+		QuestionDTO:                qDTO,
+		Viper:                      viper,
+		TemplateQuestionRepository: tqRepo,
+		TemplateQuestionDTO:        tqDTO,
 	}
 }
 
@@ -53,7 +60,9 @@ func QuestionResponseUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IQue
 	upRepo := repository.UserProfileRepositoryFactory(log)
 	qRepo := repository.QuestionRepositoryFactory(log)
 	qDTO := dto.QuestionDTOFactory(log)
-	return NewQuestionResponseUseCase(log, repo, jpRepo, upRepo, qRepo, qDTO, viper)
+	tqRepo := repository.TemplateQuestionRepositoryFactory(log)
+	tqDTO := dto.TemplateQuestionDTOFactory(log)
+	return NewQuestionResponseUseCase(log, repo, jpRepo, upRepo, qRepo, qDTO, viper, tqRepo, tqDTO)
 }
 
 func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.QuestionResponseRequest) (*response.QuestionResponse, error) {
@@ -206,4 +215,162 @@ func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.
 	}
 
 	return uc.QuestionDTO.ConvertEntityToResponse(rQuestion), nil
+}
+
+func (uc *QuestionResponseUseCase) AnswerInterviewQuestionResponses(req *request.InterviewQuestionResponseRequest) (*response.TemplateQuestionResponse, error) {
+	parsedTemplateQuestionID, err := uuid.Parse(req.TemplateQuestionID)
+	if err != nil {
+		uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing template question id: %s", err.Error())
+		return nil, err
+	}
+
+	tq, err := uc.TemplateQuestionRepository.FindByID(parsedTemplateQuestionID)
+	if err != nil {
+		uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when finding template question by id: %s", err.Error())
+		return nil, err
+	}
+
+	if tq == nil {
+		uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] template question with id %s not found", req.TemplateQuestionID)
+		return nil, errors.New("template question not found")
+	}
+
+	var jobPostingID uuid.UUID
+	var userProfileID uuid.UUID
+
+	// create or update answers
+	for _, questionPayload := range req.Questions {
+		parsedQuestionID, err := uuid.Parse(questionPayload.ID)
+		if err != nil {
+			uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing question id: %s", err.Error())
+			return nil, err
+		}
+
+		question, err := uc.QuestionRepository.FindByID(parsedQuestionID)
+		if err != nil {
+			uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when finding question by id: %s", err.Error())
+			return nil, err
+		}
+
+		if question == nil {
+			uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] question with id %s not found", questionPayload.ID)
+			return nil, errors.New("question not found")
+		}
+
+		userProfileID, err = uuid.Parse(questionPayload.Answers[0].UserProfileID)
+		if err != nil {
+			uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing user profile id: %s", err.Error())
+			return nil, err
+		}
+
+		jobPostingID, err = uuid.Parse(questionPayload.Answers[0].JobPostingID)
+		if err != nil {
+			uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing job posting id: %s", err.Error())
+			return nil, err
+		}
+
+		for _, ans := range questionPayload.Answers {
+			parsedJobPostingID, err := uuid.Parse(ans.JobPostingID)
+			if err != nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing job posting id: %s", err.Error())
+				return nil, err
+			}
+			jp, err := uc.JobPostingRepository.FindByID(parsedJobPostingID)
+			if err != nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when finding job posting by id: %s", err.Error())
+				return nil, err
+			}
+
+			parsedUserProfileID, err := uuid.Parse(ans.UserProfileID)
+			if err != nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing user profile id: %s", err.Error())
+				return nil, err
+			}
+
+			up, err := uc.UserProfileRepository.FindByID(parsedUserProfileID)
+			if err != nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when finding user profile by id: %s", err.Error())
+				return nil, err
+			}
+
+			if ans.ID != "" && ans.ID != uuid.Nil.String() {
+				parsedAnswerID, err := uuid.Parse(ans.ID)
+				if err != nil {
+					uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing answer id: %s", err.Error())
+					return nil, err
+				}
+
+				exist, err := uc.Repository.FindByID(parsedAnswerID)
+				if err != nil {
+					uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when finding answer by id: %s", err.Error())
+					return nil, err
+				}
+
+				if exist == nil {
+					_, err := uc.Repository.CreateQuestionResponse(&entity.QuestionResponse{
+						QuestionID:    question.ID,
+						JobPostingID:  jp.ID,
+						UserProfileID: up.ID,
+						Answer:        ans.Answer,
+					})
+					if err != nil {
+						uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when creating answer: %s", err.Error())
+						return nil, err
+					}
+				} else {
+					_, err := uc.Repository.UpdateQuestionResponse(&entity.QuestionResponse{
+						ID:            exist.ID,
+						QuestionID:    question.ID,
+						JobPostingID:  jp.ID,
+						UserProfileID: up.ID,
+						Answer:        ans.Answer,
+					})
+					if err != nil {
+						uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when updating answer: %s", err.Error())
+						return nil, err
+					}
+				}
+			} else {
+				_, err := uc.Repository.CreateQuestionResponse(&entity.QuestionResponse{
+					QuestionID:    question.ID,
+					JobPostingID:  jp.ID,
+					UserProfileID: up.ID,
+					Answer:        ans.Answer,
+				})
+				if err != nil {
+					uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when creating answer: %s", err.Error())
+					return nil, err
+				}
+			}
+		}
+	}
+
+	// delete answers
+	if len(req.DeletedAnswerIDs) > 0 {
+		for _, id := range req.DeletedAnswerIDs {
+			parsedAnswerID, err := uuid.Parse(id)
+			if err != nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing answer id: %s", err.Error())
+				return nil, err
+			}
+			err = uc.Repository.DeleteQuestionResponse(parsedAnswerID)
+			if err != nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when deleting answer: %s", err.Error())
+				return nil, err
+			}
+		}
+	}
+
+	tqRes, err := uc.TemplateQuestionRepository.FindByIDForInterviewAnswer(parsedTemplateQuestionID, userProfileID, jobPostingID)
+	if err != nil {
+		uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when finding template question by id: %s", err.Error())
+		return nil, err
+	}
+
+	if tqRes == nil {
+		uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] template question with id %s not found", req.TemplateQuestionID)
+		return nil, errors.New("template question not found")
+	}
+
+	return uc.TemplateQuestionDTO.ConvertEntityToResponse(tqRes), nil
 }

@@ -835,6 +835,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/question-responses/answer-interview": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Answer interview question responses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Question Responses"
+                ],
+                "summary": "Answer interview question responses",
+                "parameters": [
+                    {
+                        "description": "Answer Interview Question",
+                        "name": "answer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.InterviewQuestionResponseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.QuestionResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/questions": {
             "post": {
                 "security": [
@@ -6092,6 +6131,67 @@ const docTemplate = `{
                 },
                 "total_candidate": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.InterviewAnswerRequest": {
+            "type": "object",
+            "required": [
+                "answer",
+                "job_posting_id",
+                "user_profile_id"
+            ],
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.InterviewQuestionResponseRequest": {
+            "type": "object",
+            "required": [
+                "questions",
+                "template_question_id"
+            ],
+            "properties": {
+                "deleted_answer_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "answers",
+                            "id"
+                        ],
+                        "properties": {
+                            "answers": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/request.InterviewAnswerRequest"
+                                }
+                            },
+                            "id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "template_question_id": {
+                    "type": "string"
                 }
             }
         },

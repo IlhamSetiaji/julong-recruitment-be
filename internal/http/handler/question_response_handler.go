@@ -17,6 +17,7 @@ import (
 
 type IQuestionResponseHandler interface {
 	CreateOrUpdateQuestionResponses(ctx *gin.Context)
+	AnswerInterviewQuestionResponses(ctx *gin.Context)
 }
 
 type QuestionResponseHandler struct {
@@ -153,6 +154,41 @@ func (h *QuestionResponseHandler) CreateOrUpdateQuestionResponses(ctx *gin.Conte
 		if qr.AnswerFile != "" {
 			(*questionResponse.QuestionResponses)[i].AnswerFile = h.Viper.GetString("app.url") + qr.AnswerFile
 		}
+	}
+
+	utils.SuccessResponse(ctx, 201, "success answer question", questionResponse)
+}
+
+// AnswerInterviewQuestionResponses answer interview question responses
+//
+//	@Summary		Answer interview question responses
+//	@Description	Answer interview question responses
+//	@Tags			Question Responses
+//	@Accept			json
+//	@Produce		json
+//	@Param			answer	body	request.InterviewQuestionResponseRequest	true	"Answer Interview Question"
+//	@Success		201			{object}	response.QuestionResponse
+//	@Security		BearerAuth
+//	@Router			/api/question-responses/answer-interview [post]
+func (h *QuestionResponseHandler) AnswerInterviewQuestionResponses(ctx *gin.Context) {
+	var payload request.InterviewQuestionResponseRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Errorf("Error when binding payload: %v", err)
+		utils.ErrorResponse(ctx, 400, "error", err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Errorf("Error when validating payload: %v", err)
+		utils.ErrorResponse(ctx, 400, "error", err.Error())
+		return
+	}
+
+	questionResponse, err := h.UseCase.AnswerInterviewQuestionResponses(&payload)
+	if err != nil {
+		h.Log.Errorf("Error when answering interview question responses: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
 	}
 
 	utils.SuccessResponse(ctx, 201, "success answer question", questionResponse)

@@ -1358,6 +1358,47 @@ definitions:
     - test_type_id
     - total_candidate
     type: object
+  request.InterviewAnswerRequest:
+    properties:
+      answer:
+        type: string
+      id:
+        type: string
+      job_posting_id:
+        type: string
+      user_profile_id:
+        type: string
+    required:
+    - answer
+    - job_posting_id
+    - user_profile_id
+    type: object
+  request.InterviewQuestionResponseRequest:
+    properties:
+      deleted_answer_ids:
+        items:
+          type: string
+        type: array
+      questions:
+        items:
+          properties:
+            answers:
+              items:
+                $ref: '#/definitions/request.InterviewAnswerRequest'
+              type: array
+            id:
+              type: string
+          required:
+          - answers
+          - id
+          type: object
+        type: array
+      template_question_id:
+        type: string
+    required:
+    - questions
+    - template_question_id
+    type: object
   request.UpdateAdministrativeSelectionRequest:
     properties:
       document_date:
@@ -2908,6 +2949,30 @@ paths:
       security:
       - BearerAuth: []
       summary: Create or update question responses
+      tags:
+      - Question Responses
+  /api/question-responses/answer-interview:
+    post:
+      consumes:
+      - application/json
+      description: Answer interview question responses
+      parameters:
+      - description: Answer Interview Question
+        in: body
+        name: answer
+        required: true
+        schema:
+          $ref: '#/definitions/request.InterviewQuestionResponseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.QuestionResponse'
+      security:
+      - BearerAuth: []
+      summary: Answer interview question responses
       tags:
       - Question Responses
   /api/questions:

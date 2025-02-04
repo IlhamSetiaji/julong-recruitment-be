@@ -607,6 +607,11 @@ func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID 
 		}
 	}
 
+	if len(*resultApplicants) == 0 {
+		uc.Log.Warn("[ApplicantUseCase.GetApplicantsByJobPostingID] " + "No applicants found")
+		totalResult = 0
+	}
+
 	resultApplicantIDs := []uuid.UUID{}
 	userProfileIDs := []uuid.UUID{}
 	for _, applicant := range *resultApplicants {

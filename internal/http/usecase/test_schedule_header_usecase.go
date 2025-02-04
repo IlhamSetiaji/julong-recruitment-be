@@ -517,7 +517,7 @@ func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID 
 
 	applicants, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
 		"job_posting_id": jobPostingID,
-		"order":          order,
+		// "order":          order,
 	})
 	if err != nil {
 		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())

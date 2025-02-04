@@ -16,6 +16,7 @@ import (
 
 type ITestApplicantUseCase interface {
 	CreateOrUpdateTestApplicants(req *request.CreateOrUpdateTestApplicantsRequest) (*response.TestScheduleHeaderResponse, error)
+	UpdateStatusTestApplicant(req *request.UpdateStatusTestApplicantRequest) (*response.TestApplicantResponse, error)
 }
 
 type TestApplicantUseCase struct {
@@ -186,6 +187,40 @@ func (uc *TestApplicantUseCase) CreateOrUpdateTestApplicants(req *request.Create
 	if err != nil {
 		uc.Log.Errorf("[TestApplicantUseCase.CreateOrUpdateTestApplicants] error when converting test schedule header entity to response: %s", err.Error())
 		return nil, errors.New("[TestApplicantUseCase.CreateOrUpdateTestApplicants] error when converting test schedule header entity to response: " + err.Error())
+	}
+
+	return resp, nil
+}
+
+func (uc *TestApplicantUseCase) UpdateStatusTestApplicant(req *request.UpdateStatusTestApplicantRequest) (*response.TestApplicantResponse, error) {
+	parsedID, err := uuid.Parse(req.ID)
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateStatusTestApplicant] error when parsing test applicant id: %s", err.Error())
+		return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] error when parsing test applicant id: " + err.Error())
+	}
+	ta, err := uc.Repository.FindByID(parsedID)
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateStatusTestApplicant] error when finding test applicant by id: %s", err.Error())
+		return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] error when finding test applicant by id: " + err.Error())
+	}
+	if ta == nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateStatusTestApplicant] test applicant with id %s not found", req.ID)
+		return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] test applicant with id " + req.ID + " not found")
+	}
+
+	_, err = uc.Repository.UpdateTestApplicant(&entity.TestApplicant{
+		ID:               ta.ID,
+		AssessmentStatus: entity.AssessmentStatus(req.Status),
+	})
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateStatusTestApplicant] error when updating test applicant: %s", err.Error())
+		return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] error when updating test applicant: " + err.Error())
+	}
+
+	resp, err := uc.DTO.ConvertEntityToResponse(ta)
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateStatusTestApplicant] error when converting test applicant entity to response: %s", err.Error())
+		return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] error when converting test applicant entity to response: " + err.Error())
 	}
 
 	return resp, nil

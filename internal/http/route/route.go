@@ -221,6 +221,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			testApplicantRoute := apiRoute.Group("/test-applicants")
 			{
 				testApplicantRoute.POST("", c.TestApplicantHandler.CreateOrUpdateTestApplicants)
+				testApplicantRoute.PUT("/update-status", c.TestApplicantHandler.UpdateStatusTestApplicants)
 			}
 			// question responses
 			questionResponseRoute := apiRoute.Group("/question-responses")

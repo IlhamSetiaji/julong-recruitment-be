@@ -1266,6 +1266,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/test-applicants/update-status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update status test applicants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test Applicants"
+                ],
+                "summary": "Update status test applicants",
+                "parameters": [
+                    {
+                        "description": "Update status test applicants",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStatusTestApplicantRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TestScheduleHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/test-schedule-headers": {
             "get": {
                 "security": [
@@ -6143,6 +6182,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "template_activity_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateStatusTestApplicantRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

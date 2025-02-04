@@ -15,6 +15,7 @@ import (
 
 type ITestApplicantHandler interface {
 	CreateOrUpdateTestApplicants(ctx *gin.Context)
+	UpdateStatusTestApplicants(ctx *gin.Context)
 }
 
 type TestApplicantHandler struct {
@@ -80,4 +81,39 @@ func (h *TestApplicantHandler) CreateOrUpdateTestApplicants(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "success create or update test applicants", res)
+}
+
+// UpdateStatusTestApplicants update status test applicants
+//
+//	@Summary		Update status test applicants
+//	@Description	Update status test applicants
+//	@Tags			Test Applicants
+//	@Accept			json
+//	@Produce		json
+//	@Param			employee	body		request.UpdateStatusTestApplicantRequest	true	"Update status test applicants"
+//	@Success		200			{object}	response.TestScheduleHeaderResponse
+//	@Security		BearerAuth
+//	@Router			/api/test-applicants/update-status [put]
+func (h *TestApplicantHandler) UpdateStatusTestApplicants(ctx *gin.Context) {
+	var req request.UpdateStatusTestApplicantRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.Log.Errorf("[TestApplicantHandler.UpdateStatusTestApplicants] error when binding request: %s", err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(req); err != nil {
+		h.Log.Errorf("[TestApplicantHandler.UpdateStatusTestApplicants] error when validating request: %s", err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.UpdateStatusTestApplicant(&req)
+	if err != nil {
+		h.Log.Errorf("[TestApplicantHandler.UpdateStatusTestApplicants] error when updating status test applicants: %s", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success update status test applicants", res)
 }

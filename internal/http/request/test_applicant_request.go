@@ -12,3 +12,8 @@ type CreateOrUpdateTestApplicantsRequest struct {
 	} `json:"test_applicants" validate:"required,dive"`
 	DeletedTestApplicantIDs []string `json:"deleted_test_applicant_ids" validate:"omitempty,dive,uuid"`
 }
+
+type UpdateStatusTestApplicantRequest struct {
+	ID     string `json:"id" validate:"required,uuid"`
+	Status string `json:"status" validate:"required,assessment_status_validation"`
+}

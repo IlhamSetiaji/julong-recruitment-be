@@ -1454,6 +1454,16 @@ definitions:
     - status
     - template_activity_id
     type: object
+  request.UpdateStatusTestApplicantRequest:
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+    required:
+    - id
+    - status
+    type: object
   request.UpdateStatusUserProfileRequest:
     properties:
       id:
@@ -3167,6 +3177,30 @@ paths:
       security:
       - BearerAuth: []
       summary: Create or update test applicants
+      tags:
+      - Test Applicants
+  /api/test-applicants/update-status:
+    put:
+      consumes:
+      - application/json
+      description: Update status test applicants
+      parameters:
+      - description: Update status test applicants
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStatusTestApplicantRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TestScheduleHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Update status test applicants
       tags:
       - Test Applicants
   /api/test-schedule-headers:

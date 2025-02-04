@@ -151,10 +151,14 @@ func (r *TestApplicantRepository) FindAllByTestScheduleHeaderIDPaginated(testSch
 	var testApplicants []entity.TestApplicant
 	var total int64
 
-	db := r.DB.Model(&entity.TestApplicant{}).Preload("TestScheduleHeader").Preload("UserProfile").Where("test_schedule_header_id = ?", testScheduleHeaderID)
+	db := r.DB.Model(&entity.TestApplicant{}).
+		Joins("LEFT JOIN user_profiles ON user_profiles.id = test_applicants.user_profile_id").
+		Preload("TestScheduleHeader").
+		Preload("UserProfile").
+		Where("test_schedule_header_id = ?", testScheduleHeaderID)
 
 	if search != "" {
-		db = db.Where("user_profile.name LIKE ?", "%"+search+"%")
+		db = db.Where("user_profiles.name ILIKE ?", "%"+search+"%")
 	}
 
 	if len(filter) > 0 {
@@ -170,7 +174,7 @@ func (r *TestApplicantRepository) FindAllByTestScheduleHeaderIDPaginated(testSch
 		return nil, 0, errors.New("[TestApplicantRepository.FindAllByTestScheduleHeaderIDPaginated] " + err.Error())
 	}
 
-	if err := r.DB.Model(&entity.TestApplicant{}).Count(&total).Error; err != nil {
+	if err := r.DB.Model(&entity.TestApplicant{}).Where("test_schedule_header_id = ?", testScheduleHeaderID).Count(&total).Error; err != nil {
 		r.Log.Error("[TestApplicantRepository.FindAllByTestScheduleHeaderIDPaginated] " + err.Error())
 		return nil, 0, errors.New("[TestApplicantRepository.FindAllByTestScheduleHeaderIDPaginated] " + err.Error())
 	}

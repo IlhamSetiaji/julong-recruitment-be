@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/sirupsen/logrus"
@@ -61,8 +63,8 @@ func (dto *TestScheduleHeaderDTO) ConvertEntityToResponse(ent *entity.TestSchedu
 		DocumentNumber: ent.DocumentNumber,
 		StartDate:      ent.StartDate,
 		EndDate:        ent.EndDate,
-		StartTime:      ent.StartTime,
-		EndTime:        ent.EndTime,
+		StartTime:      ent.StartTime.In(time.UTC),
+		EndTime:        ent.EndTime.In(time.UTC),
 		Link:           ent.Link,
 		Location:       ent.Location,
 		Description:    ent.Description,

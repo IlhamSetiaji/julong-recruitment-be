@@ -147,6 +147,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			projectRecruitmentLineRoute := apiRoute.Group("/project-recruitment-lines")
 			{
 				projectRecruitmentLineRoute.GET("/form-type", c.ProjectRecruitmentLineHandler.FindAllByFormType)
+				projectRecruitmentLineRoute.GET("/header-pic/:project_recruitment_header_id", c.ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderIDAndEmployeeID)
 				projectRecruitmentLineRoute.GET("/header/:project_recruitment_header_id", c.ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderID)
 				projectRecruitmentLineRoute.POST("", c.ProjectRecruitmentLineHandler.CreateOrUpdateProjectRecruitmentLines)
 			}

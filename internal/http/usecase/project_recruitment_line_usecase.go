@@ -17,6 +17,7 @@ type IProjectRecruitmentLineUseCase interface {
 	CreateOrUpdateProjectRecruitmentLines(req *request.CreateOrUpdateProjectRecruitmentLinesRequest) (*response.ProjectRecruitmentHeaderResponse, error)
 	GetAllByKeys(keys map[string]interface{}) ([]*response.ProjectRecruitmentLineResponse, error)
 	FindAllByFormType(formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error)
+	FindAllByProjectRecruitmentHeaderIDAndEmployeeID(projectRecruitmentHeaderID, employeeID uuid.UUID) ([]*response.ProjectRecruitmentLineResponse, error)
 }
 
 type ProjectRecruitmentLineUseCase struct {
@@ -299,6 +300,43 @@ func (uc *ProjectRecruitmentLineUseCase) FindAllByFormType(formType entity.Templ
 	data, err := uc.Repository.FindAllByTemplateActivityLineIDs(tActivityLineIDs)
 	if err != nil {
 		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByFormType] error when finding project recruitment lines by template activity line ids: %s", err.Error())
+		return nil, err
+	}
+
+	responses := make([]*response.ProjectRecruitmentLineResponse, 0)
+	for _, d := range *data {
+		responses = append(responses, uc.DTO.ConvertEntityToResponse(&d))
+	}
+
+	return responses, nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) FindAllByProjectRecruitmentHeaderIDAndEmployeeID(projectRecruitmentHeaderID, employeeID uuid.UUID) ([]*response.ProjectRecruitmentLineResponse, error) {
+	pics, err := uc.ProjectPicRepository.FindAllByEmployeeID(employeeID)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByProjectRecruitmentHeaderIDAndEmployeeID] error when finding project pics by employee id: %s", err.Error())
+		return nil, err
+	}
+
+	projectRecruitmentHeader, err := uc.ProjectRecruitmentHeaderRepository.FindByID(projectRecruitmentHeaderID)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByProjectRecruitmentHeaderIDAndEmployeeID] error when finding project recruitment header by id: %s", err.Error())
+		return nil, err
+	}
+
+	if projectRecruitmentHeader == nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByProjectRecruitmentHeaderIDAndEmployeeID] project recruitment header with id %s not found", projectRecruitmentHeaderID)
+		return nil, errors.New("project recruitment header not found")
+	}
+
+	projectRecruitmentLineIDs := make([]uuid.UUID, 0)
+	for _, pic := range pics {
+		projectRecruitmentLineIDs = append(projectRecruitmentLineIDs, pic.ProjectRecruitmentLineID)
+	}
+
+	data, err := uc.Repository.FindAllByProjectRecruitmentHeaderIdAndIds(projectRecruitmentHeaderID, projectRecruitmentLineIDs)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByProjectRecruitmentHeaderIDAndEmployeeID] error when finding project recruitment lines by project recruitment header id and ids: %s", err.Error())
 		return nil, err
 	}
 

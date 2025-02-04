@@ -19,6 +19,7 @@ type IProjectRecruitmentLineRepository interface {
 	FindByKeys(keys map[string]interface{}) (*entity.ProjectRecruitmentLine, error)
 	FindAllByTemplateActivityLineIDs(templateActivityLineIDs []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 	FindAllByIds(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
+	FindAllByProjectRecruitmentHeaderIdAndIds(projectRecruitmentHeaderId uuid.UUID, ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 }
 
 type ProjectRecruitmentLineRepository struct {
@@ -158,6 +159,15 @@ func (r *ProjectRecruitmentLineRepository) FindAllByTemplateActivityLineIDs(temp
 func (r *ProjectRecruitmentLineRepository) FindAllByIds(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLines []entity.ProjectRecruitmentLine
 	if err := r.DB.Where("id IN ?", ids).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
+		return nil, err
+	}
+
+	return &projectRecruitmentLines, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) FindAllByProjectRecruitmentHeaderIdAndIds(projectRecruitmentHeaderId uuid.UUID, ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLines []entity.ProjectRecruitmentLine
+	if err := r.DB.Where("project_recruitment_header_id = ? AND id IN ?", projectRecruitmentHeaderId, ids).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
 		return nil, err
 	}
 

@@ -5,6 +5,8 @@ import (
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -19,13 +21,15 @@ type IProjectRecruitmentLineHandler interface {
 	CreateOrUpdateProjectRecruitmentLines(ctx *gin.Context)
 	FindAllByProjectRecruitmentHeaderID(ctx *gin.Context)
 	FindAllByFormType(ctx *gin.Context)
+	FindAllByProjectRecruitmentHeaderIDAndEmployeeID(ctx *gin.Context)
 }
 
 type ProjectRecruitmentLineHandler struct {
-	Log      *logrus.Logger
-	Viper    *viper.Viper
-	Validate *validator.Validate
-	UseCase  usecase.IProjectRecruitmentLineUseCase
+	Log        *logrus.Logger
+	Viper      *viper.Viper
+	Validate   *validator.Validate
+	UseCase    usecase.IProjectRecruitmentLineUseCase
+	UserHelper helper.IUserHelper
 }
 
 func NewProjectRecruitmentLineHandler(
@@ -33,12 +37,14 @@ func NewProjectRecruitmentLineHandler(
 	viper *viper.Viper,
 	validate *validator.Validate,
 	useCase usecase.IProjectRecruitmentLineUseCase,
+	userHelper helper.IUserHelper,
 ) IProjectRecruitmentLineHandler {
 	return &ProjectRecruitmentLineHandler{
-		Log:      log,
-		Viper:    viper,
-		Validate: validate,
-		UseCase:  useCase,
+		Log:        log,
+		Viper:      viper,
+		Validate:   validate,
+		UseCase:    useCase,
+		UserHelper: userHelper,
 	}
 }
 
@@ -48,7 +54,8 @@ func ProjectRecruitmentLineHandlerFactory(
 ) IProjectRecruitmentLineHandler {
 	useCase := usecase.ProjectRecruitmentLineUseCaseFactory(log)
 	validate := config.NewValidator(viper)
-	return NewProjectRecruitmentLineHandler(log, viper, validate, useCase)
+	userHelper := helper.UserHelperFactory(log)
+	return NewProjectRecruitmentLineHandler(log, viper, validate, useCase, userHelper)
 }
 
 // CreateOrUpdateProjectRecruitmentLines create or update project recruitment lines
@@ -140,6 +147,54 @@ func (h *ProjectRecruitmentLineHandler) FindAllByFormType(ctx *gin.Context) {
 	res, err := h.UseCase.FindAllByFormType(entity.TemplateQuestionFormType(formType))
 	if err != nil {
 		h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByFormType] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
+}
+
+// FindAllByProjectRecruitmentHeaderIDAndEmployeeID find all project recruitment lines by project recruitment header id and employee id
+//
+//	@Summary		Find all project recruitment lines by project recruitment header id and employee id
+//	@Description	Find all project recruitment lines by project recruitment header id and employee id
+//	@Tags			Project Recruitment Lines
+//	@Accept			json
+//	@Produce		json
+//	@Param			project_recruitment_header_id path string true "project recruitment header id"
+//	@Success		200	{array} response.ProjectRecruitmentLineResponse
+//	@Security BearerAuth
+//	@Router			/project-recruitment-lines/header-pic/{project_recruitment_header_id} [get]
+func (h *ProjectRecruitmentLineHandler) FindAllByProjectRecruitmentHeaderIDAndEmployeeID(ctx *gin.Context) {
+	projectRecruitmentHeaderID := ctx.Param("project_recruitment_header_id")
+	parsedProjectRecruitmentHeaderID, err := uuid.Parse(projectRecruitmentHeaderID)
+	if err != nil {
+		h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderIDAndEmployeeID] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	employeUUID, err := h.UserHelper.GetEmployeeId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting employee id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindAllByProjectRecruitmentHeaderIDAndEmployeeID(parsedProjectRecruitmentHeaderID, employeUUID)
+	if err != nil {
+		h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderIDAndEmployeeID] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
 		return
 	}

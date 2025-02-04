@@ -4512,6 +4512,34 @@ paths:
       summary: Find all mp requests paginated
       tags:
       - MP Requests
+  /project-pic/project-recruitment-line/{project_recruitment_line_id}:
+    get:
+      consumes:
+      - application/json
+      description: Find project pic by project recruitment line id and employee id
+      parameters:
+      - description: Project Recruitment Line ID
+        in: path
+        name: project_recruitment_line_id
+        required: true
+        type: string
+      - description: Employee ID
+        in: path
+        name: employee_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectPicResponse'
+      security:
+      - BearerAuth: []
+      summary: Find project pic by project recruitment line id and employee id
+      tags:
+      - Project PIC
   /project-recruitment-lines:
     post:
       consumes:

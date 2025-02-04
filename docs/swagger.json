@@ -3298,6 +3298,50 @@
                 }
             }
         },
+        "/project-pic/project-recruitment-line/{project_recruitment_line_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find project pic by project recruitment line id and employee id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project PIC"
+                ],
+                "summary": "Find project pic by project recruitment line id and employee id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Employee ID",
+                        "name": "employee_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectPicResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/project-recruitment-lines": {
             "post": {
                 "security": [

@@ -38,6 +38,7 @@ type RouteConfig struct {
 	QuestionResponseHandler         handler.IQuestionResponseHandler
 	AdministrativeSelectionHandler  handler.IAdministrativeSelectionHandler
 	AdministrativeResultHandler     handler.IAdministrativeResultHandler
+	ProjectPicHandler               handler.IProjectPicHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -251,6 +252,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				administrativeResultRoute.GET("/:id", c.AdministrativeResultHandler.FindByID)
 				administrativeResultRoute.POST("", c.AdministrativeResultHandler.CreateOrUpdateAdministrativeResults)
 			}
+			// project pics
+			projectPicRoute := apiRoute.Group("/project-pics")
+			{
+				projectPicRoute.GET("/project-recruitment-line/:project_recruitment_line_id", c.ProjectPicHandler.FindByProjectRecruitmentLineIDAndEmployeeID)
+			}
 		}
 	}
 }
@@ -279,6 +285,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	questionResponseHandler := handler.QuestionResponseHandlerFactory(log, viper)
 	administrativeSelectionHandler := handler.AdministrativeSelectionHandlerFactory(log, viper)
 	administrativeResultHandler := handler.AdministrativeResultHandlerFactory(log, viper)
+	projectPicHandler := handler.ProjectPicHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -307,5 +314,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		QuestionResponseHandler:         questionResponseHandler,
 		AdministrativeSelectionHandler:  administrativeSelectionHandler,
 		AdministrativeResultHandler:     administrativeResultHandler,
+		ProjectPicHandler:               projectPicHandler,
 	}
 }

@@ -21,6 +21,7 @@ type TestScheduleHeaderDTO struct {
 	Viper                       *viper.Viper
 	TestApplicantDTO            ITestApplicantDTO
 	ProjectRecruitmentHeaderDTO IProjectRecruitmentHeaderDTO
+	ProjectRecruitmentLineDTO   IProjectRecruitmentLineDTO
 }
 
 func NewTestScheduleHeaderDTO(
@@ -31,6 +32,7 @@ func NewTestScheduleHeaderDTO(
 	viper *viper.Viper,
 	taDTO ITestApplicantDTO,
 	prhDTO IProjectRecruitmentHeaderDTO,
+	prlDTO IProjectRecruitmentLineDTO,
 ) ITestScheduleHeaderDTO {
 	return &TestScheduleHeaderDTO{
 		Log:                         log,
@@ -40,6 +42,7 @@ func NewTestScheduleHeaderDTO(
 		Viper:                       viper,
 		TestApplicantDTO:            taDTO,
 		ProjectRecruitmentHeaderDTO: prhDTO,
+		ProjectRecruitmentLineDTO:   prlDTO,
 	}
 }
 
@@ -49,7 +52,8 @@ func TestScheduleHeaderDTOFactory(log *logrus.Logger, viper *viper.Viper) ITestS
 	projectPicDTO := ProjectPicDTOFactory(log)
 	taDTO := TestApplicantDTOFactory(log, viper)
 	prhDTO := ProjectRecruitmentHeaderDTOFactory(log)
-	return NewTestScheduleHeaderDTO(log, jobPostingDTO, testTypeDTO, projectPicDTO, viper, taDTO, prhDTO)
+	prlDTO := ProjectRecruitmentLineDTOFactory(log)
+	return NewTestScheduleHeaderDTO(log, jobPostingDTO, testTypeDTO, projectPicDTO, viper, taDTO, prhDTO, prlDTO)
 }
 
 func (dto *TestScheduleHeaderDTO) ConvertEntityToResponse(ent *entity.TestScheduleHeader) (*response.TestScheduleHeaderResponse, error) {
@@ -112,6 +116,12 @@ func (dto *TestScheduleHeaderDTO) ConvertEntityToResponse(ent *entity.TestSchedu
 				return nil
 			}
 			return dto.ProjectRecruitmentHeaderDTO.ConvertEntityToResponse(ent.ProjectRecruitmentHeader)
+		}(),
+		ProjectRecruitmentLine: func() *response.ProjectRecruitmentLineResponse {
+			if ent.ProjectRecruitmentLine == nil {
+				return nil
+			}
+			return dto.ProjectRecruitmentLineDTO.ConvertEntityToResponse(ent.ProjectRecruitmentLine)
 		}(),
 	}, nil
 }

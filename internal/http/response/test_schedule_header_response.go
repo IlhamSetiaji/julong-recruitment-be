@@ -34,6 +34,7 @@ type TestScheduleHeaderResponse struct {
 	ProjectPic               *ProjectPicResponse               `json:"project_pic"`
 	TestApplicants           []TestApplicantResponse           `json:"test_applicants"`
 	ProjectRecruitmentHeader *ProjectRecruitmentHeaderResponse `json:"project_recruitment_header"`
+	ProjectRecruitmentLine   *ProjectRecruitmentLineResponse   `json:"project_recruitment_line"`
 }
 
 type TestApplicantsPayload struct {

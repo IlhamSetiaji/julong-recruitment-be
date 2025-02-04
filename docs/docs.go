@@ -7780,6 +7780,9 @@ const docTemplate = `{
                 "project_recruitment_header": {
                     "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
                 },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                },
                 "schedule_date": {
                     "type": "string"
                 },

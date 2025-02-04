@@ -17,6 +17,7 @@ type IProjectRecruitmentHeaderRepository interface {
 	UpdateProjectRecruitmentHeader(ent *entity.ProjectRecruitmentHeader) (*entity.ProjectRecruitmentHeader, error)
 	DeleteProjectRecruitmentHeader(id uuid.UUID) error
 	GetHighestDocumentNumberByDate(date string) (int, error)
+	FindAllByIDs(ids []uuid.UUID) (*[]entity.ProjectRecruitmentHeader, error)
 }
 
 type ProjectRecruitmentHeaderRepository struct {
@@ -186,4 +187,17 @@ func (r *ProjectRecruitmentHeaderRepository) DeleteProjectRecruitmentHeader(id u
 	}
 
 	return nil
+}
+
+func (r *ProjectRecruitmentHeaderRepository) FindAllByIDs(ids []uuid.UUID) (*[]entity.ProjectRecruitmentHeader, error) {
+	var projectRecruitmentHeaders []entity.ProjectRecruitmentHeader
+
+	if err := r.DB.
+		Where("id IN ?", ids).
+		Find(&projectRecruitmentHeaders).Error; err != nil {
+		r.Log.Error("[ProjectRecruitmentHeaderRepository.FindAllByIDs] " + err.Error())
+		return nil, err
+	}
+
+	return &projectRecruitmentHeaders, nil
 }

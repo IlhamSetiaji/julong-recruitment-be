@@ -14,6 +14,7 @@ type IProjectPicRepository interface {
 	DeleteProjectPicByProjectRecruitmentLineID(projectRecruitmentLineID uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.ProjectPic, error)
 	FindAllByEmployeeID(employeeID uuid.UUID) ([]entity.ProjectPic, error)
+	FindByKeys(keys map[string]interface{}) (*entity.ProjectPic, error)
 }
 
 type ProjectPicRepository struct {
@@ -130,4 +131,18 @@ func (r *ProjectPicRepository) FindAllByEmployeeID(employeeID uuid.UUID) ([]enti
 	}
 
 	return projectPics, nil
+}
+
+func (r *ProjectPicRepository) FindByKeys(keys map[string]interface{}) (*entity.ProjectPic, error) {
+	var projectPic entity.ProjectPic
+
+	if err := r.DB.Where(keys).First(&projectPic).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &projectPic, nil
 }

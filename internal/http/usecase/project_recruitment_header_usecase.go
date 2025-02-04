@@ -20,30 +20,39 @@ type IProjectRecruitmentHeaderUseCase interface {
 	UpdateProjectRecruitmentHeader(req *request.UpdateProjectRecruitmentHeader) (*response.ProjectRecruitmentHeaderResponse, error)
 	DeleteProjectRecruitmentHeader(id uuid.UUID) error
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
+	FindAllByEmployeeID(employeeID uuid.UUID) (*[]response.ProjectRecruitmentHeaderResponse, error)
 }
 
 type ProjectRecruitmentHeaderUseCase struct {
-	Log        *logrus.Logger
-	Repository repository.IProjectRecruitmentHeaderRepository
-	DTO        dto.IProjectRecruitmentHeaderDTO
+	Log                              *logrus.Logger
+	Repository                       repository.IProjectRecruitmentHeaderRepository
+	ProjectRecruitmentLineRepository repository.IProjectRecruitmentLineRepository
+	ProjectPicRepository             repository.IProjectPicRepository
+	DTO                              dto.IProjectRecruitmentHeaderDTO
 }
 
 func NewProjectRecruitmentHeaderUseCase(
 	log *logrus.Logger,
 	repo repository.IProjectRecruitmentHeaderRepository,
 	prhDTO dto.IProjectRecruitmentHeaderDTO,
+	prlRepo repository.IProjectRecruitmentLineRepository,
+	ppRepo repository.IProjectPicRepository,
 ) IProjectRecruitmentHeaderUseCase {
 	return &ProjectRecruitmentHeaderUseCase{
-		Log:        log,
-		Repository: repo,
-		DTO:        prhDTO,
+		Log:                              log,
+		Repository:                       repo,
+		DTO:                              prhDTO,
+		ProjectRecruitmentLineRepository: prlRepo,
+		ProjectPicRepository:             ppRepo,
 	}
 }
 
 func ProjectRecruitmentHeaderUseCaseFactory(log *logrus.Logger) IProjectRecruitmentHeaderUseCase {
 	repo := repository.ProjectRecruitmentHeaderRepositoryFactory(log)
 	prhDTO := dto.ProjectRecruitmentHeaderDTOFactory(log)
-	return NewProjectRecruitmentHeaderUseCase(log, repo, prhDTO)
+	prlRepo := repository.ProjectRecruitmentLineRepositoryFactory(log)
+	ppRepo := repository.ProjectPicRepositoryFactory(log)
+	return NewProjectRecruitmentHeaderUseCase(log, repo, prhDTO, prlRepo, ppRepo)
 }
 
 func (uc *ProjectRecruitmentHeaderUseCase) CreateProjectRecruitmentHeader(req *request.CreateProjectRecruitmentHeader) (*response.ProjectRecruitmentHeaderResponse, error) {
@@ -201,4 +210,41 @@ func (uc *ProjectRecruitmentHeaderUseCase) DeleteProjectRecruitmentHeader(id uui
 	}
 
 	return nil
+}
+
+func (uc *ProjectRecruitmentHeaderUseCase) FindAllByEmployeeID(employeeID uuid.UUID) (*[]response.ProjectRecruitmentHeaderResponse, error) {
+	pics, err := uc.ProjectPicRepository.FindAllByEmployeeID(employeeID)
+	if err != nil {
+		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.FindAllByEmployeeID] " + err.Error())
+		return nil, err
+	}
+
+	projectRecruitmentLineIDs := make([]uuid.UUID, 0)
+	for _, pic := range pics {
+		projectRecruitmentLineIDs = append(projectRecruitmentLineIDs, pic.ProjectRecruitmentLineID)
+	}
+
+	projectRecruitmentLines, err := uc.ProjectRecruitmentLineRepository.FindAllByIds(projectRecruitmentLineIDs)
+	if err != nil {
+		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.FindAllByEmployeeID] " + err.Error())
+		return nil, err
+	}
+
+	projectRecruitmentHeaderIDs := make([]uuid.UUID, 0)
+	for _, projectRecruitmentLine := range *projectRecruitmentLines {
+		projectRecruitmentHeaderIDs = append(projectRecruitmentHeaderIDs, projectRecruitmentLine.ProjectRecruitmentHeaderID)
+	}
+
+	projectRecruitmentHeaders, err := uc.Repository.FindAllByIDs(projectRecruitmentHeaderIDs)
+	if err != nil {
+		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.FindAllByEmployeeID] " + err.Error())
+		return nil, err
+	}
+
+	projectRecruitmentHeaderResponses := make([]response.ProjectRecruitmentHeaderResponse, 0)
+	for _, projectRecruitmentHeader := range *projectRecruitmentHeaders {
+		projectRecruitmentHeaderResponses = append(projectRecruitmentHeaderResponses, *uc.DTO.ConvertEntityToResponse(&projectRecruitmentHeader))
+	}
+
+	return &projectRecruitmentHeaderResponses, nil
 }

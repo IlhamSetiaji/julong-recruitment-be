@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -23,6 +25,7 @@ type IProjectRecruitmentHeaderHandler interface {
 	UpdateProjectRecruitmentHeader(ctx *gin.Context)
 	DeleteProjectRecruitmentHeader(ctx *gin.Context)
 	GenerateDocumentNumber(ctx *gin.Context)
+	FindAllByEmployeeID(ctx *gin.Context)
 }
 
 type ProjectRecruitmentHeaderHandler struct {
@@ -31,6 +34,7 @@ type ProjectRecruitmentHeaderHandler struct {
 	Validate                *validator.Validate
 	UseCase                 usecase.IProjectRecruitmentHeaderUseCase
 	TemplateActivityUseCase usecase.ITemplateActivityUseCase
+	UserHelper              helper.IUserHelper
 }
 
 func NewProjectRecruitmentHeaderHandler(
@@ -39,6 +43,7 @@ func NewProjectRecruitmentHeaderHandler(
 	validate *validator.Validate,
 	useCase usecase.IProjectRecruitmentHeaderUseCase,
 	taUseCase usecase.ITemplateActivityUseCase,
+	userHelper helper.IUserHelper,
 ) IProjectRecruitmentHeaderHandler {
 	return &ProjectRecruitmentHeaderHandler{
 		Log:                     log,
@@ -46,6 +51,7 @@ func NewProjectRecruitmentHeaderHandler(
 		Validate:                validate,
 		UseCase:                 useCase,
 		TemplateActivityUseCase: taUseCase,
+		UserHelper:              userHelper,
 	}
 }
 
@@ -56,7 +62,8 @@ func ProjectRecruitmentHeaderHandlerFactory(
 	useCase := usecase.ProjectRecruitmentHeaderUseCaseFactory(log)
 	validate := config.NewValidator(viper)
 	taUseCase := usecase.TemplateActivityUseCaseFactory(log)
-	return NewProjectRecruitmentHeaderHandler(log, viper, validate, useCase, taUseCase)
+	userHelper := helper.UserHelperFactory(log)
+	return NewProjectRecruitmentHeaderHandler(log, viper, validate, useCase, taUseCase, userHelper)
 }
 
 // CreateProjectRecruitmentHeader create project recruitment header
@@ -323,4 +330,43 @@ func (h *ProjectRecruitmentHeaderHandler) GenerateDocumentNumber(ctx *gin.Contex
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success", documentNumber)
+}
+
+// FindAllByEmployeeID find all project recruitment headers by employee id
+//
+// @Summary		Find all project recruitment headers by employee id
+// @Description	Find all project recruitment headers by employee id
+// @Tags			Project Recruitment Headers
+// @Accept			json
+// @Produce		json
+// @Success		200	{object} response.ProjectRecruitmentHeaderResponse
+// @Security BearerAuth
+// @Router			/api/project-recruitment-headers/pic [get]
+func (h *ProjectRecruitmentHeaderHandler) FindAllByEmployeeID(ctx *gin.Context) {
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	employeUUID, err := h.UserHelper.GetEmployeeId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting employee id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	responses, err := h.UseCase.FindAllByEmployeeID(employeUUID)
+	if err != nil {
+		h.Log.Error("[ProjectRecruitmentHeaderHandler.FindAllByEmployeeID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", responses)
 }

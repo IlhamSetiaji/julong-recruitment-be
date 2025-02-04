@@ -647,6 +647,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/project-recruitment-headers/pic": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all project recruitment headers by employee id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Headers"
+                ],
+                "summary": "Find all project recruitment headers by employee id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/project-recruitment-headers/update": {
             "put": {
                 "security": [

@@ -18,6 +18,7 @@ type IProjectRecruitmentLineRepository interface {
 	GetAllByKeys(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error)
 	FindByKeys(keys map[string]interface{}) (*entity.ProjectRecruitmentLine, error)
 	FindAllByTemplateActivityLineIDs(templateActivityLineIDs []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
+	FindAllByIds(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 }
 
 type ProjectRecruitmentLineRepository struct {
@@ -148,6 +149,15 @@ func (r *ProjectRecruitmentLineRepository) FindByKeys(keys map[string]interface{
 func (r *ProjectRecruitmentLineRepository) FindAllByTemplateActivityLineIDs(templateActivityLineIDs []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLines []entity.ProjectRecruitmentLine
 	if err := r.DB.Where("template_activity_line_id IN ?", templateActivityLineIDs).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
+		return nil, err
+	}
+
+	return &projectRecruitmentLines, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) FindAllByIds(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLines []entity.ProjectRecruitmentLine
+	if err := r.DB.Where("id IN ?", ids).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
 		return nil, err
 	}
 

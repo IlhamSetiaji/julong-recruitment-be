@@ -2876,6 +2876,23 @@ paths:
       summary: Generate document number
       tags:
       - Project Recruitment Headers
+  /api/project-recruitment-headers/pic:
+    get:
+      consumes:
+      - application/json
+      description: Find all project recruitment headers by employee id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all project recruitment headers by employee id
+      tags:
+      - Project Recruitment Headers
   /api/project-recruitment-headers/update:
     put:
       consumes:

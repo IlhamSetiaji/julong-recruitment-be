@@ -67,13 +67,13 @@ func (h *TestApplicantHandler) CreateOrUpdateTestApplicants(ctx *gin.Context) {
 	var req request.CreateOrUpdateTestApplicantsRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.Log.Errorf("[TestApplicantHandler.CreateOrUpdateTestApplicants] error when binding request: %s", err.Error())
-		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
 	if err := h.Validate.Struct(req); err != nil {
 		h.Log.Errorf("[TestApplicantHandler.CreateOrUpdateTestApplicants] error when validating request: %s", err.Error())
-		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
@@ -102,13 +102,13 @@ func (h *TestApplicantHandler) UpdateStatusTestApplicants(ctx *gin.Context) {
 	var req request.UpdateStatusTestApplicantRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.Log.Errorf("[TestApplicantHandler.UpdateStatusTestApplicants] error when binding request: %s", err.Error())
-		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
 	if err := h.Validate.Struct(req); err != nil {
 		h.Log.Errorf("[TestApplicantHandler.UpdateStatusTestApplicants] error when validating request: %s", err.Error())
-		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 

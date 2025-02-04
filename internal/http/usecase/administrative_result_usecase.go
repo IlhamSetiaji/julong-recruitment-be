@@ -147,7 +147,7 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 					}
 
 					if jpExist == nil {
-						uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + "Job Posting not found")
+						uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + "Job Posting not found")
 						return nil, errors.New("job posting not found")
 					}
 
@@ -156,7 +156,7 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 						"job_posting_id":  as.JobPostingID,
 					})
 					if err != nil {
-						uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+						uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
 						return nil, err
 					}
 					if applicant != nil {
@@ -171,6 +171,7 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 							}
 						}
 						_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+							ID:                 applicant.ID,
 							UserProfileID:      parsedUserProfileID,
 							JobPostingID:       as.JobPostingID,
 							Status:             entity.APPLICANT_STATUS_APPLIED,
@@ -179,7 +180,7 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 							TemplateQuestionID: *TemplateQuestionID,
 						})
 						if err != nil {
-							uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+							uc.Log.Error("[AdministrativeResultUseCase.ApplyJobPosting] " + err.Error())
 							return nil, err
 						}
 					}
@@ -210,6 +211,7 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 					}
 					if applicant != nil {
 						_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+							ID:                 applicant.ID,
 							UserProfileID:      parsedUserProfileID,
 							JobPostingID:       as.JobPostingID,
 							Status:             entity.APPLICANT_STATUS_APPLIED,

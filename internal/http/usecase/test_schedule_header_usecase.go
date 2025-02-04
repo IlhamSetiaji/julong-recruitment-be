@@ -162,11 +162,11 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		return nil, err
 	}
 
-	parsedJobID, err := uuid.Parse(req.JobID)
-	if err != nil {
-		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
-		return nil, err
-	}
+	// parsedJobID, err := uuid.Parse(req.JobID)
+	// if err != nil {
+	// 	uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+	// 	return nil, err
+	// }
 
 	// parsedTmplActLineID, err := uuid.Parse(req.TemplateActivityLineID)
 	// if err != nil {
@@ -222,20 +222,20 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		ProjectPicID:               parsedProjectPicID,
 		ProjectRecruitmentHeaderID: parsedPrhID,
 		ProjectRecruitmentLineID:   parsedPrlID,
-		JobID:                      &parsedJobID,
-		Name:                       req.Name,
-		DocumentNumber:             req.DocumentNumber,
-		StartDate:                  parsedStartDate,
-		EndDate:                    parsedEndDate,
-		StartTime:                  parsedStartTime,
-		EndTime:                    parsedEndTime,
-		Link:                       req.Link,
-		Location:                   req.Location,
-		Description:                req.Description,
-		TotalCandidate:             req.TotalCandidate,
-		Status:                     entity.TestScheduleStatus(req.Status),
-		ScheduleDate:               parsedScheduleDate,
-		Platform:                   req.Platform,
+		// JobID:                      &parsedJobID,
+		Name:           req.Name,
+		DocumentNumber: req.DocumentNumber,
+		StartDate:      parsedStartDate,
+		EndDate:        parsedEndDate,
+		StartTime:      parsedStartTime,
+		EndTime:        parsedEndTime,
+		Link:           req.Link,
+		Location:       req.Location,
+		Description:    req.Description,
+		TotalCandidate: req.TotalCandidate,
+		Status:         entity.TestScheduleStatus(req.Status),
+		ScheduleDate:   parsedScheduleDate,
+		Platform:       req.Platform,
 	})
 
 	if err != nil {
@@ -383,11 +383,11 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 		return nil, err
 	}
 
-	parsedJobID, err := uuid.Parse(req.JobID)
-	if err != nil {
-		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
-		return nil, err
-	}
+	// parsedJobID, err := uuid.Parse(req.JobID)
+	// if err != nil {
+	// 	uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+	// 	return nil, err
+	// }
 
 	parsedStartDate, err := time.Parse("2006-01-02", req.StartDate)
 	if err != nil {
@@ -420,11 +420,11 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 	}
 
 	testScheduleHeader, err := uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
-		ID:                         parsedID,
-		JobPostingID:               parsedJobPostingID,
-		TestTypeID:                 parsedTestTypeID,
-		ProjectPicID:               parsedProjectPicID,
-		JobID:                      &parsedJobID,
+		ID:           parsedID,
+		JobPostingID: parsedJobPostingID,
+		TestTypeID:   parsedTestTypeID,
+		ProjectPicID: parsedProjectPicID,
+		// JobID:                      &parsedJobID,
 		ProjectRecruitmentHeaderID: parsedPrhID,
 		ProjectRecruitmentLineID:   parsedPrlID,
 		Name:                       req.Name,

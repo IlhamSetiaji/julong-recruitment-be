@@ -1345,9 +1345,7 @@ definitions:
     - document_number
     - end_date
     - end_time
-    - job_id
     - job_posting_id
-    - link
     - location
     - name
     - project_pic_id
@@ -1559,9 +1557,7 @@ definitions:
     - end_date
     - end_time
     - id
-    - job_id
     - job_posting_id
-    - link
     - location
     - name
     - project_pic_id

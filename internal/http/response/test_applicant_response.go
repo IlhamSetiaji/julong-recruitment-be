@@ -17,6 +17,7 @@ type TestApplicantResponse struct {
 	CreatedAt            time.Time                `json:"created_at"`
 	UpdatedAt            time.Time                `json:"updated_at"`
 
-	UserProfile *UserProfileResponse `json:"user_profile"`
-	Applicant   *ApplicantResponse   `json:"applicant"`
+	UserProfile        *UserProfileResponse        `json:"user_profile"`
+	Applicant          *ApplicantResponse          `json:"applicant"`
+	TestScheduleHeader *TestScheduleHeaderResponse `json:"test_schedule_header"`
 }

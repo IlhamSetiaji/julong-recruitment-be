@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/sirupsen/logrus"
@@ -73,6 +75,33 @@ func (dto *TestApplicantDTO) ConvertEntityToResponse(ent *entity.TestApplicant) 
 				return nil
 			}
 			return resp
+		}(),
+		TestScheduleHeader: func() *response.TestScheduleHeaderResponse {
+			if ent.TestScheduleHeader == nil {
+				return nil
+			}
+			return &response.TestScheduleHeaderResponse{
+				ID:             ent.ID,
+				JobPostingID:   ent.TestScheduleHeader.JobPostingID,
+				TestTypeID:     ent.TestScheduleHeader.TestTypeID,
+				ProjectPicID:   ent.TestScheduleHeader.ProjectPicID,
+				JobID:          ent.TestScheduleHeader.JobID,
+				Name:           ent.TestScheduleHeader.Name,
+				DocumentNumber: ent.TestScheduleHeader.DocumentNumber,
+				StartDate:      ent.TestScheduleHeader.StartDate,
+				EndDate:        ent.TestScheduleHeader.EndDate,
+				StartTime:      ent.TestScheduleHeader.StartTime.In(time.UTC),
+				EndTime:        ent.TestScheduleHeader.EndTime.In(time.UTC),
+				Link:           ent.TestScheduleHeader.Link,
+				Location:       ent.TestScheduleHeader.Location,
+				Description:    ent.TestScheduleHeader.Description,
+				TotalCandidate: ent.TestScheduleHeader.TotalCandidate,
+				Status:         ent.TestScheduleHeader.Status,
+				ScheduleDate:   ent.TestScheduleHeader.ScheduleDate,
+				Platform:       ent.TestScheduleHeader.Platform,
+				CreatedAt:      ent.TestScheduleHeader.CreatedAt,
+				UpdatedAt:      ent.TestScheduleHeader.UpdatedAt,
+			}
 		}(),
 	}, nil
 }

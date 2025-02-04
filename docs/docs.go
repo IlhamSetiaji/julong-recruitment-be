@@ -7715,6 +7715,9 @@ const docTemplate = `{
                 "start_time": {
                     "type": "string"
                 },
+                "test_schedule_header": {
+                    "$ref": "#/definitions/response.TestScheduleHeaderResponse"
+                },
                 "test_schedule_header_id": {
                     "type": "string"
                 },

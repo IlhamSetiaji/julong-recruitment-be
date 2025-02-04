@@ -161,9 +161,10 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 						return nil, err
 					}
 					if applicant != nil {
+						applicantOrder := applicant.Order
 						var TemplateQuestionID *uuid.UUID
 						for i := range jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines {
-							if jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == applicant.Order+1 {
+							if jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == applicantOrder+1 {
 								projectRecruitmentLine := &jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i]
 								TemplateQuestionID = &projectRecruitmentLine.TemplateActivityLine.QuestionTemplateID
 								break

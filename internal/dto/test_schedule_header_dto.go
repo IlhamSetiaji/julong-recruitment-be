@@ -12,12 +12,13 @@ type ITestScheduleHeaderDTO interface {
 }
 
 type TestScheduleHeaderDTO struct {
-	Log              *logrus.Logger
-	JobPostingDTO    IJobPostingDTO
-	TestTypeDTO      ITestTypeDTO
-	ProjectPicDTO    IProjectPicDTO
-	Viper            *viper.Viper
-	TestApplicantDTO ITestApplicantDTO
+	Log                         *logrus.Logger
+	JobPostingDTO               IJobPostingDTO
+	TestTypeDTO                 ITestTypeDTO
+	ProjectPicDTO               IProjectPicDTO
+	Viper                       *viper.Viper
+	TestApplicantDTO            ITestApplicantDTO
+	ProjectRecruitmentHeaderDTO IProjectRecruitmentHeaderDTO
 }
 
 func NewTestScheduleHeaderDTO(
@@ -27,14 +28,16 @@ func NewTestScheduleHeaderDTO(
 	projectPicDTO IProjectPicDTO,
 	viper *viper.Viper,
 	taDTO ITestApplicantDTO,
+	prhDTO IProjectRecruitmentHeaderDTO,
 ) ITestScheduleHeaderDTO {
 	return &TestScheduleHeaderDTO{
-		Log:              log,
-		JobPostingDTO:    jobPostingDTO,
-		TestTypeDTO:      testTypeDTO,
-		ProjectPicDTO:    projectPicDTO,
-		Viper:            viper,
-		TestApplicantDTO: taDTO,
+		Log:                         log,
+		JobPostingDTO:               jobPostingDTO,
+		TestTypeDTO:                 testTypeDTO,
+		ProjectPicDTO:               projectPicDTO,
+		Viper:                       viper,
+		TestApplicantDTO:            taDTO,
+		ProjectRecruitmentHeaderDTO: prhDTO,
 	}
 }
 
@@ -43,7 +46,8 @@ func TestScheduleHeaderDTOFactory(log *logrus.Logger, viper *viper.Viper) ITestS
 	testTypeDTO := TestTypeDTOFactory(log)
 	projectPicDTO := ProjectPicDTOFactory(log)
 	taDTO := TestApplicantDTOFactory(log, viper)
-	return NewTestScheduleHeaderDTO(log, jobPostingDTO, testTypeDTO, projectPicDTO, viper, taDTO)
+	prhDTO := ProjectRecruitmentHeaderDTOFactory(log)
+	return NewTestScheduleHeaderDTO(log, jobPostingDTO, testTypeDTO, projectPicDTO, viper, taDTO, prhDTO)
 }
 
 func (dto *TestScheduleHeaderDTO) ConvertEntityToResponse(ent *entity.TestScheduleHeader) (*response.TestScheduleHeaderResponse, error) {
@@ -100,6 +104,12 @@ func (dto *TestScheduleHeaderDTO) ConvertEntityToResponse(ent *entity.TestSchedu
 				responses = append(responses, *resp)
 			}
 			return responses
+		}(),
+		ProjectRecruitmentHeader: func() *response.ProjectRecruitmentHeaderResponse {
+			if ent.ProjectRecruitmentHeader == nil {
+				return nil
+			}
+			return dto.ProjectRecruitmentHeaderDTO.ConvertEntityToResponse(ent.ProjectRecruitmentHeader)
 		}(),
 	}, nil
 }

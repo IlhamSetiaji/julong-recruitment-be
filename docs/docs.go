@@ -1348,73 +1348,6 @@ const docTemplate = `{
             }
         },
         "/api/test-applicants": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Find all test applicants by test schedule header id paginated",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Test Applicants"
-                ],
-                "summary": "Find all test applicants by test schedule header id paginated",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Test schedule header id",
-                        "name": "test_schedule_header_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page",
-                        "name": "page",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page size",
-                        "name": "page_size",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort",
-                        "name": "sort",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter",
-                        "name": "filter",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.TestApplicantResponse"
-                        }
-                    }
-                }
-            },
             "post": {
                 "security": [
                     {
@@ -1485,6 +1418,75 @@ const docTemplate = `{
                         "name": "test_schedule_header_id",
                         "in": "query",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TestApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/test-applicants/test-schedule-header/:test_schedule_header_id": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all test applicants by test schedule header id paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test Applicants"
+                ],
+                "summary": "Find all test applicants by test schedule header id paginated",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Test schedule header id",
+                        "name": "test_schedule_header_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -7774,6 +7776,9 @@ const docTemplate = `{
                 },
                 "project_pic_id": {
                     "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
                 },
                 "schedule_date": {
                     "type": "string"

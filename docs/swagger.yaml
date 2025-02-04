@@ -2307,6 +2307,8 @@ definitions:
         $ref: '#/definitions/response.ProjectPicResponse'
       project_pic_id:
         type: string
+      project_recruitment_header:
+        $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
       schedule_date:
         type: string
       start_date:
@@ -3272,50 +3274,6 @@ paths:
       tags:
       - Template Questions
   /api/test-applicants:
-    get:
-      consumes:
-      - application/json
-      description: Find all test applicants by test schedule header id paginated
-      parameters:
-      - description: Test schedule header id
-        in: path
-        name: test_schedule_header_id
-        required: true
-        type: string
-      - description: Page
-        in: query
-        name: page
-        required: true
-        type: integer
-      - description: Page size
-        in: query
-        name: page_size
-        required: true
-        type: integer
-      - description: Search
-        in: query
-        name: search
-        type: string
-      - description: Sort
-        in: query
-        name: sort
-        type: string
-      - description: Filter
-        in: query
-        name: filter
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.TestApplicantResponse'
-      security:
-      - BearerAuth: []
-      summary: Find all test applicants by test schedule header id paginated
-      tags:
-      - Test Applicants
     post:
       consumes:
       - application/json
@@ -3366,6 +3324,51 @@ paths:
       security:
       - BearerAuth: []
       summary: Find test applicant by user profile id and test schedule header id
+      tags:
+      - Test Applicants
+  /api/test-applicants/test-schedule-header/:test_schedule_header_id:
+    get:
+      consumes:
+      - application/json
+      description: Find all test applicants by test schedule header id paginated
+      parameters:
+      - description: Test schedule header id
+        in: path
+        name: test_schedule_header_id
+        required: true
+        type: string
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      - description: Filter
+        in: query
+        name: filter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TestApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all test applicants by test schedule header id paginated
       tags:
       - Test Applicants
   /api/test-applicants/update-status:

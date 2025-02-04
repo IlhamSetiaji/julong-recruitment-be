@@ -29,10 +29,11 @@ type TestScheduleHeaderResponse struct {
 	CreatedAt      time.Time                 `json:"created_at"`
 	UpdatedAt      time.Time                 `json:"updated_at"`
 
-	JobPosting     *JobPostingResponse     `json:"job_posting"`
-	TestType       *TestTypeResponse       `json:"test_type"`
-	ProjectPic     *ProjectPicResponse     `json:"project_pic"`
-	TestApplicants []TestApplicantResponse `json:"test_applicants"`
+	JobPosting               *JobPostingResponse               `json:"job_posting"`
+	TestType                 *TestTypeResponse                 `json:"test_type"`
+	ProjectPic               *ProjectPicResponse               `json:"project_pic"`
+	TestApplicants           []TestApplicantResponse           `json:"test_applicants"`
+	ProjectRecruitmentHeader *ProjectRecruitmentHeaderResponse `json:"project_recruitment_header"`
 }
 
 type TestApplicantsPayload struct {

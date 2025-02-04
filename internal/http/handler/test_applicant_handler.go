@@ -183,7 +183,7 @@ func (h *TestApplicantHandler) FindByUserProfileIDAndTestScheduleHeaderID(ctx *g
 //	@Param			filter	query	string	false	"Filter"
 //	@Success		200			{object}	response.TestApplicantResponse
 //	@Security		BearerAuth
-//	@Router			/api/test-applicants [get]
+//	@Router			/api/test-applicants/test-schedule-header/:test_schedule_header_id [get]
 func (h *TestApplicantHandler) FindAllByTestScheduleHeaderIDPaginated(ctx *gin.Context) {
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {

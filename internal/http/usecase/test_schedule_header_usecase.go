@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -270,14 +271,30 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 	}
 
 	if applicantsPayload.Total < req.TotalCandidate {
-		uc.Log.Warn("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + "Total candidate is less than requested")
-		_, err := uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
-			ID:             testScheduleHeader.ID,
-			TotalCandidate: applicantsPayload.Total,
-		})
+		zero, err := strconv.Atoi("0")
 		if err != nil {
-			uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+			uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
 			return nil, err
+		}
+		uc.Log.Warn("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + "Total candidate is less than requested")
+		if applicantsPayload.Total == zero {
+			_, err = uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
+				ID:             testScheduleHeader.ID,
+				TotalCandidate: zero,
+			})
+			if err != nil {
+				uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+				return nil, err
+			}
+		} else {
+			_, err = uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
+				ID:             testScheduleHeader.ID,
+				TotalCandidate: applicantsPayload.Total,
+			})
+			if err != nil {
+				uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
+				return nil, err
+			}
 		}
 	}
 

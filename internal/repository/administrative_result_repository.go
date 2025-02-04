@@ -129,6 +129,7 @@ func (r *AdministrativeResultRepository) FindByID(id uuid.UUID) (*entity.Adminis
 	if err := r.DB.
 		Where("id = ?", id).
 		Preload("UserProfile").
+		Preload("AdministrativeSelection").
 		First(&ent).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

@@ -2672,6 +2672,34 @@ paths:
       summary: Find administrative result by id
       tags:
       - Administrative Result
+  /api/administrative-results/{id}/update-status:
+    get:
+      consumes:
+      - application/json
+      description: Update status administrative result
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Status
+        in: query
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.AdministrativeResultResponse'
+      security:
+      - BearerAuth: []
+      summary: Update status administrative result
+      tags:
+      - Administrative Result
   /api/administrative-results/administrative-selection/{administrativeSelectionID}:
     get:
       consumes:

@@ -247,6 +247,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			administrativeResultRoute := apiRoute.Group("/administrative-results")
 			{
 				administrativeResultRoute.GET("/administrative-selection/:administrative_selection_id", c.AdministrativeResultHandler.FindAllByAdministrativeSelectionID)
+				administrativeResultRoute.GET("/:id/update-status", c.AdministrativeResultHandler.UpdateStatusAdministrativeResult)
 				administrativeResultRoute.GET("/:id", c.AdministrativeResultHandler.FindByID)
 				administrativeResultRoute.POST("", c.AdministrativeResultHandler.CreateOrUpdateAdministrativeResults)
 			}

@@ -3,7 +3,6 @@ package usecase
 import (
 	"errors"
 	"strconv"
-	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
@@ -19,6 +18,7 @@ type IAdministrativeResultUseCase interface {
 	CreateOrUpdateAdministrativeResults(req *request.CreateOrUpdateAdministrativeResults) (*response.AdministrativeSelectionResponse, error)
 	FindAllByAdministrativeSelectionID(administrativeSelectionID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.AdministrativeResultResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.AdministrativeResultResponse, error)
+	UpdateStatusAdministrativeResult(id uuid.UUID, status entity.AdministrativeResultStatus) (*response.AdministrativeResultResponse, error)
 }
 
 type AdministrativeResultUseCase struct {
@@ -176,8 +176,6 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 							ID:                 applicant.ID,
 							UserProfileID:      parsedUserProfileID,
 							JobPostingID:       as.JobPostingID,
-							Status:             entity.APPLICANT_STATUS_APPLIED,
-							AppliedDate:        time.Now(),
 							Order:              applicant.Order + 1,
 							TemplateQuestionID: *TemplateQuestionID,
 						})
@@ -216,8 +214,6 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 							ID:                 applicant.ID,
 							UserProfileID:      parsedUserProfileID,
 							JobPostingID:       as.JobPostingID,
-							Status:             entity.APPLICANT_STATUS_APPLIED,
-							AppliedDate:        time.Now(),
 							Order:              zero,
 							TemplateQuestionID: uuid.Nil,
 						})
@@ -315,6 +311,120 @@ func (uc *AdministrativeResultUseCase) FindByID(id uuid.UUID) (*response.Adminis
 	res, err := uc.DTO.ConvertEntityToResponse(entity)
 	if err != nil {
 		uc.Log.Error("[AdministrativeResultUseCase.FindByID] " + err.Error())
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (uc *AdministrativeResultUseCase) UpdateStatusAdministrativeResult(id uuid.UUID, status entity.AdministrativeResultStatus) (*response.AdministrativeResultResponse, error) {
+	exist, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Error("[AdministrativeResultUseCase.UpdateStatusAdministrativeResult] " + err.Error())
+		return nil, err
+	}
+
+	if exist == nil {
+		return nil, nil
+	}
+
+	admResult, err := uc.Repository.UpdateAdministrativeResult(&entity.AdministrativeResult{
+		ID:     id,
+		Status: status,
+	})
+	if err != nil {
+		uc.Log.Error("[AdministrativeResultUseCase.UpdateStatusAdministrativeResult] " + err.Error())
+		return nil, err
+	}
+
+	if status == entity.ADMINISTRATIVE_RESULT_STATUS_ACCEPTED {
+		jpExist, err := uc.JobPostingRepository.FindByID(exist.AdministrativeSelection.JobPostingID)
+		if err != nil {
+			uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+			return nil, err
+		}
+
+		if jpExist == nil {
+			uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + "Job Posting not found")
+			return nil, errors.New("job posting not found")
+		}
+
+		applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+			"user_profile_id": exist.UserProfileID,
+			"job_posting_id":  exist.AdministrativeSelection.JobPostingID,
+		})
+		if err != nil {
+			uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+			return nil, err
+		}
+		if applicant != nil {
+			applicantOrder := applicant.Order
+			var TemplateQuestionID *uuid.UUID
+			for i := range jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines {
+				if jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == applicantOrder+1 {
+					projectRecruitmentLine := &jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i]
+					TemplateQuestionID = &projectRecruitmentLine.TemplateActivityLine.QuestionTemplateID
+					break
+				} else {
+					TemplateQuestionID = &applicant.TemplateQuestionID
+				}
+			}
+			_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+				ID:                 applicant.ID,
+				UserProfileID:      exist.UserProfileID,
+				JobPostingID:       exist.AdministrativeSelection.JobPostingID,
+				Status:             entity.APPLICANT_STATUS_APPLIED,
+				Order:              applicant.Order + 1,
+				TemplateQuestionID: *TemplateQuestionID,
+			})
+			if err != nil {
+				uc.Log.Error("[AdministrativeResultUseCase.ApplyJobPosting] " + err.Error())
+				return nil, err
+			}
+		}
+	} else if status == entity.ADMINISTRATIVE_RESULT_STATUS_REJECTED {
+		jpExist, err := uc.JobPostingRepository.FindByID(exist.AdministrativeSelection.JobPostingID)
+		if err != nil {
+			uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+			return nil, err
+		}
+
+		if jpExist == nil {
+			uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + "Job Posting not found")
+			return nil, errors.New("job posting not found")
+		}
+
+		applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+			"user_profile_id": exist.UserProfileID,
+			"job_posting_id":  exist.AdministrativeSelection.JobPostingID,
+		})
+		if err != nil {
+			uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+			return nil, err
+		}
+		zero, err := strconv.Atoi("0")
+		if err != nil {
+			uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+			return nil, err
+		}
+		if applicant != nil {
+			_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+				ID:                 applicant.ID,
+				UserProfileID:      exist.UserProfileID,
+				JobPostingID:       exist.AdministrativeSelection.JobPostingID,
+				Order:              zero,
+				TemplateQuestionID: uuid.Nil,
+			})
+			if err != nil {
+				uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+				return nil, err
+			}
+		}
+	}
+
+	res, err := uc.DTO.ConvertEntityToResponse(admResult)
+	if err != nil {
+		uc.Log.Error("[AdministrativeResultUseCase.UpdateStatusAdministrativeResult] " + err.Error())
 		return nil, err
 	}
 

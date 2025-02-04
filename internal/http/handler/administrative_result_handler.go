@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
@@ -20,6 +21,7 @@ type IAdministrativeResultHandler interface {
 	CreateOrUpdateAdministrativeResults(ctx *gin.Context)
 	FindAllByAdministrativeSelectionID(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	UpdateStatusAdministrativeResult(ctx *gin.Context)
 }
 
 type AdministrativeResultHandler struct {
@@ -183,6 +185,44 @@ func (h *AdministrativeResultHandler) FindByID(ctx *gin.Context) {
 
 	if res == nil {
 		utils.ErrorResponse(ctx, http.StatusNotFound, "administrative result not found", "administrative result not found")
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
+}
+
+// UpdateStatusAdministrativeResult update status administrative result
+//
+//		@Summary		Update status administrative result
+//		@Description	Update status administrative result
+//	 @Tags Administrative Result
+//		@Accept		json
+//		@Produce		json
+//	 @Param id path string true "ID"
+//	 @Param status query string true "Status"
+//	 @Success 200 {object} response.AdministrativeResultResponse
+//	 @Security BearerAuth
+//	 @Router /api/administrative-results/{id}/update-status [get]
+func (h *AdministrativeResultHandler) UpdateStatusAdministrativeResult(ctx *gin.Context) {
+	id := ctx.Param("id")
+	status := ctx.Query("status")
+
+	if status == "" {
+		utils.BadRequestResponse(ctx, "bad request", "status is required")
+		return
+	}
+
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[AdministrativeResultHandler.UpdateStatusAdministrativeResult] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.UpdateStatusAdministrativeResult(parsedID, entity.AdministrativeResultStatus(status))
+	if err != nil {
+		h.Log.Error("[AdministrativeResultHandler.UpdateStatusAdministrativeResult] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when update status administrative result", err.Error())
 		return
 	}
 

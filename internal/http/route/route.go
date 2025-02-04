@@ -220,6 +220,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// test applicants
 			testApplicantRoute := apiRoute.Group("/test-applicants")
 			{
+				testApplicantRoute.GET("/me", c.TestApplicantHandler.FindByUserProfileIDAndTestScheduleHeaderID)
 				testApplicantRoute.POST("", c.TestApplicantHandler.CreateOrUpdateTestApplicants)
 				testApplicantRoute.PUT("/update-status", c.TestApplicantHandler.UpdateStatusTestApplicants)
 			}

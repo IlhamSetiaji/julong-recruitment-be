@@ -16,6 +16,7 @@ type ITestApplicantRepository interface {
 	DeleteTestApplicant(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.TestApplicant, error)
 	FindAllByApplicantIDs(applicantIDs []uuid.UUID) ([]entity.TestApplicant, error)
+	FindByKeys(keys map[string]interface{}) (*entity.TestApplicant, error)
 }
 
 type TestApplicantRepository struct {
@@ -129,4 +130,18 @@ func (r *TestApplicantRepository) FindAllByApplicantIDs(applicantIDs []uuid.UUID
 	}
 
 	return testApplicants, nil
+}
+
+func (r *TestApplicantRepository) FindByKeys(keys map[string]interface{}) (*entity.TestApplicant, error) {
+	var testApplicant entity.TestApplicant
+
+	if err := r.DB.Where(keys).Preload("TestScheduleHeader").Preload("UserProfile").First(&testApplicant).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &testApplicant, nil
 }

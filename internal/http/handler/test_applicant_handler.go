@@ -9,6 +9,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -16,6 +17,7 @@ import (
 type ITestApplicantHandler interface {
 	CreateOrUpdateTestApplicants(ctx *gin.Context)
 	UpdateStatusTestApplicants(ctx *gin.Context)
+	FindByUserProfileIDAndTestScheduleHeaderID(ctx *gin.Context)
 }
 
 type TestApplicantHandler struct {
@@ -116,4 +118,50 @@ func (h *TestApplicantHandler) UpdateStatusTestApplicants(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "success update status test applicants", res)
+}
+
+// FindByUserProfileIDAndTestScheduleHeaderID find test applicant by user profile id and test schedule header id
+//
+//	@Summary		Find test applicant by user profile id and test schedule header id
+//	@Description	Find test applicant by user profile id and test schedule header id
+//	@Tags			Test Applicants
+//	@Accept			json
+//	@Produce		json
+//	@Param			user_profile_id	query	string	true	"User profile id"
+//	@Param			test_schedule_header_id	query	string	true	"Test schedule header id"
+//	@Success		200			{object}	response.TestApplicantResponse
+//	@Security		BearerAuth
+//	@Router			/api/test-applicants/me [get]
+func (h *TestApplicantHandler) FindByUserProfileIDAndTestScheduleHeaderID(ctx *gin.Context) {
+	userProfileID := ctx.Query("user_profile_id")
+	testScheduleHeaderID := ctx.Query("test_schedule_header_id")
+
+	if userProfileID == "" || testScheduleHeaderID == "" {
+		h.Log.Errorf("[TestApplicantHandler.FindByUserProfileIDAndTestScheduleHeaderID] error when binding request: user profile id or test schedule header id is empty")
+		utils.BadRequestResponse(ctx, "bad request", "user profile id or test schedule header id is empty")
+		return
+	}
+
+	parsedUserProfileID, err := uuid.Parse(userProfileID)
+	if err != nil {
+		h.Log.Errorf("[TestApplicantHandler.FindByUserProfileIDAndTestScheduleHeaderID] error when parsing user profile id: %s", err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	parsedTestScheduleHeaderID, err := uuid.Parse(testScheduleHeaderID)
+	if err != nil {
+		h.Log.Errorf("[TestApplicantHandler.FindByUserProfileIDAndTestScheduleHeaderID] error when parsing test schedule header id: %s", err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindByUserProfileIDAndTestScheduleHeaderID(parsedUserProfileID, parsedTestScheduleHeaderID)
+	if err != nil {
+		h.Log.Errorf("[TestApplicantHandler.FindByUserProfileIDAndTestScheduleHeaderID] error when finding test applicant by user profile id and test schedule header id: %s", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success find test applicant by user profile id and test schedule header id", res)
 }

@@ -1266,6 +1266,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/test-applicants/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find test applicant by user profile id and test schedule header id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test Applicants"
+                ],
+                "summary": "Find test applicant by user profile id and test schedule header id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User profile id",
+                        "name": "user_profile_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Test schedule header id",
+                        "name": "test_schedule_header_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TestApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/test-applicants/update-status": {
             "put": {
                 "security": [

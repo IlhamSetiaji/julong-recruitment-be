@@ -3179,6 +3179,35 @@ paths:
       summary: Create or update test applicants
       tags:
       - Test Applicants
+  /api/test-applicants/me:
+    get:
+      consumes:
+      - application/json
+      description: Find test applicant by user profile id and test schedule header
+        id
+      parameters:
+      - description: User profile id
+        in: query
+        name: user_profile_id
+        required: true
+        type: string
+      - description: Test schedule header id
+        in: query
+        name: test_schedule_header_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TestApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: Find test applicant by user profile id and test schedule header id
+      tags:
+      - Test Applicants
   /api/test-applicants/update-status:
     put:
       consumes:

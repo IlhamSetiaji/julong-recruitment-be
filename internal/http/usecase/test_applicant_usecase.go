@@ -17,6 +17,7 @@ import (
 type ITestApplicantUseCase interface {
 	CreateOrUpdateTestApplicants(req *request.CreateOrUpdateTestApplicantsRequest) (*response.TestScheduleHeaderResponse, error)
 	UpdateStatusTestApplicant(req *request.UpdateStatusTestApplicantRequest) (*response.TestApplicantResponse, error)
+	FindByUserProfileIDAndTestScheduleHeaderID(userProfileID, testScheduleHeaderID uuid.UUID) (*response.TestApplicantResponse, error)
 }
 
 type TestApplicantUseCase struct {
@@ -221,6 +222,29 @@ func (uc *TestApplicantUseCase) UpdateStatusTestApplicant(req *request.UpdateSta
 	if err != nil {
 		uc.Log.Errorf("[TestApplicantUseCase.UpdateStatusTestApplicant] error when converting test applicant entity to response: %s", err.Error())
 		return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] error when converting test applicant entity to response: " + err.Error())
+	}
+
+	return resp, nil
+}
+
+func (uc *TestApplicantUseCase) FindByUserProfileIDAndTestScheduleHeaderID(userProfileID, testScheduleHeaderID uuid.UUID) (*response.TestApplicantResponse, error) {
+	ta, err := uc.Repository.FindByKeys(map[string]interface{}{
+		"user_profile_id":         userProfileID,
+		"test_schedule_header_id": testScheduleHeaderID,
+	})
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.FindByUserProfileIDAndTestScheduleHeaderID] error when finding test applicant by user profile id and test schedule header id: %s", err.Error())
+		return nil, errors.New("[TestApplicantUseCase.FindByUserProfileIDAndTestScheduleHeaderID] error when finding test applicant by user profile id and test schedule header id: " + err.Error())
+	}
+	if ta == nil {
+		uc.Log.Errorf("[TestApplicantUseCase.FindByUserProfileIDAndTestScheduleHeaderID] test applicant with user profile id %s and test schedule header id %s not found", userProfileID.String(), testScheduleHeaderID.String())
+		return nil, errors.New("[TestApplicantUseCase.FindByUserProfileIDAndTestScheduleHeaderID] test applicant with user profile id " + userProfileID.String() + " and test schedule header id " + testScheduleHeaderID.String() + " not found")
+	}
+
+	resp, err := uc.DTO.ConvertEntityToResponse(ta)
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.FindByUserProfileIDAndTestScheduleHeaderID] error when converting test applicant entity to response: %s", err.Error())
+		return nil, errors.New("[TestApplicantUseCase.FindByUserProfileIDAndTestScheduleHeaderID] error when converting test applicant entity to response: " + err.Error())
 	}
 
 	return resp, nil

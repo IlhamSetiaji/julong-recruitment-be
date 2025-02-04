@@ -23,6 +23,7 @@ type ITestScheduleHeaderHandler interface {
 	FindByID(ctx *gin.Context)
 	DeleteTestScheduleHeader(ctx *gin.Context)
 	GenerateDocumentNumber(ctx *gin.Context)
+	UpdateStatusTestScheduleHeader(ctx *gin.Context)
 }
 
 type TestScheduleHeaderHandler struct {
@@ -269,4 +270,40 @@ func (h *TestScheduleHeaderHandler) GenerateDocumentNumber(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Document number generated", documentNumber)
+}
+
+// UpdateStatusTestScheduleHeader update status test schedule header
+//
+//	@Summary		Update status test schedule header
+//	@Description	Update status test schedule header
+//	@Tags			Test Schedule Headers
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		body	string	true	"Test schedule header ID"
+//	@Param			status	body	string	true	"Status"
+//	@Success		200			{object}	string
+//	@Security		BearerAuth
+//	@Router			/api/test-schedule-headers/update-status [put]
+func (h *TestScheduleHeaderHandler) UpdateStatusTestScheduleHeader(ctx *gin.Context) {
+	var req request.UpdateStatusTestScheduleHeaderRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid request body", err)
+		return
+	}
+
+	if err := h.Validate.Struct(req); err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid request body", err)
+		return
+	}
+
+	err := h.UseCase.UpdateStatusTestScheduleHeader(&req)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to update status test schedule header", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Status test schedule header updated", "Status test schedule header updated")
 }

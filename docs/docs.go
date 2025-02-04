@@ -1424,6 +1424,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/test-schedule-headers/update-status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update status test schedule header",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test Schedule Headers"
+                ],
+                "summary": "Update status test schedule header",
+                "parameters": [
+                    {
+                        "description": "Test schedule header ID",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Status",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/test-schedule-headers/{id}": {
             "get": {
                 "security": [

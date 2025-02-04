@@ -22,6 +22,7 @@ type ITestScheduleHeaderUsecase interface {
 	FindByID(id uuid.UUID) (*response.TestScheduleHeaderResponse, error)
 	DeleteTestScheduleHeader(id uuid.UUID) error
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
+	UpdateStatusTestScheduleHeader(req *request.UpdateStatusTestScheduleHeaderRequest) error
 }
 
 type TestScheduleHeaderUsecase struct {
@@ -601,4 +602,35 @@ func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID 
 		UserProfileIDs: userProfileIDs,
 		Total:          totalResult,
 	}, nil
+}
+
+func (uc *TestScheduleHeaderUsecase) UpdateStatusTestScheduleHeader(req *request.UpdateStatusTestScheduleHeaderRequest) error {
+	parsedID, err := uuid.Parse(req.ID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateStatusTestScheduleHeader] " + err.Error())
+		return err
+	}
+
+	exist, err := uc.Repository.FindByID(parsedID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateStatusTestScheduleHeader] " + err.Error())
+		return err
+	}
+
+	if exist == nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateStatusTestScheduleHeader] Test Schedule Header not found")
+		return errors.New("Test Schedule Header not found")
+	}
+
+	_, err = uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
+		ID:     exist.ID,
+		Status: entity.TestScheduleStatus(req.Status),
+	})
+
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateStatusTestScheduleHeader] " + err.Error())
+		return err
+	}
+
+	return nil
 }

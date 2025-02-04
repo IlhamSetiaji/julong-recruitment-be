@@ -3312,6 +3312,36 @@ paths:
       summary: Update test schedule header
       tags:
       - Test Schedule Headers
+  /api/test-schedule-headers/update-status:
+    put:
+      consumes:
+      - application/json
+      description: Update status test schedule header
+      parameters:
+      - description: Test schedule header ID
+        in: body
+        name: id
+        required: true
+        schema:
+          type: string
+      - description: Status
+        in: body
+        name: status
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Update status test schedule header
+      tags:
+      - Test Schedule Headers
   /applicants/{id}:
     get:
       consumes:

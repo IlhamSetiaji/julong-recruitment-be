@@ -214,6 +214,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				testScheduleHeaderRoute.GET("/:id", c.TestScheduleHeaderHandler.FindByID)
 				testScheduleHeaderRoute.POST("", c.TestScheduleHeaderHandler.CreateTestScheduleHeader)
 				testScheduleHeaderRoute.PUT("/update", c.TestScheduleHeaderHandler.UpdateTestScheduleHeader)
+				testScheduleHeaderRoute.PUT("/update-status", c.TestScheduleHeaderHandler.UpdateStatusTestScheduleHeader)
 				testScheduleHeaderRoute.DELETE("/:id", c.TestScheduleHeaderHandler.DeleteTestScheduleHeader)
 			}
 			// test applicants

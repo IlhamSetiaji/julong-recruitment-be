@@ -46,3 +46,8 @@ type UpdateTestScheduleHeaderRequest struct {
 	ProjectRecruitmentHeaderID string `json:"project_recruitment_header_id" validate:"required,uuid"`
 	ProjectRecruitmentLineID   string `json:"project_recruitment_line_id" validate:"required,uuid"`
 }
+
+type UpdateStatusTestScheduleHeaderRequest struct {
+	ID     string `json:"id" validate:"required,uuid"`
+	Status string `json:"status" validate:"required,test_schedule_header_status_validation"`
+}

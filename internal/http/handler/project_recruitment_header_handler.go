@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -339,6 +340,7 @@ func (h *ProjectRecruitmentHeaderHandler) GenerateDocumentNumber(ctx *gin.Contex
 // @Tags			Project Recruitment Headers
 // @Accept			json
 // @Produce		json
+// @Param			status	query	string	true	"Status"
 // @Success		200	{object} response.ProjectRecruitmentHeaderResponse
 // @Security BearerAuth
 // @Router			/api/project-recruitment-headers/pic [get]
@@ -361,7 +363,12 @@ func (h *ProjectRecruitmentHeaderHandler) FindAllByEmployeeID(ctx *gin.Context) 
 		return
 	}
 
-	responses, err := h.UseCase.FindAllByEmployeeID(employeUUID)
+	status := ctx.Query("status")
+	if status == "" {
+		status = ""
+	}
+
+	responses, err := h.UseCase.FindAllByEmployeeID(employeUUID, entity.ProjectRecruitmentHeaderStatus(status))
 	if err != nil {
 		h.Log.Error("[ProjectRecruitmentHeaderHandler.FindAllByEmployeeID] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error", err.Error())

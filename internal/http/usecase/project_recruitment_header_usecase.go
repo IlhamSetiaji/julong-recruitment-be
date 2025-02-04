@@ -20,7 +20,7 @@ type IProjectRecruitmentHeaderUseCase interface {
 	UpdateProjectRecruitmentHeader(req *request.UpdateProjectRecruitmentHeader) (*response.ProjectRecruitmentHeaderResponse, error)
 	DeleteProjectRecruitmentHeader(id uuid.UUID) error
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
-	FindAllByEmployeeID(employeeID uuid.UUID) (*[]response.ProjectRecruitmentHeaderResponse, error)
+	FindAllByEmployeeID(employeeID uuid.UUID, status entity.ProjectRecruitmentHeaderStatus) (*[]response.ProjectRecruitmentHeaderResponse, error)
 }
 
 type ProjectRecruitmentHeaderUseCase struct {
@@ -212,7 +212,7 @@ func (uc *ProjectRecruitmentHeaderUseCase) DeleteProjectRecruitmentHeader(id uui
 	return nil
 }
 
-func (uc *ProjectRecruitmentHeaderUseCase) FindAllByEmployeeID(employeeID uuid.UUID) (*[]response.ProjectRecruitmentHeaderResponse, error) {
+func (uc *ProjectRecruitmentHeaderUseCase) FindAllByEmployeeID(employeeID uuid.UUID, status entity.ProjectRecruitmentHeaderStatus) (*[]response.ProjectRecruitmentHeaderResponse, error) {
 	pics, err := uc.ProjectPicRepository.FindAllByEmployeeID(employeeID)
 	if err != nil {
 		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.FindAllByEmployeeID] " + err.Error())
@@ -235,7 +235,7 @@ func (uc *ProjectRecruitmentHeaderUseCase) FindAllByEmployeeID(employeeID uuid.U
 		projectRecruitmentHeaderIDs = append(projectRecruitmentHeaderIDs, projectRecruitmentLine.ProjectRecruitmentHeaderID)
 	}
 
-	projectRecruitmentHeaders, err := uc.Repository.FindAllByIDs(projectRecruitmentHeaderIDs)
+	projectRecruitmentHeaders, err := uc.Repository.FindAllByIDs(projectRecruitmentHeaderIDs, string(status))
 	if err != nil {
 		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.FindAllByEmployeeID] " + err.Error())
 		return nil, err

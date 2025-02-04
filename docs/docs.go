@@ -709,6 +709,15 @@ const docTemplate = `{
                     "Project Recruitment Headers"
                 ],
                 "summary": "Find all project recruitment headers by employee id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

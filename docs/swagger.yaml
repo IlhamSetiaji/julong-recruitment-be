@@ -2909,6 +2909,12 @@ paths:
       consumes:
       - application/json
       description: Find all project recruitment headers by employee id
+      parameters:
+      - description: Status
+        in: query
+        name: status
+        required: true
+        type: string
       produces:
       - application/json
       responses:

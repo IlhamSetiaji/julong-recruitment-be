@@ -18,6 +18,7 @@ import (
 type IAdministrativeResultUseCase interface {
 	CreateOrUpdateAdministrativeResults(req *request.CreateOrUpdateAdministrativeResults) (*response.AdministrativeSelectionResponse, error)
 	FindAllByAdministrativeSelectionID(administrativeSelectionID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.AdministrativeResultResponse, int64, error)
+	FindByID(id uuid.UUID) (*response.AdministrativeResultResponse, error)
 }
 
 type AdministrativeResultUseCase struct {
@@ -297,4 +298,24 @@ func (uc *AdministrativeResultUseCase) FindAllByAdministrativeSelectionID(admini
 	}
 
 	return &res, total, nil
+}
+
+func (uc *AdministrativeResultUseCase) FindByID(id uuid.UUID) (*response.AdministrativeResultResponse, error) {
+	entity, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Error("[AdministrativeResultUseCase.FindByID] " + err.Error())
+		return nil, err
+	}
+
+	if entity == nil {
+		return nil, nil
+	}
+
+	res, err := uc.DTO.ConvertEntityToResponse(entity)
+	if err != nil {
+		uc.Log.Error("[AdministrativeResultUseCase.FindByID] " + err.Error())
+		return nil, err
+	}
+
+	return res, nil
 }

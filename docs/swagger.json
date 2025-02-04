@@ -419,6 +419,43 @@
                 }
             }
         },
+        "/api/administrative-results/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find administrative result by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Result"
+                ],
+                "summary": "Find administrative result by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.AdministrativeResultResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/no-auth/job-postings": {
             "get": {
                 "security": [

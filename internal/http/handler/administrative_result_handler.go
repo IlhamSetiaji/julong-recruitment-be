@@ -11,6 +11,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -18,6 +19,7 @@ import (
 type IAdministrativeResultHandler interface {
 	CreateOrUpdateAdministrativeResults(ctx *gin.Context)
 	FindAllByAdministrativeSelectionID(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
 }
 
 type AdministrativeResultHandler struct {
@@ -149,4 +151,40 @@ func (h *AdministrativeResultHandler) FindAllByAdministrativeSelectionID(ctx *gi
 		"administrative_results": res,
 		"total":                  total,
 	})
+}
+
+// FindByID find administrative result by id
+//
+//		@Summary		Find administrative result by id
+//		@Description	Find administrative result by id
+//	 @Tags Administrative Result
+//		@Accept		json
+//		@Produce		json
+//	 @Param id path string true "ID"
+//	 @Success 200 {object} response.AdministrativeResultResponse
+//	 @Security BearerAuth
+//	 @Router /api/administrative-results/{id} [get]
+func (h *AdministrativeResultHandler) FindByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[AdministrativeResultHandler.FindByID] " + err.Error())
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindByID(parsedID)
+	if err != nil {
+		h.Log.Error("[AdministrativeResultHandler.FindByID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when find administrative result by id", err.Error())
+		return
+	}
+
+	if res == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "administrative result not found", "administrative result not found")
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
 }

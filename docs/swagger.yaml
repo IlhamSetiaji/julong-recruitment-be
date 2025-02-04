@@ -2602,6 +2602,29 @@ paths:
       summary: Create or update administrative results
       tags:
       - Administrative Result
+  /api/administrative-results/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find administrative result by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.AdministrativeResultResponse'
+      security:
+      - BearerAuth: []
+      summary: Find administrative result by id
+      tags:
+      - Administrative Result
   /api/administrative-results/administrative-selection/{administrativeSelectionID}:
     get:
       consumes:

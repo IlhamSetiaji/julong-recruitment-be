@@ -778,11 +778,15 @@ definitions:
         $ref: '#/definitions/entity.AssessmentStatus'
       end_time:
         type: string
+      ended_time:
+        type: string
       final_result:
         $ref: '#/definitions/entity.FinalResultStatus'
       id:
         type: string
       start_time:
+        type: string
+      started_time:
         type: string
       test_schedule_header:
         $ref: '#/definitions/entity.TestScheduleHeader'
@@ -2260,11 +2264,15 @@ definitions:
         type: string
       end_time:
         type: string
+      ended_time:
+        type: string
       final_result:
         $ref: '#/definitions/entity.FinalResultStatus'
       id:
         type: string
       start_time:
+        type: string
+      started_time:
         type: string
       test_schedule_header:
         $ref: '#/definitions/response.TestScheduleHeaderResponse'

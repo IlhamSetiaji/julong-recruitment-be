@@ -210,13 +210,29 @@ func (uc *TestApplicantUseCase) UpdateStatusTestApplicant(req *request.UpdateSta
 		return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] test applicant with id " + req.ID + " not found")
 	}
 
-	_, err = uc.Repository.UpdateTestApplicant(&entity.TestApplicant{
-		ID:               ta.ID,
-		AssessmentStatus: entity.AssessmentStatus(req.Status),
-	})
-	if err != nil {
-		uc.Log.Errorf("[TestApplicantUseCase.UpdateStatusTestApplicant] error when updating test applicant: %s", err.Error())
-		return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] error when updating test applicant: " + err.Error())
+	now := time.Now()
+	if entity.AssessmentStatus(req.Status) != "" {
+		if ta.AssessmentStatus == entity.ASSESSMENT_STATUS_COMPLETED {
+			_, err = uc.Repository.UpdateTestApplicant(&entity.TestApplicant{
+				ID:               ta.ID,
+				AssessmentStatus: entity.AssessmentStatus(req.Status),
+				EndedTime:        &now,
+			})
+			if err != nil {
+				uc.Log.Errorf("[TestApplicantUseCase.UpdateStatusTestApplicant] error when updating test applicant: %s", err.Error())
+				return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] error when updating test applicant: " + err.Error())
+			}
+		} else {
+			_, err = uc.Repository.UpdateTestApplicant(&entity.TestApplicant{
+				ID:               ta.ID,
+				AssessmentStatus: entity.AssessmentStatus(req.Status),
+				StartedTime:      &now,
+			})
+			if err != nil {
+				uc.Log.Errorf("[TestApplicantUseCase.UpdateStatusTestApplicant] error when updating test applicant: %s", err.Error())
+				return nil, errors.New("[TestApplicantUseCase.UpdateStatusTestApplicant] error when updating test applicant: " + err.Error())
+			}
+		}
 	}
 
 	resp, err := uc.DTO.ConvertEntityToResponse(ta)

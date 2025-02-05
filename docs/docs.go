@@ -5565,6 +5565,9 @@ const docTemplate = `{
                 "end_time": {
                     "type": "string"
                 },
+                "ended_time": {
+                    "type": "string"
+                },
                 "final_result": {
                     "$ref": "#/definitions/entity.FinalResultStatus"
                 },
@@ -5572,6 +5575,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "start_time": {
+                    "type": "string"
+                },
+                "started_time": {
                     "type": "string"
                 },
                 "test_schedule_header": {
@@ -7748,6 +7754,9 @@ const docTemplate = `{
                 "end_time": {
                     "type": "string"
                 },
+                "ended_time": {
+                    "type": "string"
+                },
                 "final_result": {
                     "$ref": "#/definitions/entity.FinalResultStatus"
                 },
@@ -7755,6 +7764,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "start_time": {
+                    "type": "string"
+                },
+                "started_time": {
                     "type": "string"
                 },
                 "test_schedule_header": {

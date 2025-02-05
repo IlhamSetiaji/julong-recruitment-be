@@ -5559,6 +5559,9 @@
                 "end_time": {
                     "type": "string"
                 },
+                "ended_time": {
+                    "type": "string"
+                },
                 "final_result": {
                     "$ref": "#/definitions/entity.FinalResultStatus"
                 },
@@ -5566,6 +5569,9 @@
                     "type": "string"
                 },
                 "start_time": {
+                    "type": "string"
+                },
+                "started_time": {
                     "type": "string"
                 },
                 "test_schedule_header": {
@@ -7742,6 +7748,9 @@
                 "end_time": {
                     "type": "string"
                 },
+                "ended_time": {
+                    "type": "string"
+                },
                 "final_result": {
                     "$ref": "#/definitions/entity.FinalResultStatus"
                 },
@@ -7749,6 +7758,9 @@
                     "type": "string"
                 },
                 "start_time": {
+                    "type": "string"
+                },
+                "started_time": {
                     "type": "string"
                 },
                 "test_schedule_header": {

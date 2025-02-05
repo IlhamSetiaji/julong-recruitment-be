@@ -14,6 +14,8 @@ type TestApplicantResponse struct {
 	StartTime            time.Time                `json:"start_time"`
 	EndTime              time.Time                `json:"end_time"`
 	FinalResult          entity.FinalResultStatus `json:"final_result"`
+	StartedTime          *time.Time               `json:"started_time"`
+	EndedTime            *time.Time               `json:"ended_time"`
 	CreatedAt            time.Time                `json:"created_at"`
 	UpdatedAt            time.Time                `json:"updated_at"`
 

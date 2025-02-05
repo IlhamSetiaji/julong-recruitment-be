@@ -7748,6 +7748,9 @@ const docTemplate = `{
                 "applicant": {
                     "$ref": "#/definitions/response.ApplicantResponse"
                 },
+                "assessment_status": {
+                    "$ref": "#/definitions/entity.AssessmentStatus"
+                },
                 "created_at": {
                     "type": "string"
                 },

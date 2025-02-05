@@ -55,6 +55,7 @@ func (dto *TestApplicantDTO) ConvertEntityToResponse(ent *entity.TestApplicant) 
 		FinalResult:          ent.FinalResult,
 		StartedTime:          ent.StartedTime,
 		EndedTime:            ent.EndedTime,
+		AssessmentStatus:     ent.AssessmentStatus,
 		CreatedAt:            ent.CreatedAt,
 		UpdatedAt:            ent.UpdatedAt,
 		UserProfile: func() *response.UserProfileResponse {

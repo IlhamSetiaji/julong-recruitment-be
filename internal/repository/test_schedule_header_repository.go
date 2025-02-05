@@ -200,7 +200,10 @@ func (r *TestScheduleHeaderRepository) FindAllByKeys(keys map[string]interface{}
 
 func (r *TestScheduleHeaderRepository) FindByIDForMyself(id uuid.UUID, userProfile uuid.UUID) (*entity.TestScheduleHeader, error) {
 	var tsh entity.TestScheduleHeader
-	if err := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants", "user_profile_id = ?", userProfile).Preload("TestApplicants.UserProfile").Where("id = ?", id).First(&tsh).Error; err != nil {
+	if err := r.DB.Preload("JobPosting").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.AnswerType").
+		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionOptions").
+		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "user_profile_id = ?", userProfile).
+		Preload("TestType").Preload("ProjectPic").Preload("TestApplicants", "user_profile_id = ?", userProfile).Preload("TestApplicants.UserProfile").Where("id = ?", id).First(&tsh).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

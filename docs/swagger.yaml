@@ -122,7 +122,7 @@ definitions:
   entity.AssessmentStatus:
     enum:
     - DRAFT
-    - IN PROGRESS
+    - IN_PROGRESS
     - COMPLETED
     type: string
     x-enum-varnames:

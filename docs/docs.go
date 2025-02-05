@@ -4620,7 +4620,7 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "DRAFT",
-                "IN PROGRESS",
+                "IN_PROGRESS",
                 "COMPLETED"
             ],
             "x-enum-varnames": [

@@ -21,7 +21,7 @@ type AssessmentStatus string
 
 const (
 	ASSESSMENT_STATUS_DRAFT       AssessmentStatus = "DRAFT"
-	ASSESSMENT_STATUS_IN_PROGRESS AssessmentStatus = "IN PROGRESS"
+	ASSESSMENT_STATUS_IN_PROGRESS AssessmentStatus = "IN_PROGRESS"
 	ASSESSMENT_STATUS_COMPLETED   AssessmentStatus = "COMPLETED"
 )
 

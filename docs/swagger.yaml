@@ -3518,6 +3518,32 @@ paths:
       summary: Generate document number
       tags:
       - Test Schedule Headers
+  /api/test-schedule-headers/my-schedule:
+    get:
+      consumes:
+      - application/json
+      description: Find my schedule
+      parameters:
+      - description: Project Recruitment Line ID
+        in: query
+        name: project_recruitment_line_id
+        type: string
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TestScheduleHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Find my schedule
+      tags:
+      - Test Schedule Headers
   /api/test-schedule-headers/update:
     put:
       consumes:

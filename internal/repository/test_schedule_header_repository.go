@@ -17,6 +17,8 @@ type ITestScheduleHeaderRepository interface {
 	UpdateTestScheduleHeader(tsh *entity.TestScheduleHeader) (*entity.TestScheduleHeader, error)
 	DeleteTestScheduleHeader(id uuid.UUID) error
 	GetHighestDocumentNumberByDate(date string) (int, error)
+	FindByKeys(keys map[string]interface{}) (*entity.TestScheduleHeader, error)
+	FindAllByKeys(keys map[string]interface{}) (*[]entity.TestScheduleHeader, error)
 }
 
 type TestScheduleHeaderRepository struct {
@@ -171,4 +173,26 @@ func (r *TestScheduleHeaderRepository) GetHighestDocumentNumberByDate(date strin
 		return 0, err
 	}
 	return maxNumber, nil
+}
+
+func (r *TestScheduleHeaderRepository) FindByKeys(keys map[string]interface{}) (*entity.TestScheduleHeader, error) {
+	var tsh entity.TestScheduleHeader
+	if err := r.DB.Where(keys).First(&tsh).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			r.Log.Error("[TestScheduleHeaderRepository.FindByKeys] " + err.Error())
+			return nil, err
+		}
+	}
+	return &tsh, nil
+}
+
+func (r *TestScheduleHeaderRepository) FindAllByKeys(keys map[string]interface{}) (*[]entity.TestScheduleHeader, error) {
+	var tshs []entity.TestScheduleHeader
+	if err := r.DB.Where(keys).Find(&tshs).Error; err != nil {
+		r.Log.Error("[TestScheduleHeaderRepository.FindAllByKeys] " + err.Error())
+		return nil, err
+	}
+	return &tshs, nil
 }

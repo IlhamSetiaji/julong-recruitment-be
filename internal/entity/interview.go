@@ -15,36 +15,43 @@ const (
 	INTERVIEW_STATUS_COMPLETED   InterviewStatus = "COMPLETED"
 )
 
-type InterviewApplicant struct {
-	gorm.Model     `json:"-"`
-	ID             uuid.UUID       `json:"id" gorm:"type:char(36);primaryKey;"`
-	JobPostingID   uuid.UUID       `json:"job_posting_id" gorm:"type:char(36);not null"`
-	ProjectPicID   uuid.UUID       `json:"project_pic_id" gorm:"type:char(36);not null"`
-	Name           string          `json:"name" gorm:"type:varchar(255);not null"`
-	DocumentNumber string          `json:"document_number" gorm:"type:varchar(255);not null"`
-	ScheduleDate   time.Time       `json:"schedule_date" gorm:"type:date;not null"`
-	StartTime      time.Time       `json:"start_time" gorm:"type:datetime;not null"`
-	EndTime        time.Time       `json:"end_time" gorm:"type:datetime;not null"`
-	LocationLink   string          `json:"location_link" gorm:"type:text;default:null"`
-	Description    string          `json:"description" gorm:"type:text;default:null"`
-	RangeDuration  *int            `json:"range_duration" gorm:"type:int;default:0"`
-	TotalCandidate int             `json:"total_candidate" gorm:"type:int;default:0"`
-	Status         InterviewStatus `json:"status" gorm:"type:varchar(255);default:'DRAFT'"`
+type Interview struct {
+	gorm.Model                 `json:"-"`
+	ID                         uuid.UUID       `json:"id" gorm:"type:char(36);primaryKey;"`
+	JobPostingID               uuid.UUID       `json:"job_posting_id" gorm:"type:char(36);not null"`
+	ProjectPicID               uuid.UUID       `json:"project_pic_id" gorm:"type:char(36);not null"`
+	ProjectRecruitmentHeaderID uuid.UUID       `json:"project_recruitment_header_id" gorm:"type:char(36);not null"`
+	ProjectRecruitmentLineID   uuid.UUID       `json:"project_recruitment_line_id" gorm:"type:char(36);not null"`
+	Name                       string          `json:"name" gorm:"type:varchar(255);not null"`
+	DocumentNumber             string          `json:"document_number" gorm:"type:varchar(255);not null"`
+	ScheduleDate               time.Time       `json:"schedule_date" gorm:"type:date;not null"`
+	StartTime                  time.Time       `json:"start_time" gorm:"type:datetime;not null"`
+	EndTime                    time.Time       `json:"end_time" gorm:"type:datetime;not null"`
+	LocationLink               string          `json:"location_link" gorm:"type:text;default:null"`
+	Description                string          `json:"description" gorm:"type:text;default:null"`
+	RangeDuration              *int            `json:"range_duration" gorm:"type:int;default:0"`
+	TotalCandidate             int             `json:"total_candidate" gorm:"type:int;default:0"`
+	Status                     InterviewStatus `json:"status" gorm:"type:varchar(255);default:'DRAFT'"`
+
+	JobPosting               *JobPosting               `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectPic               *ProjectPic               `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ProjectRecruitmentLine   *ProjectRecruitmentLine   `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
-func (ia *InterviewApplicant) BeforeCreate(tx *gorm.DB) (err error) {
+func (ia *Interview) BeforeCreate(tx *gorm.DB) (err error) {
 	ia.ID = uuid.New()
 	ia.CreatedAt = time.Now()
 	ia.UpdatedAt = time.Now()
 	return
 }
 
-func (ia *InterviewApplicant) BeforeUpdate(tx *gorm.DB) (err error) {
+func (ia *Interview) BeforeUpdate(tx *gorm.DB) (err error) {
 	ia.UpdatedAt = time.Now()
 	return
 }
 
-func (tsh *InterviewApplicant) BeforeDelete(tx *gorm.DB) (err error) {
+func (tsh *Interview) BeforeDelete(tx *gorm.DB) (err error) {
 	if tsh.DeletedAt.Valid {
 		return nil
 	}
@@ -62,6 +69,6 @@ func (tsh *InterviewApplicant) BeforeDelete(tx *gorm.DB) (err error) {
 	return nil
 }
 
-func (InterviewApplicant) TableName() string {
-	return "interview_applicants"
+func (Interview) TableName() string {
+	return "interviews"
 }

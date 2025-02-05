@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -24,13 +26,15 @@ type ITestScheduleHeaderHandler interface {
 	DeleteTestScheduleHeader(ctx *gin.Context)
 	GenerateDocumentNumber(ctx *gin.Context)
 	UpdateStatusTestScheduleHeader(ctx *gin.Context)
+	FindMySchedule(ctx *gin.Context)
 }
 
 type TestScheduleHeaderHandler struct {
-	Log      *logrus.Logger
-	Viper    *viper.Viper
-	Validate *validator.Validate
-	UseCase  usecase.ITestScheduleHeaderUsecase
+	Log        *logrus.Logger
+	Viper      *viper.Viper
+	Validate   *validator.Validate
+	UseCase    usecase.ITestScheduleHeaderUsecase
+	UserHelper helper.IUserHelper
 }
 
 func NewTestScheduleHeaderHandler(
@@ -38,12 +42,14 @@ func NewTestScheduleHeaderHandler(
 	viper *viper.Viper,
 	validate *validator.Validate,
 	useCase usecase.ITestScheduleHeaderUsecase,
+	userHelper helper.IUserHelper,
 ) ITestScheduleHeaderHandler {
 	return &TestScheduleHeaderHandler{
-		Log:      log,
-		Viper:    viper,
-		Validate: validate,
-		UseCase:  useCase,
+		Log:        log,
+		Viper:      viper,
+		Validate:   validate,
+		UseCase:    useCase,
+		UserHelper: userHelper,
 	}
 }
 
@@ -53,7 +59,8 @@ func TestScheduleHeaderHandlerFactory(
 ) ITestScheduleHeaderHandler {
 	useCase := usecase.TestScheduleHeaderUsecaseFactory(log, viper)
 	validate := config.NewValidator(viper)
-	return NewTestScheduleHeaderHandler(log, viper, validate, useCase)
+	userHelper := helper.UserHelperFactory(log)
+	return NewTestScheduleHeaderHandler(log, viper, validate, useCase, userHelper)
 }
 
 // CreateTestScheduleHeader create test schedule header
@@ -306,4 +313,73 @@ func (h *TestScheduleHeaderHandler) UpdateStatusTestScheduleHeader(ctx *gin.Cont
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Status test schedule header updated", "Status test schedule header updated")
+}
+
+// FindMySchedule find my schedule
+//
+//		@Summary		Find my schedule
+//		@Description	Find my schedule
+//		@Tags			Test Schedule Headers
+//		@Accept			json
+//		@Produce		json
+//		@Param			project_recruitment_line_id	query	string	false	"Project Recruitment Line ID"
+//	 @Param      job_posting_id	query	string	false	"Job Posting ID"
+//		@Success		200			{object}	response.TestScheduleHeaderResponse
+//		@Security		BearerAuth
+//		@Router			/api/test-schedule-headers/my-schedule [get]
+func (h *TestScheduleHeaderHandler) FindMySchedule(ctx *gin.Context) {
+	projectRecruitmentLineID := ctx.Query("project_recruitment_line_id")
+	if projectRecruitmentLineID == "" {
+		h.Log.Error("Project recruitment line ID is required")
+		utils.BadRequestResponse(ctx, "Project recruitment line ID is required", nil)
+		return
+	}
+
+	jobPostingID := ctx.Query("job_posting_id")
+	if jobPostingID == "" {
+		h.Log.Error("Job posting ID is required")
+		utils.BadRequestResponse(ctx, "Job posting ID is required", nil)
+		return
+	}
+
+	projectRecruitmentLineUUID, err := uuid.Parse(projectRecruitmentLineID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid project recruitment line ID", err)
+		return
+	}
+
+	jobPostingUUID, err := uuid.Parse(jobPostingID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid job posting ID", err)
+		return
+	}
+
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindMySchedule(userUUID, projectRecruitmentLineUUID, jobPostingUUID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find my schedule", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "My schedule found", res)
 }

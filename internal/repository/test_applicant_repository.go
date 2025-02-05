@@ -18,6 +18,8 @@ type ITestApplicantRepository interface {
 	FindAllByApplicantIDs(applicantIDs []uuid.UUID) ([]entity.TestApplicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.TestApplicant, error)
 	FindAllByTestScheduleHeaderIDPaginated(testScheduleHeaderID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.TestApplicant, int64, error)
+	FindByUserProfileIDAndIDs(userProfileID uuid.UUID, ids []uuid.UUID) (*entity.TestApplicant, error)
+	FindByUserProfileIDAndTestScheduleHeaderIDs(userProfileID uuid.UUID, testScheduleHeaderIDs []uuid.UUID) (*entity.TestApplicant, error)
 }
 
 type TestApplicantRepository struct {
@@ -180,4 +182,32 @@ func (r *TestApplicantRepository) FindAllByTestScheduleHeaderIDPaginated(testSch
 	}
 
 	return testApplicants, total, nil
+}
+
+func (r *TestApplicantRepository) FindByUserProfileIDAndIDs(userProfileID uuid.UUID, ids []uuid.UUID) (*entity.TestApplicant, error) {
+	var testApplicant entity.TestApplicant
+
+	if err := r.DB.Where("user_profile_id = ?", userProfileID).Where("id IN ?", ids).Preload("TestScheduleHeader").Preload("UserProfile").First(&testApplicant).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &testApplicant, nil
+}
+
+func (r *TestApplicantRepository) FindByUserProfileIDAndTestScheduleHeaderIDs(userProfileID uuid.UUID, testScheduleHeaderIDs []uuid.UUID) (*entity.TestApplicant, error) {
+	var testApplicant entity.TestApplicant
+
+	if err := r.DB.Where("user_profile_id = ?", userProfileID).Where("test_schedule_header_id IN ?", testScheduleHeaderIDs).Preload("TestScheduleHeader").Preload("UserProfile").First(&testApplicant).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &testApplicant, nil
 }

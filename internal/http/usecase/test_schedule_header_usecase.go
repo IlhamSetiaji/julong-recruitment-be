@@ -24,6 +24,7 @@ type ITestScheduleHeaderUsecase interface {
 	DeleteTestScheduleHeader(id uuid.UUID) error
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
 	UpdateStatusTestScheduleHeader(req *request.UpdateStatusTestScheduleHeaderRequest) error
+	FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderResponse, error)
 }
 
 type TestScheduleHeaderUsecase struct {
@@ -655,4 +656,82 @@ func (uc *TestScheduleHeaderUsecase) UpdateStatusTestScheduleHeader(req *request
 	}
 
 	return nil
+}
+
+func (uc *TestScheduleHeaderUsecase) FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderResponse, error) {
+	userProfileID, err := uc.UserProfileRepository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+
+	if userProfileID == nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + "User Profile not found")
+		return nil, errors.New("User Profile not found")
+	}
+
+	projectRecruitmentLine, err := uc.ProjectRecruitmentLineRepository.FindByID(projectRecruitmentLineID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if projectRecruitmentLine == nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + "Project Recruitment Line not found")
+		return nil, err
+	}
+
+	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if jobPosting == nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + "Job Posting not found")
+		return nil, err
+	}
+
+	testSchedules, err := uc.Repository.FindAllByKeys(map[string]interface{}{
+		"project_recruitment_line_id": projectRecruitmentLineID,
+		"job_posting_id":              jobPostingID,
+	})
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	testScheduleIDs := make([]uuid.UUID, 0)
+	for _, testSchedule := range *testSchedules {
+		testScheduleIDs = append(testScheduleIDs, testSchedule.ID)
+	}
+
+	testApplicant, err := uc.TestApplicantRepository.FindByUserProfileIDAndTestScheduleHeaderIDs(userProfileID.ID, testScheduleIDs)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if testApplicant == nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + "Test Applicant not found")
+		return nil, errors.New("Test Applicant not found")
+	}
+
+	testScheduleHeader, err := uc.Repository.FindByID(testApplicant.TestScheduleHeaderID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if testScheduleHeader == nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + "Test Schedule Header not found")
+		return nil, errors.New("Test Schedule Header not found")
+	}
+
+	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+
+	return resp, nil
 }

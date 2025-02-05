@@ -25,8 +25,8 @@ type Interview struct {
 	Name                       string          `json:"name" gorm:"type:varchar(255);not null"`
 	DocumentNumber             string          `json:"document_number" gorm:"type:varchar(255);not null"`
 	ScheduleDate               time.Time       `json:"schedule_date" gorm:"type:date;not null"`
-	StartTime                  time.Time       `json:"start_time" gorm:"type:datetime;not null"`
-	EndTime                    time.Time       `json:"end_time" gorm:"type:datetime;not null"`
+	StartTime                  time.Time       `json:"start_time" gorm:"type:time;not null"`
+	EndTime                    time.Time       `json:"end_time" gorm:"type:time;not null"`
 	LocationLink               string          `json:"location_link" gorm:"type:text;default:null"`
 	Description                string          `json:"description" gorm:"type:text;default:null"`
 	RangeDuration              *int            `json:"range_duration" gorm:"type:int;default:0"`
@@ -37,6 +37,8 @@ type Interview struct {
 	ProjectPic               *ProjectPic               `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectRecruitmentHeader *ProjectRecruitmentHeader `json:"project_recruitment_header" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectRecruitmentLine   *ProjectRecruitmentLine   `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	InterviewApplicants      []InterviewApplicant      `json:"interview_applicants" gorm:"foreignKey:InterviewID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	InterviewAssessors       []InterviewAssessor       `json:"interview_assessors" gorm:"foreignKey:InterviewID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (ia *Interview) BeforeCreate(tx *gorm.DB) (err error) {
@@ -59,6 +61,14 @@ func (tsh *Interview) BeforeDelete(tx *gorm.DB) (err error) {
 	randomString := uuid.New().String()
 
 	tsh.DocumentNumber = tsh.DocumentNumber + "_deleted" + randomString
+
+	if err := tx.Model(&InterviewApplicant{}).Where("interview_id = ?", tsh.ID).Delete(&InterviewApplicant{}).Error; err != nil {
+		return err
+	}
+
+	if err := tx.Model(&InterviewAssessor{}).Where("interview_id = ?", tsh.ID).Delete(&InterviewAssessor{}).Error; err != nil {
+		return err
+	}
 
 	if err := tx.Model(&tsh).Where("id = ?", tsh.ID).Updates((map[string]interface{}{
 		"document_number": tsh.DocumentNumber,

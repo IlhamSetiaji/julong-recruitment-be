@@ -41,6 +41,9 @@ func main() {
 		&entity.SavedJob{},
 		&entity.AdministrativeSelection{},
 		&entity.AdministrativeResult{},
+		&entity.Interview{},
+		&entity.InterviewApplicant{},
+		&entity.InterviewAssessor{},
 	)
 	if err != nil {
 		log.Fatal(err)

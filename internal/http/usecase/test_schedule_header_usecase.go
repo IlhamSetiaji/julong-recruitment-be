@@ -24,7 +24,7 @@ type ITestScheduleHeaderUsecase interface {
 	DeleteTestScheduleHeader(id uuid.UUID) error
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
 	UpdateStatusTestScheduleHeader(req *request.UpdateStatusTestScheduleHeaderRequest) error
-	FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderResponse, error)
+	FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderMyselfResponse, error)
 }
 
 type TestScheduleHeaderUsecase struct {
@@ -658,7 +658,7 @@ func (uc *TestScheduleHeaderUsecase) UpdateStatusTestScheduleHeader(req *request
 	return nil
 }
 
-func (uc *TestScheduleHeaderUsecase) FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderResponse, error) {
+func (uc *TestScheduleHeaderUsecase) FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderMyselfResponse, error) {
 	userProfileID, err := uc.UserProfileRepository.FindByUserID(userID)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
@@ -717,7 +717,7 @@ func (uc *TestScheduleHeaderUsecase) FindMySchedule(userID, projectRecruitmentLi
 		return nil, errors.New("Test Applicant not found")
 	}
 
-	testScheduleHeader, err := uc.Repository.FindByID(testApplicant.TestScheduleHeaderID)
+	testScheduleHeader, err := uc.Repository.FindByIDForMyself(testApplicant.TestScheduleHeaderID, testApplicant.UserProfileID)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
 		return nil, err
@@ -727,7 +727,7 @@ func (uc *TestScheduleHeaderUsecase) FindMySchedule(userID, projectRecruitmentLi
 		return nil, errors.New("Test Schedule Header not found")
 	}
 
-	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
+	resp, err := uc.DTO.ConvertEntityToMyselfResponse(testScheduleHeader)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
 		return nil, err

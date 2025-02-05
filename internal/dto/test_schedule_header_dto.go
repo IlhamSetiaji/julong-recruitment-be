@@ -11,6 +11,7 @@ import (
 
 type ITestScheduleHeaderDTO interface {
 	ConvertEntityToResponse(ent *entity.TestScheduleHeader) (*response.TestScheduleHeaderResponse, error)
+	ConvertEntityToMyselfResponse(ent *entity.TestScheduleHeader) (*response.TestScheduleHeaderMyselfResponse, error)
 }
 
 type TestScheduleHeaderDTO struct {
@@ -110,6 +111,72 @@ func (dto *TestScheduleHeaderDTO) ConvertEntityToResponse(ent *entity.TestSchedu
 				responses = append(responses, *resp)
 			}
 			return responses
+		}(),
+		ProjectRecruitmentHeader: func() *response.ProjectRecruitmentHeaderResponse {
+			if ent.ProjectRecruitmentHeader == nil {
+				return nil
+			}
+			return dto.ProjectRecruitmentHeaderDTO.ConvertEntityToResponse(ent.ProjectRecruitmentHeader)
+		}(),
+		ProjectRecruitmentLine: func() *response.ProjectRecruitmentLineResponse {
+			if ent.ProjectRecruitmentLine == nil {
+				return nil
+			}
+			return dto.ProjectRecruitmentLineDTO.ConvertEntityToResponse(ent.ProjectRecruitmentLine)
+		}(),
+	}, nil
+}
+
+func (dto *TestScheduleHeaderDTO) ConvertEntityToMyselfResponse(ent *entity.TestScheduleHeader) (*response.TestScheduleHeaderMyselfResponse, error) {
+	return &response.TestScheduleHeaderMyselfResponse{
+		ID:             ent.ID,
+		JobPostingID:   ent.JobPostingID,
+		TestTypeID:     ent.TestTypeID,
+		ProjectPicID:   ent.ProjectPicID,
+		JobID:          ent.JobID,
+		Name:           ent.Name,
+		DocumentNumber: ent.DocumentNumber,
+		StartDate:      ent.StartDate,
+		EndDate:        ent.EndDate,
+		StartTime:      ent.StartTime.In(time.UTC),
+		EndTime:        ent.EndTime.In(time.UTC),
+		Link:           ent.Link,
+		Location:       ent.Location,
+		Description:    ent.Description,
+		TotalCandidate: ent.TotalCandidate,
+		Status:         ent.Status,
+		ScheduleDate:   ent.ScheduleDate,
+		Platform:       ent.Platform,
+		CreatedAt:      ent.CreatedAt,
+		UpdatedAt:      ent.UpdatedAt,
+		JobPosting: func() *response.JobPostingResponse {
+			if ent.JobPosting == nil {
+				return nil
+			}
+			return dto.JobPostingDTO.ConvertEntityToResponse(ent.JobPosting)
+		}(),
+		TestType: func() *response.TestTypeResponse {
+			if ent.TestType == nil {
+				return nil
+			}
+			return dto.TestTypeDTO.ConvertEntityToResponse(ent.TestType)
+		}(),
+		ProjectPic: func() *response.ProjectPicResponse {
+			if ent.ProjectPic == nil {
+				return nil
+			}
+			return dto.ProjectPicDTO.ConvertEntityToResponse(ent.ProjectPic)
+		}(),
+		TestApplicant: func() *response.TestApplicantResponse {
+			if len(ent.TestApplicants) == 0 {
+				return nil
+			}
+			resp, err := dto.TestApplicantDTO.ConvertEntityToResponse(&ent.TestApplicants[0])
+			if err != nil {
+				dto.Log.Errorf("[TestScheduleHeaderDTO.ConvertEntityToMyselfResponse] error when converting test applicant entity to response: %s", err.Error())
+				return nil
+			}
+			return resp
 		}(),
 		ProjectRecruitmentHeader: func() *response.ProjectRecruitmentHeaderResponse {
 			if ent.ProjectRecruitmentHeader == nil {

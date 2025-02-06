@@ -30,14 +30,17 @@ type ITestScheduleHeaderHandler interface {
 	UpdateStatusTestScheduleHeader(ctx *gin.Context)
 	FindMySchedule(ctx *gin.Context)
 	ExportMySchedule(ctx *gin.Context)
+	ExportTestScheduleAnswer(ctx *gin.Context)
 }
 
 type TestScheduleHeaderHandler struct {
-	Log        *logrus.Logger
-	Viper      *viper.Viper
-	Validate   *validator.Validate
-	UseCase    usecase.ITestScheduleHeaderUsecase
-	UserHelper helper.IUserHelper
+	Log                           *logrus.Logger
+	Viper                         *viper.Viper
+	Validate                      *validator.Validate
+	UseCase                       usecase.ITestScheduleHeaderUsecase
+	UserHelper                    helper.IUserHelper
+	UserProfileUseCase            usecase.IUserProfileUseCase
+	ProjectRecruitmentLineUseCase usecase.IProjectRecruitmentLineUseCase
 }
 
 func NewTestScheduleHeaderHandler(
@@ -46,13 +49,15 @@ func NewTestScheduleHeaderHandler(
 	validate *validator.Validate,
 	useCase usecase.ITestScheduleHeaderUsecase,
 	userHelper helper.IUserHelper,
+	prlUseCase usecase.IProjectRecruitmentLineUseCase,
 ) ITestScheduleHeaderHandler {
 	return &TestScheduleHeaderHandler{
-		Log:        log,
-		Viper:      viper,
-		Validate:   validate,
-		UseCase:    useCase,
-		UserHelper: userHelper,
+		Log:                           log,
+		Viper:                         viper,
+		Validate:                      validate,
+		UseCase:                       useCase,
+		UserHelper:                    userHelper,
+		ProjectRecruitmentLineUseCase: prlUseCase,
 	}
 }
 
@@ -63,7 +68,8 @@ func TestScheduleHeaderHandlerFactory(
 	useCase := usecase.TestScheduleHeaderUsecaseFactory(log, viper)
 	validate := config.NewValidator(viper)
 	userHelper := helper.UserHelperFactory(log)
-	return NewTestScheduleHeaderHandler(log, viper, validate, useCase, userHelper)
+	prlUseCase := usecase.ProjectRecruitmentLineUseCaseFactory(log)
+	return NewTestScheduleHeaderHandler(log, viper, validate, useCase, userHelper, prlUseCase)
 }
 
 // CreateTestScheduleHeader create test schedule header
@@ -424,6 +430,180 @@ func (h *TestScheduleHeaderHandler) ExportMySchedule(ctx *gin.Context) {
 	// Write the file to the response body
 	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	ctx.Header("Content-Disposition", "attachment; filename=Book1.xlsx")
+	ctx.Header("Content-Transfer-Encoding", "binary")
+
+	if err := f.Write(ctx.Writer); err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+		return
+	}
+}
+
+// ExportTestScheduleAnswer export test schedule answer
+//
+//	@Summary		Export test schedule answer
+//	@Description	Export test schedule answer
+//	@Tags			Test Schedule Headers
+//	@Accept			json
+//	@Produce		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+//	@Param			id					query	string	true	"Test schedule header ID"
+//	@Param			job_posting_id		query	string	true	"Job Posting ID"
+//	@Success		200					{file}		file
+//	@Security		BearerAuth
+//	@Router			/api/test-schedule-headers/export-answer [get]
+func (h *TestScheduleHeaderHandler) ExportTestScheduleAnswer(ctx *gin.Context) {
+	id := ctx.Query("id")
+	if id == "" {
+		h.Log.Error("Test schedule header ID is required")
+		utils.BadRequestResponse(ctx, "Test schedule header ID is required", nil)
+		return
+	}
+
+	jobPostingID := ctx.Query("job_posting_id")
+	if jobPostingID == "" {
+		h.Log.Error("Job posting ID is required")
+		utils.BadRequestResponse(ctx, "Job posting ID is required", nil)
+		return
+	}
+
+	testScheduleHeaderID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid test schedule header ID", err)
+		return
+	}
+
+	jobPostingUUID, err := uuid.Parse(jobPostingID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid job posting ID", err)
+		return
+	}
+
+	tsh, err := h.UseCase.FindByIDForAnswer(testScheduleHeaderID, jobPostingUUID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find test schedule header", err.Error())
+		return
+	}
+
+	if tsh == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Test schedule header not found", "Test schedule header not found")
+		return
+	}
+
+	upID := "53c8784c-5f5d-49f7-9bdb-d2d9961cfd15"
+	upUUID, err := uuid.Parse(upID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid user profile ID", err)
+		return
+	}
+
+	prl, err := h.ProjectRecruitmentLineUseCase.FindByIDForAnswer(tsh.ProjectRecruitmentLineID, jobPostingUUID, upUUID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find project recruitment line", err.Error())
+		return
+	}
+
+	if prl == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Project recruitment line not found", "Project recruitment line not found")
+		return
+	}
+
+	f := excelize.NewFile()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println(err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+			return
+		}
+	}()
+	// Create a new sheet.
+	index, err := f.NewSheet("Answer")
+	if err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+		return
+	}
+	// Set value of a cell.
+	f.SetCellValue("Answer", "A1", "Applicant Name")
+
+	// Create a style for the header
+	headerStyle, err := f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "left", Color: "000000", Style: 1},
+			{Type: "top", Color: "000000", Style: 1},
+			{Type: "bottom", Color: "000000", Style: 1},
+			{Type: "right", Color: "000000", Style: 1},
+		},
+		Fill: excelize.Fill{
+			Type:    "pattern",
+			Color:   []string{"#00FF00"},
+			Pattern: 1,
+		},
+		Font: &excelize.Font{
+			Bold: true,
+		},
+		Alignment: &excelize.Alignment{
+			Horizontal: "center",
+			Vertical:   "center",
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+		return
+	}
+
+	// Set the style to the header
+	f.SetCellStyle("Answer", "A1", "A1", headerStyle)
+
+	// loop through test schedule header -> test applicants
+	for i, ta := range tsh.TestApplicants {
+		f.SetCellValue("Answer", fmt.Sprintf("A%d", i+2), ta.UserProfile.Name)
+	}
+
+	// Set the width of the columns
+	f.SetColWidth("Answer", "A", "A", 20)
+
+	// loop through project recruitment line -> template activity line -> template question -> questions for header
+	for i, questionData := range *prl.TemplateActivityLine.TemplateQuestion.Questions {
+		var concatenatedValue string
+		f.SetCellValue("Answer", fmt.Sprintf("%s%d", string(rune(i+66)), 1), questionData.Name)
+
+		// Set the style to the header
+		f.SetCellStyle("Answer", fmt.Sprintf("%s%d", string(rune(i+66)), 1), fmt.Sprintf("%s%d", string(rune(i+66)), 1), headerStyle)
+
+		// loop through project recruitment line -> template activity line -> template question -> questions -> question responses for line
+		for _, questionResponse := range *questionData.QuestionResponses {
+			var cellValue string
+			if questionResponse.AnswerFile == "" {
+				cellValue = questionResponse.Answer
+			} else {
+				cellValue = questionResponse.AnswerFile
+			}
+
+			if concatenatedValue != "" {
+				concatenatedValue += ", "
+			}
+			concatenatedValue += cellValue
+		}
+
+		// Set the concatenated value to the cell
+		f.SetCellValue("Answer", fmt.Sprintf("%s%d", string(rune(i+66)), 2), concatenatedValue)
+
+		// Set the width of the columns
+		f.SetColWidth("Answer", fmt.Sprintf("%s", string(rune(i+66))), string(rune(i+66)), 20)
+	}
+
+	// Set active sheet of the workbook.
+	f.SetActiveSheet(index)
+
+	// Write the file to the response body
+	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	ctx.Header("Content-Disposition", "attachment; filename=answers.xlsx")
 	ctx.Header("Content-Transfer-Encoding", "binary")
 
 	if err := f.Write(ctx.Writer); err != nil {

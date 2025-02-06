@@ -20,6 +20,7 @@ type IProjectRecruitmentLineRepository interface {
 	FindAllByTemplateActivityLineIDs(templateActivityLineIDs []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 	FindAllByIds(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 	FindAllByProjectRecruitmentHeaderIdAndIds(projectRecruitmentHeaderId uuid.UUID, ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
+	FindByIDForAnswer(id, jobPostingID, userProfileID uuid.UUID) (*entity.ProjectRecruitmentLine, error)
 }
 
 type ProjectRecruitmentLineRepository struct {
@@ -115,6 +116,20 @@ func (r *ProjectRecruitmentLineRepository) DeleteProjectRecruitmentLine(id uuid.
 func (r *ProjectRecruitmentLineRepository) FindByID(id uuid.UUID) (*entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLine entity.ProjectRecruitmentLine
 	if err := r.DB.Preload("ProjectPics").Preload("DocumentSendings").First(&projectRecruitmentLine, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &projectRecruitmentLine, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) FindByIDForAnswer(id, jobPostingID, userProfileID uuid.UUID) (*entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLine entity.ProjectRecruitmentLine
+
+	if err := r.DB.Preload("TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "user_profile_id = ? AND job_posting_Id = ?", userProfileID, jobPostingID).Where("id = ?", id).First(&projectRecruitmentLine).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

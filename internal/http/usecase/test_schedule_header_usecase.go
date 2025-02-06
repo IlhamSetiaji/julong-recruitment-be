@@ -25,7 +25,7 @@ type ITestScheduleHeaderUsecase interface {
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
 	UpdateStatusTestScheduleHeader(req *request.UpdateStatusTestScheduleHeaderRequest) error
 	FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderMyselfResponse, error)
-	// ExportMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderMyselfResponse, error)
+	FindByIDForAnswer(id, jobPostingD uuid.UUID) (*response.TestScheduleHeaderResponse, error)
 }
 
 type TestScheduleHeaderUsecase struct {
@@ -737,6 +737,21 @@ func (uc *TestScheduleHeaderUsecase) FindMySchedule(userID, projectRecruitmentLi
 	return resp, nil
 }
 
-// func (uc *TestScheduleHeaderUsecase) ExportMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderMyselfResponse, error) {
+func (uc *TestScheduleHeaderUsecase) FindByIDForAnswer(id, jobPostingD uuid.UUID) (*response.TestScheduleHeaderResponse, error) {
+	testScheduleHeader, err := uc.Repository.FindByIDForAnswer(id, jobPostingD)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindByIDForAnswer] " + err.Error())
+		return nil, err
+	}
 
-// }
+	if testScheduleHeader == nil {
+		return nil, nil
+	}
+
+	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.FindByIDForAnswer] " + err.Error())
+		return nil, err
+	}
+	return resp, nil
+}

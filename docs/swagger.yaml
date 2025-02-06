@@ -2805,8 +2805,12 @@ definitions:
         type: string
       project_recruitment_header:
         $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      project_recruitment_header_id:
+        type: string
       project_recruitment_line:
         $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
+      project_recruitment_line_id:
+        type: string
       schedule_date:
         type: string
       start_date:
@@ -4379,6 +4383,34 @@ paths:
       security:
       - BearerAuth: []
       summary: Generate document number
+      tags:
+      - Test Schedule Headers
+  /api/test-schedule-headers/export-answer:
+    get:
+      consumes:
+      - application/json
+      description: Export test schedule answer
+      parameters:
+      - description: Test schedule header ID
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      security:
+      - BearerAuth: []
+      summary: Export test schedule answer
       tags:
       - Test Schedule Headers
   /api/test-schedule-headers/export-my-result:

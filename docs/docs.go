@@ -2247,6 +2247,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/test-schedule-headers/export-answer": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Export test schedule answer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                ],
+                "tags": [
+                    "Test Schedule Headers"
+                ],
+                "summary": "Export test schedule answer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Test schedule header ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
         "/api/test-schedule-headers/export-my-result": {
             "get": {
                 "security": [
@@ -9187,8 +9231,14 @@ const docTemplate = `{
                 "project_recruitment_header": {
                     "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
                 },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
                 "project_recruitment_line": {
                     "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
                 },
                 "schedule_date": {
                     "type": "string"

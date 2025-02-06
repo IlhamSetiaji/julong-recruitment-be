@@ -15,6 +15,7 @@ type ITestScheduleHeaderRepository interface {
 	CreateTestScheduleHeader(tsh *entity.TestScheduleHeader) (*entity.TestScheduleHeader, error)
 	FindByID(id uuid.UUID) (*entity.TestScheduleHeader, error)
 	FindByIDForMyself(id uuid.UUID, userProfile uuid.UUID) (*entity.TestScheduleHeader, error)
+	FindByIDForAnswer(id, jobPostingID uuid.UUID) (*entity.TestScheduleHeader, error)
 	UpdateTestScheduleHeader(tsh *entity.TestScheduleHeader) (*entity.TestScheduleHeader, error)
 	DeleteTestScheduleHeader(id uuid.UUID) error
 	GetHighestDocumentNumberByDate(date string) (int, error)
@@ -208,6 +209,19 @@ func (r *TestScheduleHeaderRepository) FindByIDForMyself(id uuid.UUID, userProfi
 			return nil, nil
 		} else {
 			r.Log.Error("[TestScheduleHeaderRepository.FindByIDForMyself] " + err.Error())
+			return nil, err
+		}
+	}
+	return &tsh, nil
+}
+
+func (r *TestScheduleHeaderRepository) FindByIDForAnswer(id, jobPostingID uuid.UUID) (*entity.TestScheduleHeader, error) {
+	var tsh entity.TestScheduleHeader
+	if err := r.DB.Preload("TestApplicants.UserProfile.QuestionResponses", "job_posting_id = ?", jobPostingID).Where("id = ?", id).First(&tsh).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			r.Log.Error("[TestScheduleHeaderRepository.FindByIDForAnswer] " + err.Error())
 			return nil, err
 		}
 	}

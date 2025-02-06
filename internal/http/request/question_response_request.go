@@ -27,8 +27,9 @@ type InterviewQuestionResponseRequest struct {
 }
 
 type InterviewAnswerRequest struct {
-	ID            string `json:"id" validate:"omitempty,uuid"`
-	JobPostingID  string `json:"job_posting_id" validate:"required,uuid"`
-	UserProfileID string `json:"user_profile_id" validate:"required,uuid"`
-	Answer        string `json:"answer" validate:"required"`
+	ID                  string `json:"id" validate:"omitempty,uuid"`
+	JobPostingID        string `json:"job_posting_id" validate:"required,uuid"`
+	UserProfileID       string `json:"user_profile_id" validate:"required,uuid"`
+	InterviewAssessorID string `json:"interview_assessor_id" validate:"omitempty,uuid"`
+	Answer              string `json:"answer" validate:"required"`
 }

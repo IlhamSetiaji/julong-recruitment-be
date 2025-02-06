@@ -19,15 +19,16 @@ type IQuestionResponseUseCase interface {
 }
 
 type QuestionResponseUseCase struct {
-	Log                        *logrus.Logger
-	Repository                 repository.IQuestionResponseRepository
-	JobPostingRepository       repository.IJobPostingRepository
-	UserProfileRepository      repository.IUserProfileRepository
-	QuestionRepository         repository.IQuestionRepository
-	QuestionDTO                dto.IQuestionDTO
-	Viper                      *viper.Viper
-	TemplateQuestionRepository repository.ITemplateQuestionRepository
-	TemplateQuestionDTO        dto.ITemplateQuestionDTO
+	Log                         *logrus.Logger
+	Repository                  repository.IQuestionResponseRepository
+	JobPostingRepository        repository.IJobPostingRepository
+	UserProfileRepository       repository.IUserProfileRepository
+	QuestionRepository          repository.IQuestionRepository
+	QuestionDTO                 dto.IQuestionDTO
+	Viper                       *viper.Viper
+	TemplateQuestionRepository  repository.ITemplateQuestionRepository
+	TemplateQuestionDTO         dto.ITemplateQuestionDTO
+	InterviewAssessorRepository repository.IInterviewAssessorRepository
 }
 
 func NewQuestionResponseUseCase(
@@ -40,17 +41,19 @@ func NewQuestionResponseUseCase(
 	viper *viper.Viper,
 	tqRepo repository.ITemplateQuestionRepository,
 	tqDTO dto.ITemplateQuestionDTO,
+	iaRepo repository.IInterviewAssessorRepository,
 ) IQuestionResponseUseCase {
 	return &QuestionResponseUseCase{
-		Log:                        log,
-		Repository:                 repo,
-		JobPostingRepository:       jpRepo,
-		UserProfileRepository:      upRepo,
-		QuestionRepository:         qRepo,
-		QuestionDTO:                qDTO,
-		Viper:                      viper,
-		TemplateQuestionRepository: tqRepo,
-		TemplateQuestionDTO:        tqDTO,
+		Log:                         log,
+		Repository:                  repo,
+		JobPostingRepository:        jpRepo,
+		UserProfileRepository:       upRepo,
+		QuestionRepository:          qRepo,
+		QuestionDTO:                 qDTO,
+		Viper:                       viper,
+		TemplateQuestionRepository:  tqRepo,
+		TemplateQuestionDTO:         tqDTO,
+		InterviewAssessorRepository: iaRepo,
 	}
 }
 
@@ -62,7 +65,8 @@ func QuestionResponseUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IQue
 	qDTO := dto.QuestionDTOFactory(log)
 	tqRepo := repository.TemplateQuestionRepositoryFactory(log)
 	tqDTO := dto.TemplateQuestionDTOFactory(log)
-	return NewQuestionResponseUseCase(log, repo, jpRepo, upRepo, qRepo, qDTO, viper, tqRepo, tqDTO)
+	iaRepo := repository.InterviewAssessorRepositoryFactory(log)
+	return NewQuestionResponseUseCase(log, repo, jpRepo, upRepo, qRepo, qDTO, viper, tqRepo, tqDTO, iaRepo)
 }
 
 func (uc *QuestionResponseUseCase) CreateOrUpdateQuestionResponses(req *request.QuestionResponseRequest) (*response.QuestionResponse, error) {
@@ -281,16 +285,42 @@ func (uc *QuestionResponseUseCase) AnswerInterviewQuestionResponses(req *request
 				return nil, err
 			}
 
+			if jp == nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] job posting with id %s not found", ans.JobPostingID)
+				return nil, errors.New("job posting not found")
+			}
+
 			parsedUserProfileID, err := uuid.Parse(ans.UserProfileID)
 			if err != nil {
 				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing user profile id: %s", err.Error())
 				return nil, err
 			}
-
 			up, err := uc.UserProfileRepository.FindByID(parsedUserProfileID)
 			if err != nil {
 				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when finding user profile by id: %s", err.Error())
 				return nil, err
+			}
+
+			if up == nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] user profile with id %s not found", ans.UserProfileID)
+				return nil, errors.New("user profile not found")
+			}
+
+			parsedAssessorInterviewID, err := uuid.Parse(ans.InterviewAssessorID)
+			if err != nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing interview assessor id: %s", err.Error())
+				return nil, err
+			}
+
+			ia, err := uc.InterviewAssessorRepository.FindByID(parsedAssessorInterviewID)
+			if err != nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when finding interview assessor by id: %s", err.Error())
+				return nil, err
+			}
+
+			if ia == nil {
+				uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] interview assessor with id %s not found", ans.InterviewAssessorID)
+				return nil, errors.New("interview assessor not found")
 			}
 
 			if ans.ID != "" && ans.ID != uuid.Nil.String() {
@@ -308,10 +338,11 @@ func (uc *QuestionResponseUseCase) AnswerInterviewQuestionResponses(req *request
 
 				if exist == nil {
 					_, err := uc.Repository.CreateQuestionResponse(&entity.QuestionResponse{
-						QuestionID:    question.ID,
-						JobPostingID:  jp.ID,
-						UserProfileID: up.ID,
-						Answer:        ans.Answer,
+						QuestionID:          question.ID,
+						JobPostingID:        jp.ID,
+						UserProfileID:       up.ID,
+						InterviewAssessorID: ia.ID,
+						Answer:              ans.Answer,
 					})
 					if err != nil {
 						uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when creating answer: %s", err.Error())
@@ -319,11 +350,12 @@ func (uc *QuestionResponseUseCase) AnswerInterviewQuestionResponses(req *request
 					}
 				} else {
 					_, err := uc.Repository.UpdateQuestionResponse(&entity.QuestionResponse{
-						ID:            exist.ID,
-						QuestionID:    question.ID,
-						JobPostingID:  jp.ID,
-						UserProfileID: up.ID,
-						Answer:        ans.Answer,
+						ID:                  exist.ID,
+						QuestionID:          question.ID,
+						JobPostingID:        jp.ID,
+						UserProfileID:       up.ID,
+						InterviewAssessorID: ia.ID,
+						Answer:              ans.Answer,
 					})
 					if err != nil {
 						uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when updating answer: %s", err.Error())
@@ -332,10 +364,11 @@ func (uc *QuestionResponseUseCase) AnswerInterviewQuestionResponses(req *request
 				}
 			} else {
 				_, err := uc.Repository.CreateQuestionResponse(&entity.QuestionResponse{
-					QuestionID:    question.ID,
-					JobPostingID:  jp.ID,
-					UserProfileID: up.ID,
-					Answer:        ans.Answer,
+					QuestionID:          question.ID,
+					JobPostingID:        jp.ID,
+					UserProfileID:       up.ID,
+					InterviewAssessorID: ia.ID,
+					Answer:              ans.Answer,
 				})
 				if err != nil {
 					uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when creating answer: %s", err.Error())

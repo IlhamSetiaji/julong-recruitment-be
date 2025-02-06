@@ -151,7 +151,7 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 
 	orderStr := ctx.Query("order")
 	if orderStr == "" {
-		orderStr = "1"
+		orderStr = ""
 	}
 
 	totalStr := ctx.Query("total")
@@ -159,12 +159,12 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 		totalStr = "0"
 	}
 
-	order, err := strconv.Atoi(orderStr)
-	if err != nil {
-		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when converting order to int: %v", err)
-		utils.BadRequestResponse(ctx, "order is not a valid integer", err)
-		return
-	}
+	// order, err := strconv.Atoi(orderStr)
+	// if err != nil {
+	// 	h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when converting order to int: %v", err)
+	// 	utils.BadRequestResponse(ctx, "order is not a valid integer", err)
+	// 	return
+	// }
 
 	total, err := strconv.Atoi(totalStr)
 	if err != nil {
@@ -173,7 +173,7 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 		return
 	}
 
-	applicants, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID, order, total)
+	applicants, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID, orderStr, total)
 	if err != nil {
 		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when getting applicants: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get applicants", err.Error())

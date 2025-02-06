@@ -297,3 +297,18 @@ func FinalResultStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func InterviewStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.InterviewStatus(status) {
+	case entity.INTERVIEW_STATUS_DRAFT,
+		entity.INTERVIEW_STATUS_IN_PROGRESS,
+		entity.INTERVIEW_STATUS_COMPLETED:
+		return true
+	default:
+		return false
+	}
+}

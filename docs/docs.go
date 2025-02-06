@@ -506,6 +506,359 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/interview": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all interviews paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Find all interviews paginated",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created At",
+                        "name": "created_at",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new interview",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Create a new interview",
+                "parameters": [
+                    {
+                        "description": "Create Interview Request",
+                        "name": "interview",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateInterviewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interview/assessor-schedule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find my interview schedule for assessor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Find my interview schedule for assessor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewMyselfForAssessorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interview/generate-document-number": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate a document number for an interview",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Generate a document number for an interview",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interview/my-schedule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find my interview schedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Find my interview schedule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewMyselfResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interview/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an interview",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Update an interview",
+                "parameters": [
+                    {
+                        "description": "Update Interview Request",
+                        "name": "interview",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateInterviewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interview/update-status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an interview status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Update an interview status",
+                "parameters": [
+                    {
+                        "description": "Update Status Interview Request",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStatusInterviewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interview/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find an interview by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Find an interview by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete an interview by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Delete an interview by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/no-auth/job-postings": {
             "get": {
                 "security": [
@@ -4877,6 +5230,160 @@ const docTemplate = `{
                 "FINAL_RESULT_STATUS_REJECTED"
             ]
         },
+        "entity.Interview": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interview_applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.InterviewApplicant"
+                    }
+                },
+                "interview_assessors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.InterviewAssessor"
+                    }
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/entity.JobPosting"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/entity.ProjectPic"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentHeader"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentLine"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.InterviewStatus"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.InterviewApplicant": {
+            "type": "object",
+            "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/entity.Applicant"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
+                "assessment_status": {
+                    "$ref": "#/definitions/entity.AssessmentStatus"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "ended_time": {
+                    "type": "string"
+                },
+                "final_result": {
+                    "$ref": "#/definitions/entity.FinalResultStatus"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interview": {
+                    "$ref": "#/definitions/entity.Interview"
+                },
+                "interview_id": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "started_time": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/entity.UserProfile"
+                },
+                "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.InterviewAssessor": {
+            "type": "object",
+            "properties": {
+                "employee_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interview": {
+                    "$ref": "#/definitions/entity.Interview"
+                },
+                "interview_id": {
+                    "type": "string"
+                },
+                "question_responses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.QuestionResponse"
+                    }
+                }
+            }
+        },
+        "entity.InterviewStatus": {
+            "type": "string",
+            "enum": [
+                "DRAFT",
+                "IN PROGRESS",
+                "COMPLETED"
+            ],
+            "x-enum-varnames": [
+                "INTERVIEW_STATUS_DRAFT",
+                "INTERVIEW_STATUS_IN_PROGRESS",
+                "INTERVIEW_STATUS_COMPLETED"
+            ]
+        },
         "entity.JobPosting": {
             "type": "object",
             "properties": {
@@ -5322,6 +5829,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "interview_assessor": {
+                    "$ref": "#/definitions/entity.InterviewAssessor"
+                },
+                "interview_assessor_id": {
                     "type": "string"
                 },
                 "job_posting": {
@@ -5956,6 +6469,83 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateInterviewRequest": {
+            "type": "object",
+            "required": [
+                "document_number",
+                "end_time",
+                "interview_assessors",
+                "job_posting_id",
+                "name",
+                "project_pic_id",
+                "project_recruitment_header_id",
+                "project_recruitment_line_id",
+                "schedule_date",
+                "start_time",
+                "status",
+                "total_candidate"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "interview_assessors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "employee_id"
+                        ],
+                        "properties": {
+                            "employee_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.CreateMailTemplateRequest": {
             "type": "object",
             "required": [
@@ -6566,6 +7156,87 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateInterviewRequest": {
+            "type": "object",
+            "required": [
+                "document_number",
+                "end_time",
+                "id",
+                "interview_assessors",
+                "job_posting_id",
+                "name",
+                "project_pic_id",
+                "project_recruitment_header_id",
+                "project_recruitment_line_id",
+                "schedule_date",
+                "start_time",
+                "status",
+                "total_candidate"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interview_assessors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "employee_id"
+                        ],
+                        "properties": {
+                            "employee_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.UpdateProjectRecruitmentHeader": {
             "type": "object",
             "required": [
@@ -6608,6 +7279,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "template_activity_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateStatusInterviewRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -7030,6 +7716,310 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.InterviewApplicantResponse": {
+            "type": "object",
+            "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/response.ApplicantResponse"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
+                "assessment_status": {
+                    "$ref": "#/definitions/entity.AssessmentStatus"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "ended_time": {
+                    "type": "string"
+                },
+                "final_result": {
+                    "$ref": "#/definitions/entity.FinalResultStatus"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interview_id": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "started_time": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/response.UserProfileResponse"
+                },
+                "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.InterviewAssessorResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "employee_id": {
+                    "type": "string"
+                },
+                "employee_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interview_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.InterviewMyselfForAssessorResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interview_applicant": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.InterviewApplicantResponse"
+                    }
+                },
+                "interview_assessor": {
+                    "$ref": "#/definitions/response.InterviewAssessorResponse"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/response.ProjectPicResponse"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.InterviewStatus"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.InterviewMyselfResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interview_applicant": {
+                    "$ref": "#/definitions/response.InterviewApplicantResponse"
+                },
+                "interview_assessors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.InterviewAssessorResponse"
+                    }
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/response.ProjectPicResponse"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.InterviewStatus"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.InterviewResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interviewAssessors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.InterviewAssessorResponse"
+                    }
+                },
+                "interview_applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.InterviewApplicantResponse"
+                    }
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/response.ProjectPicResponse"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.InterviewStatus"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -7567,6 +8557,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "interview_assessor": {
+                    "$ref": "#/definitions/response.InterviewAssessorResponse"
                 },
                 "job_posting": {
                     "$ref": "#/definitions/response.JobPostingResponse"

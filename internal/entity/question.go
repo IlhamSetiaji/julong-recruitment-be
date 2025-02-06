@@ -13,6 +13,7 @@ type Question struct {
 	TemplateQuestionID uuid.UUID `json:"template_question_id" gorm:"type:char(36);not null"`
 	AnswerTypeID       uuid.UUID `json:"answer_type_id" gorm:"type:char(36);not null"`
 	Name               string    `json:"name" gorm:"type:varchar(255);not null"`
+	Number             int       `json:"number" gorm:"type:int;not null"`
 
 	TemplateQuestion  *TemplateQuestion  `json:"template_question" gorm:"foreignKey:TemplateQuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	AnswerType        *AnswerType        `json:"answer_type" gorm:"foreignKey:AnswerTypeID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

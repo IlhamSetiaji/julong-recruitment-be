@@ -78,13 +78,13 @@ func (h *TestScheduleHeaderHandler) CreateTestScheduleHeader(ctx *gin.Context) {
 	var req request.CreateTestScheduleHeaderRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.Log.Error(err)
-		utils.BadRequestResponse(ctx, "Invalid request body", err)
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 
 	if err := h.Validate.Struct(req); err != nil {
 		h.Log.Error(err)
-		utils.BadRequestResponse(ctx, "Invalid request body", err)
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 
@@ -295,13 +295,13 @@ func (h *TestScheduleHeaderHandler) UpdateStatusTestScheduleHeader(ctx *gin.Cont
 	var req request.UpdateStatusTestScheduleHeaderRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.Log.Error(err)
-		utils.BadRequestResponse(ctx, "Invalid request body", err)
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 
 	if err := h.Validate.Struct(req); err != nil {
 		h.Log.Error(err)
-		utils.BadRequestResponse(ctx, "Invalid request body", err)
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 

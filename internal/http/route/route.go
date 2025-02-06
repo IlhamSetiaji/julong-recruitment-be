@@ -39,6 +39,7 @@ type RouteConfig struct {
 	AdministrativeSelectionHandler  handler.IAdministrativeSelectionHandler
 	AdministrativeResultHandler     handler.IAdministrativeResultHandler
 	ProjectPicHandler               handler.IProjectPicHandler
+	InterviewHandler                handler.IInterviewHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -259,6 +260,19 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				projectPicRoute.GET("/project-recruitment-line/:project_recruitment_line_id/employee/:employee_id", c.ProjectPicHandler.FindByProjectRecruitmentLineIDAndEmployeeID)
 			}
+			// interviews
+			interviewRoute := apiRoute.Group("/interviews")
+			{
+				interviewRoute.GET("", c.InterviewHandler.FindAllPaginated)
+				interviewRoute.GET("/my-schedule", c.InterviewHandler.FindMySchedule)
+				interviewRoute.GET("/assessor-schedule", c.InterviewHandler.FindMyScheduleForAssessor)
+				interviewRoute.GET("/document-number", c.InterviewHandler.GenerateDocumentNumber)
+				interviewRoute.GET("/:id", c.InterviewHandler.FindByID)
+				interviewRoute.POST("", c.InterviewHandler.CreateInterview)
+				interviewRoute.PUT("/update", c.InterviewHandler.UpdateInterview)
+				interviewRoute.PUT("/update-status", c.InterviewHandler.UpdateStatusInterview)
+				interviewRoute.DELETE("/:id", c.InterviewHandler.DeleteInterview)
+			}
 		}
 	}
 }
@@ -288,6 +302,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	administrativeSelectionHandler := handler.AdministrativeSelectionHandlerFactory(log, viper)
 	administrativeResultHandler := handler.AdministrativeResultHandlerFactory(log, viper)
 	projectPicHandler := handler.ProjectPicHandlerFactory(log, viper)
+	interviewHandler := handler.InterviewHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -317,5 +332,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		AdministrativeSelectionHandler:  administrativeSelectionHandler,
 		AdministrativeResultHandler:     administrativeResultHandler,
 		ProjectPicHandler:               projectPicHandler,
+		InterviewHandler:                interviewHandler,
 	}
 }

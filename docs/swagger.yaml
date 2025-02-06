@@ -302,6 +302,109 @@ definitions:
     - FINAL_RESULT_STATUS_COMPLETED
     - FINAL_RESULT_STATUS_ACCEPTED
     - FINAL_RESULT_STATUS_REJECTED
+  entity.Interview:
+    properties:
+      description:
+        type: string
+      document_number:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: string
+      interview_applicants:
+        items:
+          $ref: '#/definitions/entity.InterviewApplicant'
+        type: array
+      interview_assessors:
+        items:
+          $ref: '#/definitions/entity.InterviewAssessor'
+        type: array
+      job_posting:
+        $ref: '#/definitions/entity.JobPosting'
+      job_posting_id:
+        type: string
+      location_link:
+        type: string
+      name:
+        type: string
+      project_pic:
+        $ref: '#/definitions/entity.ProjectPic'
+      project_pic_id:
+        type: string
+      project_recruitment_header:
+        $ref: '#/definitions/entity.ProjectRecruitmentHeader'
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_line:
+        $ref: '#/definitions/entity.ProjectRecruitmentLine'
+      project_recruitment_line_id:
+        type: string
+      range_duration:
+        type: integer
+      schedule_date:
+        type: string
+      start_time:
+        type: string
+      status:
+        $ref: '#/definitions/entity.InterviewStatus'
+      total_candidate:
+        type: integer
+    type: object
+  entity.InterviewApplicant:
+    properties:
+      applicant:
+        $ref: '#/definitions/entity.Applicant'
+      applicant_id:
+        type: string
+      assessment_status:
+        $ref: '#/definitions/entity.AssessmentStatus'
+      end_time:
+        type: string
+      ended_time:
+        type: string
+      final_result:
+        $ref: '#/definitions/entity.FinalResultStatus'
+      id:
+        type: string
+      interview:
+        $ref: '#/definitions/entity.Interview'
+      interview_id:
+        type: string
+      start_time:
+        type: string
+      started_time:
+        type: string
+      user_profile:
+        $ref: '#/definitions/entity.UserProfile'
+      user_profile_id:
+        type: string
+    type: object
+  entity.InterviewAssessor:
+    properties:
+      employee_id:
+        type: string
+      id:
+        type: string
+      interview:
+        $ref: '#/definitions/entity.Interview'
+      interview_id:
+        type: string
+      question_responses:
+        items:
+          $ref: '#/definitions/entity.QuestionResponse'
+        type: array
+    type: object
+  entity.InterviewStatus:
+    enum:
+    - DRAFT
+    - IN PROGRESS
+    - COMPLETED
+    type: string
+    x-enum-varnames:
+    - INTERVIEW_STATUS_DRAFT
+    - INTERVIEW_STATUS_IN_PROGRESS
+    - INTERVIEW_STATUS_COMPLETED
   entity.JobPosting:
     properties:
       administrative_selections:
@@ -610,6 +713,10 @@ definitions:
       answer_file:
         type: string
       id:
+        type: string
+      interview_assessor:
+        $ref: '#/definitions/entity.InterviewAssessor'
+      interview_assessor_id:
         type: string
       job_posting:
         $ref: '#/definitions/entity.JobPosting'
@@ -1045,6 +1152,61 @@ definitions:
     - name
     - template_question_id
     type: object
+  request.CreateInterviewRequest:
+    properties:
+      description:
+        type: string
+      document_number:
+        maxLength: 255
+        type: string
+      end_time:
+        type: string
+      interview_assessors:
+        items:
+          properties:
+            employee_id:
+              type: string
+          required:
+          - employee_id
+          type: object
+        type: array
+      job_posting_id:
+        type: string
+      location_link:
+        type: string
+      name:
+        maxLength: 255
+        type: string
+      project_pic_id:
+        type: string
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_line_id:
+        type: string
+      range_duration:
+        type: integer
+      schedule_date:
+        type: string
+      start_time:
+        type: string
+      status:
+        type: string
+      total_candidate:
+        type: integer
+    required:
+    - document_number
+    - end_time
+    - interview_assessors
+    - job_posting_id
+    - name
+    - project_pic_id
+    - project_recruitment_header_id
+    - project_recruitment_line_id
+    - schedule_date
+    - start_time
+    - status
+    - total_candidate
+    type: object
   request.CreateMailTemplateRequest:
     properties:
       body:
@@ -1466,6 +1628,64 @@ definitions:
     - name
     - template_question_id
     type: object
+  request.UpdateInterviewRequest:
+    properties:
+      description:
+        type: string
+      document_number:
+        maxLength: 255
+        type: string
+      end_time:
+        type: string
+      id:
+        type: string
+      interview_assessors:
+        items:
+          properties:
+            employee_id:
+              type: string
+          required:
+          - employee_id
+          type: object
+        type: array
+      job_posting_id:
+        type: string
+      location_link:
+        type: string
+      name:
+        maxLength: 255
+        type: string
+      project_pic_id:
+        type: string
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_line_id:
+        type: string
+      range_duration:
+        type: integer
+      schedule_date:
+        type: string
+      start_time:
+        type: string
+      status:
+        type: string
+      total_candidate:
+        type: integer
+    required:
+    - document_number
+    - end_time
+    - id
+    - interview_assessors
+    - job_posting_id
+    - name
+    - project_pic_id
+    - project_recruitment_header_id
+    - project_recruitment_line_id
+    - schedule_date
+    - start_time
+    - status
+    - total_candidate
+    type: object
   request.UpdateProjectRecruitmentHeader:
     properties:
       description:
@@ -1498,6 +1718,16 @@ definitions:
     - start_date
     - status
     - template_activity_id
+    type: object
+  request.UpdateStatusInterviewRequest:
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+    required:
+    - id
+    - status
     type: object
   request.UpdateStatusTestApplicantRequest:
     properties:
@@ -1785,6 +2015,207 @@ definitions:
   response.FormTypeResponse:
     properties:
       value:
+        type: string
+    type: object
+  response.InterviewApplicantResponse:
+    properties:
+      applicant:
+        $ref: '#/definitions/response.ApplicantResponse'
+      applicant_id:
+        type: string
+      assessment_status:
+        $ref: '#/definitions/entity.AssessmentStatus'
+      created_at:
+        type: string
+      end_time:
+        type: string
+      ended_time:
+        type: string
+      final_result:
+        $ref: '#/definitions/entity.FinalResultStatus'
+      id:
+        type: string
+      interview_id:
+        type: string
+      start_time:
+        type: string
+      started_time:
+        type: string
+      updated_at:
+        type: string
+      user_profile:
+        $ref: '#/definitions/response.UserProfileResponse'
+      user_profile_id:
+        type: string
+    type: object
+  response.InterviewAssessorResponse:
+    properties:
+      created_at:
+        type: string
+      employee_id:
+        type: string
+      employee_name:
+        type: string
+      id:
+        type: string
+      interview_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.InterviewMyselfForAssessorResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      document_number:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: string
+      interview_applicant:
+        items:
+          $ref: '#/definitions/response.InterviewApplicantResponse'
+        type: array
+      interview_assessor:
+        $ref: '#/definitions/response.InterviewAssessorResponse'
+      job_posting:
+        $ref: '#/definitions/response.JobPostingResponse'
+      job_posting_id:
+        type: string
+      location_link:
+        type: string
+      name:
+        type: string
+      project_pic:
+        $ref: '#/definitions/response.ProjectPicResponse'
+      project_pic_id:
+        type: string
+      project_recruitment_header:
+        $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_line:
+        $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
+      project_recruitment_line_id:
+        type: string
+      range_duration:
+        type: integer
+      schedule_date:
+        type: string
+      start_time:
+        type: string
+      status:
+        $ref: '#/definitions/entity.InterviewStatus'
+      total_candidate:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  response.InterviewMyselfResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      document_number:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: string
+      interview_applicant:
+        $ref: '#/definitions/response.InterviewApplicantResponse'
+      interview_assessors:
+        items:
+          $ref: '#/definitions/response.InterviewAssessorResponse'
+        type: array
+      job_posting:
+        $ref: '#/definitions/response.JobPostingResponse'
+      job_posting_id:
+        type: string
+      location_link:
+        type: string
+      name:
+        type: string
+      project_pic:
+        $ref: '#/definitions/response.ProjectPicResponse'
+      project_pic_id:
+        type: string
+      project_recruitment_header:
+        $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_line:
+        $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
+      project_recruitment_line_id:
+        type: string
+      range_duration:
+        type: integer
+      schedule_date:
+        type: string
+      start_time:
+        type: string
+      status:
+        $ref: '#/definitions/entity.InterviewStatus'
+      total_candidate:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  response.InterviewResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      document_number:
+        type: string
+      end_time:
+        type: string
+      id:
+        type: string
+      interview_applicants:
+        items:
+          $ref: '#/definitions/response.InterviewApplicantResponse'
+        type: array
+      interviewAssessors:
+        items:
+          $ref: '#/definitions/response.InterviewAssessorResponse'
+        type: array
+      job_posting:
+        $ref: '#/definitions/response.JobPostingResponse'
+      job_posting_id:
+        type: string
+      location_link:
+        type: string
+      name:
+        type: string
+      project_pic:
+        $ref: '#/definitions/response.ProjectPicResponse'
+      project_pic_id:
+        type: string
+      project_recruitment_header:
+        $ref: '#/definitions/response.ProjectRecruitmentHeaderResponse'
+      project_recruitment_header_id:
+        type: string
+      project_recruitment_line:
+        $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
+      project_recruitment_line_id:
+        type: string
+      range_duration:
+        type: integer
+      schedule_date:
+        type: string
+      start_time:
+        type: string
+      status:
+        $ref: '#/definitions/entity.InterviewStatus'
+      total_candidate:
+        type: integer
+      updated_at:
         type: string
     type: object
   response.JobPostingResponse:
@@ -2142,6 +2573,8 @@ definitions:
         type: string
       id:
         type: string
+      interview_assessor:
+        $ref: '#/definitions/response.InterviewAssessorResponse'
       job_posting:
         $ref: '#/definitions/response.JobPostingResponse'
       job_posting_id:
@@ -2759,6 +3192,225 @@ paths:
       summary: Find all administrative results by administrative selection id
       tags:
       - Administrative Result
+  /api/interview:
+    get:
+      consumes:
+      - application/json
+      description: Find all interviews paginated
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all interviews paginated
+      tags:
+      - Interview
+    post:
+      consumes:
+      - application/json
+      description: Create a new interview
+      parameters:
+      - description: Create Interview Request
+        in: body
+        name: interview
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateInterviewRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.InterviewResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new interview
+      tags:
+      - Interview
+  /api/interview/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an interview by ID
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete an interview by ID
+      tags:
+      - Interview
+    get:
+      consumes:
+      - application/json
+      description: Find an interview by ID
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewResponse'
+      security:
+      - BearerAuth: []
+      summary: Find an interview by ID
+      tags:
+      - Interview
+  /api/interview/assessor-schedule:
+    get:
+      consumes:
+      - application/json
+      description: Find my interview schedule for assessor
+      parameters:
+      - description: Project Recruitment Line ID
+        in: query
+        name: project_recruitment_line_id
+        type: string
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewMyselfForAssessorResponse'
+      security:
+      - BearerAuth: []
+      summary: Find my interview schedule for assessor
+      tags:
+      - Interview
+  /api/interview/generate-document-number:
+    get:
+      consumes:
+      - application/json
+      description: Generate a document number for an interview
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Generate a document number for an interview
+      tags:
+      - Interview
+  /api/interview/my-schedule:
+    get:
+      consumes:
+      - application/json
+      description: Find my interview schedule
+      parameters:
+      - description: Project Recruitment Line ID
+        in: query
+        name: project_recruitment_line_id
+        type: string
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewMyselfResponse'
+      security:
+      - BearerAuth: []
+      summary: Find my interview schedule
+      tags:
+      - Interview
+  /api/interview/update:
+    put:
+      consumes:
+      - application/json
+      description: Update an interview
+      parameters:
+      - description: Update Interview Request
+        in: body
+        name: interview
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateInterviewRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an interview
+      tags:
+      - Interview
+  /api/interview/update-status:
+    put:
+      consumes:
+      - application/json
+      description: Update an interview status
+      parameters:
+      - description: Update Status Interview Request
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStatusInterviewRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewResponse'
+      security:
+      - BearerAuth: []
+      summary: Update an interview status
+      tags:
+      - Interview
   /api/no-auth/job-postings:
     get:
       consumes:

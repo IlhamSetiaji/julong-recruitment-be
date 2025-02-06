@@ -10,6 +10,7 @@ import (
 type IInterviewDTO interface {
 	ConvertEntityToResponse(ent *entity.Interview) (*response.InterviewResponse, error)
 	ConvertEntityToMyselfResponse(ent *entity.Interview) (*response.InterviewMyselfResponse, error)
+	ConvertEntityToMyselfAssessorResponse(ent *entity.Interview) (*response.InterviewMyselfForAssessorResponse, error)
 }
 
 type InterviewDTO struct {
@@ -168,6 +169,74 @@ func (dto *InterviewDTO) ConvertEntityToMyselfResponse(ent *entity.Interview) (*
 				return nil
 			}
 			return interviewApplicantResponse
+		}(),
+		ProjectRecruitmentHeader: func() *response.ProjectRecruitmentHeaderResponse {
+			if ent.ProjectRecruitmentHeader == nil {
+				return nil
+			}
+			return dto.ProjectRecruitmentHeaderDTO.ConvertEntityToResponse(ent.ProjectRecruitmentHeader)
+		}(),
+		ProjectRecruitmentLine: func() *response.ProjectRecruitmentLineResponse {
+			if ent.ProjectRecruitmentLine == nil {
+				return nil
+			}
+			return dto.ProjectRecruitmentLineDTO.ConvertEntityToResponse(ent.ProjectRecruitmentLine)
+		}(),
+	}, nil
+}
+
+func (dto *InterviewDTO) ConvertEntityToMyselfAssessorResponse(ent *entity.Interview) (*response.InterviewMyselfForAssessorResponse, error) {
+	return &response.InterviewMyselfForAssessorResponse{
+		ID:                         ent.ID,
+		JobPostingID:               ent.JobPostingID,
+		ProjectPicID:               ent.ProjectPicID,
+		ProjectRecruitmentHeaderID: ent.ProjectRecruitmentHeaderID,
+		ProjectRecruitmentLineID:   ent.ProjectRecruitmentLineID,
+		Name:                       ent.Name,
+		DocumentNumber:             ent.DocumentNumber,
+		ScheduleDate:               ent.ScheduleDate,
+		StartTime:                  ent.StartTime,
+		EndTime:                    ent.EndTime,
+		LocationLink:               ent.LocationLink,
+		Description:                ent.Description,
+		RangeDuration:              ent.RangeDuration,
+		TotalCandidate:             ent.TotalCandidate,
+		Status:                     ent.Status,
+		CreatedAt:                  ent.CreatedAt,
+		UpdatedAt:                  ent.UpdatedAt,
+		JobPosting: func() *response.JobPostingResponse {
+			if ent.JobPosting == nil {
+				return nil
+			}
+			return dto.JobPostingDTO.ConvertEntityToResponse(ent.JobPosting)
+		}(),
+		ProjectPic: func() *response.ProjectPicResponse {
+			if ent.ProjectPic == nil {
+				return nil
+			}
+			return dto.ProjectPicDTO.ConvertEntityToResponse(ent.ProjectPic)
+		}(),
+		InterviewApplicants: func() []response.InterviewApplicantResponse {
+			if len(ent.InterviewApplicants) == 0 {
+				return nil
+			}
+			var interviewApplicants []response.InterviewApplicantResponse
+			for _, interviewApplicant := range ent.InterviewApplicants {
+				interviewApplicantResponse, err := dto.InterviewApplicantDTO.ConvertEntityToResponse(&interviewApplicant)
+				if err != nil {
+					dto.Log.Error(err)
+					return nil
+				}
+				interviewApplicants = append(interviewApplicants, *interviewApplicantResponse)
+			}
+			return interviewApplicants
+		}(),
+		InterviewAssessor: func() *response.InterviewAssessorResponse {
+			if len(ent.InterviewAssessors) == 0 {
+				return nil
+			}
+			interviewAssessorResponse := dto.InterviewAssessorDTO.ConvertEntityToResponse(&ent.InterviewAssessors[0])
+			return interviewAssessorResponse
 		}(),
 		ProjectRecruitmentHeader: func() *response.ProjectRecruitmentHeaderResponse {
 			if ent.ProjectRecruitmentHeader == nil {

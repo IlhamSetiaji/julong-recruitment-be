@@ -517,7 +517,7 @@ func (uc *TestScheduleHeaderUsecase) GenerateDocumentNumber(dateNow time.Time) (
 	}
 
 	newNumber := highestNumber + 1
-	documentNumber := fmt.Sprintf("JP/%s/%03d", dateNow.Format("20060102"), newNumber)
+	documentNumber := fmt.Sprintf("TSH/%s/%03d", dateNow.Format("20060102"), newNumber)
 	return documentNumber, nil
 }
 

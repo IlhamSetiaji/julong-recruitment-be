@@ -44,6 +44,7 @@ func (dto *QuestionDTO) ConvertEntityToResponse(ent *entity.Question) *response.
 		TemplateQuestionID: ent.TemplateQuestionID,
 		AnswerTypeID:       ent.AnswerTypeID,
 		Name:               ent.Name,
+		Number:             ent.Number,
 		CreatedAt:          ent.CreatedAt,
 		UpdatedAt:          ent.UpdatedAt,
 		AnswerTypeResponse: func() *response.AnswerTypeResponse {

@@ -20,6 +20,7 @@ type IInterviewRepository interface {
 	GetHighestDocumentNumberByDate(date string) (int, error)
 	FindByKeys(keys map[string]interface{}) (*entity.Interview, error)
 	FindAllByKeys(keys map[string]interface{}) (*[]entity.Interview, error)
+	FindByIDForMyselfAssessor(id uuid.UUID, interviewAssessorID uuid.UUID) (*entity.Interview, error)
 }
 
 type InterviewRepository struct {
@@ -120,6 +121,29 @@ func (r *InterviewRepository) FindByIDForMyself(id uuid.UUID, userProfile uuid.U
 		Preload("InterviewApplicants", "user_profile_id = ?", userProfile).
 		Preload("InterviewApplicants.UserProfile").
 		Preload("InterviewAssessors").
+		Where("id = ?", id).First(&interview).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			r.Log.Error("[InterviewRepository.FindByIDForMyself] " + err.Error())
+			return nil, err
+		}
+	}
+
+	return &interview, nil
+}
+
+func (r *InterviewRepository) FindByIDForMyselfAssessor(id uuid.UUID, interviewAssessorID uuid.UUID) (*entity.Interview, error) {
+	var interview entity.Interview
+
+	if err := r.DB.Preload("JobPosting").
+		Preload("ProjectPic").
+		Preload("ProjectRecruitmentHeader").
+		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.AnswerType").
+		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionOptions").
+		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "interview_assessor_id = ?", interviewAssessorID).
+		Preload("InterviewApplicants.UserProfile").
+		Preload("InterviewAssessors", "id = ?", interviewAssessorID).
 		Where("id = ?", id).First(&interview).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

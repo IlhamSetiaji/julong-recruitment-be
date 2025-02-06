@@ -11,6 +11,7 @@ type QuestionResponse struct {
 	TemplateQuestionID uuid.UUID `json:"template_question_id"`
 	AnswerTypeID       uuid.UUID `json:"answer_type_id"`
 	Name               string    `json:"name"`
+	Number             int       `json:"number"`
 	CreatedAt          time.Time `json:"created_at"`
 	UpdatedAt          time.Time `json:"updated_at"`
 

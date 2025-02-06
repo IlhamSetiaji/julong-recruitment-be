@@ -81,7 +81,7 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 	}
 
 	// create or update questions
-	for _, question := range req.Questions {
+	for i, question := range req.Questions {
 		if question.ID != "" && question.ID != uuid.Nil.String() {
 			exist, err := uc.Repository.FindByID(uuid.MustParse(question.ID))
 			if err != nil {
@@ -94,6 +94,7 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 					TemplateQuestionID: tq.ID,
 					AnswerTypeID:       uuid.MustParse(question.AnswerTypeID),
 					Name:               question.Name,
+					Number:             i + 1,
 				})
 				if err != nil {
 					uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: %s", err.Error())
@@ -118,6 +119,7 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 					TemplateQuestionID: tq.ID,
 					AnswerTypeID:       uuid.MustParse(question.AnswerTypeID),
 					Name:               question.Name,
+					Number:             i + 1,
 				})
 				if err != nil {
 					uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when updating question: %s", err.Error())
@@ -146,10 +148,12 @@ func (uc *QuestionUseCase) CreateOrUpdateQuestions(req *request.CreateOrUpdateQu
 				}
 			}
 		} else {
+			uc.Log.Info("Payloadku: ", question.Name)
 			createdQuestion, err := uc.Repository.CreateQuestion(&entity.Question{
 				TemplateQuestionID: tq.ID,
 				AnswerTypeID:       uuid.MustParse(question.AnswerTypeID),
 				Name:               question.Name,
+				Number:             i + 1,
 			})
 			if err != nil {
 				uc.Log.Errorf("[QuestionUseCase.CreateOrUpdateQuestions] error when creating question: %s", err.Error())

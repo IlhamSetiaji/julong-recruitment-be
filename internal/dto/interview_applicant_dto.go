@@ -64,11 +64,14 @@ func (dto *InterviewApplicantDTO) ConvertEntityToResponse(ent *entity.InterviewA
 			return userProfileResponse
 		}(),
 		Applicant: func() *response.ApplicantResponse {
-			applicantResponse, err := dto.ApplicantDTO.ConvertEntityToResponse(ent.Applicant)
+			if ent.Applicant == nil {
+				return nil
+			}
+			resp, err := dto.ApplicantDTO.ConvertEntityToResponse(ent.Applicant)
 			if err != nil {
 				return nil
 			}
-			return applicantResponse
+			return resp
 		}(),
 	}, nil
 }

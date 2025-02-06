@@ -17,6 +17,8 @@ type IInterviewAssessorRepository interface {
 	FindByID(id uuid.UUID) (*entity.InterviewAssessor, error)
 	FindAllByEmployeeID(employeeID uuid.UUID) ([]entity.InterviewAssessor, error)
 	FindByKeys(keys map[string]interface{}) (*entity.InterviewAssessor, error)
+	FindByEmployeeIDAndIDs(employeeID uuid.UUID, ids []uuid.UUID) (*entity.InterviewAssessor, error)
+	FindByEmployeeIDAndInterviewIDs(employeeID uuid.UUID, interviewIDs []uuid.UUID) (*entity.InterviewAssessor, error)
 }
 
 type InterviewAssessorRepository struct {
@@ -131,6 +133,32 @@ func (r *InterviewAssessorRepository) FindAllByEmployeeID(employeeID uuid.UUID) 
 func (r *InterviewAssessorRepository) FindByKeys(keys map[string]interface{}) (*entity.InterviewAssessor, error) {
 	ent := &entity.InterviewAssessor{}
 	if err := r.DB.Where(keys).First(ent).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return ent, nil
+}
+
+func (r *InterviewAssessorRepository) FindByEmployeeIDAndIDs(employeeID uuid.UUID, ids []uuid.UUID) (*entity.InterviewAssessor, error) {
+	ent := &entity.InterviewAssessor{}
+	if err := r.DB.Where("employee_id = ? AND id IN (?)", employeeID, ids).First(ent).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return ent, nil
+}
+
+func (r *InterviewAssessorRepository) FindByEmployeeIDAndInterviewIDs(employeeID uuid.UUID, interviewIDs []uuid.UUID) (*entity.InterviewAssessor, error) {
+	ent := &entity.InterviewAssessor{}
+	if err := r.DB.Where("employee_id = ? AND interview_id IN (?)", employeeID, interviewIDs).First(ent).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

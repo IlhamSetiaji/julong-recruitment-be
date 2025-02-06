@@ -25,6 +25,7 @@ type ITestScheduleHeaderUsecase interface {
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
 	UpdateStatusTestScheduleHeader(req *request.UpdateStatusTestScheduleHeaderRequest) error
 	FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderMyselfResponse, error)
+	// ExportMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderMyselfResponse, error)
 }
 
 type TestScheduleHeaderUsecase struct {
@@ -735,3 +736,7 @@ func (uc *TestScheduleHeaderUsecase) FindMySchedule(userID, projectRecruitmentLi
 
 	return resp, nil
 }
+
+// func (uc *TestScheduleHeaderUsecase) ExportMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.TestScheduleHeaderMyselfResponse, error) {
+
+// }

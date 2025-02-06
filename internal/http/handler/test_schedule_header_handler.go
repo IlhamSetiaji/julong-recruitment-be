@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,6 +17,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/xuri/excelize/v2"
 )
 
 type ITestScheduleHeaderHandler interface {
@@ -27,6 +29,7 @@ type ITestScheduleHeaderHandler interface {
 	GenerateDocumentNumber(ctx *gin.Context)
 	UpdateStatusTestScheduleHeader(ctx *gin.Context)
 	FindMySchedule(ctx *gin.Context)
+	ExportMySchedule(ctx *gin.Context)
 }
 
 type TestScheduleHeaderHandler struct {
@@ -382,4 +385,50 @@ func (h *TestScheduleHeaderHandler) FindMySchedule(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "My schedule found", res)
+}
+
+// ExportMySchedule export my schedule
+//
+//		@Summary		Export my schedule
+//		@Description	Export my schedule
+//		@Tags			Test Schedule Headers
+//		@Accept			json
+//		@Produce		json
+//		@Param			project_recruitment_line_id	query	string	false	"Project Recruitment Line ID"
+//	 @Param      job_posting_id	query	string	false	"Job Posting ID"
+//		@Success		200			{object}	response.TestScheduleHeaderResponse
+//		@Security		BearerAuth
+//		@Router			/api/test-schedule-headers/export-my-result [get]
+func (h *TestScheduleHeaderHandler) ExportMySchedule(ctx *gin.Context) {
+	f := excelize.NewFile()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println(err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+			return
+		}
+	}()
+	// Create a new sheet.
+	index, err := f.NewSheet("Sheet2")
+	if err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+		return
+	}
+	// Set value of a cell.
+	f.SetCellValue("Sheet2", "A2", "Hello world.")
+	f.SetCellValue("Sheet1", "B2", 100)
+	// Set active sheet of the workbook.
+	f.SetActiveSheet(index)
+
+	// Write the file to the response body
+	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	ctx.Header("Content-Disposition", "attachment; filename=Book1.xlsx")
+	ctx.Header("Content-Transfer-Encoding", "binary")
+
+	if err := f.Write(ctx.Writer); err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+		return
+	}
 }

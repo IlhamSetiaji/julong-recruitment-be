@@ -2247,6 +2247,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/test-schedule-headers/export-my-result": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Export my schedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Test Schedule Headers"
+                ],
+                "summary": "Export my schedule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TestScheduleHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/test-schedule-headers/my-schedule": {
             "get": {
                 "security": [

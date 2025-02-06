@@ -3465,6 +3465,36 @@ paths:
       summary: Find an interview by ID
       tags:
       - Interview
+  /api/interview/applicant-schedule:
+    get:
+      consumes:
+      - application/json
+      description: Find applicant interview schedule
+      parameters:
+      - description: Project Recruitment Line ID
+        in: query
+        name: project_recruitment_line_id
+        type: string
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        type: string
+      - description: Applicant ID
+        in: query
+        name: applicant_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewMyselfResponse'
+      security:
+      - BearerAuth: []
+      summary: Find applicant interview schedule
+      tags:
+      - Interview
   /api/interview/assessor-schedule:
     get:
       consumes:

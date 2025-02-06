@@ -26,6 +26,7 @@ type IInterviewUseCase interface {
 	UpdateStatusInterview(req *request.UpdateStatusInterviewRequest) (*response.InterviewResponse, error)
 	FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfResponse, error)
 	FindMyScheduleForAssessor(employeeID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*[]response.InterviewMyselfForAssessorResponse, error)
+	FindScheduleForApplicant(applicantID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfResponse, error)
 }
 
 type InterviewUseCase struct {
@@ -584,6 +585,86 @@ func (uc *InterviewUseCase) FindMySchedule(userID, projectRecruitmentLineID, job
 	}
 
 	interviewApplicant, err := uc.InterviewApplicantRepository.FindByUserProfileIDAndInterviewIDs(userProfile.ID, interviewIDS)
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if interviewApplicant == nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + "Interview Applicant not found")
+		return nil, errors.New("interview applicant not found")
+	}
+
+	resp, err := uc.Repository.FindByIDForMyself(interviewApplicant.InterviewID, interviewApplicant.UserProfileID)
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if resp == nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + "Interview not found")
+		return nil, errors.New("interview not found")
+	}
+
+	convertResp, err := uc.DTO.ConvertEntityToMyselfResponse(resp)
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+
+	return convertResp, nil
+}
+
+func (uc *InterviewUseCase) FindScheduleForApplicant(applicantID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfResponse, error) {
+	// find project recruitment line
+	projectRecruitmentLine, err := uc.ProjectRecruitmentLineRepository.FindByID(projectRecruitmentLineID)
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if projectRecruitmentLine == nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + "Project Recruitment Line not found")
+		return nil, errors.New("project recruitment line not found")
+	}
+
+	// find applicant
+	applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+		"id": applicantID,
+	})
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if applicant == nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + "Applicant not found")
+		return nil, errors.New("applicant not found")
+	}
+
+	// find job posting
+	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+	if jobPosting == nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + "Job Posting not found")
+		return nil, errors.New("job posting not found")
+	}
+
+	// find interview
+	interviews, err := uc.Repository.FindAllByKeys(map[string]interface{}{
+		"job_posting_id":              jobPostingID,
+		"project_recruitment_line_id": projectRecruitmentLineID,
+	})
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+
+	interviewIDS := make([]uuid.UUID, 0)
+	for _, interview := range *interviews {
+		interviewIDS = append(interviewIDS, interview.ID)
+	}
+
+	interviewApplicant, err := uc.InterviewApplicantRepository.FindByUserProfileIDAndInterviewIDs(applicant.UserProfileID, interviewIDS)
 	if err != nil {
 		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
 		return nil, err

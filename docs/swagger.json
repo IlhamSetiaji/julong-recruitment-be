@@ -780,6 +780,54 @@
                 }
             }
         },
+        "/api/interview/applicant-schedule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find applicant interview schedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Find applicant interview schedule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Applicant ID",
+                        "name": "applicant_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewMyselfResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/interview/assessor-schedule": {
             "get": {
                 "security": [

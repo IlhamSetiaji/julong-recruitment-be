@@ -28,6 +28,7 @@ type IInterviewHandler interface {
 	UpdateStatusInterview(ctx *gin.Context)
 	FindMySchedule(ctx *gin.Context)
 	FindMyScheduleForAssessor(ctx *gin.Context)
+	FindApplicantSchedule(ctx *gin.Context)
 }
 
 type InterviewHandler struct {
@@ -378,6 +379,72 @@ func (h *InterviewHandler) FindMySchedule(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "My interview schedule found", res)
+}
+
+// FindApplicantSchedule finds applicant interview schedule
+//
+// @Summary Find applicant interview schedule
+// @Description Find applicant interview schedule
+// @Tags Interview
+// @Accept json
+// @Produce json
+// @Param			project_recruitment_line_id	query	string	false	"Project Recruitment Line ID"
+// @Param      job_posting_id	query	string	false	"Job Posting ID"
+// @Param      applicant_id	query	string	false	"Applicant ID"
+// @Success 200 {object} response.InterviewMyselfResponse
+// @Security BearerAuth
+// @Router /api/interview/applicant-schedule [get]
+func (h *InterviewHandler) FindApplicantSchedule(ctx *gin.Context) {
+	projectRecruitmentLineID := ctx.Query("project_recruitment_line_id")
+	if projectRecruitmentLineID == "" {
+		h.Log.Error("Project recruitment line ID is required")
+		utils.BadRequestResponse(ctx, "Project recruitment line ID is required", nil)
+		return
+	}
+
+	jobPostingID := ctx.Query("job_posting_id")
+	if jobPostingID == "" {
+		h.Log.Error("Job posting ID is required")
+		utils.BadRequestResponse(ctx, "Job posting ID is required", nil)
+		return
+	}
+
+	applicantID := ctx.Query("applicant_id")
+	if applicantID == "" {
+		h.Log.Error("Applicant ID is required")
+		utils.BadRequestResponse(ctx, "Applicant ID is required", nil)
+		return
+	}
+
+	projectRecruitmentLineUUID, err := uuid.Parse(projectRecruitmentLineID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid project recruitment line ID", err)
+		return
+	}
+
+	jobPostingUUID, err := uuid.Parse(jobPostingID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid job posting ID", err)
+		return
+	}
+
+	applicantUUID, err := uuid.Parse(applicantID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid applicant ID", err)
+		return
+	}
+
+	res, err := h.UseCase.FindScheduleForApplicant(applicantUUID, projectRecruitmentLineUUID, jobPostingUUID)
+	if err != nil {
+		h.Log.Error("[InterviewHandler.FindApplicantSchedule] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find applicant interview schedule", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Applicant interview schedule found", res)
 }
 
 // FindMyScheduleForAssessor finds my interview schedule for assessor

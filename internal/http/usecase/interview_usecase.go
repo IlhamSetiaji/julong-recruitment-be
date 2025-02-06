@@ -25,7 +25,7 @@ type IInterviewUseCase interface {
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
 	UpdateStatusInterview(req *request.UpdateStatusInterviewRequest) (*response.InterviewResponse, error)
 	FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfResponse, error)
-	FindMyScheduleForAssessor(employeeID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfForAssessorResponse, error)
+	FindMyScheduleForAssessor(employeeID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*[]response.InterviewMyselfForAssessorResponse, error)
 }
 
 type InterviewUseCase struct {
@@ -612,7 +612,7 @@ func (uc *InterviewUseCase) FindMySchedule(userID, projectRecruitmentLineID, job
 	return convertResp, nil
 }
 
-func (uc *InterviewUseCase) FindMyScheduleForAssessor(employeeID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfForAssessorResponse, error) {
+func (uc *InterviewUseCase) FindMyScheduleForAssessor(employeeID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*[]response.InterviewMyselfForAssessorResponse, error) {
 	// find project recruitment line
 	projectRecruitmentLine, err := uc.ProjectRecruitmentLineRepository.FindByID(projectRecruitmentLineID)
 	if err != nil {
@@ -661,24 +661,40 @@ func (uc *InterviewUseCase) FindMyScheduleForAssessor(employeeID, projectRecruit
 		return nil, errors.New("interview assessor not found")
 	}
 
-	resp, err := uc.Repository.FindByIDForMyselfAssessor(interviewAssessor.InterviewID, interviewAssessor.ID)
+	// resp, err := uc.Repository.FindByIDForMyselfAssessor(interviewAssessor.InterviewID, interviewAssessor.ID)
+	// if err != nil {
+	// 	uc.Log.Error("[InterviewUseCase.FindMyScheduleForAssessor] " + err.Error())
+	// 	return nil, err
+	// }
+
+	// if resp == nil {
+	// 	uc.Log.Error("[InterviewUseCase.FindMyScheduleForAssessor] " + "Interview not found")
+	// 	return nil, errors.New("interview not found")
+	// }
+
+	// convertResp, err := uc.DTO.ConvertEntityToMyselfAssessorResponse(resp)
+	// if err != nil {
+	// 	uc.Log.Error("[InterviewUseCase.FindMyScheduleForAssessor] " + err.Error())
+	// 	return nil, err
+	// }
+
+	interviewResps, err := uc.Repository.FindByIDsForMyselfAssessor(interviewIDS, interviewAssessor.ID)
 	if err != nil {
 		uc.Log.Error("[InterviewUseCase.FindMyScheduleForAssessor] " + err.Error())
 		return nil, err
 	}
 
-	if resp == nil {
-		uc.Log.Error("[InterviewUseCase.FindMyScheduleForAssessor] " + "Interview not found")
-		return nil, errors.New("interview not found")
+	var convertResp []response.InterviewMyselfForAssessorResponse
+	for _, interviewResp := range *interviewResps {
+		convertedResp, err := uc.DTO.ConvertEntityToMyselfAssessorResponse(&interviewResp)
+		if err != nil {
+			uc.Log.Error("[InterviewUseCase.FindMyScheduleForAssessor] " + err.Error())
+			return nil, err
+		}
+		convertResp = append(convertResp, *convertedResp)
 	}
 
-	convertResp, err := uc.DTO.ConvertEntityToMyselfAssessorResponse(resp)
-	if err != nil {
-		uc.Log.Error("[InterviewUseCase.FindMyScheduleForAssessor] " + err.Error())
-		return nil, err
-	}
-
-	return convertResp, nil
+	return &convertResp, nil
 }
 
 func (uc *InterviewUseCase) getApplicantIDsByJobPostingID(jobPostingID uuid.UUID, projectRecruitmentLineID uuid.UUID, order int, total int) (*response.TestApplicantsPayload, error) {

@@ -13,7 +13,8 @@ type InterviewAssessor struct {
 	InterviewID uuid.UUID  `json:"interview_id" gorm:"type:char(36);not null"`
 	EmployeeID  *uuid.UUID `json:"employee_id" gorm:"type:char(36);not null"`
 
-	Interview *Interview `json:"interview" gorm:"foreignKey:InterviewID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Interview         *Interview         `json:"interview" gorm:"foreignKey:InterviewID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	QuestionResponses []QuestionResponse `json:"question_responses" gorm:"foreignKey:InterviewAssessorID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (ia *InterviewAssessor) BeforeCreate(tx *gorm.DB) (err error) {

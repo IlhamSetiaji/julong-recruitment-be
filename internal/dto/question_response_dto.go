@@ -13,23 +13,27 @@ type IQuestionResponseDTO interface {
 }
 
 type QuestionResponseDTO struct {
-	Log         *logrus.Logger
-	UserMessage messaging.IUserMessage
+	Log                  *logrus.Logger
+	UserMessage          messaging.IUserMessage
+	InterviewAssessorDTO IInterviewAssessorDTO
 }
 
 func NewQuestionResponseDTO(
 	log *logrus.Logger,
 	userMessage messaging.IUserMessage,
+	interviewAssessor IInterviewAssessorDTO,
 ) IQuestionResponseDTO {
 	return &QuestionResponseDTO{
-		Log:         log,
-		UserMessage: userMessage,
+		Log:                  log,
+		UserMessage:          userMessage,
+		InterviewAssessorDTO: interviewAssessor,
 	}
 }
 
 func QuestionResponseDTOFactory(log *logrus.Logger) IQuestionResponseDTO {
 	userMessage := messaging.UserMessageFactory(log)
-	return NewQuestionResponseDTO(log, userMessage)
+	interviewAssessor := InterviewAssessorDTOFactory(log)
+	return NewQuestionResponseDTO(log, userMessage, interviewAssessor)
 }
 
 func (dto *QuestionResponseDTO) ConvertEntityToResponse(ent *entity.QuestionResponse) *response.QuestionResponseResponse {
@@ -75,5 +79,11 @@ func (dto *QuestionResponseDTO) ConvertEntityToResponse(ent *entity.QuestionResp
 		CreatedAt:     ent.CreatedAt,
 		UpdatedAt:     ent.UpdatedAt,
 		UserProfile:   userProfileResponse,
+		InterviewAssessor: func() *response.InterviewAssessorResponse {
+			if ent.InterviewAssessor != nil {
+				return dto.InterviewAssessorDTO.ConvertEntityToResponse(ent.InterviewAssessor)
+			}
+			return nil
+		}(),
 	}
 }

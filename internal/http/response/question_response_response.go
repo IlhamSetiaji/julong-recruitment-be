@@ -16,9 +16,10 @@ type QuestionResponseResponse struct {
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 
-	Question    *QuestionResponse    `json:"question"`
-	UserProfile *UserProfileResponse `json:"user_profile"`
-	JobPosting  *JobPostingResponse  `json:"job_posting"`
+	Question          *QuestionResponse          `json:"question"`
+	UserProfile       *UserProfileResponse       `json:"user_profile"`
+	InterviewAssessor *InterviewAssessorResponse `json:"interview_assessor"`
+	JobPosting        *JobPostingResponse        `json:"job_posting"`
 }
 
 type QuestionAnswerJSON struct {

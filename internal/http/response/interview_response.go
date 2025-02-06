@@ -31,7 +31,7 @@ type InterviewResponse struct {
 	ProjectRecruitmentHeader *ProjectRecruitmentHeaderResponse `json:"project_recruitment_header"`
 	ProjectRecruitmentLine   *ProjectRecruitmentLineResponse   `json:"project_recruitment_line"`
 	InterviewApplicants      []InterviewApplicantResponse      `json:"interview_applicants"`
-	InterviewAssessors       []InterviewAssessorResponse
+	InterviewAssessors       []InterviewAssessorResponse       `json:"interview_assessors"`
 }
 
 type InterviewMyselfResponse struct {

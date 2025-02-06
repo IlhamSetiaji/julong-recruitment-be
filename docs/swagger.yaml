@@ -682,6 +682,8 @@ definitions:
         type: string
       name:
         type: string
+      number:
+        type: integer
       question_options:
         items:
           $ref: '#/definitions/entity.QuestionOption'
@@ -1530,6 +1532,8 @@ definitions:
         type: string
       id:
         type: string
+      interview_assessor_id:
+        type: string
       job_posting_id:
         type: string
       user_profile_id:
@@ -2181,7 +2185,7 @@ definitions:
         items:
           $ref: '#/definitions/response.InterviewApplicantResponse'
         type: array
-      interviewAssessors:
+      interview_assessors:
         items:
           $ref: '#/definitions/response.InterviewAssessorResponse'
         type: array
@@ -2550,6 +2554,8 @@ definitions:
         type: string
       name:
         type: string
+      number:
+        type: integer
       question_options:
         items:
           $ref: '#/definitions/response.QuestionOptionResponse'

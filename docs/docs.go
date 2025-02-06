@@ -5782,6 +5782,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "number": {
+                    "type": "integer"
+                },
                 "question_options": {
                     "type": "array",
                     "items": {
@@ -7020,6 +7023,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "interview_assessor_id": {
+                    "type": "string"
+                },
                 "job_posting_id": {
                     "type": "string"
                 },
@@ -7962,16 +7968,16 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "interviewAssessors": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.InterviewAssessorResponse"
-                    }
-                },
                 "interview_applicants": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.InterviewApplicantResponse"
+                    }
+                },
+                "interview_assessors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.InterviewAssessorResponse"
                     }
                 },
                 "job_posting": {
@@ -8522,6 +8528,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "number": {
+                    "type": "integer"
                 },
                 "question_options": {
                     "type": "array",

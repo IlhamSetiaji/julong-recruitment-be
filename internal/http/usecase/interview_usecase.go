@@ -547,7 +547,7 @@ func (uc *InterviewUseCase) FindMySchedule(userID, projectRecruitmentLineID, job
 	}
 
 	// find user profile
-	userProfile, err := uc.UserProfileRepository.FindByID(userID)
+	userProfile, err := uc.UserProfileRepository.FindByUserID(userID)
 	if err != nil {
 		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
 		return nil, err
@@ -583,7 +583,7 @@ func (uc *InterviewUseCase) FindMySchedule(userID, projectRecruitmentLineID, job
 		interviewIDS = append(interviewIDS, interview.ID)
 	}
 
-	interviewApplicant, err := uc.InterviewApplicantRepository.FindByUserProfileIDAndInterviewIDs(userID, interviewIDS)
+	interviewApplicant, err := uc.InterviewApplicantRepository.FindByUserProfileIDAndInterviewIDs(userProfile.ID, interviewIDS)
 	if err != nil {
 		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
 		return nil, err

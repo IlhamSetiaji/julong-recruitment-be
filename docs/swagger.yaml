@@ -1253,6 +1253,41 @@ definitions:
     - administrative_results
     - administrative_selection_id
     type: object
+  request.CreateOrUpdateInterviewApplicantsRequest:
+    properties:
+      deleted_interview_applicant_ids:
+        items:
+          type: string
+        type: array
+      interview_applicants:
+        items:
+          properties:
+            applicant_id:
+              type: string
+            end_time:
+              type: string
+            final_result:
+              type: string
+            id:
+              type: string
+            start_time:
+              type: string
+            user_profile_id:
+              type: string
+          required:
+          - applicant_id
+          - end_time
+          - final_result
+          - start_time
+          - user_profile_id
+          type: object
+        type: array
+      interview_id:
+        type: string
+    required:
+    - interview_applicants
+    - interview_id
+    type: object
   request.CreateOrUpdateProjectRecruitmentLinesRequest:
     properties:
       deleted_project_recruitment_line_ids:
@@ -1722,6 +1757,16 @@ definitions:
     - start_date
     - status
     - template_activity_id
+    type: object
+  request.UpdateStatusInterviewApplicantRequest:
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+    required:
+    - id
+    - status
     type: object
   request.UpdateStatusInterviewRequest:
     properties:
@@ -3255,6 +3300,126 @@ paths:
       summary: Create a new interview
       tags:
       - Interview
+  /api/interview-applicants:
+    get:
+      consumes:
+      - application/json
+      description: Find all interview applicants by interview id paginated
+      parameters:
+      - description: Interview id
+        in: path
+        name: interview_id
+        required: true
+        type: string
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      - description: Filter
+        in: query
+        name: filter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all interview applicants by interview id paginated
+      tags:
+      - Interview Applicants
+    post:
+      consumes:
+      - application/json
+      description: Create or update interview applicants
+      parameters:
+      - description: Create or update interview applicants
+        in: body
+        name: interview_applicants
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrUpdateInterviewApplicantsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewResponse'
+      security:
+      - BearerAuth: []
+      summary: Create or update interview applicants
+      tags:
+      - Interview Applicants
+  /api/interview-applicants/me:
+    get:
+      consumes:
+      - application/json
+      description: Find interview applicant by user profile id and interview id
+      parameters:
+      - description: User profile id
+        in: query
+        name: user_profile_id
+        required: true
+        type: string
+      - description: Interview id
+        in: query
+        name: interview_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: Find interview applicant by user profile id and interview id
+      tags:
+      - Interview Applicants
+  /api/interview-applicants/update-status:
+    put:
+      consumes:
+      - application/json
+      description: Update status interview applicants
+      parameters:
+      - description: Update status interview applicants
+        in: body
+        name: interview_applicants
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStatusInterviewApplicantRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewResponse'
+      security:
+      - BearerAuth: []
+      summary: Update status interview applicants
+      tags:
+      - Interview Applicants
   /api/interview/{id}:
     delete:
       consumes:

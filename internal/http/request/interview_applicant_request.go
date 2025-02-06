@@ -8,7 +8,7 @@ type CreateOrUpdateInterviewApplicantsRequest struct {
 		UserProfileID string `json:"user_profile_id" validate:"required,uuid"`
 		StartTime     string `json:"start_time" validate:"required,datetime=2006-01-02 15:04:05"`
 		EndTime       string `json:"end_time" validate:"required,datetime=2006-01-02 15:04:05"`
-		FinalResult   string `json:"final_result" validate:"required,interview_applicant_status_validation"`
+		FinalResult   string `json:"final_result" validate:"required,final_result_status_validation"`
 	} `json:"interview_applicants" validate:"required,dive"`
 	DeletedInterviewApplicantIDs []string `json:"deleted_interview_applicant_ids" validate:"omitempty,dive,uuid"`
 }

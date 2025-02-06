@@ -56,21 +56,21 @@ func NewInterviewApplicantUseCase(
 
 func InterviewApplicantUseCaseFactory(
 	log *logrus.Logger,
-	repository repository.IInterviewApplicantRepository,
-	iaDto dto.IInterviewApplicantDTO,
-	interviewRepository repository.IInterviewRepository,
-	interviewDTO dto.IInterviewDTO,
-	userProfileRepository repository.IUserProfileRepository,
 	viper *viper.Viper,
-	applicantRepo repository.IApplicantRepository,
 ) IInterviewApplicantUseCase {
+	iaRepo := repository.InterviewApplicantRepositoryFactory(log)
+	iaDto := dto.InterviewApplicantDTOFactory(log, viper)
+	interviewRepo := repository.InterviewRepositoryFactory(log)
+	interviewDTO := dto.InterviewDTOFactory(log, viper)
+	userProfileRepo := repository.UserProfileRepositoryFactory(log)
+	applicantRepo := repository.ApplicantRepositoryFactory(log)
 	return NewInterviewApplicantUseCase(
 		log,
-		repository,
+		iaRepo,
 		iaDto,
-		interviewRepository,
+		interviewRepo,
 		interviewDTO,
-		userProfileRepository,
+		userProfileRepo,
 		viper,
 		applicantRepo,
 	)

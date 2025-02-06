@@ -591,6 +591,195 @@
                 }
             }
         },
+        "/api/interview-applicants": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all interview applicants by interview id paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview Applicants"
+                ],
+                "summary": "Find all interview applicants by interview id paginated",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Interview id",
+                        "name": "interview_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewApplicantResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update interview applicants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview Applicants"
+                ],
+                "summary": "Create or update interview applicants",
+                "parameters": [
+                    {
+                        "description": "Create or update interview applicants",
+                        "name": "interview_applicants",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrUpdateInterviewApplicantsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interview-applicants/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find interview applicant by user profile id and interview id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview Applicants"
+                ],
+                "summary": "Find interview applicant by user profile id and interview id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User profile id",
+                        "name": "user_profile_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interview id",
+                        "name": "interview_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interview-applicants/update-status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update status interview applicants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview Applicants"
+                ],
+                "summary": "Update status interview applicants",
+                "parameters": [
+                    {
+                        "description": "Update status interview applicants",
+                        "name": "interview_applicants",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStatusInterviewApplicantRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/interview/assessor-schedule": {
             "get": {
                 "security": [
@@ -6608,6 +6797,57 @@
                 }
             }
         },
+        "request.CreateOrUpdateInterviewApplicantsRequest": {
+            "type": "object",
+            "required": [
+                "interview_applicants",
+                "interview_id"
+            ],
+            "properties": {
+                "deleted_interview_applicant_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "interview_applicants": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "applicant_id",
+                            "end_time",
+                            "final_result",
+                            "start_time",
+                            "user_profile_id"
+                        ],
+                        "properties": {
+                            "applicant_id": {
+                                "type": "string"
+                            },
+                            "end_time": {
+                                "type": "string"
+                            },
+                            "final_result": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "start_time": {
+                                "type": "string"
+                            },
+                            "user_profile_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "interview_id": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateOrUpdateProjectRecruitmentLinesRequest": {
             "type": "object",
             "required": [
@@ -7279,6 +7519,21 @@
                     "type": "string"
                 },
                 "template_activity_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateStatusInterviewApplicantRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

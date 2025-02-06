@@ -40,6 +40,7 @@ type RouteConfig struct {
 	AdministrativeResultHandler     handler.IAdministrativeResultHandler
 	ProjectPicHandler               handler.IProjectPicHandler
 	InterviewHandler                handler.IInterviewHandler
+	InterviewApplicantHandler       handler.IInterviewApplicantHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -273,6 +274,14 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				interviewRoute.PUT("/update-status", c.InterviewHandler.UpdateStatusInterview)
 				interviewRoute.DELETE("/:id", c.InterviewHandler.DeleteInterview)
 			}
+			// interview applicants
+			interviewApplicantRoute := apiRoute.Group("/interview-applicants")
+			{
+				interviewApplicantRoute.GET("/interview/:interview_id", c.InterviewApplicantHandler.FindAllByInterviewIDPaginated)
+				interviewApplicantRoute.GET("/me", c.InterviewApplicantHandler.FindByUserProfileIDAndInterviewID)
+				interviewApplicantRoute.POST("", c.InterviewApplicantHandler.CreateOrUpdateInterviewApplicants)
+				interviewApplicantRoute.PUT("/update-status", c.InterviewApplicantHandler.UpdateStatusInterviewApplicants)
+			}
 		}
 	}
 }
@@ -303,6 +312,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	administrativeResultHandler := handler.AdministrativeResultHandlerFactory(log, viper)
 	projectPicHandler := handler.ProjectPicHandlerFactory(log, viper)
 	interviewHandler := handler.InterviewHandlerFactory(log, viper)
+	interviewApplicant := handler.InterviewApplicantHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -333,5 +343,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		AdministrativeResultHandler:     administrativeResultHandler,
 		ProjectPicHandler:               projectPicHandler,
 		InterviewHandler:                interviewHandler,
+		InterviewApplicantHandler:       interviewApplicant,
 	}
 }

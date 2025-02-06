@@ -2333,6 +2333,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/test-schedule-headers/export-result-template": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Export result template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                ],
+                "tags": [
+                    "Test Schedule Headers"
+                ],
+                "summary": "Export result template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Test schedule header ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
         "/api/test-schedule-headers/my-schedule": {
             "get": {
                 "security": [

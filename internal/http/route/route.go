@@ -218,6 +218,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				testScheduleHeaderRoute.GET("/my-schedule", c.TestScheduleHeaderHandler.FindMySchedule)
 				testScheduleHeaderRoute.GET("/export-my-schedule", c.TestScheduleHeaderHandler.ExportMySchedule)
 				testScheduleHeaderRoute.GET("/export-answer", c.TestScheduleHeaderHandler.ExportTestScheduleAnswer)
+				testScheduleHeaderRoute.GET("/export-result-template", c.TestScheduleHeaderHandler.ExportResultTemplate)
 				testScheduleHeaderRoute.GET("/document-number", c.TestScheduleHeaderHandler.GenerateDocumentNumber)
 				testScheduleHeaderRoute.GET("/:id", c.TestScheduleHeaderHandler.FindByID)
 				testScheduleHeaderRoute.POST("", c.TestScheduleHeaderHandler.CreateTestScheduleHeader)

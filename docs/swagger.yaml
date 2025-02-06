@@ -4439,6 +4439,34 @@ paths:
       summary: Export my schedule
       tags:
       - Test Schedule Headers
+  /api/test-schedule-headers/export-result-template:
+    get:
+      consumes:
+      - application/json
+      description: Export result template
+      parameters:
+      - description: Test schedule header ID
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      security:
+      - BearerAuth: []
+      summary: Export result template
+      tags:
+      - Test Schedule Headers
   /api/test-schedule-headers/my-schedule:
     get:
       consumes:

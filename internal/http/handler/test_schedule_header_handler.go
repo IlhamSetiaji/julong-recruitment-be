@@ -811,14 +811,14 @@ func (h *TestScheduleHeaderHandler) ReadResultTemplate(ctx *gin.Context) {
 		} else {
 			h.Log.Warn("finalResult not found for row: ", i)
 			tx.Rollback()
-			utils.ErrorResponse(ctx, http.StatusBadRequest, "Final result not found", "Final result not found")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Final result not found for row "+strconv.Itoa(i), "Final result not found for row "+strconv.Itoa(i))
 			return
 		}
 
 		if finalResult != string(entity.FINAL_RESULT_STATUS_ACCEPTED) && finalResult != string(entity.FINAL_RESULT_STATUS_REJECTED) {
 			h.Log.Warn("finalResult not valid for row: ", i)
 			tx.Rollback()
-			utils.ErrorResponse(ctx, http.StatusBadRequest, "Final result not valid", "Final result not valid")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Final result not valid for row "+strconv.Itoa(i), "Final result not valid for row "+strconv.Itoa(i))
 			return
 		}
 
@@ -828,7 +828,7 @@ func (h *TestScheduleHeaderHandler) ReadResultTemplate(ctx *gin.Context) {
 		if err != nil {
 			h.Log.Error(err)
 			tx.Rollback()
-			utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid test applicant ID", err.Error())
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid test applicant ID for row "+strconv.Itoa(i), err.Error())
 			return
 		}
 
@@ -836,7 +836,7 @@ func (h *TestScheduleHeaderHandler) ReadResultTemplate(ctx *gin.Context) {
 		if err != nil {
 			h.Log.Error(err)
 			tx.Rollback()
-			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to update final result status test applicant", err.Error())
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to update final result status test applicant for row "+strconv.Itoa(i), err.Error())
 			return
 		}
 	}

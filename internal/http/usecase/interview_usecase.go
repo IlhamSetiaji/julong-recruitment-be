@@ -240,6 +240,17 @@ func (uc *InterviewUseCase) CreateInterview(req *request.CreateInterviewRequest)
 		return nil, err
 	}
 
+	if applicantsPayload.Total == 0 {
+		err := uc.Repository.DeleteInterview(interview.ID)
+		if err != nil {
+			uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + err.Error())
+			return nil, err
+		}
+
+		uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + "No applicants found")
+		return nil, errors.New("no applicants found")
+	}
+
 	// insert interview applicants
 	for i, applicantID := range applicantsPayload.ApplicantIDs {
 		_, err = uc.InterviewApplicantRepository.CreateInterviewApplicant(&entity.InterviewApplicant{

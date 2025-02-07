@@ -20,9 +20,10 @@ type InterviewApplicant struct {
 	AssessmentStatus AssessmentStatus  `json:"assessment_status" gorm:"type:text;default:null"`
 	FinalResult      FinalResultStatus `json:"final_result" gorm:"type:text;default:null"`
 
-	Interview   *Interview   `json:"interview" gorm:"foreignKey:InterviewID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	UserProfile *UserProfile `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Applicant   *Applicant   `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Interview        *Interview        `json:"interview" gorm:"foreignKey:InterviewID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserProfile      *UserProfile      `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Applicant        *Applicant        `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	InterviewResults []InterviewResult `json:"interview_results" gorm:"foreignKey:InterviewApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 func (ia *InterviewApplicant) BeforeCreate(tx *gorm.DB) (err error) {

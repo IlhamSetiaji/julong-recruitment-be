@@ -371,6 +371,10 @@ definitions:
         $ref: '#/definitions/entity.Interview'
       interview_id:
         type: string
+      interview_results:
+        items:
+          $ref: '#/definitions/entity.InterviewResult'
+        type: array
       start_time:
         type: string
       started_time:
@@ -390,11 +394,38 @@ definitions:
         $ref: '#/definitions/entity.Interview'
       interview_id:
         type: string
+      interview_results:
+        items:
+          $ref: '#/definitions/entity.InterviewResult'
+        type: array
       question_responses:
         items:
           $ref: '#/definitions/entity.QuestionResponse'
         type: array
     type: object
+  entity.InterviewResult:
+    properties:
+      id:
+        type: string
+      interview_applicant:
+        $ref: '#/definitions/entity.InterviewApplicant'
+      interview_assessor:
+        $ref: '#/definitions/entity.InterviewAssessor'
+      interview_assessor_id:
+        type: string
+      interview_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.InterviewResultStatus'
+    type: object
+  entity.InterviewResultStatus:
+    enum:
+    - ACCEPTED
+    - REJECTED
+    type: string
+    x-enum-varnames:
+    - INTERVIEW_RESULT_STATUS_ACCEPTED
+    - INTERVIEW_RESULT_STATUS_REJECTED
   entity.InterviewStatus:
     enum:
     - DRAFT

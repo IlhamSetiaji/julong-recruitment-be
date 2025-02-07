@@ -5738,6 +5738,12 @@ const docTemplate = `{
                 "interview_id": {
                     "type": "string"
                 },
+                "interview_results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.InterviewResult"
+                    }
+                },
                 "start_time": {
                     "type": "string"
                 },
@@ -5767,6 +5773,12 @@ const docTemplate = `{
                 "interview_id": {
                     "type": "string"
                 },
+                "interview_results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.InterviewResult"
+                    }
+                },
                 "question_responses": {
                     "type": "array",
                     "items": {
@@ -5774,6 +5786,40 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "entity.InterviewResult": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "interview_applicant": {
+                    "$ref": "#/definitions/entity.InterviewApplicant"
+                },
+                "interview_assessor": {
+                    "$ref": "#/definitions/entity.InterviewAssessor"
+                },
+                "interview_assessor_id": {
+                    "type": "string"
+                },
+                "interview_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.InterviewResultStatus"
+                }
+            }
+        },
+        "entity.InterviewResultStatus": {
+            "type": "string",
+            "enum": [
+                "ACCEPTED",
+                "REJECTED"
+            ],
+            "x-enum-varnames": [
+                "INTERVIEW_RESULT_STATUS_ACCEPTED",
+                "INTERVIEW_RESULT_STATUS_REJECTED"
+            ]
         },
         "entity.InterviewStatus": {
             "type": "string",

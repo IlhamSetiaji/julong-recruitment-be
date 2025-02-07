@@ -44,6 +44,7 @@ func main() {
 		&entity.Interview{},
 		&entity.InterviewApplicant{},
 		&entity.InterviewAssessor{},
+		&entity.InterviewResult{},
 	)
 	if err != nil {
 		log.Fatal(err)

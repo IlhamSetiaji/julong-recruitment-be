@@ -49,6 +49,7 @@ func (dto *TestApplicantDTO) ConvertEntityToResponse(ent *entity.TestApplicant) 
 	return &response.TestApplicantResponse{
 		ID:                   ent.ID,
 		TestScheduleHeaderID: ent.TestScheduleHeaderID,
+		ApplicantID:          ent.ApplicantID,
 		UserProfileID:        ent.UserProfileID,
 		StartTime:            ent.StartTime,
 		EndTime:              ent.EndTime,

@@ -9220,6 +9220,9 @@ const docTemplate = `{
                 "applicant": {
                     "$ref": "#/definitions/response.ApplicantResponse"
                 },
+                "applicant_id": {
+                    "type": "string"
+                },
                 "assessment_status": {
                     "$ref": "#/definitions/entity.AssessmentStatus"
                 },

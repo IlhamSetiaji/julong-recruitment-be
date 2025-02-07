@@ -521,7 +521,8 @@ func (h *TestScheduleHeaderHandler) ExportTestScheduleAnswer(ctx *gin.Context) {
 	// }
 	f.SetSheetName("Sheet1", "Answer")
 	// Set value of a cell.
-	f.SetCellValue("Answer", "A1", "Applicant Name")
+	f.SetCellValue("Answer", "A1", "Applicant ID")
+	f.SetCellValue("Answer", "B1", "Applicant Name")
 
 	// Create a style for the header
 	headerStyle, err := f.NewStyle(&excelize.Style{
@@ -552,10 +553,12 @@ func (h *TestScheduleHeaderHandler) ExportTestScheduleAnswer(ctx *gin.Context) {
 
 	// Set the style to the header
 	f.SetCellStyle("Answer", "A1", "A1", headerStyle)
+	f.SetCellStyle("Answer", "B1", "B1", headerStyle)
 
 	// loop through test schedule header -> test applicants
 	for i, ta := range tsh.TestApplicants {
-		f.SetCellValue("Answer", fmt.Sprintf("A%d", i+2), ta.UserProfile.Name)
+		f.SetCellValue("Answer", fmt.Sprintf("A%d", i+2), ta.ApplicantID)
+		f.SetCellValue("Answer", fmt.Sprintf("B%d", i+2), ta.UserProfile.Name)
 
 		prl, err := h.ProjectRecruitmentLineUseCase.FindByIDForAnswer(tsh.ProjectRecruitmentLineID, jobPostingUUID, ta.UserProfileID)
 		if err != nil {
@@ -572,10 +575,10 @@ func (h *TestScheduleHeaderHandler) ExportTestScheduleAnswer(ctx *gin.Context) {
 		// loop through project recruitment line -> template activity line -> template question -> questions for header
 		for i, questionData := range *prl.TemplateActivityLine.TemplateQuestion.Questions {
 			var concatenatedValue string
-			f.SetCellValue("Answer", fmt.Sprintf("%s%d", string(rune(i+66)), 1), questionData.Name)
+			f.SetCellValue("Answer", fmt.Sprintf("%s%d", string(rune(i+67)), 1), questionData.Name)
 
 			// Set the style to the header
-			f.SetCellStyle("Answer", fmt.Sprintf("%s%d", string(rune(i+66)), 1), fmt.Sprintf("%s%d", string(rune(i+66)), 1), headerStyle)
+			f.SetCellStyle("Answer", fmt.Sprintf("%s%d", string(rune(i+67)), 1), fmt.Sprintf("%s%d", string(rune(i+67)), 1), headerStyle)
 
 			// loop through project recruitment line -> template activity line -> template question -> questions -> question responses for line
 			for _, questionResponse := range *questionData.QuestionResponses {
@@ -583,7 +586,7 @@ func (h *TestScheduleHeaderHandler) ExportTestScheduleAnswer(ctx *gin.Context) {
 				if questionResponse.AnswerFile == "" {
 					cellValue = questionResponse.Answer
 				} else {
-					cellValue = questionResponse.AnswerFile
+					cellValue = h.Viper.GetString("app.url") + questionResponse.AnswerFile
 				}
 
 				if concatenatedValue != "" {
@@ -593,15 +596,16 @@ func (h *TestScheduleHeaderHandler) ExportTestScheduleAnswer(ctx *gin.Context) {
 			}
 
 			// Set the concatenated value to the cell
-			f.SetCellValue("Answer", fmt.Sprintf("%s%d", string(rune(i+66)), 2), concatenatedValue)
+			f.SetCellValue("Answer", fmt.Sprintf("%s%d", string(rune(i+67)), 2), concatenatedValue)
 
 			// Set the width of the columns
-			f.SetColWidth("Answer", fmt.Sprintf("%s", string(rune(i+66))), string(rune(i+66)), 20)
+			f.SetColWidth("Answer", fmt.Sprintf("%s", string(rune(i+67))), string(rune(i+67)), 20)
 		}
 	}
 
 	// Set the width of the columns
 	f.SetColWidth("Answer", "A", "A", 20)
+	f.SetColWidth("Answer", "B", "B", 20)
 
 	// Set active sheet of the workbook.
 	// f.SetActiveSheet("Answer")

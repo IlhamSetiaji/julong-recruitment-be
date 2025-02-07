@@ -84,23 +84,23 @@ func (r *ApplicantRepository) GetAllByKeys(keys map[string]interface{}) ([]entit
 }
 
 func (r *ApplicantRepository) UpdateApplicant(applicant *entity.Applicant) (*entity.Applicant, error) {
-	tx := r.DB.Begin()
-	if tx.Error != nil {
-		r.Log.Error("[ApplicantRepository.UpdateApplicant] " + tx.Error.Error())
-		return nil, tx.Error
-	}
+	// tx := r.DB.Begin()
+	// if tx.Error != nil {
+	// 	r.Log.Error("[ApplicantRepository.UpdateApplicant] " + tx.Error.Error())
+	// 	return nil, tx.Error
+	// }
 
-	if err := tx.Model(&entity.Applicant{}).Where("id = ?", applicant.ID).Updates(applicant).Error; err != nil {
-		tx.Rollback()
+	if err := r.DB.Model(&entity.Applicant{}).Where("id = ?", applicant.ID).Updates(applicant).Error; err != nil {
+		// tx.Rollback()
 		r.Log.Error("[ApplicantRepository.UpdateApplicant] " + err.Error())
 		return nil, err
 	}
 
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		r.Log.Error("[ApplicantRepository.UpdateApplicant] " + err.Error())
-		return nil, err
-	}
+	// if err := tx.Commit().Error; err != nil {
+	// 	tx.Rollback()
+	// 	r.Log.Error("[ApplicantRepository.UpdateApplicant] " + err.Error())
+	// 	return nil, err
+	// }
 
 	if err := r.DB.Preload("UserProfile").Preload("JobPosting").First(applicant, applicant.ID).Error; err != nil {
 		r.Log.Error("[ApplicantRepository.UpdateApplicant] " + err.Error())
@@ -111,27 +111,27 @@ func (r *ApplicantRepository) UpdateApplicant(applicant *entity.Applicant) (*ent
 }
 
 func (r *ApplicantRepository) UpdateApplicantWhenRejected(applicant *entity.Applicant) (*entity.Applicant, error) {
-	tx := r.DB.Begin()
-	if tx.Error != nil {
-		r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + tx.Error.Error())
-		return nil, tx.Error
-	}
+	// tx := r.DB.Begin()
+	// if tx.Error != nil {
+	// 	r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + tx.Error.Error())
+	// 	return nil, tx.Error
+	// }
 
 	// Use the Select option to explicitly specify the fields to be updated
-	if err := tx.Model(&entity.Applicant{}).Where("id = ?", applicant.ID).Select("order", "template_question_id").Updates(map[string]interface{}{
+	if err := r.DB.Model(&entity.Applicant{}).Where("id = ?", applicant.ID).Select("order", "template_question_id").Updates(map[string]interface{}{
 		"order":                0,
 		"template_question_id": nil,
 	}).Error; err != nil {
-		tx.Rollback()
+		// tx.Rollback()
 		r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + err.Error())
 		return nil, err
 	}
 
-	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + err.Error())
-		return nil, err
-	}
+	// if err := tx.Commit().Error; err != nil {
+	// 	tx.Rollback()
+	// 	r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + err.Error())
+	// 	return nil, err
+	// }
 
 	if err := r.DB.Preload("UserProfile").Preload("JobPosting").First(applicant, applicant.ID).Error; err != nil {
 		r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + err.Error())

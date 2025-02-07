@@ -304,12 +304,12 @@ func (uc *TestApplicantUseCase) FindAllByTestScheduleHeaderIDPaginated(testSched
 }
 
 func (uc *TestApplicantUseCase) UpdateFinalResultStatusTestApplicant(ctx context.Context, id uuid.UUID, status entity.FinalResultStatus) (*response.TestApplicantResponse, error) {
-	tx := uc.DB.WithContext(ctx).Begin()
-	if tx.Error != nil {
-		uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when starting transaction: %s", tx.Error)
-		return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when starting transaction: " + tx.Error.Error())
-	}
-	defer tx.Rollback()
+	// tx := uc.DB.WithContext(ctx).Begin()
+	// if tx.Error != nil {
+	// 	uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when starting transaction: %s", tx.Error)
+	// 	return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when starting transaction: " + tx.Error.Error())
+	// }
+	// defer tx.Rollback()
 
 	ta, err := uc.Repository.FindByID(id)
 	if err != nil {
@@ -394,21 +394,21 @@ func (uc *TestApplicantUseCase) UpdateFinalResultStatusTestApplicant(ctx context
 	})
 	if err != nil {
 		uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when updating test applicant: %s", err.Error())
-		tx.Rollback()
+		// tx.Rollback()
 		return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when updating test applicant: " + err.Error())
 	}
 
 	resp, err := uc.DTO.ConvertEntityToResponse(ta)
 	if err != nil {
 		uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when converting test applicant entity to response: %s", err.Error())
-		tx.Rollback()
+		// tx.Rollback()
 		return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when converting test applicant entity to response: " + err.Error())
 	}
 
-	if err := tx.Commit().Error; err != nil {
-		uc.Log.Warnf("Failed commit transaction : %+v", err)
-		return nil, err
-	}
+	// if err := tx.Commit().Error; err != nil {
+	// 	uc.Log.Warnf("Failed commit transaction : %+v", err)
+	// 	return nil, err
+	// }
 
 	return resp, nil
 }

@@ -66,19 +66,19 @@ func (r *TestApplicantRepository) CreateTestApplicant(ent *entity.TestApplicant)
 }
 
 func (r *TestApplicantRepository) UpdateTestApplicant(ent *entity.TestApplicant) (*entity.TestApplicant, error) {
-	tx := r.DB.Begin()
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
+	// tx := r.DB.Begin()
+	// if tx.Error != nil {
+	// 	return nil, tx.Error
+	// }
 
-	if err := tx.Model(&entity.TestApplicant{}).Where("id = ?", ent.ID).Updates(ent).Error; err != nil {
-		tx.Rollback()
+	if err := r.DB.Model(&entity.TestApplicant{}).Where("id = ?", ent.ID).Updates(ent).Error; err != nil {
+		// tx.Rollback()
 		return nil, err
 	}
 
-	if err := tx.Commit().Error; err != nil {
-		return nil, err
-	}
+	// if err := tx.Commit().Error; err != nil {
+	// 	return nil, err
+	// }
 
 	if err := r.DB.Preload("TestScheduleHeader").Preload("UserProfile").First(ent, ent.ID).Error; err != nil {
 		return nil, err

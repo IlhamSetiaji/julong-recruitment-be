@@ -222,6 +222,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				testScheduleHeaderRoute.GET("/document-number", c.TestScheduleHeaderHandler.GenerateDocumentNumber)
 				testScheduleHeaderRoute.GET("/:id", c.TestScheduleHeaderHandler.FindByID)
 				testScheduleHeaderRoute.POST("", c.TestScheduleHeaderHandler.CreateTestScheduleHeader)
+				testScheduleHeaderRoute.POST("/read-result-template", c.TestScheduleHeaderHandler.ReadResultTemplate)
 				testScheduleHeaderRoute.PUT("/update", c.TestScheduleHeaderHandler.UpdateTestScheduleHeader)
 				testScheduleHeaderRoute.PUT("/update-status", c.TestScheduleHeaderHandler.UpdateStatusTestScheduleHeader)
 				testScheduleHeaderRoute.DELETE("/:id", c.TestScheduleHeaderHandler.DeleteTestScheduleHeader)

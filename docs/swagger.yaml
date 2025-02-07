@@ -4493,6 +4493,29 @@ paths:
       summary: Find my schedule
       tags:
       - Test Schedule Headers
+  /api/test-schedule-headers/read-result-template:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Read result template
+      parameters:
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Read result template
+      tags:
+      - Test Schedule Headers
   /api/test-schedule-headers/update:
     put:
       consumes:

@@ -210,12 +210,11 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 						return nil, err
 					}
 					if applicant != nil {
-						_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
-							ID:                 applicant.ID,
-							UserProfileID:      parsedUserProfileID,
-							JobPostingID:       as.JobPostingID,
-							Order:              zero,
-							TemplateQuestionID: uuid.Nil,
+						_, err = uc.ApplicantRepository.UpdateApplicantWhenRejected(&entity.Applicant{
+							ID:            applicant.ID,
+							UserProfileID: parsedUserProfileID,
+							JobPostingID:  as.JobPostingID,
+							Order:         zero,
 						})
 						if err != nil {
 							uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())

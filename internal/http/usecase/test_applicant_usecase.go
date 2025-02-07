@@ -1,9 +1,11 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"time"
 
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -12,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
 type ITestApplicantUseCase interface {
@@ -19,6 +22,7 @@ type ITestApplicantUseCase interface {
 	UpdateStatusTestApplicant(req *request.UpdateStatusTestApplicantRequest) (*response.TestApplicantResponse, error)
 	FindByUserProfileIDAndTestScheduleHeaderID(userProfileID, testScheduleHeaderID uuid.UUID) (*response.TestApplicantResponse, error)
 	FindAllByTestScheduleHeaderIDPaginated(testScheduleHeaderID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.TestApplicantResponse, int64, error)
+	UpdateFinalResultStatusTestApplicant(ctx context.Context, id uuid.UUID, status entity.FinalResultStatus) (*response.TestApplicantResponse, error)
 }
 
 type TestApplicantUseCase struct {
@@ -29,6 +33,9 @@ type TestApplicantUseCase struct {
 	TestScheduleHeaderDTO        dto.ITestScheduleHeaderDTO
 	UserProfileRepository        repository.IUserProfileRepository
 	Viper                        *viper.Viper
+	DB                           *gorm.DB
+	ApplicantRepository          repository.IApplicantRepository
+	JobPostingRepository         repository.IJobPostingRepository
 }
 
 func NewTestApplicantUseCase(
@@ -39,6 +46,9 @@ func NewTestApplicantUseCase(
 	tshDTO dto.ITestScheduleHeaderDTO,
 	upRepository repository.IUserProfileRepository,
 	viper *viper.Viper,
+	db *gorm.DB,
+	applicantRepository repository.IApplicantRepository,
+	jpRepo repository.IJobPostingRepository,
 ) ITestApplicantUseCase {
 	return &TestApplicantUseCase{
 		Log:                          log,
@@ -48,6 +58,9 @@ func NewTestApplicantUseCase(
 		TestScheduleHeaderDTO:        tshDTO,
 		UserProfileRepository:        upRepository,
 		Viper:                        viper,
+		DB:                           db,
+		ApplicantRepository:          applicantRepository,
+		JobPostingRepository:         jpRepo,
 	}
 }
 
@@ -57,7 +70,10 @@ func TestApplicantUseCaseFactory(log *logrus.Logger, viper *viper.Viper) ITestAp
 	tshRepository := repository.TestScheduleHeaderRepositoryFactory(log)
 	tshDTO := dto.TestScheduleHeaderDTOFactory(log, viper)
 	upRepository := repository.UserProfileRepositoryFactory(log)
-	return NewTestApplicantUseCase(log, repo, taDTO, tshRepository, tshDTO, upRepository, viper)
+	db := config.NewDatabase()
+	applicantRepository := repository.ApplicantRepositoryFactory(log)
+	jpRepo := repository.JobPostingRepositoryFactory(log)
+	return NewTestApplicantUseCase(log, repo, taDTO, tshRepository, tshDTO, upRepository, viper, db, applicantRepository, jpRepo)
 }
 
 func (uc *TestApplicantUseCase) CreateOrUpdateTestApplicants(req *request.CreateOrUpdateTestApplicantsRequest) (*response.TestScheduleHeaderResponse, error) {
@@ -285,4 +301,114 @@ func (uc *TestApplicantUseCase) FindAllByTestScheduleHeaderIDPaginated(testSched
 	}
 
 	return resp, total, nil
+}
+
+func (uc *TestApplicantUseCase) UpdateFinalResultStatusTestApplicant(ctx context.Context, id uuid.UUID, status entity.FinalResultStatus) (*response.TestApplicantResponse, error) {
+	tx := uc.DB.WithContext(ctx).Begin()
+	if tx.Error != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when starting transaction: %s", tx.Error)
+		return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when starting transaction: " + tx.Error.Error())
+	}
+	defer tx.Rollback()
+
+	ta, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when finding test applicant by id: %s", err.Error())
+		return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when finding test applicant by id: " + err.Error())
+	}
+	if ta == nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] test applicant with id %s not found", id.String())
+		return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] test applicant with id " + id.String() + " not found")
+	}
+
+	if ta.FinalResult == entity.FINAL_RESULT_STATUS_ACCEPTED || ta.FinalResult == entity.FINAL_RESULT_STATUS_REJECTED {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] test applicant with id %s already has final result", id.String())
+		return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] test applicant with id " + id.String() + " already has final result")
+	}
+
+	jpExist, err := uc.JobPostingRepository.FindByID(ta.TestScheduleHeader.JobPostingID)
+	if err != nil {
+		uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+		return nil, err
+	}
+
+	if jpExist == nil {
+		uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + "Job Posting not found")
+		return nil, errors.New("job posting not found")
+	}
+
+	applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+		"id": ta.ApplicantID,
+	})
+	if err != nil {
+		uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+		return nil, err
+	}
+
+	if applicant == nil {
+		uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + "Applicant not found")
+		return nil, errors.New("applicant not found")
+	}
+
+	if status == entity.FINAL_RESULT_STATUS_ACCEPTED {
+		applicantOrder := applicant.Order
+		var TemplateQuestionID *uuid.UUID
+		for i := range jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines {
+			if jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == applicantOrder+1 {
+				projectRecruitmentLine := &jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i]
+				TemplateQuestionID = &projectRecruitmentLine.TemplateActivityLine.QuestionTemplateID
+				break
+			} else {
+				TemplateQuestionID = &applicant.TemplateQuestionID
+			}
+		}
+		_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+			ID:                 applicant.ID,
+			Order:              applicant.Order + 1,
+			TemplateQuestionID: *TemplateQuestionID,
+		})
+		if err != nil {
+			uc.Log.Error("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
+			return nil, err
+		}
+	} else if status == entity.FINAL_RESULT_STATUS_REJECTED {
+		// zero, err := strconv.Atoi("0")
+		if err != nil {
+			uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+			return nil, err
+		}
+		if applicant != nil {
+			_, err = uc.ApplicantRepository.UpdateApplicantWhenRejected(&entity.Applicant{
+				ID: applicant.ID,
+			})
+			if err != nil {
+				uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+				return nil, err
+			}
+		}
+	}
+
+	_, err = uc.Repository.UpdateTestApplicant(&entity.TestApplicant{
+		ID:          ta.ID,
+		FinalResult: status,
+	})
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when updating test applicant: %s", err.Error())
+		tx.Rollback()
+		return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when updating test applicant: " + err.Error())
+	}
+
+	resp, err := uc.DTO.ConvertEntityToResponse(ta)
+	if err != nil {
+		uc.Log.Errorf("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when converting test applicant entity to response: %s", err.Error())
+		tx.Rollback()
+		return nil, errors.New("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when converting test applicant entity to response: " + err.Error())
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		uc.Log.Warnf("Failed commit transaction : %+v", err)
+		return nil, err
+	}
+
+	return resp, nil
 }

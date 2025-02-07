@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -18,6 +19,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/xuri/excelize/v2"
+	"gorm.io/gorm"
 )
 
 type ITestScheduleHeaderHandler interface {
@@ -32,6 +34,7 @@ type ITestScheduleHeaderHandler interface {
 	ExportMySchedule(ctx *gin.Context)
 	ExportTestScheduleAnswer(ctx *gin.Context)
 	ExportResultTemplate(ctx *gin.Context)
+	ReadResultTemplate(ctx *gin.Context)
 }
 
 type TestScheduleHeaderHandler struct {
@@ -42,6 +45,8 @@ type TestScheduleHeaderHandler struct {
 	UserHelper                    helper.IUserHelper
 	UserProfileUseCase            usecase.IUserProfileUseCase
 	ProjectRecruitmentLineUseCase usecase.IProjectRecruitmentLineUseCase
+	DB                            *gorm.DB
+	TestApplicantUseCase          usecase.ITestApplicantUseCase
 }
 
 func NewTestScheduleHeaderHandler(
@@ -51,6 +56,8 @@ func NewTestScheduleHeaderHandler(
 	useCase usecase.ITestScheduleHeaderUsecase,
 	userHelper helper.IUserHelper,
 	prlUseCase usecase.IProjectRecruitmentLineUseCase,
+	db *gorm.DB,
+	taUseCase usecase.ITestApplicantUseCase,
 ) ITestScheduleHeaderHandler {
 	return &TestScheduleHeaderHandler{
 		Log:                           log,
@@ -59,6 +66,8 @@ func NewTestScheduleHeaderHandler(
 		UseCase:                       useCase,
 		UserHelper:                    userHelper,
 		ProjectRecruitmentLineUseCase: prlUseCase,
+		DB:                            db,
+		TestApplicantUseCase:          taUseCase,
 	}
 }
 
@@ -70,7 +79,9 @@ func TestScheduleHeaderHandlerFactory(
 	validate := config.NewValidator(viper)
 	userHelper := helper.UserHelperFactory(log)
 	prlUseCase := usecase.ProjectRecruitmentLineUseCaseFactory(log)
-	return NewTestScheduleHeaderHandler(log, viper, validate, useCase, userHelper, prlUseCase)
+	db := config.NewDatabase()
+	taUseCase := usecase.TestApplicantUseCaseFactory(log, viper)
+	return NewTestScheduleHeaderHandler(log, viper, validate, useCase, userHelper, prlUseCase, db, taUseCase)
 }
 
 // CreateTestScheduleHeader create test schedule header
@@ -737,4 +748,104 @@ func (h *TestScheduleHeaderHandler) ExportResultTemplate(ctx *gin.Context) {
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
 		return
 	}
+}
+
+// ReadResultTemplate read result template
+//
+//	@Summary		Read result template
+//	@Description	Read result template
+//	@Tags			Test Schedule Headers
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			file	formData	file	true	"File"
+//	@Success		200			{object}	string
+//	@Security		BearerAuth
+//	@Router			/api/test-schedule-headers/read-result-template [post]
+func (h *TestScheduleHeaderHandler) ReadResultTemplate(ctx *gin.Context) {
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "File is required", err)
+		return
+	}
+
+	filePath := fmt.Sprintf("storage/tests/results/%s", file.Filename)
+	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to save file", err.Error())
+		return
+	}
+
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to open file", err.Error())
+		return
+	}
+
+	rows, err := f.GetRows("Applicants")
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get rows", err.Error())
+		return
+	}
+
+	tx := h.DB.WithContext(ctx).Begin()
+	if tx.Error != nil {
+		h.Log.Warnf("Failed begin transaction : %+v", tx.Error)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to begin transaction", tx.Error.Error())
+		return
+	}
+	defer tx.Rollback()
+
+	for i, row := range rows {
+		if i == 0 {
+			continue
+		}
+
+		testApplicantID := row[0]
+		var finalResult string
+		if len(row) > 2 {
+			finalResult = row[2]
+			h.Log.Info("finalResult: ", finalResult)
+		} else {
+			h.Log.Warn("finalResult not found for row: ", i)
+			tx.Rollback()
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Final result not found", "Final result not found")
+			return
+		}
+
+		if finalResult != string(entity.FINAL_RESULT_STATUS_ACCEPTED) && finalResult != string(entity.FINAL_RESULT_STATUS_REJECTED) {
+			h.Log.Warn("finalResult not valid for row: ", i)
+			tx.Rollback()
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Final result not valid", "Final result not valid")
+			return
+		}
+
+		h.Log.Info("finalResult: ", finalResult)
+
+		testApplicantUUID, err := uuid.Parse(testApplicantID)
+		if err != nil {
+			h.Log.Error(err)
+			tx.Rollback()
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid test applicant ID", err.Error())
+			return
+		}
+
+		_, err = h.TestApplicantUseCase.UpdateFinalResultStatusTestApplicant(ctx, testApplicantUUID, entity.FinalResultStatus(finalResult))
+		if err != nil {
+			h.Log.Error(err)
+			tx.Rollback()
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to update final result status test applicant", err.Error())
+			return
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		h.Log.Warnf("Failed commit transaction : %+v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to commit transaction", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Result template read", "Result template read")
 }

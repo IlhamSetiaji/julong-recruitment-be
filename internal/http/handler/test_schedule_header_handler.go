@@ -773,7 +773,8 @@ func (h *TestScheduleHeaderHandler) ReadResultTemplate(ctx *gin.Context) {
 		return
 	}
 
-	filePath := fmt.Sprintf("storage/tests/results/%s", file.Filename)
+	timestamp := time.Now().UnixNano()
+	filePath := fmt.Sprintf("storage/tests/results/%s", strconv.FormatInt(timestamp, 10)+"_"+file.Filename)
 	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
 		h.Log.Error(err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to save file", err.Error())

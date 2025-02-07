@@ -67,13 +67,13 @@ func (h *InterviewApplicantHandler) CreateOrUpdateInterviewApplicants(ctx *gin.C
 	var req request.CreateOrUpdateInterviewApplicantsRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.Log.Errorf("[InterviewApplicantHandler.CreateOrUpdateInterviewApplicants] error when binding request: %s", err.Error())
-		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 
 	if err := h.Validate.Struct(req); err != nil {
 		h.Log.Errorf("[InterviewApplicantHandler.CreateOrUpdateInterviewApplicants] error when validating request: %s", err.Error())
-		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 
@@ -102,13 +102,13 @@ func (h *InterviewApplicantHandler) UpdateStatusInterviewApplicants(ctx *gin.Con
 	var req request.UpdateStatusInterviewApplicantRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.Log.Errorf("[InterviewApplicantHandler.UpdateStatusInterviewApplicants] error when binding request: %s", err.Error())
-		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 
 	if err := h.Validate.Struct(req); err != nil {
 		h.Log.Errorf("[InterviewApplicantHandler.UpdateStatusInterviewApplicants] error when validating request: %s", err.Error())
-		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 
@@ -226,13 +226,13 @@ func (h *InterviewApplicantHandler) UpdateFinalResultStatusInterviewApplicants(c
 	var req request.UpdateFinalResultInterviewApplicantRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		h.Log.Errorf("[InterviewApplicantHandler.UpdateFinalResultStatusInterviewApplicants] error when binding request: %s", err.Error())
-		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 
 	if err := h.Validate.Struct(req); err != nil {
 		h.Log.Errorf("[InterviewApplicantHandler.UpdateFinalResultStatusInterviewApplicants] error when validating request: %s", err.Error())
-		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err)
 		return
 	}
 

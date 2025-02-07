@@ -30,6 +30,7 @@ type InterviewApplicantUseCase struct {
 	UserProfileRepository repository.IUserProfileRepository
 	Viper                 *viper.Viper
 	ApplicantRepository   repository.IApplicantRepository
+	JobPostingRepository  repository.IJobPostingRepository
 }
 
 func NewInterviewApplicantUseCase(
@@ -41,6 +42,7 @@ func NewInterviewApplicantUseCase(
 	userProfileRepository repository.IUserProfileRepository,
 	viper *viper.Viper,
 	applicantRepo repository.IApplicantRepository,
+	jobPostingRepo repository.IJobPostingRepository,
 ) IInterviewApplicantUseCase {
 	return &InterviewApplicantUseCase{
 		Log:                   log,
@@ -51,6 +53,7 @@ func NewInterviewApplicantUseCase(
 		UserProfileRepository: userProfileRepository,
 		Viper:                 viper,
 		ApplicantRepository:   applicantRepo,
+		JobPostingRepository:  jobPostingRepo,
 	}
 }
 
@@ -64,6 +67,7 @@ func InterviewApplicantUseCaseFactory(
 	interviewDTO := dto.InterviewDTOFactory(log, viper)
 	userProfileRepo := repository.UserProfileRepositoryFactory(log)
 	applicantRepo := repository.ApplicantRepositoryFactory(log)
+	jobPostingRepo := repository.JobPostingRepositoryFactory(log)
 	return NewInterviewApplicantUseCase(
 		log,
 		iaRepo,
@@ -73,6 +77,7 @@ func InterviewApplicantUseCaseFactory(
 		userProfileRepo,
 		viper,
 		applicantRepo,
+		jobPostingRepo,
 	)
 }
 
@@ -173,6 +178,61 @@ func (uc *InterviewApplicantUseCase) CreateOrUpdateInterviewApplicants(req *requ
 				if err != nil {
 					uc.Log.Errorf("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] error updating interview applicant: %v", err)
 					return nil, err
+				}
+
+				jpExist, err := uc.JobPostingRepository.FindByID(interview.JobPostingID)
+				if err != nil {
+					uc.Log.Error("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] " + err.Error())
+					return nil, err
+				}
+
+				if jpExist == nil {
+					uc.Log.Error("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] " + "Job Posting not found")
+					return nil, errors.New("job posting not found")
+				}
+
+				applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+					"id": parsedApplicantID,
+				})
+				if err != nil {
+					uc.Log.Error("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] " + err.Error())
+					return nil, err
+				}
+
+				if applicant == nil {
+					uc.Log.Error("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] " + "Applicant not found")
+					return nil, errors.New("applicant not found")
+				}
+
+				if entity.FinalResultStatus(ia.FinalResult) == entity.FINAL_RESULT_STATUS_ACCEPTED {
+					applicantOrder := applicant.Order
+					var TemplateQuestionID *uuid.UUID
+					for i := range jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines {
+						if jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == applicantOrder+1 {
+							projectRecruitmentLine := &jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i]
+							TemplateQuestionID = &projectRecruitmentLine.TemplateActivityLine.QuestionTemplateID
+							break
+						} else {
+							TemplateQuestionID = &applicant.TemplateQuestionID
+						}
+					}
+					_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+						ID:                 applicant.ID,
+						Order:              applicant.Order + 1,
+						TemplateQuestionID: *TemplateQuestionID,
+					})
+					if err != nil {
+						uc.Log.Error("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] " + err.Error())
+						return nil, err
+					}
+				} else if entity.FinalResultStatus(ia.FinalResult) == entity.FINAL_RESULT_STATUS_REJECTED {
+					_, err = uc.ApplicantRepository.UpdateApplicantWhenRejected(&entity.Applicant{
+						ID: applicant.ID,
+					})
+					if err != nil {
+						uc.Log.Error("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] " + err.Error())
+						return nil, err
+					}
 				}
 			}
 		} else {

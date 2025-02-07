@@ -291,6 +291,7 @@ func FinalResultStatusValidation(fl validator.FieldLevel) bool {
 		entity.FINAL_RESULT_STATUS_IN_PROGRESS,
 		entity.FINAL_RESULT_STATUS_COMPLETED,
 		entity.FINAL_RESULT_STATUS_ACCEPTED,
+		entity.FINAL_RESULT_STATUS_SHORTLISTED,
 		entity.FINAL_RESULT_STATUS_REJECTED:
 		return true
 	default:

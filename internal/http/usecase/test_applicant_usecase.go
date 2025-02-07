@@ -328,12 +328,12 @@ func (uc *TestApplicantUseCase) UpdateFinalResultStatusTestApplicant(ctx context
 
 	jpExist, err := uc.JobPostingRepository.FindByID(ta.TestScheduleHeader.JobPostingID)
 	if err != nil {
-		uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+		uc.Log.Error("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
 		return nil, err
 	}
 
 	if jpExist == nil {
-		uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + "Job Posting not found")
+		uc.Log.Error("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + "Job Posting not found")
 		return nil, errors.New("job posting not found")
 	}
 
@@ -341,12 +341,12 @@ func (uc *TestApplicantUseCase) UpdateFinalResultStatusTestApplicant(ctx context
 		"id": ta.ApplicantID,
 	})
 	if err != nil {
-		uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+		uc.Log.Error("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
 		return nil, err
 	}
 
 	if applicant == nil {
-		uc.Log.Error("[AdministrativeResultUseCase.CreateOrUpdateAdministrativeResults] " + "Applicant not found")
+		uc.Log.Error("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + "Applicant not found")
 		return nil, errors.New("applicant not found")
 	}
 
@@ -374,7 +374,7 @@ func (uc *TestApplicantUseCase) UpdateFinalResultStatusTestApplicant(ctx context
 	} else if status == entity.FINAL_RESULT_STATUS_REJECTED {
 		// zero, err := strconv.Atoi("0")
 		if err != nil {
-			uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+			uc.Log.Error("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
 			return nil, err
 		}
 		if applicant != nil {
@@ -382,7 +382,7 @@ func (uc *TestApplicantUseCase) UpdateFinalResultStatusTestApplicant(ctx context
 				ID: applicant.ID,
 			})
 			if err != nil {
-				uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())
+				uc.Log.Error("[TestApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
 				return nil, err
 			}
 		}

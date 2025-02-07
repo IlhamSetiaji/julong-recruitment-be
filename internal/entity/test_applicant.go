@@ -15,6 +15,7 @@ const (
 	FINAL_RESULT_STATUS_COMPLETED   FinalResultStatus = "COMPLETED"
 	FINAL_RESULT_STATUS_ACCEPTED    FinalResultStatus = "ACCEPTED"
 	FINAL_RESULT_STATUS_REJECTED    FinalResultStatus = "REJECTED"
+	FINAL_RESULT_STATUS_SHORTLISTED FinalResultStatus = "SHORTLISTED"
 )
 
 type AssessmentStatus string

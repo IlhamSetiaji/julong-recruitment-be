@@ -14,6 +14,7 @@ type IApplicantRepository interface {
 	UpdateApplicant(applicant *entity.Applicant) (*entity.Applicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.Applicant, error)
 	GetAllByKeys(keys map[string]interface{}) ([]entity.Applicant, error)
+	GetAllByKeysPaginated(keys map[string]interface{}, page, pageSize int, search string, sort map[string]interface{}) ([]entity.Applicant, int64, error)
 	UpdateApplicantWhenRejected(applicant *entity.Applicant) (*entity.Applicant, error)
 }
 
@@ -139,4 +140,30 @@ func (r *ApplicantRepository) UpdateApplicantWhenRejected(applicant *entity.Appl
 	}
 
 	return applicant, nil
+}
+
+func (r *ApplicantRepository) GetAllByKeysPaginated(keys map[string]interface{}, page, pageSize int, search string, sort map[string]interface{}) ([]entity.Applicant, int64, error) {
+	var applicants []entity.Applicant
+	var total int64
+
+	db := r.DB.Where(keys).Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("UserProfile.Educations").Preload("JobPosting").Preload("TemplateQuestion")
+	if search != "" {
+		db = db.Where("document_number ILIKE ?", "%"+search+"%")
+	}
+
+	for key, value := range sort {
+		db = db.Order(key + " " + value.(string))
+	}
+
+	if err := db.Offset((page - 1) * pageSize).Limit(pageSize).Find(&applicants).Error; err != nil {
+		r.Log.Error("[ApplicantRepository.GetAllByKeysPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	if err := db.Count(&total).Error; err != nil {
+		r.Log.Error("[ApplicantRepository.GetAllByKeysPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	return applicants, total, nil
 }

@@ -4747,6 +4747,22 @@ paths:
         in: query
         name: total
         type: string
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
       produces:
       - application/json
       responses:

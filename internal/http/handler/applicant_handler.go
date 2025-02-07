@@ -138,6 +138,10 @@ func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 // @Param job_posting_id path string true "Job Posting ID"
 // @Param order query string false "Order"
 // @Param total query string false "Total"
+// @Param page query int false "Page"
+// @Param page_size query int false "Page Size"
+// @Param search query string false "Search"
+// @Param created_at query string false "Created At"
 // @Success 200 {array} response.ApplicantResponse
 // @Security BearerAuth
 // @Router /applicants/job-posting/{job_posting_id} [get]
@@ -159,6 +163,30 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 		totalStr = "0"
 	}
 
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
 	// order, err := strconv.Atoi(orderStr)
 	// if err != nil {
 	// 	h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when converting order to int: %v", err)
@@ -173,14 +201,17 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 		return
 	}
 
-	applicants, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID, orderStr, total)
+	applicants, totalData, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID, orderStr, total, page, pageSize, search, sort)
 	if err != nil {
 		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when getting applicants: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get applicants", err.Error())
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusOK, "Successfully get applicants", applicants)
+	utils.SuccessResponse(ctx, http.StatusOK, "Successfully get applicants", gin.H{
+		"applicants": applicants,
+		"total":      totalData,
+	})
 }
 
 // FindApplicantByJobPostingIDAndUserID find applicant by job posting ID and user ID

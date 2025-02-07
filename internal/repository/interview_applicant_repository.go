@@ -114,7 +114,7 @@ func (r *InterviewApplicantRepository) DeleteInterviewApplicant(id uuid.UUID) er
 
 func (r *InterviewApplicantRepository) FindByID(id uuid.UUID) (*entity.InterviewApplicant, error) {
 	var interviewApplicant entity.InterviewApplicant
-	if err := r.DB.Preload("UserProfile").Preload("Interview.InterviewAssessors").First(&interviewApplicant, id).Error; err != nil {
+	if err := r.DB.Preload("UserProfile").Preload("Interview.InterviewAssessors").Preload("Interview").First(&interviewApplicant, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			r.Log.Error("Interview applicant not found")
 			return nil, nil

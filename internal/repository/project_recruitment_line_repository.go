@@ -21,6 +21,8 @@ type IProjectRecruitmentLineRepository interface {
 	FindAllByIds(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 	FindAllByProjectRecruitmentHeaderIdAndIds(projectRecruitmentHeaderId uuid.UUID, ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 	FindByIDForAnswer(id, jobPostingID, userProfileID uuid.UUID) (*entity.ProjectRecruitmentLine, error)
+	FindByIDs(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
+	FindByIDsAndHeaderID(ids []uuid.UUID, headerID uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 }
 
 type ProjectRecruitmentLineRepository struct {
@@ -126,6 +128,24 @@ func (r *ProjectRecruitmentLineRepository) FindByID(id uuid.UUID) (*entity.Proje
 	return &projectRecruitmentLine, nil
 }
 
+func (r *ProjectRecruitmentLineRepository) FindByIDs(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLines []entity.ProjectRecruitmentLine
+	if err := r.DB.Where("id IN ?", ids).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
+		return nil, err
+	}
+
+	return &projectRecruitmentLines, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) FindByIDsAndHeaderID(ids []uuid.UUID, headerID uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLines []entity.ProjectRecruitmentLine
+	if err := r.DB.Where("id IN ? AND project_recruitment_header_id = ?", ids, headerID).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
+		return nil, err
+	}
+
+	return &projectRecruitmentLines, nil
+}
+
 func (r *ProjectRecruitmentLineRepository) FindByIDForAnswer(id, jobPostingID, userProfileID uuid.UUID) (*entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLine entity.ProjectRecruitmentLine
 
@@ -142,7 +162,7 @@ func (r *ProjectRecruitmentLineRepository) FindByIDForAnswer(id, jobPostingID, u
 
 func (r *ProjectRecruitmentLineRepository) GetAllByKeys(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLines []entity.ProjectRecruitmentLine
-	if err := r.DB.Where(keys).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
+	if err := r.DB.Where(keys).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Order("order ASC").Error; err != nil {
 		return nil, err
 	}
 

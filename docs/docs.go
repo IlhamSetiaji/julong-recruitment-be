@@ -4480,6 +4480,12 @@ const docTemplate = `{
                         "name": "project_recruitment_header_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "form type",
+                        "name": "form_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -6593,6 +6599,12 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/entity.TemplateQuestionStatus"
+                },
+                "template_activity_lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.TemplateActivityLine"
+                    }
                 }
             }
         },

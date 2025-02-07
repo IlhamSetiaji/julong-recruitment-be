@@ -95,21 +95,35 @@ func (h *ProjectRecruitmentLineHandler) CreateOrUpdateProjectRecruitmentLines(ct
 
 // FindAllByProjectRecruitmentHeaderID find all project recruitment lines by project recruitment header id
 //
-//	@Summary		Find all project recruitment lines by project recruitment header id
-//	@Description	Find all project recruitment lines by project recruitment header id
-//	@Tags			Project Recruitment Lines
-//	@Accept			json
-//	@Produce		json
-//	@Param			project_recruitment_header_id path string true "project recruitment header id"
-//	@Success		200	{array} response.ProjectRecruitmentLineResponse
-//	@Security BearerAuth
-//	@Router			/project-recruitment-lines/header/{project_recruitment_header_id} [get]
+//		@Summary		Find all project recruitment lines by project recruitment header id
+//		@Description	Find all project recruitment lines by project recruitment header id
+//		@Tags			Project Recruitment Lines
+//		@Accept			json
+//		@Produce		json
+//		@Param			project_recruitment_header_id path string true "project recruitment header id"
+//	 	@Param form_type query string false "form type"
+//		@Success		200	{array} response.ProjectRecruitmentLineResponse
+//		@Security BearerAuth
+//		@Router			/project-recruitment-lines/header/{project_recruitment_header_id} [get]
 func (h *ProjectRecruitmentLineHandler) FindAllByProjectRecruitmentHeaderID(ctx *gin.Context) {
 	projectRecruitmentHeaderID := ctx.Param("project_recruitment_header_id")
 	parsedID, err := uuid.Parse(projectRecruitmentHeaderID)
 	if err != nil {
 		h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderID] " + err.Error())
 		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	formType := ctx.Query("form_type")
+	if formType != "" {
+		res, err := h.UseCase.FindAllByHeaderIDAndFormType(parsedID, entity.TemplateQuestionFormType(formType))
+		if err != nil {
+			h.Log.Error("[ProjectRecruitmentLineHandler.FindAllByProjectRecruitmentHeaderID] " + err.Error())
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+			return
+		}
+
+		utils.SuccessResponse(ctx, http.StatusOK, "success", res)
 		return
 	}
 

@@ -873,6 +873,10 @@ definitions:
         type: array
       status:
         $ref: '#/definitions/entity.TemplateQuestionStatus'
+      template_activity_lines:
+        items:
+          $ref: '#/definitions/entity.TemplateActivityLine'
+        type: array
     type: object
   entity.TemplateQuestionFormType:
     enum:
@@ -5835,6 +5839,10 @@ paths:
         in: path
         name: project_recruitment_header_id
         required: true
+        type: string
+      - description: form type
+        in: query
+        name: form_type
         type: string
       produces:
       - application/json

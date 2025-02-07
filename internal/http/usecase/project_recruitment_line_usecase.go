@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"sort"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -19,6 +20,8 @@ type IProjectRecruitmentLineUseCase interface {
 	FindAllByFormType(formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error)
 	FindAllByProjectRecruitmentHeaderIDAndEmployeeID(projectRecruitmentHeaderID, employeeID uuid.UUID) ([]*response.ProjectRecruitmentLineResponse, error)
 	FindByIDForAnswer(id, jobPostingID, userProfileID uuid.UUID) (*response.ProjectRecruitmentLineResponse, error)
+	FindAllByHeaderID(headerID uuid.UUID) (*[]response.ProjectRecruitmentLineResponse, error)
+	FindAllByHeaderIDAndFormType(headerID uuid.UUID, formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error)
 }
 
 type ProjectRecruitmentLineUseCase struct {
@@ -361,4 +364,52 @@ func (uc *ProjectRecruitmentLineUseCase) FindByIDForAnswer(id, jobPostingID, use
 	}
 
 	return uc.DTO.ConvertEntityToResponse(data), nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) FindAllByHeaderID(headerID uuid.UUID) (*[]response.ProjectRecruitmentLineResponse, error) {
+	data, err := uc.Repository.GetAllByKeys(map[string]interface{}{
+		"project_recruitment_header_id": headerID,
+	})
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByHeaderID] error when finding project recruitment lines by header id: %s", err.Error())
+		return nil, err
+	}
+
+	responses := make([]response.ProjectRecruitmentLineResponse, 0)
+	for _, d := range data {
+		responses = append(responses, *uc.DTO.ConvertEntityToResponse(&d))
+	}
+
+	return &responses, nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) FindAllByHeaderIDAndFormType(headerID uuid.UUID, formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error) {
+	templateQuestions, err := uc.TemplateQuestionRepository.FindAllByFormType(formType)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByHeaderIDAndFormType] error when finding template questions by form type: %s", err.Error())
+		return nil, err
+	}
+
+	var projectRecruitmentLines []*entity.ProjectRecruitmentLine
+	for _, tq := range *templateQuestions {
+		for _, tal := range tq.TemplateActivityLines {
+			for _, prl := range tal.ProjectRecruitmentLines {
+				projectRecruitmentLines = append(projectRecruitmentLines, &prl)
+			}
+		}
+	}
+
+	// Sort the projectRecruitmentLines by Order field in ascending order
+	sort.Slice(projectRecruitmentLines, func(i, j int) bool {
+		return projectRecruitmentLines[i].Order < projectRecruitmentLines[j].Order
+	})
+
+	responses := make([]*response.ProjectRecruitmentLineResponse, 0)
+	for _, prl := range projectRecruitmentLines {
+		if prl.ProjectRecruitmentHeaderID == headerID {
+			responses = append(responses, uc.DTO.ConvertEntityToResponse(prl))
+		}
+	}
+
+	return responses, nil
 }

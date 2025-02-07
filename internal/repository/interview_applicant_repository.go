@@ -155,8 +155,8 @@ func (r *InterviewApplicantRepository) FindAllByInterviewIDPaginated(interviewID
 
 	db := r.DB.Model(&entity.InterviewApplicant{}).
 		Joins("LEFT JOIN user_profiles ON user_profiles.id = interview_applicants.user_profile_id").
-		Preload("Interview").
-		Preload("UserProfile").
+		Preload("Interview").Preload("InterviewResults.InterviewAssessor").
+		Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("UserProfile.Skills").
 		Where("interview_id = ?", interviewID)
 
 	if search != "" {

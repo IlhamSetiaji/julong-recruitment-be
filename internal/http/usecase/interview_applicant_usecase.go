@@ -181,6 +181,18 @@ func (uc *InterviewApplicantUseCase) CreateOrUpdateInterviewApplicants(req *requ
 					return nil, err
 				}
 
+				findUpdatedInterviewApplicant, err := uc.Repository.FindByID(parsedIaID)
+				if err != nil {
+					uc.Log.Errorf("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] error finding updated interview applicant: %v", err)
+					return nil, err
+				}
+				if findUpdatedInterviewApplicant == nil {
+					return nil, errors.New("interview applicant not found")
+				}
+				if findUpdatedInterviewApplicant.FinalResult == entity.FINAL_RESULT_STATUS_ACCEPTED || findUpdatedInterviewApplicant.FinalResult == entity.FINAL_RESULT_STATUS_REJECTED || findUpdatedInterviewApplicant.FinalResult == entity.FINAL_RESULT_STATUS_SHORTLISTED {
+					continue
+				}
+
 				jpExist, err := uc.JobPostingRepository.FindByID(interview.JobPostingID)
 				if err != nil {
 					uc.Log.Error("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] " + err.Error())

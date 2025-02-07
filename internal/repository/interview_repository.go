@@ -45,7 +45,7 @@ func (r *InterviewRepository) FindAllPaginated(page, pageSize int, search string
 	var interviews []entity.Interview
 	var total int64
 
-	query := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine")
+	query := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine")
 
 	if search != "" {
 		query = query.Where("document_number ILIKE ?", "%"+search+"%")
@@ -86,7 +86,7 @@ func (r *InterviewRepository) CreateInterview(interview *entity.Interview) (*ent
 		return nil, err
 	}
 
-	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine").First(interview).Error; err != nil {
+	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine").First(interview).Error; err != nil {
 		r.Log.Error("[InterviewRepository.CreateInterview] " + err.Error())
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (r *InterviewRepository) CreateInterview(interview *entity.Interview) (*ent
 func (r *InterviewRepository) FindByID(id uuid.UUID) (*entity.Interview, error) {
 	var interview entity.Interview
 
-	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine").
+	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine").
 		Preload("InterviewApplicants.UserProfile").Preload("InterviewApplicants.InterviewResults.InterviewAssessor").Preload("InterviewAssessors").Where("id = ?", id).First(&interview).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -245,7 +245,8 @@ func (r *InterviewRepository) GetHighestDocumentNumberByDate(date string) (int, 
 
 func (r *InterviewRepository) FindByKeys(keys map[string]interface{}) (*entity.Interview, error) {
 	var interview entity.Interview
-	if err := r.DB.Where(keys).First(&interview).Error; err != nil {
+	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine").
+		Preload("InterviewApplicants.UserProfile").Preload("InterviewApplicants.InterviewResults.InterviewAssessor").Preload("InterviewAssessors").Where(keys).First(&interview).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {
@@ -258,7 +259,8 @@ func (r *InterviewRepository) FindByKeys(keys map[string]interface{}) (*entity.I
 
 func (r *InterviewRepository) FindAllByKeys(keys map[string]interface{}) (*[]entity.Interview, error) {
 	var interviews []entity.Interview
-	if err := r.DB.Where(keys).Find(&interviews).Error; err != nil {
+	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine").
+		Preload("InterviewApplicants.UserProfile").Preload("InterviewApplicants.InterviewResults.InterviewAssessor").Preload("InterviewAssessors").Where(keys).Find(&interviews).Error; err != nil {
 		r.Log.Error("[InterviewRepository.FindAllByKeys] " + err.Error())
 		return nil, err
 	}

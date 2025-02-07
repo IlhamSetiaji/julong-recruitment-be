@@ -19,6 +19,7 @@ type IInterviewApplicantHandler interface {
 	UpdateStatusInterviewApplicants(ctx *gin.Context)
 	FindByUserProfileIDAndInterviewID(ctx *gin.Context)
 	FindAllByInterviewIDPaginated(ctx *gin.Context)
+	UpdateFinalResultStatusInterviewApplicants(ctx *gin.Context)
 }
 
 type InterviewApplicantHandler struct {
@@ -208,4 +209,39 @@ func (h *InterviewApplicantHandler) FindAllByInterviewIDPaginated(ctx *gin.Conte
 		"interview_applicants": res,
 		"total":                total,
 	})
+}
+
+// UpdateFinalResultStatusInterviewApplicants update final result status interview applicants
+//
+//	@Summary		Update final result status interview applicants
+//	@Description	Update final result status interview applicants
+//	@Tags			Interview Applicants
+//	@Accept			json
+//	@Produce		json
+//	@Param			interview_applicants	body		request.UpdateFinalResultInterviewApplicantRequest	true	"Update final result status interview applicants"
+//	@Success		200			{object}	response.InterviewResponse
+//	@Security		BearerAuth
+//	@Router			/api/interview-applicants/update-final-result [put]
+func (h *InterviewApplicantHandler) UpdateFinalResultStatusInterviewApplicants(ctx *gin.Context) {
+	var req request.UpdateFinalResultInterviewApplicantRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.Log.Errorf("[InterviewApplicantHandler.UpdateFinalResultStatusInterviewApplicants] error when binding request: %s", err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(req); err != nil {
+		h.Log.Errorf("[InterviewApplicantHandler.UpdateFinalResultStatusInterviewApplicants] error when validating request: %s", err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		return
+	}
+
+	err := h.UseCase.UpdateFinalResultStatusInterviewApplicant(&req)
+	if err != nil {
+		h.Log.Errorf("[InterviewApplicantHandler.UpdateFinalResultStatusInterviewApplicants] error when updating final result status interview applicants: %s", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success update final result status interview applicants", nil)
 }

@@ -1716,6 +1716,16 @@ definitions:
     - name
     - template_question_id
     type: object
+  request.UpdateFinalResultInterviewApplicantRequest:
+    properties:
+      final_result:
+        type: string
+      id:
+        type: string
+    required:
+    - final_result
+    - id
+    type: object
   request.UpdateInterviewRequest:
     properties:
       description:
@@ -3472,6 +3482,30 @@ paths:
       security:
       - BearerAuth: []
       summary: Find interview applicant by user profile id and interview id
+      tags:
+      - Interview Applicants
+  /api/interview-applicants/update-final-result:
+    put:
+      consumes:
+      - application/json
+      description: Update final result status interview applicants
+      parameters:
+      - description: Update final result status interview applicants
+        in: body
+        name: interview_applicants
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateFinalResultInterviewApplicantRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewResponse'
+      security:
+      - BearerAuth: []
+      summary: Update final result status interview applicants
       tags:
       - Interview Applicants
   /api/interview-applicants/update-status:

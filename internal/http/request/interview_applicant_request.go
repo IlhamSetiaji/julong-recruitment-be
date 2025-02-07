@@ -17,3 +17,8 @@ type UpdateStatusInterviewApplicantRequest struct {
 	ID     string `json:"id" validate:"required,uuid"`
 	Status string `json:"status" validate:"required,assessment_status_validation"`
 }
+
+type UpdateFinalResultInterviewApplicantRequest struct {
+	ID          string `json:"id" validate:"required,uuid"`
+	FinalResult string `json:"final_result" validate:"required,final_result_status_validation"`
+}

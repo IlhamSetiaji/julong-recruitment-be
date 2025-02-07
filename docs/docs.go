@@ -747,6 +747,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/interview-applicants/update-final-result": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update final result status interview applicants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview Applicants"
+                ],
+                "summary": "Update final result status interview applicants",
+                "parameters": [
+                    {
+                        "description": "Update final result status interview applicants",
+                        "name": "interview_applicants",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateFinalResultInterviewApplicantRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/interview-applicants/update-status": {
             "put": {
                 "security": [
@@ -7765,6 +7804,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "template_question_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateFinalResultInterviewApplicantRequest": {
+            "type": "object",
+            "required": [
+                "final_result",
+                "id"
+            ],
+            "properties": {
+                "final_result": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 }
             }

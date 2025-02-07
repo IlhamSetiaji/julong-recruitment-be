@@ -17,6 +17,7 @@ import (
 type IInterviewApplicantUseCase interface {
 	CreateOrUpdateInterviewApplicants(req *request.CreateOrUpdateInterviewApplicantsRequest) (*response.InterviewResponse, error)
 	UpdateStatusInterviewApplicant(req *request.UpdateStatusInterviewApplicantRequest) error
+	UpdateFinalResultStatusInterviewApplicant(req *request.UpdateFinalResultInterviewApplicantRequest) error
 	FindByUserProfileIDAndInterviewID(userProfileID, interviewID string) (*response.InterviewApplicantResponse, error)
 	FindAllByInterviewIDPaginated(interviewID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.InterviewApplicantResponse, int64, error)
 }
@@ -322,14 +323,47 @@ func (uc *InterviewApplicantUseCase) UpdateStatusInterviewApplicant(req *request
 		return err
 	}
 
+	return nil
+}
+
+func (uc *InterviewApplicantUseCase) UpdateFinalResultStatusInterviewApplicant(req *request.UpdateFinalResultInterviewApplicantRequest) error {
+	parsedID, err := uuid.Parse(req.ID)
+	if err != nil {
+		uc.Log.Errorf("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] error parsing interview applicant id: %v", err.Error())
+		return err
+	}
+
+	ia, err := uc.Repository.FindByID(parsedID)
+	if err != nil {
+		uc.Log.Errorf("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] error finding interview applicant by id: %v", err.Error())
+		return err
+	}
+
+	if ia == nil {
+		return errors.New("interview applicant not found")
+	}
+
+	if ia.FinalResult == entity.FINAL_RESULT_STATUS_ACCEPTED || ia.FinalResult == entity.FINAL_RESULT_STATUS_REJECTED || ia.FinalResult == entity.FINAL_RESULT_STATUS_SHORTLISTED {
+		return errors.New("final result status already set")
+	}
+
+	_, err = uc.Repository.UpdateInterviewApplicant(&entity.InterviewApplicant{
+		ID:          parsedID,
+		FinalResult: entity.FinalResultStatus(req.FinalResult),
+	})
+	if err != nil {
+		uc.Log.Errorf("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] error updating interview applicant status: %v", err.Error())
+		return err
+	}
+
 	jpExist, err := uc.JobPostingRepository.FindByID(ia.Interview.JobPostingID)
 	if err != nil {
-		uc.Log.Error("[InterviewApplicantUseCase.UpdateStatusInterviewApplicant] " + err.Error())
+		uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
 		return err
 	}
 
 	if jpExist == nil {
-		uc.Log.Error("[InterviewApplicantUseCase.UpdateStatusInterviewApplicant] " + "Job Posting not found")
+		uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + "Job Posting not found")
 		return errors.New("job posting not found")
 	}
 
@@ -337,16 +371,16 @@ func (uc *InterviewApplicantUseCase) UpdateStatusInterviewApplicant(req *request
 		"id": ia.ApplicantID,
 	})
 	if err != nil {
-		uc.Log.Error("[InterviewApplicantUseCase.UpdateStatusInterviewApplicant] " + err.Error())
+		uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
 		return err
 	}
 
 	if applicant == nil {
-		uc.Log.Error("[InterviewApplicantUseCase.UpdateStatusInterviewApplicant] " + "Applicant not found")
+		uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + "Applicant not found")
 		return errors.New("applicant not found")
 	}
 
-	if entity.FinalResultStatus(ia.FinalResult) == entity.FINAL_RESULT_STATUS_ACCEPTED {
+	if entity.FinalResultStatus(req.FinalResult) == entity.FINAL_RESULT_STATUS_ACCEPTED {
 		applicantOrder := applicant.Order
 		var TemplateQuestionID *uuid.UUID
 		for i := range jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines {
@@ -364,7 +398,7 @@ func (uc *InterviewApplicantUseCase) UpdateStatusInterviewApplicant(req *request
 			TemplateQuestionID: *TemplateQuestionID,
 		})
 		if err != nil {
-			uc.Log.Error("[InterviewApplicantUseCase.UpdateStatusInterviewApplicant] " + err.Error())
+			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
 			return err
 		}
 	} else if entity.FinalResultStatus(ia.FinalResult) == entity.FINAL_RESULT_STATUS_REJECTED {
@@ -372,7 +406,7 @@ func (uc *InterviewApplicantUseCase) UpdateStatusInterviewApplicant(req *request
 			ID: applicant.ID,
 		})
 		if err != nil {
-			uc.Log.Error("[InterviewApplicantUseCase.UpdateStatusInterviewApplicant] " + err.Error())
+			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
 			return err
 		}
 	} else if entity.FinalResultStatus(ia.FinalResult) == entity.FINAL_RESULT_STATUS_SHORTLISTED {
@@ -381,7 +415,7 @@ func (uc *InterviewApplicantUseCase) UpdateStatusInterviewApplicant(req *request
 			Status: entity.APPLICANT_STATUS_SHORTLIST,
 		})
 		if err != nil {
-			uc.Log.Error("[InterviewApplicantUseCase.UpdateStatusInterviewApplicant] " + err.Error())
+			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
 			return err
 		}
 	}

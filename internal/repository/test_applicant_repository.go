@@ -156,7 +156,7 @@ func (r *TestApplicantRepository) FindAllByTestScheduleHeaderIDPaginated(testSch
 	db := r.DB.Model(&entity.TestApplicant{}).
 		Joins("LEFT JOIN user_profiles ON user_profiles.id = test_applicants.user_profile_id").
 		Preload("TestScheduleHeader").
-		Preload("UserProfile").
+		Preload("UserProfile.WorkExperiences").Preload("UserProfile.Educations").Preload("UserProfile.Skills").
 		Where("test_schedule_header_id = ?", testScheduleHeaderID)
 
 	if search != "" {

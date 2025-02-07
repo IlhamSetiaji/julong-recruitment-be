@@ -233,6 +233,15 @@ func (uc *InterviewApplicantUseCase) CreateOrUpdateInterviewApplicants(req *requ
 						uc.Log.Error("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] " + err.Error())
 						return nil, err
 					}
+				} else if entity.FinalResultStatus(ia.FinalResult) == entity.FINAL_RESULT_STATUS_SHORTLISTED {
+					_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+						ID:     applicant.ID,
+						Status: entity.APPLICANT_STATUS_SHORTLIST,
+					})
+					if err != nil {
+						uc.Log.Error("[InterviewApplicantUseCase.CreateOrUpdateInterviewApplicants] " + err.Error())
+						return nil, err
+					}
 				}
 			}
 		} else {

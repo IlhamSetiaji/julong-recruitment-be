@@ -5705,14 +5705,16 @@ const docTemplate = `{
                 "IN PROGRESS",
                 "COMPLETED",
                 "ACCEPTED",
-                "REJECTED"
+                "REJECTED",
+                "SHORTLISTED"
             ],
             "x-enum-varnames": [
                 "FINAL_RESULT_STATUS_DRAFT",
                 "FINAL_RESULT_STATUS_IN_PROGRESS",
                 "FINAL_RESULT_STATUS_COMPLETED",
                 "FINAL_RESULT_STATUS_ACCEPTED",
-                "FINAL_RESULT_STATUS_REJECTED"
+                "FINAL_RESULT_STATUS_REJECTED",
+                "FINAL_RESULT_STATUS_SHORTLISTED"
             ]
         },
         "entity.Interview": {

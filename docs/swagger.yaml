@@ -295,6 +295,7 @@ definitions:
     - COMPLETED
     - ACCEPTED
     - REJECTED
+    - SHORTLISTED
     type: string
     x-enum-varnames:
     - FINAL_RESULT_STATUS_DRAFT
@@ -302,6 +303,7 @@ definitions:
     - FINAL_RESULT_STATUS_COMPLETED
     - FINAL_RESULT_STATUS_ACCEPTED
     - FINAL_RESULT_STATUS_REJECTED
+    - FINAL_RESULT_STATUS_SHORTLISTED
   entity.Interview:
     properties:
       description:

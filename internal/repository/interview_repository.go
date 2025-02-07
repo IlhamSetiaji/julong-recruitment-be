@@ -98,7 +98,7 @@ func (r *InterviewRepository) FindByID(id uuid.UUID) (*entity.Interview, error) 
 	var interview entity.Interview
 
 	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine").
-		Preload("InterviewApplicants.UserProfile").Preload("InterviewAssessors").Where("id = ?", id).First(&interview).Error; err != nil {
+		Preload("InterviewApplicants.UserProfile").Preload("InterviewApplicants.InterviewResults.InterviewAssessor").Preload("InterviewAssessors").Where("id = ?", id).First(&interview).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

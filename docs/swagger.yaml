@@ -1592,6 +1592,22 @@ definitions:
     - test_type_id
     - total_candidate
     type: object
+  request.FillInterviewResultRequest:
+    properties:
+      interview_applicant_id:
+        type: string
+      interview_assessor_id:
+        type: string
+      status:
+        enum:
+        - ACCEPTED
+        - REJECTED
+        type: string
+    required:
+    - interview_applicant_id
+    - interview_assessor_id
+    - status
+    type: object
   request.InterviewAnswerRequest:
     properties:
       answer:
@@ -2117,6 +2133,10 @@ definitions:
         type: string
       interview_id:
         type: string
+      interview_results:
+        items:
+          $ref: '#/definitions/response.InterviewResultResponse'
+        type: array
       start_time:
         type: string
       started_time:
@@ -2295,6 +2315,25 @@ definitions:
         $ref: '#/definitions/entity.InterviewStatus'
       total_candidate:
         type: integer
+      updated_at:
+        type: string
+    type: object
+  response.InterviewResultResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      interview_applicant:
+        $ref: '#/definitions/response.InterviewApplicantResponse'
+      interview_applicant_id:
+        type: string
+      interview_assessor:
+        $ref: '#/definitions/response.InterviewAssessorResponse'
+      interview_assessor_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.InterviewResultStatus'
       updated_at:
         type: string
     type: object
@@ -5024,6 +5063,57 @@ paths:
       summary: Update document verification
       tags:
       - Document Verifications
+  /interview-result:
+    get:
+      consumes:
+      - application/json
+      description: Find interview result by interview applicant and assessor id
+      parameters:
+      - description: Interview Applicant ID
+        in: query
+        name: interview_applicant_id
+        required: true
+        type: string
+      - description: Interview Assessor ID
+        in: query
+        name: interview_assessor_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewResultResponse'
+      security:
+      - BearerAuth: []
+      summary: Find interview result by interview applicant and assessor id
+      tags:
+      - Interview Result
+    post:
+      consumes:
+      - application/json
+      description: Fill interview result
+      parameters:
+      - description: Interview Result
+        in: body
+        name: interview_result
+        required: true
+        schema:
+          $ref: '#/definitions/request.FillInterviewResultRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InterviewResultResponse'
+      security:
+      - BearerAuth: []
+      summary: Fill interview result
+      tags:
+      - Interview Result
   /job-postings:
     get:
       consumes:

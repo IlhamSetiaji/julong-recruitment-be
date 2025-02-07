@@ -12,10 +12,11 @@ type IInterviewApplicantDTO interface {
 }
 
 type InterviewApplicantDTO struct {
-	Log            *logrus.Logger
-	UserProfileDTO IUserProfileDTO
-	ApplicantDTO   IApplicantDTO
-	Viper          *viper.Viper
+	Log                *logrus.Logger
+	UserProfileDTO     IUserProfileDTO
+	ApplicantDTO       IApplicantDTO
+	Viper              *viper.Viper
+	InterviewResultDTO IInterviewResultDTO
 }
 
 func NewInterviewApplicantDTO(
@@ -23,19 +24,22 @@ func NewInterviewApplicantDTO(
 	userProfileDTO IUserProfileDTO,
 	viper *viper.Viper,
 	applicantDTO IApplicantDTO,
+	interviewResultDTO IInterviewResultDTO,
 ) IInterviewApplicantDTO {
 	return &InterviewApplicantDTO{
-		Log:            log,
-		UserProfileDTO: userProfileDTO,
-		Viper:          viper,
-		ApplicantDTO:   applicantDTO,
+		Log:                log,
+		UserProfileDTO:     userProfileDTO,
+		Viper:              viper,
+		ApplicantDTO:       applicantDTO,
+		InterviewResultDTO: interviewResultDTO,
 	}
 }
 
 func InterviewApplicantDTOFactory(log *logrus.Logger, viper *viper.Viper) IInterviewApplicantDTO {
 	userProfileDTO := UserProfileDTOFactory(log, viper)
 	applicantDTO := ApplicantDTOFactory(log, viper)
-	return NewInterviewApplicantDTO(log, userProfileDTO, viper, applicantDTO)
+	interviewResultDTO := InterviewResultDTOFactory(log)
+	return NewInterviewApplicantDTO(log, userProfileDTO, viper, applicantDTO, interviewResultDTO)
 }
 
 func (dto *InterviewApplicantDTO) ConvertEntityToResponse(ent *entity.InterviewApplicant) (*response.InterviewApplicantResponse, error) {
@@ -57,6 +61,19 @@ func (dto *InterviewApplicantDTO) ConvertEntityToResponse(ent *entity.InterviewA
 		FinalResult:      ent.FinalResult,
 		CreatedAt:        ent.CreatedAt,
 		UpdatedAt:        ent.UpdatedAt,
+		InterviewResults: func() []response.InterviewResultResponse {
+			if len(ent.InterviewResults) == 0 {
+				return nil
+			}
+
+			var results []response.InterviewResultResponse
+			for _, result := range ent.InterviewResults {
+				resp := dto.InterviewResultDTO.ConvertEntityToResponse(&result)
+				results = append(results, *resp)
+			}
+
+			return results
+		}(),
 		UserProfile: func() *response.UserProfileResponse {
 			if userProfileResponse == nil {
 				return nil

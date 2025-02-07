@@ -312,3 +312,17 @@ func InterviewStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func InterviewResultStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.InterviewResultStatus(status) {
+	case entity.INTERVIEW_RESULT_STATUS_ACCEPTED,
+		entity.INTERVIEW_RESULT_STATUS_REJECTED:
+		return true
+	default:
+		return false
+	}
+}

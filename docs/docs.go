@@ -3289,6 +3289,87 @@ const docTemplate = `{
                 }
             }
         },
+        "/interview-result": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find interview result by interview applicant and assessor id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview Result"
+                ],
+                "summary": "Find interview result by interview applicant and assessor id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Interview Applicant ID",
+                        "name": "interview_applicant_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Interview Assessor ID",
+                        "name": "interview_assessor_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResultResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Fill interview result",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview Result"
+                ],
+                "summary": "Fill interview result",
+                "parameters": [
+                    {
+                        "description": "Interview Result",
+                        "name": "interview_result",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.FillInterviewResultRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResultResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/job-postings": {
             "get": {
                 "security": [
@@ -7510,6 +7591,29 @@ const docTemplate = `{
                 }
             }
         },
+        "request.FillInterviewResultRequest": {
+            "type": "object",
+            "required": [
+                "interview_applicant_id",
+                "interview_assessor_id",
+                "status"
+            ],
+            "properties": {
+                "interview_applicant_id": {
+                    "type": "string"
+                },
+                "interview_assessor_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "ACCEPTED",
+                        "REJECTED"
+                    ]
+                }
+            }
+        },
         "request.InterviewAnswerRequest": {
             "type": "object",
             "required": [
@@ -8272,6 +8376,12 @@ const docTemplate = `{
                 "interview_id": {
                     "type": "string"
                 },
+                "interview_results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.InterviewResultResponse"
+                    }
+                },
                 "start_time": {
                     "type": "string"
                 },
@@ -8540,6 +8650,35 @@ const docTemplate = `{
                 },
                 "total_candidate": {
                     "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.InterviewResultResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interview_applicant": {
+                    "$ref": "#/definitions/response.InterviewApplicantResponse"
+                },
+                "interview_applicant_id": {
+                    "type": "string"
+                },
+                "interview_assessor": {
+                    "$ref": "#/definitions/response.InterviewAssessorResponse"
+                },
+                "interview_assessor_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.InterviewResultStatus"
                 },
                 "updated_at": {
                     "type": "string"

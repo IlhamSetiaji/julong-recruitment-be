@@ -41,6 +41,7 @@ type RouteConfig struct {
 	ProjectPicHandler               handler.IProjectPicHandler
 	InterviewHandler                handler.IInterviewHandler
 	InterviewApplicantHandler       handler.IInterviewApplicantHandler
+	InterviewResultHandler          handler.IInterviewResultHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -287,6 +288,12 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				interviewApplicantRoute.POST("", c.InterviewApplicantHandler.CreateOrUpdateInterviewApplicants)
 				interviewApplicantRoute.PUT("/update-status", c.InterviewApplicantHandler.UpdateStatusInterviewApplicants)
 			}
+			// interview results
+			interviewResultRoute := apiRoute.Group("/interview-results")
+			{
+				interviewResultRoute.GET("/find", c.InterviewResultHandler.FindByInterviewApplicantAndAssessorID)
+				interviewResultRoute.POST("", c.InterviewResultHandler.FillInterviewResult)
+			}
 		}
 	}
 }
@@ -318,6 +325,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	projectPicHandler := handler.ProjectPicHandlerFactory(log, viper)
 	interviewHandler := handler.InterviewHandlerFactory(log, viper)
 	interviewApplicant := handler.InterviewApplicantHandlerFactory(log, viper)
+	interviewResultHandler := handler.InterviewResultHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -349,5 +357,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		ProjectPicHandler:               projectPicHandler,
 		InterviewHandler:                interviewHandler,
 		InterviewApplicantHandler:       interviewApplicant,
+		InterviewResultHandler:          interviewResultHandler,
 	}
 }

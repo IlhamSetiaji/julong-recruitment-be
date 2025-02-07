@@ -180,7 +180,7 @@ func (r *TemplateQuestionRepository) FindAllByFormType(formType entity.TemplateQ
 		Preload("Questions.AnswerType").
 		Preload("Questions.QuestionOptions").
 		Preload("DocumentSetup").
-		Preload("TemplateActivityLines.ProjectRecruitmentLines").
+		Preload("TemplateActivityLines.ProjectRecruitmentLines.TemplateActivityLine").
 		Find(&templateQuestions).
 		Error; err != nil {
 		r.Log.Errorf("[TemplateQuestionRepository.FindAllByFormType] error when finding template questions by form type: %v", err.Error())

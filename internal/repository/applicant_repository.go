@@ -112,12 +112,6 @@ func (r *ApplicantRepository) UpdateApplicant(applicant *entity.Applicant) (*ent
 }
 
 func (r *ApplicantRepository) UpdateApplicantWhenRejected(applicant *entity.Applicant) (*entity.Applicant, error) {
-	// tx := r.DB.Begin()
-	// if tx.Error != nil {
-	// 	r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + tx.Error.Error())
-	// 	return nil, tx.Error
-	// }
-
 	// Use the Select option to explicitly specify the fields to be updated
 	if err := r.DB.Model(&entity.Applicant{}).Where("id = ?", applicant.ID).Select("order", "template_question_id").Updates(map[string]interface{}{
 		"order":                0,
@@ -127,12 +121,6 @@ func (r *ApplicantRepository) UpdateApplicantWhenRejected(applicant *entity.Appl
 		r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + err.Error())
 		return nil, err
 	}
-
-	// if err := tx.Commit().Error; err != nil {
-	// 	tx.Rollback()
-	// 	r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + err.Error())
-	// 	return nil, err
-	// }
 
 	if err := r.DB.Preload("UserProfile").Preload("JobPosting").First(applicant, applicant.ID).Error; err != nil {
 		r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + err.Error())

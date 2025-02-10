@@ -20,6 +20,7 @@ type IProjectRecruitmentLineUseCase interface {
 	FindAllByFormType(formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error)
 	FindAllByProjectRecruitmentHeaderIDAndEmployeeID(projectRecruitmentHeaderID, employeeID uuid.UUID) ([]*response.ProjectRecruitmentLineResponse, error)
 	FindByIDForAnswer(id, jobPostingID, userProfileID uuid.UUID) (*response.ProjectRecruitmentLineResponse, error)
+	FindByIDForAnswerInterview(id, jobPostingID, userProfileID, interviewAssessorID uuid.UUID) (*response.ProjectRecruitmentLineResponse, error)
 	FindAllByHeaderID(headerID uuid.UUID) (*[]response.ProjectRecruitmentLineResponse, error)
 	FindAllByHeaderIDAndFormType(headerID uuid.UUID, formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error)
 }
@@ -356,6 +357,20 @@ func (uc *ProjectRecruitmentLineUseCase) FindByIDForAnswer(id, jobPostingID, use
 	data, err := uc.Repository.FindByIDForAnswer(id, jobPostingID, userProfileID)
 	if err != nil {
 		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindByIDForAnswer] error when finding project recruitment line by id for answer: %s", err.Error())
+		return nil, err
+	}
+
+	if data == nil {
+		return nil, nil
+	}
+
+	return uc.DTO.ConvertEntityToResponse(data), nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) FindByIDForAnswerInterview(id, jobPostingID, userProfileID, interviewAssessorID uuid.UUID) (*response.ProjectRecruitmentLineResponse, error) {
+	data, err := uc.Repository.FindByIDForAnswerInterview(id, jobPostingID, userProfileID, interviewAssessorID)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindByIDForAnswerInterview] error when finding project recruitment line by id for answer interview: %s", err.Error())
 		return nil, err
 	}
 

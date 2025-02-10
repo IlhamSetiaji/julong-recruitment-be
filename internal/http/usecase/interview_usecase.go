@@ -27,6 +27,7 @@ type IInterviewUseCase interface {
 	FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfResponse, error)
 	FindMyScheduleForAssessor(employeeID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*[]response.InterviewMyselfForAssessorResponse, error)
 	FindScheduleForApplicant(applicantID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfResponse, error)
+	FindByIDForAnswer(id, jobPostingID uuid.UUID) (*response.InterviewResponse, error)
 }
 
 type InterviewUseCase struct {
@@ -893,4 +894,25 @@ func (uc *InterviewUseCase) getApplicantIDsByJobPostingID(jobPostingID uuid.UUID
 		UserProfileIDs: userProfileIDs,
 		Total:          totalResult,
 	}, nil
+}
+
+func (uc *InterviewUseCase) FindByIDForAnswer(id, jobPostingID uuid.UUID) (*response.InterviewResponse, error) {
+	interview, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindByIDForAnswer] " + err.Error())
+		return nil, err
+	}
+
+	if interview == nil {
+		uc.Log.Error("[InterviewUseCase.FindByIDForAnswer] Interview not found")
+		return nil, errors.New("interview not found")
+	}
+
+	resp, err := uc.DTO.ConvertEntityToResponse(interview)
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindByIDForAnswer] " + err.Error())
+		return nil, err
+	}
+
+	return resp, nil
 }

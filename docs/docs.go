@@ -1135,6 +1135,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/interviews/export-answer": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Export interview schedule answer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                ],
+                "tags": [
+                    "Interview"
+                ],
+                "summary": "Export interview schedule answer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Test schedule header ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
         "/api/no-auth/job-postings": {
             "get": {
                 "security": [

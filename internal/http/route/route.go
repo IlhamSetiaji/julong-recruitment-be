@@ -271,6 +271,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				interviewRoute.GET("", c.InterviewHandler.FindAllPaginated)
 				interviewRoute.GET("/my-schedule", c.InterviewHandler.FindMySchedule)
+				interviewRoute.GET("/export-answers", c.InterviewHandler.ExportInterviewScheduleAnswer)
 				interviewRoute.GET("/applicant-schedule", c.InterviewHandler.FindApplicantSchedule)
 				interviewRoute.GET("/assessor-schedule", c.InterviewHandler.FindMyScheduleForAssessor)
 				interviewRoute.GET("/document-number", c.InterviewHandler.GenerateDocumentNumber)

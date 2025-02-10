@@ -22,6 +22,7 @@ type IInterviewRepository interface {
 	FindAllByKeys(keys map[string]interface{}) (*[]entity.Interview, error)
 	FindByIDForMyselfAssessor(id uuid.UUID, interviewAssessorID uuid.UUID) (*entity.Interview, error)
 	FindByIDsForMyselfAssessor(ids []uuid.UUID, interviewAssessorID uuid.UUID) (*[]entity.Interview, error)
+	FindByIDForAnswer(id, jobPostingID uuid.UUID) (*entity.Interview, error)
 }
 
 type InterviewRepository struct {
@@ -265,4 +266,19 @@ func (r *InterviewRepository) FindAllByKeys(keys map[string]interface{}) (*[]ent
 		return nil, err
 	}
 	return &interviews, nil
+}
+
+func (r *InterviewRepository) FindByIDForAnswer(id, jobPostingID uuid.UUID) (*entity.Interview, error) {
+	var interview entity.Interview
+	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine").
+		Preload("InterviewApplicants.UserProfile").Preload("InterviewApplicants.InterviewResults.InterviewAssessor").Preload("InterviewAssessors").
+		Where("id = ? AND job_posting_id = ?", id, jobPostingID).First(&interview).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			r.Log.Error("[InterviewRepository.FindByIDForAnswer] " + err.Error())
+			return nil, err
+		}
+	}
+	return &interview, nil
 }

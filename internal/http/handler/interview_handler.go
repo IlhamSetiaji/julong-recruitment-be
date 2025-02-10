@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,6 +17,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/xuri/excelize/v2"
+	"gorm.io/gorm"
 )
 
 type IInterviewHandler interface {
@@ -29,14 +32,19 @@ type IInterviewHandler interface {
 	FindMySchedule(ctx *gin.Context)
 	FindMyScheduleForAssessor(ctx *gin.Context)
 	FindApplicantSchedule(ctx *gin.Context)
+	ExportInterviewScheduleAnswer(ctx *gin.Context)
 }
 
 type InterviewHandler struct {
-	Log        *logrus.Logger
-	Viper      *viper.Viper
-	Validate   *validator.Validate
-	UseCase    usecase.IInterviewUseCase
-	UserHelper helper.IUserHelper
+	Log                           *logrus.Logger
+	Viper                         *viper.Viper
+	Validate                      *validator.Validate
+	UseCase                       usecase.IInterviewUseCase
+	UserHelper                    helper.IUserHelper
+	UserProfileUseCase            usecase.IUserProfileUseCase
+	ProjectRecruitmentLineUseCase usecase.IProjectRecruitmentLineUseCase
+	DB                            *gorm.DB
+	InterviewApplicantUseCase     usecase.IInterviewApplicantUseCase
 }
 
 func NewInterviewHandler(
@@ -45,13 +53,21 @@ func NewInterviewHandler(
 	validate *validator.Validate,
 	useCase usecase.IInterviewUseCase,
 	userHelper helper.IUserHelper,
+	upUseCase usecase.IUserProfileUseCase,
+	prlUseCase usecase.IProjectRecruitmentLineUseCase,
+	db *gorm.DB,
+	iaUseCase usecase.IInterviewApplicantUseCase,
 ) IInterviewHandler {
 	return &InterviewHandler{
-		Log:        log,
-		Viper:      viper,
-		Validate:   validate,
-		UseCase:    useCase,
-		UserHelper: userHelper,
+		Log:                           log,
+		Viper:                         viper,
+		Validate:                      validate,
+		UseCase:                       useCase,
+		UserHelper:                    userHelper,
+		UserProfileUseCase:            upUseCase,
+		ProjectRecruitmentLineUseCase: prlUseCase,
+		DB:                            db,
+		InterviewApplicantUseCase:     iaUseCase,
 	}
 }
 
@@ -62,7 +78,11 @@ func InterviewHandlerFactory(
 	useCase := usecase.InterviewUseCaseFactory(log, viper)
 	validate := config.NewValidator(viper)
 	userHelper := helper.UserHelperFactory(log)
-	return NewInterviewHandler(log, viper, validate, useCase, userHelper)
+	upUseCase := usecase.UserProfileUseCaseFactory(log, viper)
+	prlUseCase := usecase.ProjectRecruitmentLineUseCaseFactory(log)
+	db := config.NewDatabase()
+	iaUseCase := usecase.InterviewApplicantUseCaseFactory(log, viper)
+	return NewInterviewHandler(log, viper, validate, useCase, userHelper, upUseCase, prlUseCase, db, iaUseCase)
 }
 
 // CreateInterview creates a new interview
@@ -514,4 +534,177 @@ func (h *InterviewHandler) FindMyScheduleForAssessor(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "My interview schedule for assessor found", res)
+}
+
+// ExportInterviewScheduleAnswer exports interview schedule answer
+//
+// @Summary Export interview schedule answer
+// @Description Export interview schedule answer
+// @Tags Interview
+// @Accept json
+//
+//	@Produce		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+//	@Param			id					query	string	true	"Test schedule header ID"
+//	@Param			job_posting_id		query	string	true	"Job Posting ID"
+//	@Success		200					{file}		file
+//	@Security		BearerAuth
+//	@Router			/api/interviews/export-answer [get]
+func (h *InterviewHandler) ExportInterviewScheduleAnswer(ctx *gin.Context) {
+	id := ctx.Query("id")
+	if id == "" {
+		h.Log.Error("interview ID is required")
+		utils.BadRequestResponse(ctx, "Test schedule header ID is required", nil)
+		return
+	}
+
+	jobPostingID := ctx.Query("job_posting_id")
+	if jobPostingID == "" {
+		h.Log.Error("Job posting ID is required")
+		utils.BadRequestResponse(ctx, "Job posting ID is required", nil)
+		return
+	}
+
+	testScheduleHeaderID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid test schedule header ID", err)
+		return
+	}
+
+	jobPostingUUID, err := uuid.Parse(jobPostingID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid job posting ID", err)
+		return
+	}
+
+	interview, err := h.UseCase.FindByIDForAnswer(testScheduleHeaderID, jobPostingUUID)
+	if err != nil {
+		h.Log.Error("[InterviewHandler.ExportInterviewScheduleAnswer] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find interview", err.Error())
+		return
+	}
+
+	if interview == nil {
+		h.Log.Error("[InterviewHandler.ExportInterviewScheduleAnswer] Interview not found")
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Failed to find interview", err.Error())
+		return
+	}
+
+	f := excelize.NewFile()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println(err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+			return
+		}
+	}()
+	// loop interview assessors for sheet name
+	for _, interviewData := range interview.InterviewAssessors {
+		sheetName := interviewData.EmployeeName
+		newSheet, err := f.NewSheet(sheetName)
+		if err != nil {
+			h.Log.Error("[InterviewHandler.ExportInterviewScheduleAnswer] " + err.Error())
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+			return
+		}
+		f.SetActiveSheet(newSheet)
+		f.SetCellValue(sheetName, "A1", "Applicant ID")
+		f.SetCellValue(sheetName, "B1", "Applicant Name")
+
+		// Create a style for the header
+		headerStyle, err := f.NewStyle(&excelize.Style{
+			Border: []excelize.Border{
+				{Type: "left", Color: "000000", Style: 1},
+				{Type: "top", Color: "000000", Style: 1},
+				{Type: "bottom", Color: "000000", Style: 1},
+				{Type: "right", Color: "000000", Style: 1},
+			},
+			Fill: excelize.Fill{
+				Type:    "pattern",
+				Color:   []string{"#00FF00"},
+				Pattern: 1,
+			},
+			Font: &excelize.Font{
+				Bold: true,
+			},
+			Alignment: &excelize.Alignment{
+				Horizontal: "center",
+				Vertical:   "center",
+			},
+		})
+		if err != nil {
+			fmt.Println(err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+			return
+		}
+
+		// Set the style to the header
+		f.SetCellStyle(sheetName, "A1", "A1", headerStyle)
+		f.SetCellStyle(sheetName, "B1", "B1", headerStyle)
+
+		// loop through interviews -> interview applicants
+		for i, ia := range interview.InterviewApplicants {
+			f.SetCellValue(sheetName, "A"+strconv.Itoa(i+2), ia.ApplicantID)
+			f.SetCellValue(sheetName, "B"+strconv.Itoa(i+2), ia.UserProfile.Name)
+
+			prl, err := h.ProjectRecruitmentLineUseCase.FindByIDForAnswerInterview(interview.ProjectRecruitmentLineID, jobPostingUUID, ia.UserProfileID, interviewData.ID)
+			if err != nil {
+				h.Log.Error(err)
+				utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find project recruitment line", err.Error())
+				return
+			}
+
+			if prl == nil {
+				utils.ErrorResponse(ctx, http.StatusNotFound, "Project recruitment line not found", "Project recruitment line not found")
+				return
+			}
+
+			// loop through project recruitment line -> template activity line -> template question -> questions for header
+			for i, questionData := range *prl.TemplateActivityLine.TemplateQuestion.Questions {
+				var concatenatedValue string
+				f.SetCellValue(sheetName, fmt.Sprintf("%s%d", string(rune(i+67)), 1), questionData.Name)
+
+				// Set the style to the header
+				f.SetCellStyle(sheetName, fmt.Sprintf("%s%d", string(rune(i+67)), 1), fmt.Sprintf("%s%d", string(rune(i+67)), 1), headerStyle)
+
+				// loop through project recruitment line -> template activity line -> template question -> questions -> question responses for line
+				if questionData.QuestionResponses == nil {
+					continue
+				}
+				for _, questionResponse := range *questionData.QuestionResponses {
+					var cellValue string
+					if questionResponse.AnswerFile == "" {
+						cellValue = questionResponse.Answer
+					} else {
+						cellValue = h.Viper.GetString("app.url") + questionResponse.AnswerFile
+					}
+
+					if concatenatedValue != "" {
+						concatenatedValue += ", "
+					}
+					concatenatedValue += cellValue
+				}
+
+				// Set the concatenated value to the cell
+				f.SetCellValue(sheetName, fmt.Sprintf("%s%d", string(rune(i+67)), 2), concatenatedValue)
+
+				// Set the width of the columns
+				f.SetColWidth(sheetName, fmt.Sprintf("%s", string(rune(i+67))), string(rune(i+67)), 20)
+			}
+		}
+		// Set the width of the columns
+		f.SetColWidth(sheetName, "A", "A", 20)
+		f.SetColWidth(sheetName, "B", "B", 20)
+	}
+
+	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	ctx.Header("Content-Disposition", "attachment; filename=interview_answers.xlsx")
+	ctx.Header("Content-Transfer-Encoding", "binary")
+
+	if err := f.Write(ctx.Writer); err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+		return
+	}
 }

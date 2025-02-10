@@ -55,6 +55,7 @@ func NewTestScheduleHeaderHandler(
 	validate *validator.Validate,
 	useCase usecase.ITestScheduleHeaderUsecase,
 	userHelper helper.IUserHelper,
+	upUseCase usecase.IUserProfileUseCase,
 	prlUseCase usecase.IProjectRecruitmentLineUseCase,
 	db *gorm.DB,
 	taUseCase usecase.ITestApplicantUseCase,
@@ -65,6 +66,7 @@ func NewTestScheduleHeaderHandler(
 		Validate:                      validate,
 		UseCase:                       useCase,
 		UserHelper:                    userHelper,
+		UserProfileUseCase:            upUseCase,
 		ProjectRecruitmentLineUseCase: prlUseCase,
 		DB:                            db,
 		TestApplicantUseCase:          taUseCase,
@@ -78,10 +80,11 @@ func TestScheduleHeaderHandlerFactory(
 	useCase := usecase.TestScheduleHeaderUsecaseFactory(log, viper)
 	validate := config.NewValidator(viper)
 	userHelper := helper.UserHelperFactory(log)
+	upUseCase := usecase.UserProfileUseCaseFactory(log, viper)
 	prlUseCase := usecase.ProjectRecruitmentLineUseCaseFactory(log)
 	db := config.NewDatabase()
 	taUseCase := usecase.TestApplicantUseCaseFactory(log, viper)
-	return NewTestScheduleHeaderHandler(log, viper, validate, useCase, userHelper, prlUseCase, db, taUseCase)
+	return NewTestScheduleHeaderHandler(log, viper, validate, useCase, userHelper, upUseCase, prlUseCase, db, taUseCase)
 }
 
 // CreateTestScheduleHeader create test schedule header
@@ -581,6 +584,9 @@ func (h *TestScheduleHeaderHandler) ExportTestScheduleAnswer(ctx *gin.Context) {
 			f.SetCellStyle("Answer", fmt.Sprintf("%s%d", string(rune(i+67)), 1), fmt.Sprintf("%s%d", string(rune(i+67)), 1), headerStyle)
 
 			// loop through project recruitment line -> template activity line -> template question -> questions -> question responses for line
+			if questionData.QuestionResponses == nil {
+				continue
+			}
 			for _, questionResponse := range *questionData.QuestionResponses {
 				var cellValue string
 				if questionResponse.AnswerFile == "" {

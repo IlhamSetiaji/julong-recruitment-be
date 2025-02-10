@@ -3728,6 +3728,34 @@ paths:
       summary: Update an interview status
       tags:
       - Interview
+  /api/interviews/export-answer:
+    get:
+      consumes:
+      - application/json
+      description: Export interview schedule answer
+      parameters:
+      - description: Test schedule header ID
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      security:
+      - BearerAuth: []
+      summary: Export interview schedule answer
+      tags:
+      - Interview
   /api/no-auth/job-postings:
     get:
       consumes:

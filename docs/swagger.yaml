@@ -3784,6 +3784,29 @@ paths:
       summary: Export result template
       tags:
       - Interview
+  /api/interviews/read-result-template:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Read result template
+      parameters:
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Read result template
+      tags:
+      - Interview
   /api/no-auth/job-postings:
     get:
       consumes:

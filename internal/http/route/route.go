@@ -278,6 +278,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				interviewRoute.GET("/document-number", c.InterviewHandler.GenerateDocumentNumber)
 				interviewRoute.GET("/:id", c.InterviewHandler.FindByID)
 				interviewRoute.POST("", c.InterviewHandler.CreateInterview)
+				interviewRoute.POST("/read-result-template", c.InterviewHandler.ReadResultTemplate)
 				interviewRoute.PUT("/update", c.InterviewHandler.UpdateInterview)
 				interviewRoute.PUT("/update-status", c.InterviewHandler.UpdateStatusInterview)
 				interviewRoute.DELETE("/:id", c.InterviewHandler.DeleteInterview)

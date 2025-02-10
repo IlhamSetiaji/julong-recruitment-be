@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -20,6 +21,7 @@ type IInterviewApplicantUseCase interface {
 	UpdateFinalResultStatusInterviewApplicant(req *request.UpdateFinalResultInterviewApplicantRequest) error
 	FindByUserProfileIDAndInterviewID(userProfileID, interviewID string) (*response.InterviewApplicantResponse, error)
 	FindAllByInterviewIDPaginated(interviewID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.InterviewApplicantResponse, int64, error)
+	UpdateFinalResultStatusTestApplicant(ctx context.Context, id uuid.UUID, finalResult entity.FinalResultStatus) (*response.InterviewApplicantResponse, error)
 }
 
 type InterviewApplicantUseCase struct {
@@ -493,4 +495,101 @@ func (uc *InterviewApplicantUseCase) FindAllByInterviewIDPaginated(interviewID s
 	}
 
 	return res, count, nil
+}
+
+func (uc *InterviewApplicantUseCase) UpdateFinalResultStatusTestApplicant(ctx context.Context, id uuid.UUID, finalResult entity.FinalResultStatus) (*response.InterviewApplicantResponse, error) {
+	ia, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Errorf("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when finding test applicant by id: %s", err.Error())
+		return nil, errors.New("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when finding test applicant by id: " + err.Error())
+	}
+	if ia == nil {
+		uc.Log.Errorf("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] test applicant with id %s not found", id.String())
+		return nil, errors.New("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] test applicant with id " + id.String() + " not found")
+	}
+
+	if ia.FinalResult == entity.FINAL_RESULT_STATUS_ACCEPTED || ia.FinalResult == entity.FINAL_RESULT_STATUS_REJECTED || ia.FinalResult == entity.FINAL_RESULT_STATUS_SHORTLISTED {
+		return nil, errors.New("final result status already set")
+	}
+
+	jpExist, err := uc.JobPostingRepository.FindByID(ia.Interview.JobPostingID)
+	if err != nil {
+		uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
+		return nil, err
+	}
+
+	if jpExist == nil {
+		uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + "Job Posting not found")
+		return nil, errors.New("job posting not found")
+	}
+
+	applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+		"id": ia.ApplicantID,
+	})
+	if err != nil {
+		uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
+		return nil, err
+	}
+
+	if applicant == nil {
+		uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + "Applicant not found")
+		return nil, errors.New("applicant not found")
+	}
+
+	if finalResult == entity.FINAL_RESULT_STATUS_ACCEPTED {
+		applicantOrder := applicant.Order
+		var TemplateQuestionID *uuid.UUID
+		for i := range jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines {
+			if jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == applicantOrder+1 {
+				projectRecruitmentLine := &jpExist.ProjectRecruitmentHeader.ProjectRecruitmentLines[i]
+				TemplateQuestionID = &projectRecruitmentLine.TemplateActivityLine.QuestionTemplateID
+				break
+			} else {
+				TemplateQuestionID = &applicant.TemplateQuestionID
+			}
+		}
+		_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+			ID:                 applicant.ID,
+			Order:              applicant.Order + 1,
+			TemplateQuestionID: *TemplateQuestionID,
+		})
+		if err != nil {
+			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
+			return nil, err
+		}
+	} else if finalResult == entity.FINAL_RESULT_STATUS_REJECTED {
+		// zero, err := strconv.Atoi("0")
+		if err != nil {
+			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
+			return nil, err
+		}
+		if applicant != nil {
+			_, err = uc.ApplicantRepository.UpdateApplicantWhenRejected(&entity.Applicant{
+				ID: applicant.ID,
+			})
+			if err != nil {
+				uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] " + err.Error())
+				return nil, err
+			}
+		}
+	}
+
+	_, err = uc.Repository.UpdateInterviewApplicant(&entity.InterviewApplicant{
+		ID:          ia.ID,
+		FinalResult: finalResult,
+	})
+	if err != nil {
+		uc.Log.Errorf("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when updating test applicant: %s", err.Error())
+		// tx.Rollback()
+		return nil, errors.New("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when updating test applicant: " + err.Error())
+	}
+
+	resp, err := uc.DTO.ConvertEntityToResponse(ia)
+	if err != nil {
+		uc.Log.Errorf("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when converting test applicant entity to response: %s", err.Error())
+		// tx.Rollback()
+		return nil, errors.New("[InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant] error when converting test applicant entity to response: " + err.Error())
+	}
+
+	return resp, nil
 }

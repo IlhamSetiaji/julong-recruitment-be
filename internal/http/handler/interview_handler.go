@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -34,6 +35,7 @@ type IInterviewHandler interface {
 	FindApplicantSchedule(ctx *gin.Context)
 	ExportInterviewScheduleAnswer(ctx *gin.Context)
 	ExportResultTemplate(ctx *gin.Context)
+	ReadResultTemplate(ctx *gin.Context)
 }
 
 type InterviewHandler struct {
@@ -741,7 +743,7 @@ func (h *InterviewHandler) ExportResultTemplate(ctx *gin.Context) {
 	testScheduleHeaderID, err := uuid.Parse(id)
 	if err != nil {
 		h.Log.Error(err)
-		utils.BadRequestResponse(ctx, "Invalid test schedule header ID", err)
+		utils.BadRequestResponse(ctx, "Invalid interview schedule header ID", err)
 		return
 	}
 
@@ -776,7 +778,7 @@ func (h *InterviewHandler) ExportResultTemplate(ctx *gin.Context) {
 
 	f.SetSheetName("Sheet1", "Applicants")
 	// Set value of a cell.
-	f.SetCellValue("Applicants", "A1", "Test Applicant ID")
+	f.SetCellValue("Applicants", "A1", "Interview Applicant ID")
 	f.SetCellValue("Applicants", "B1", "Applicant Name")
 	f.SetCellValue("Applicants", "C1", "Final Result")
 
@@ -836,4 +838,106 @@ func (h *InterviewHandler) ExportResultTemplate(ctx *gin.Context) {
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
 		return
 	}
+}
+
+// ReadResultTemplate reads result template
+//
+// @Summary Read result template
+// @Description Read result template
+// @Tags Interview
+//
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			file	formData	file	true	"File"
+//	@Success		200			{object}	string
+//	@Security		BearerAuth
+//	@Router			/api/interviews/read-result-template [post]
+func (h *InterviewHandler) ReadResultTemplate(ctx *gin.Context) {
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "File is required", err)
+		return
+	}
+
+	timestamp := time.Now().UnixNano()
+	filePath := fmt.Sprintf("storage/tests/results/%s", strconv.FormatInt(timestamp, 10)+"_"+file.Filename)
+	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to save file", err.Error())
+		return
+	}
+
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to open file", err.Error())
+		return
+	}
+
+	rows, err := f.GetRows("Applicants")
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get rows", err.Error())
+		return
+	}
+
+	tx := h.DB.WithContext(ctx).Begin()
+	if tx.Error != nil {
+		h.Log.Warnf("Failed begin transaction : %+v", tx.Error)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to begin transaction", tx.Error.Error())
+		return
+	}
+	defer tx.Rollback()
+
+	for i, row := range rows {
+		if i == 0 {
+			continue
+		}
+
+		testApplicantID := row[0]
+		var finalResult string
+		if len(row) > 2 {
+			finalResult = row[2]
+			h.Log.Info("finalResult: ", finalResult)
+		} else {
+			h.Log.Warn("finalResult not found for row: ", i)
+			tx.Rollback()
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Final result not found for row "+strconv.Itoa(i), "Final result not found for row "+strconv.Itoa(i))
+			return
+		}
+
+		if finalResult != string(entity.FINAL_RESULT_STATUS_ACCEPTED) && finalResult != string(entity.FINAL_RESULT_STATUS_REJECTED) {
+			h.Log.Warn("finalResult not valid for row: ", i)
+			tx.Rollback()
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Final result not valid for row "+strconv.Itoa(i), "Final result not valid for row "+strconv.Itoa(i))
+			return
+		}
+
+		h.Log.Info("finalResult: ", finalResult)
+
+		testApplicantUUID, err := uuid.Parse(testApplicantID)
+		if err != nil {
+			h.Log.Error(err)
+			tx.Rollback()
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Invalid interview applicant ID for row "+strconv.Itoa(i), err.Error())
+			return
+		}
+
+		_, err = h.InterviewApplicantUseCase.UpdateFinalResultStatusTestApplicant(ctx, testApplicantUUID, entity.FinalResultStatus(finalResult))
+		if err != nil {
+			h.Log.Error(err)
+			tx.Rollback()
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to update final result status interview applicant for row "+strconv.Itoa(i), err.Error())
+			return
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		h.Log.Warnf("Failed commit transaction : %+v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to commit transaction", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Result template read", "Result template read")
 }

@@ -244,6 +244,11 @@ func (uc *QuestionResponseUseCase) AnswerInterviewQuestionResponses(req *request
 
 	// create or update answers
 	for _, questionPayload := range req.Questions {
+		if questionPayload.Answers == nil || len(questionPayload.Answers) == 0 {
+			uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] answers is empty")
+			// return nil, errors.New("answers is empty")
+			continue
+		}
 		parsedQuestionID, err := uuid.Parse(questionPayload.ID)
 		if err != nil {
 			uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing question id: %s", err.Error())

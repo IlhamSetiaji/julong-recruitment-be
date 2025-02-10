@@ -45,6 +45,10 @@ func main() {
 		&entity.InterviewApplicant{},
 		&entity.InterviewAssessor{},
 		&entity.InterviewResult{},
+		&entity.FgdSchedule{},
+		&entity.FgdApplicant{},
+		&entity.FgdAssessor{},
+		&entity.FgdResult{},
 	)
 	if err != nil {
 		log.Fatal(err)

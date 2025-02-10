@@ -327,3 +327,32 @@ func InterviewResultStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func FgdScheduleStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.FgdScheduleStatus(status) {
+	case entity.FGD_SCHEDULE_STATUS_DRAFT,
+		entity.FGD_SCHEDULE_STATUS_IN_PROGRESS,
+		entity.FGD_SCHEDULE_STATUS_COMPLETED:
+		return true
+	default:
+		return false
+	}
+}
+
+func FgdResultStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.FgdResultStatus(status) {
+	case entity.FGD_RESULT_STATUS_ACCEPTED,
+		entity.FGD_RESULT_STATUS_REJECTED:
+		return true
+	default:
+		return false
+	}
+}

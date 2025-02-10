@@ -28,5 +28,7 @@ func NewValidator(viper *viper.Viper) *validator.Validate {
 	validate.RegisterValidation("assessment_status_validation", request.AssessmentStatusValidation)
 	validate.RegisterValidation("interview_status_validation", request.InterviewStatusValidation)
 	validate.RegisterValidation("interview_result_status_validation", request.InterviewResultStatusValidation)
+	validate.RegisterValidation("fgd_result_status_validation", request.FgdResultStatusValidation)
+	validate.RegisterValidation("fgd_schedule_status_validation", request.FgdScheduleStatusValidation)
 	return validate
 }

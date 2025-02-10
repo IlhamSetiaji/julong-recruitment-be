@@ -33,6 +33,7 @@ type IInterviewHandler interface {
 	FindMyScheduleForAssessor(ctx *gin.Context)
 	FindApplicantSchedule(ctx *gin.Context)
 	ExportInterviewScheduleAnswer(ctx *gin.Context)
+	ExportResultTemplate(ctx *gin.Context)
 }
 
 type InterviewHandler struct {
@@ -544,7 +545,7 @@ func (h *InterviewHandler) FindMyScheduleForAssessor(ctx *gin.Context) {
 // @Accept json
 //
 //	@Produce		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-//	@Param			id					query	string	true	"Test schedule header ID"
+//	@Param			id					query	string	true	"Interview ID"
 //	@Param			job_posting_id		query	string	true	"Job Posting ID"
 //	@Success		200					{file}		file
 //	@Security		BearerAuth
@@ -553,7 +554,7 @@ func (h *InterviewHandler) ExportInterviewScheduleAnswer(ctx *gin.Context) {
 	id := ctx.Query("id")
 	if id == "" {
 		h.Log.Error("interview ID is required")
-		utils.BadRequestResponse(ctx, "Test schedule header ID is required", nil)
+		utils.BadRequestResponse(ctx, "Interview ID is required", nil)
 		return
 	}
 
@@ -700,6 +701,134 @@ func (h *InterviewHandler) ExportInterviewScheduleAnswer(ctx *gin.Context) {
 
 	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	ctx.Header("Content-Disposition", "attachment; filename=interview_answers.xlsx")
+	ctx.Header("Content-Transfer-Encoding", "binary")
+
+	if err := f.Write(ctx.Writer); err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+		return
+	}
+}
+
+// ExportResultTemplate exports result template
+//
+// @Summary Export result template
+// @Description Export result template
+// @Tags Interview
+// @Accept json
+//
+//	@Produce		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+//	@Param			id					query	string	true	"Interview ID"
+//	@Param			job_posting_id		query	string	true	"Job Posting ID"
+//	@Success		200					{file}		file
+//	@Security		BearerAuth
+//	@Router			/api/interviews/export-result-template [get]
+func (h *InterviewHandler) ExportResultTemplate(ctx *gin.Context) {
+	id := ctx.Query("id")
+	if id == "" {
+		h.Log.Error("interview ID is required")
+		utils.BadRequestResponse(ctx, "Interview ID is required", nil)
+		return
+	}
+
+	jobPostingID := ctx.Query("job_posting_id")
+	if jobPostingID == "" {
+		h.Log.Error("Job posting ID is required")
+		utils.BadRequestResponse(ctx, "Job posting ID is required", nil)
+		return
+	}
+
+	testScheduleHeaderID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid test schedule header ID", err)
+		return
+	}
+
+	jobPostingUUID, err := uuid.Parse(jobPostingID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, "Invalid job posting ID", err)
+		return
+	}
+
+	interview, err := h.UseCase.FindByIDForAnswer(testScheduleHeaderID, jobPostingUUID)
+	if err != nil {
+		h.Log.Error("[InterviewHandler.ExportResultTemplate] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find interview", err.Error())
+		return
+	}
+
+	if interview == nil {
+		h.Log.Error("[InterviewHandler.ExportResultTemplate] Interview not found")
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Failed to find interview", err.Error())
+		return
+	}
+
+	f := excelize.NewFile()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println(err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+			return
+		}
+	}()
+
+	f.SetSheetName("Sheet1", "Applicants")
+	// Set value of a cell.
+	f.SetCellValue("Applicants", "A1", "Test Applicant ID")
+	f.SetCellValue("Applicants", "B1", "Applicant Name")
+	f.SetCellValue("Applicants", "C1", "Final Result")
+
+	// Create a style for the header
+	headerStyle, err := f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "left", Color: "000000", Style: 1},
+			{Type: "top", Color: "000000", Style: 1},
+			{Type: "bottom", Color: "000000", Style: 1},
+			{Type: "right", Color: "000000", Style: 1},
+		},
+		Fill: excelize.Fill{
+			Type:    "pattern",
+			Color:   []string{"#00FF00"},
+			Pattern: 1,
+		},
+		Font: &excelize.Font{
+			Bold: true,
+		},
+		Alignment: &excelize.Alignment{
+			Horizontal: "center",
+			Vertical:   "center",
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+		return
+	}
+
+	// Set the style to the header
+	f.SetCellStyle("Applicants", "A1", "A1", headerStyle)
+	f.SetCellStyle("Applicants", "B1", "B1", headerStyle)
+	f.SetCellStyle("Applicants", "C1", "C1", headerStyle)
+
+	// loop through test schedule header -> test applicants
+	for i, ta := range interview.InterviewApplicants {
+		f.SetCellValue("Applicants", fmt.Sprintf("A%d", i+2), ta.ID)
+		f.SetCellValue("Applicants", fmt.Sprintf("B%d", i+2), ta.UserProfile.Name)
+	}
+
+	// Set the width of the columns
+	f.SetColWidth("Applicants", "A", "A", 20)
+	f.SetColWidth("Applicants", "B", "B", 20)
+	f.SetColWidth("Applicants", "C", "C", 20)
+
+	// Set active sheet of the workbook.
+	// f.SetActiveSheet(index)
+
+	// Write the file to the response body
+	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	ctx.Header("Content-Disposition", "attachment; filename=interview_applicants.xlsx")
 	ctx.Header("Content-Transfer-Encoding", "binary")
 
 	if err := f.Write(ctx.Writer); err != nil {

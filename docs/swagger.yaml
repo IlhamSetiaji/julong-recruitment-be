@@ -3734,7 +3734,7 @@ paths:
       - application/json
       description: Export interview schedule answer
       parameters:
-      - description: Test schedule header ID
+      - description: Interview ID
         in: query
         name: id
         required: true
@@ -3754,6 +3754,34 @@ paths:
       security:
       - BearerAuth: []
       summary: Export interview schedule answer
+      tags:
+      - Interview
+  /api/interviews/export-result-template:
+    get:
+      consumes:
+      - application/json
+      description: Export result template
+      parameters:
+      - description: Interview ID
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      security:
+      - BearerAuth: []
+      summary: Export result template
       tags:
       - Interview
   /api/no-auth/job-postings:

@@ -17,6 +17,8 @@ type IQuestionResponseRepository interface {
 	FindByID(id uuid.UUID) (*entity.QuestionResponse, error)
 	FindAllByQuestionID(questionID uuid.UUID) ([]entity.QuestionResponse, error)
 	GetAllByKeys(keys map[string]interface{}) ([]entity.QuestionResponse, error)
+	DeleteByQuestionID(questionID uuid.UUID) error
+	DeleteByQuestionIDs(questionIDs []uuid.UUID) error
 }
 
 type QuestionResponseRepository struct {
@@ -143,4 +145,40 @@ func (r *QuestionResponseRepository) GetAllByKeys(keys map[string]interface{}) (
 	}
 
 	return questions, nil
+}
+
+func (r *QuestionResponseRepository) DeleteByQuestionID(questionID uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Where("question_id = ?", questionID).Delete(&entity.QuestionResponse{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *QuestionResponseRepository) DeleteByQuestionIDs(questionIDs []uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Where("question_id IN (?)", questionIDs).Delete(&entity.QuestionResponse{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

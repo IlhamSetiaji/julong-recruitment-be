@@ -460,7 +460,25 @@ func (h *InterviewHandler) FindApplicantSchedule(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.UseCase.FindScheduleForApplicant(applicantUUID, projectRecruitmentLineUUID, jobPostingUUID)
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	employeeUUID, err := h.UserHelper.GetEmployeeId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting employee id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindScheduleForApplicant(applicantUUID, projectRecruitmentLineUUID, jobPostingUUID, employeeUUID)
 	if err != nil {
 		h.Log.Error("[InterviewHandler.FindApplicantSchedule] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find applicant interview schedule", err.Error())

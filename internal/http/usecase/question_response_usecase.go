@@ -242,6 +242,25 @@ func (uc *QuestionResponseUseCase) AnswerInterviewQuestionResponses(req *request
 	var jobPostingID uuid.UUID
 	var userProfileID uuid.UUID
 
+	var questionIDs []uuid.UUID
+	for _, questionPayload := range req.Questions {
+		parsedQuestionID, err := uuid.Parse(questionPayload.ID)
+		if err != nil {
+			uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when parsing question id: %s", err.Error())
+			return nil, err
+		}
+		questionIDs = append(questionIDs, parsedQuestionID)
+	}
+
+	// delete answers by question ids
+	if len(questionIDs) > 0 {
+		err = uc.Repository.DeleteByQuestionIDs(questionIDs)
+		if err != nil {
+			uc.Log.Errorf("[QuestionResponseUseCase.AnswerInterviewQuestionResponses] error when deleting answers by question ids: %s", err.Error())
+			return nil, err
+		}
+	}
+
 	// create or update answers
 	for _, questionPayload := range req.Questions {
 		if questionPayload.Answers == nil || len(questionPayload.Answers) == 0 {

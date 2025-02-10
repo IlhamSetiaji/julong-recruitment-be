@@ -26,7 +26,7 @@ type IInterviewUseCase interface {
 	UpdateStatusInterview(req *request.UpdateStatusInterviewRequest) (*response.InterviewResponse, error)
 	FindMySchedule(userID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfResponse, error)
 	FindMyScheduleForAssessor(employeeID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*[]response.InterviewMyselfForAssessorResponse, error)
-	FindScheduleForApplicant(applicantID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfResponse, error)
+	FindScheduleForApplicant(applicantID, projectRecruitmentLineID, jobPostingID, employeeID uuid.UUID) (*response.InterviewMyselfResponse, error)
 	FindByIDForAnswer(id, jobPostingID uuid.UUID) (*response.InterviewResponse, error)
 }
 
@@ -625,7 +625,7 @@ func (uc *InterviewUseCase) FindMySchedule(userID, projectRecruitmentLineID, job
 	return convertResp, nil
 }
 
-func (uc *InterviewUseCase) FindScheduleForApplicant(applicantID, projectRecruitmentLineID, jobPostingID uuid.UUID) (*response.InterviewMyselfResponse, error) {
+func (uc *InterviewUseCase) FindScheduleForApplicant(applicantID, projectRecruitmentLineID, jobPostingID, employeeID uuid.UUID) (*response.InterviewMyselfResponse, error) {
 	// find project recruitment line
 	projectRecruitmentLine, err := uc.ProjectRecruitmentLineRepository.FindByID(projectRecruitmentLineID)
 	if err != nil {
@@ -661,6 +661,15 @@ func (uc *InterviewUseCase) FindScheduleForApplicant(applicantID, projectRecruit
 		return nil, errors.New("job posting not found")
 	}
 
+	// find interview assessor id
+	interviewAssessor, err := uc.InterviewAssessorRepository.FindByKeys(map[string]interface{}{
+		"employee_id": employeeID,
+	})
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+
 	// find interview
 	interviews, err := uc.Repository.FindAllByKeys(map[string]interface{}{
 		"job_posting_id":              jobPostingID,
@@ -686,7 +695,7 @@ func (uc *InterviewUseCase) FindScheduleForApplicant(applicantID, projectRecruit
 		return nil, errors.New("interview applicant not found")
 	}
 
-	resp, err := uc.Repository.FindByIDForMyself(interviewApplicant.InterviewID, interviewApplicant.UserProfileID)
+	resp, err := uc.Repository.FindByIDForMyselfAndAssessor(interviewApplicant.InterviewID, interviewApplicant.UserProfileID, interviewAssessor.ID)
 	if err != nil {
 		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
 		return nil, err

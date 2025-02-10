@@ -745,7 +745,6 @@ func (h *TestScheduleHeaderHandler) ExportResultTemplate(ctx *gin.Context) {
 	f.SetColWidth("Applicants", "B", "B", 20)
 	f.SetColWidth("Applicants", "C", "C", 20)
 
-	// Set active sheet of the workbook.
 	// f.SetActiveSheet(index)
 
 	// Write the file to the response body

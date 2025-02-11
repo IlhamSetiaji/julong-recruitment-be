@@ -14,7 +14,7 @@ type ITestScheduleHeaderRepository interface {
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TestScheduleHeader, int64, error)
 	CreateTestScheduleHeader(tsh *entity.TestScheduleHeader) (*entity.TestScheduleHeader, error)
 	FindByID(id uuid.UUID) (*entity.TestScheduleHeader, error)
-	FindByIDForMyself(id uuid.UUID, userProfile uuid.UUID) (*entity.TestScheduleHeader, error)
+	FindByIDForMyself(id uuid.UUID, userProfile uuid.UUID, jobPostingID uuid.UUID) (*entity.TestScheduleHeader, error)
 	FindByIDForAnswer(id, jobPostingID uuid.UUID) (*entity.TestScheduleHeader, error)
 	UpdateTestScheduleHeader(tsh *entity.TestScheduleHeader) (*entity.TestScheduleHeader, error)
 	DeleteTestScheduleHeader(id uuid.UUID) error
@@ -199,12 +199,12 @@ func (r *TestScheduleHeaderRepository) FindAllByKeys(keys map[string]interface{}
 	return &tshs, nil
 }
 
-func (r *TestScheduleHeaderRepository) FindByIDForMyself(id uuid.UUID, userProfile uuid.UUID) (*entity.TestScheduleHeader, error) {
+func (r *TestScheduleHeaderRepository) FindByIDForMyself(id uuid.UUID, userProfile uuid.UUID, jobPostingID uuid.UUID) (*entity.TestScheduleHeader, error) {
 	var tsh entity.TestScheduleHeader
 	if err := r.DB.Preload("JobPosting").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.AnswerType").
 		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionOptions").
-		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "user_profile_id = ?", userProfile).
-		Preload("TestType").Preload("ProjectPic").Preload("TestApplicants", "user_profile_id = ?", userProfile).Preload("TestApplicants.UserProfile").Where("id = ?", id).First(&tsh).Error; err != nil {
+		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "user_profile_id = ? AND job_posting_id = ?", userProfile, jobPostingID).
+		Preload("TestType").Preload("ProjectPic").Preload("TestApplicants", "user_profile_id = ?", userProfile).Preload("TestApplicants.UserProfile").Where("id = ?", id).Where("status <> ?", "DRAFT").First(&tsh).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

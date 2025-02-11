@@ -718,7 +718,7 @@ func (uc *TestScheduleHeaderUsecase) FindMySchedule(userID, projectRecruitmentLi
 		return nil, errors.New("Test Applicant not found")
 	}
 
-	testScheduleHeader, err := uc.Repository.FindByIDForMyself(testApplicant.TestScheduleHeaderID, testApplicant.UserProfileID)
+	testScheduleHeader, err := uc.Repository.FindByIDForMyself(testApplicant.TestScheduleHeaderID, testApplicant.UserProfileID, jobPostingID)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.FindMySchedule] " + err.Error())
 		return nil, err

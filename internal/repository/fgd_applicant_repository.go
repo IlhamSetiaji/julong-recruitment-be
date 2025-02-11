@@ -157,7 +157,7 @@ func (r *FgdApplicantRepository) FindAllByFgdIDPaginated(fgdID uuid.UUID, page, 
 		Joins("LEFT JOIN user_profiles ON user_profiles.id = Fgd_applicants.user_profile_id").
 		Preload("FgdSchedule").Preload("FgdResults.FgdAssessor").
 		Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("UserProfile.Skills").
-		Where("Fgd_id = ?", fgdID)
+		Where("fgd_schedule_id = ?", fgdID)
 
 	if search != "" {
 		db = db.Where("user_profiles.name ILIKE ?", "%"+search+"%")

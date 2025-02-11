@@ -616,6 +616,236 @@
                 }
             }
         },
+        "/api/fgd-applicants": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update Fgd applicants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Fgd Applicants"
+                ],
+                "summary": "Create or update Fgd applicants",
+                "parameters": [
+                    {
+                        "description": "Create or update Fgd applicants",
+                        "name": "Fgd_applicants",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrUpdateFgdApplicantsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-applicants/fgd-schedule/{fgd_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all Fgd applicants by Fgd id paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Fgd Applicants"
+                ],
+                "summary": "Find all Fgd applicants by Fgd id paginated",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Fgd id",
+                        "name": "fgd_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-applicants/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find Fgd applicant by user profile id and Fgd id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Fgd Applicants"
+                ],
+                "summary": "Find Fgd applicant by user profile id and Fgd id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User profile id",
+                        "name": "user_profile_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fgd id",
+                        "name": "Fgd_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-applicants/update-final-result": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update final result status Fgd applicants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Fgd Applicants"
+                ],
+                "summary": "Update final result status Fgd applicants",
+                "parameters": [
+                    {
+                        "description": "Update final result status Fgd applicants",
+                        "name": "Fgd_applicants",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateFinalResultFgdApplicantRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-applicants/update-status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update status Fgd applicants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Fgd Applicants"
+                ],
+                "summary": "Update status Fgd applicants",
+                "parameters": [
+                    {
+                        "description": "Update status Fgd applicants",
+                        "name": "Fgd_applicants",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStatusFgdApplicantRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/fgd-schedules": {
             "get": {
                 "security": [
@@ -3994,6 +4224,89 @@
                         "description": "OK",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/fgd-results": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Fill Fgd result",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Fgd Result"
+                ],
+                "summary": "Fill Fgd result",
+                "parameters": [
+                    {
+                        "description": "Fgd Result",
+                        "name": "Fgd_result",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.FillFgdResultRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdResultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/fgd-results/find": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find Fgd result by Fgd applicant and assessor id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Fgd Result"
+                ],
+                "summary": "Find Fgd result by Fgd applicant and assessor id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Fgd Applicant ID",
+                        "name": "fgd_applicant_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fgd Assessor ID",
+                        "name": "fgd_assessor_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdResultResponse"
                         }
                     }
                 }
@@ -8152,6 +8465,57 @@
                 }
             }
         },
+        "request.CreateOrUpdateFgdApplicantsRequest": {
+            "type": "object",
+            "required": [
+                "fgd_applicants",
+                "fgd_id"
+            ],
+            "properties": {
+                "deleted_fgd_applicant_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "fgd_applicants": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "applicant_id",
+                            "end_time",
+                            "final_result",
+                            "start_time",
+                            "user_profile_id"
+                        ],
+                        "properties": {
+                            "applicant_id": {
+                                "type": "string"
+                            },
+                            "end_time": {
+                                "type": "string"
+                            },
+                            "final_result": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "start_time": {
+                                "type": "string"
+                            },
+                            "user_profile_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "fgd_id": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateOrUpdateInterviewApplicantsRequest": {
             "type": "object",
             "required": [
@@ -8598,6 +8962,29 @@
                 }
             }
         },
+        "request.FillFgdResultRequest": {
+            "type": "object",
+            "required": [
+                "fgd_applicant_id",
+                "fgd_assessor_id",
+                "status"
+            ],
+            "properties": {
+                "fgd_applicant_id": {
+                    "type": "string"
+                },
+                "fgd_assessor_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "ACCEPTED",
+                        "REJECTED"
+                    ]
+                }
+            }
+        },
         "request.FillInterviewResultRequest": {
             "type": "object",
             "required": [
@@ -8855,6 +9242,21 @@
                 }
             }
         },
+        "request.UpdateFinalResultFgdApplicantRequest": {
+            "type": "object",
+            "required": [
+                "final_result",
+                "id"
+            ],
+            "properties": {
+                "final_result": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateFinalResultInterviewApplicantRequest": {
             "type": "object",
             "required": [
@@ -8993,6 +9395,21 @@
                     "type": "string"
                 },
                 "template_activity_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateStatusFgdApplicantRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

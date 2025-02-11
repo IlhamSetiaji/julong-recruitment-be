@@ -1483,6 +1483,41 @@ definitions:
     - administrative_results
     - administrative_selection_id
     type: object
+  request.CreateOrUpdateFgdApplicantsRequest:
+    properties:
+      deleted_fgd_applicant_ids:
+        items:
+          type: string
+        type: array
+      fgd_applicants:
+        items:
+          properties:
+            applicant_id:
+              type: string
+            end_time:
+              type: string
+            final_result:
+              type: string
+            id:
+              type: string
+            start_time:
+              type: string
+            user_profile_id:
+              type: string
+          required:
+          - applicant_id
+          - end_time
+          - final_result
+          - start_time
+          - user_profile_id
+          type: object
+        type: array
+      fgd_id:
+        type: string
+    required:
+    - fgd_applicants
+    - fgd_id
+    type: object
   request.CreateOrUpdateInterviewApplicantsRequest:
     properties:
       deleted_interview_applicant_ids:
@@ -1791,6 +1826,22 @@ definitions:
     - test_type_id
     - total_candidate
     type: object
+  request.FillFgdResultRequest:
+    properties:
+      fgd_applicant_id:
+        type: string
+      fgd_assessor_id:
+        type: string
+      status:
+        enum:
+        - ACCEPTED
+        - REJECTED
+        type: string
+    required:
+    - fgd_applicant_id
+    - fgd_assessor_id
+    - status
+    type: object
   request.FillInterviewResultRequest:
     properties:
       interview_applicant_id:
@@ -1971,6 +2022,16 @@ definitions:
     - status
     - total_candidate
     type: object
+  request.UpdateFinalResultFgdApplicantRequest:
+    properties:
+      final_result:
+        type: string
+      id:
+        type: string
+    required:
+    - final_result
+    - id
+    type: object
   request.UpdateFinalResultInterviewApplicantRequest:
     properties:
       final_result:
@@ -2071,6 +2132,16 @@ definitions:
     - start_date
     - status
     - template_activity_id
+    type: object
+  request.UpdateStatusFgdApplicantRequest:
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+    required:
+    - id
+    - status
     type: object
   request.UpdateStatusFgdScheduleRequest:
     properties:
@@ -3892,6 +3963,151 @@ paths:
       summary: Find all administrative results by administrative selection id
       tags:
       - Administrative Result
+  /api/fgd-applicants:
+    post:
+      consumes:
+      - application/json
+      description: Create or update Fgd applicants
+      parameters:
+      - description: Create or update Fgd applicants
+        in: body
+        name: Fgd_applicants
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrUpdateFgdApplicantsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FgdScheduleResponse'
+      security:
+      - BearerAuth: []
+      summary: Create or update Fgd applicants
+      tags:
+      - Fgd Applicants
+  /api/fgd-applicants/fgd-schedule/{fgd_id}:
+    get:
+      consumes:
+      - application/json
+      description: Find all Fgd applicants by Fgd id paginated
+      parameters:
+      - description: Fgd id
+        in: path
+        name: fgd_id
+        required: true
+        type: string
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      - description: Filter
+        in: query
+        name: filter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FgdApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all Fgd applicants by Fgd id paginated
+      tags:
+      - Fgd Applicants
+  /api/fgd-applicants/me:
+    get:
+      consumes:
+      - application/json
+      description: Find Fgd applicant by user profile id and Fgd id
+      parameters:
+      - description: User profile id
+        in: query
+        name: user_profile_id
+        required: true
+        type: string
+      - description: Fgd id
+        in: query
+        name: Fgd_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FgdApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: Find Fgd applicant by user profile id and Fgd id
+      tags:
+      - Fgd Applicants
+  /api/fgd-applicants/update-final-result:
+    put:
+      consumes:
+      - application/json
+      description: Update final result status Fgd applicants
+      parameters:
+      - description: Update final result status Fgd applicants
+        in: body
+        name: Fgd_applicants
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateFinalResultFgdApplicantRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FgdApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: Update final result status Fgd applicants
+      tags:
+      - Fgd Applicants
+  /api/fgd-applicants/update-status:
+    put:
+      consumes:
+      - application/json
+      description: Update status Fgd applicants
+      parameters:
+      - description: Update status Fgd applicants
+        in: body
+        name: Fgd_applicants
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStatusFgdApplicantRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FgdApplicantResponse'
+      security:
+      - BearerAuth: []
+      summary: Update status Fgd applicants
+      tags:
+      - Fgd Applicants
   /api/fgd-schedules:
     get:
       consumes:
@@ -6012,6 +6228,58 @@ paths:
       summary: Update document verification
       tags:
       - Document Verifications
+  /fgd-results:
+    post:
+      consumes:
+      - application/json
+      description: Fill Fgd result
+      parameters:
+      - description: Fgd Result
+        in: body
+        name: Fgd_result
+        required: true
+        schema:
+          $ref: '#/definitions/request.FillFgdResultRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FgdResultResponse'
+      security:
+      - BearerAuth: []
+      summary: Fill Fgd result
+      tags:
+      - Fgd Result
+  /fgd-results/find:
+    get:
+      consumes:
+      - application/json
+      description: Find Fgd result by Fgd applicant and assessor id
+      parameters:
+      - description: Fgd Applicant ID
+        in: query
+        name: fgd_applicant_id
+        required: true
+        type: string
+      - description: Fgd Assessor ID
+        in: query
+        name: fgd_assessor_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FgdResultResponse'
+      security:
+      - BearerAuth: []
+      summary: Find Fgd result by Fgd applicant and assessor id
+      tags:
+      - Fgd Result
   /interview-result:
     get:
       consumes:

@@ -43,6 +43,8 @@ type RouteConfig struct {
 	InterviewApplicantHandler       handler.IInterviewApplicantHandler
 	InterviewResultHandler          handler.IInterviewResultHandler
 	FgdScheduleHandler              handler.IFgdScheduleHandler
+	FgdApplicantHandler             handler.IFgdApplicantHandler
+	FgdResultHandler                handler.IFgdResultHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -316,6 +318,21 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				fgdScheduleRoute.PUT("/update-status", c.FgdScheduleHandler.UpdateStatusFgdSchedule)
 				fgdScheduleRoute.DELETE("/:id", c.FgdScheduleHandler.DeleteFgdSchedule)
 			}
+			// fgd applicants
+			fgdApplicantRoute := apiRoute.Group("/fgd-applicants")
+			{
+				fgdApplicantRoute.GET("/fgd-schedule/:fgd_id", c.FgdApplicantHandler.FindAllByFgdIDPaginated)
+				fgdApplicantRoute.GET("/me", c.FgdApplicantHandler.FindByUserProfileIDAndFgdID)
+				fgdApplicantRoute.POST("", c.FgdApplicantHandler.CreateOrUpdateFgdApplicants)
+				fgdApplicantRoute.PUT("/update-status", c.FgdApplicantHandler.UpdateStatusFgdApplicants)
+				fgdApplicantRoute.PUT("/update-final-result", c.FgdApplicantHandler.UpdateFinalResultStatusFgdApplicants)
+			}
+			// fgd results
+			fgdResultRoute := apiRoute.Group("/fgd-results")
+			{
+				fgdResultRoute.GET("/find", c.FgdResultHandler.FindByFgdApplicantAndAssessorID)
+				fgdResultRoute.POST("", c.FgdResultHandler.FillFgdResult)
+			}
 		}
 	}
 }
@@ -349,6 +366,8 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	interviewApplicant := handler.InterviewApplicantHandlerFactory(log, viper)
 	interviewResultHandler := handler.InterviewResultHandlerFactory(log, viper)
 	fgdScheduleHandler := handler.FgdScheduleHandlerFactory(log, viper)
+	fgdApplicantHandler := handler.FgdApplicantHandlerFactory(log, viper)
+	fgdResultHandler := handler.FgdResultHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -382,5 +401,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		InterviewApplicantHandler:       interviewApplicant,
 		InterviewResultHandler:          interviewResultHandler,
 		FgdScheduleHandler:              fgdScheduleHandler,
+		FgdApplicantHandler:             fgdApplicantHandler,
+		FgdResultHandler:                fgdResultHandler,
 	}
 }

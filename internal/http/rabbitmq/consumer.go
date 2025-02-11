@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -11,6 +12,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
+	"github.com/google/uuid"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -212,6 +214,48 @@ func handleMsg(docMsg *request.RabbitMQRequest, log *logrus.Logger, viper *viper
 
 		msgData = map[string]interface{}{
 			"user_profile": resp,
+		}
+	case "create_user_profile":
+		userID, ok := docMsg.MessageData["user_id"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'user_id'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'user_id'").Error(),
+			}
+			break
+		}
+		name, ok := docMsg.MessageData["name"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'name'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'name'").Error(),
+			}
+			break
+		}
+		parsedUUID, err := uuid.Parse(userID)
+		if err != nil {
+			log.Errorf("Invalid request format: invalid 'user_id'")
+			msgData = map[string]interface{}{
+				"error": errors.New("invalid 'user_id'").Error(),
+			}
+			break
+		}
+		dateNow := time.Now()
+		stringDateNow := dateNow.Format("2006-01-02")
+		upUseCaseFactory := usecase.UserProfileUseCaseFactory(log, viper)
+		_, err = upUseCaseFactory.FillUserProfileMessage(&request.FillUserProfileRequest{
+			Name:      name,
+			BirthDate: stringDateNow,
+		}, parsedUUID)
+		if err != nil {
+			log.Errorf("ERROR: fail fill user profile: %s", err.Error())
+			msgData = map[string]interface{}{
+				"error": err.Error(),
+			}
+			break
+		}
+		msgData = map[string]interface{}{
+			"message": "success",
 		}
 	default:
 		log.Printf("Unknown message type, please recheck your type: %s", docMsg.MessageType)

@@ -3773,29 +3773,6 @@ paths:
       summary: find all answer types
       tags:
       - Answer Types
-  /api/FgdSchedule/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Find an FgdSchedule by ID
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.FgdScheduleResponse'
-      security:
-      - BearerAuth: []
-      summary: Find an FgdSchedule by ID
-      tags:
-      - FgdSchedule
   /api/FgdSchedule/assessor-schedule:
     get:
       consumes:
@@ -4045,7 +4022,7 @@ paths:
         type: string
       - description: Fgd id
         in: query
-        name: Fgd_id
+        name: fgd_id
         required: true
         type: string
       produces:
@@ -4188,6 +4165,28 @@ paths:
       summary: Delete an FgdSchedule by ID
       tags:
       - FgdSchedule
+    get:
+      consumes:
+      - application/json
+      description: Find an FgdSchedule by ID
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.FgdScheduleResponse'
+      security:
+      - BearerAuth: []
+      summary: Find an FgdSchedule by ID
+      tags:
+      - FgdSchedule
   /api/fgd-schedules/applicant-schedule:
     get:
       consumes:
@@ -4216,6 +4215,23 @@ paths:
       security:
       - BearerAuth: []
       summary: Find applicant FgdSchedule schedule
+      tags:
+      - FgdSchedule
+  /api/fgd-schedules/document-number:
+    get:
+      consumes:
+      - application/json
+      description: Generate a document number for an FgdSchedule
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Generate a document number for an FgdSchedule
       tags:
       - FgdSchedule
   /api/fgd-schedules/export-answer:
@@ -4272,23 +4288,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Export result template
-      tags:
-      - FgdSchedule
-  /api/fgd-schedules/generate-document-number:
-    get:
-      consumes:
-      - application/json
-      description: Generate a document number for an FgdSchedule
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Generate a document number for an FgdSchedule
       tags:
       - FgdSchedule
   /api/fgd-schedules/my-schedule:

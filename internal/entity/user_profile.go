@@ -35,16 +35,16 @@ type UserProfile struct {
 	gorm.Model      `json:"-"`
 	ID              uuid.UUID         `json:"id" gorm:"type:char(36);primaryKey;"`
 	UserID          *uuid.UUID        `json:"user_id" gorm:"type:char(36);not null"`
-	Name            string            `json:"name" gorm:"type:varchar(255);not null"`
+	Name            string            `json:"name" gorm:"type:varchar(255);default:null"`
 	MaritalStatus   MaritalStatusEnum `json:"marital_status" gorm:"type:varchar(255);default:'single'"`
-	Gender          UserGender        `json:"gender" gorm:"type:varchar(255);not null"`
-	Status          UserStatus        `json:"status" gorm:"type:varchar(255);not null"`
-	PhoneNumber     string            `json:"phone_number" gorm:"type:varchar(255);not null"`
-	Age             int               `json:"age" gorm:"type:int;not null"`
+	Gender          UserGender        `json:"gender" gorm:"type:varchar(255);default:null"`
+	Status          UserStatus        `json:"status" gorm:"type:varchar(255);default:null"`
+	PhoneNumber     string            `json:"phone_number" gorm:"type:varchar(255);default:null"`
+	Age             int               `json:"age" gorm:"type:int;default:null"`
 	BirthDate       time.Time         `json:"birth_date" gorm:"type:date;default:null"`
 	BirthPlace      string            `json:"birth_place" gorm:"type:varchar(255);default:null"`
-	Ktp             string            `json:"ktp" gorm:"type:varchar(255);not null"`
-	CurriculumVitae string            `json:"curriculum_vitae" gorm:"type:text;not null"`
+	Ktp             string            `json:"ktp" gorm:"type:varchar(255);default:null"`
+	CurriculumVitae string            `json:"curriculum_vitae" gorm:"type:text;default:null"`
 
 	Applicants            []Applicant            `json:"applicants" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	WorkExperiences       []WorkExperience       `json:"work_experiences" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

@@ -361,43 +361,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/FgdSchedule/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Find an FgdSchedule by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "FgdSchedule"
-                ],
-                "summary": "Find an FgdSchedule by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.FgdScheduleResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/FgdSchedules/read-result-template": {
             "post": {
                 "security": [
@@ -759,7 +722,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Fgd id",
-                        "name": "Fgd_id",
+                        "name": "fgd_id",
                         "in": "query",
                         "required": true
                     }
@@ -991,6 +954,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/fgd-schedules/document-number": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate a document number for an FgdSchedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Generate a document number for an FgdSchedule",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/fgd-schedules/export-answer": {
             "get": {
                 "security": [
@@ -1074,34 +1065,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "file"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/fgd-schedules/generate-document-number": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Generate a document number for an FgdSchedule",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "FgdSchedule"
-                ],
-                "summary": "Generate a document number for an FgdSchedule",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 }
@@ -1228,6 +1191,41 @@ const docTemplate = `{
             }
         },
         "/api/fgd-schedules/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find an FgdSchedule by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Find an FgdSchedule by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {

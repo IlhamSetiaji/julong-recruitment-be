@@ -200,7 +200,7 @@ func (r *FgdApplicantRepository) FindByUserProfileIDAndIDs(userProfileID uuid.UU
 
 func (r *FgdApplicantRepository) FindByUserProfileIDAndFgdIDs(userProfileID uuid.UUID, FgdIDs []uuid.UUID) (*entity.FgdApplicant, error) {
 	var fgdApplicant entity.FgdApplicant
-	if err := r.DB.Preload("UserProfile").Preload("Fgd.FgdAssessors").Where("user_profile_id = ? AND fgd_schedule_id IN ?", userProfileID, FgdIDs).First(&fgdApplicant).Error; err != nil {
+	if err := r.DB.Preload("UserProfile").Preload("FgdSchedule.FgdAssessors").Where("user_profile_id = ? AND fgd_schedule_id IN ?", userProfileID, FgdIDs).First(&fgdApplicant).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			r.Log.Error("Fgd applicant not found")
 			return nil, nil

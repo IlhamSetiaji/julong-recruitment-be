@@ -100,7 +100,7 @@ func (r *FgdScheduleRepository) FindByID(id uuid.UUID) (*entity.FgdSchedule, err
 	var fgdSchedule entity.FgdSchedule
 
 	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine").
-		Preload("InterviewApplicants.UserProfile").Preload("InterviewApplicants.InterviewResults.InterviewAssessor").Preload("InterviewAssessors").Where("id = ?", id).First(&fgdSchedule).Error; err != nil {
+		Preload("FgdApplicants.UserProfile").Preload("FgdApplicants.FgdResults.FgdAssessor").Preload("FgdAssessors").Where("id = ?", id).First(&fgdSchedule).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {
@@ -191,7 +191,7 @@ func (r *FgdScheduleRepository) FindByIDsForMyselfAssessor(ids []uuid.UUID, fgdS
 		Preload("ProjectRecruitmentHeader").
 		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.AnswerType").
 		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionOptions").
-		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "interview_assessor_id = ?", fgdScheduleAssessorID).
+		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "fgd_assessor_id = ?", fgdScheduleAssessorID).
 		Preload("FgdApplicants.UserProfile").
 		Preload("FgdAssessors", "id = ?", fgdScheduleAssessorID).
 		Where("id IN ?", ids).Find(&fgdSchedules).Error; err != nil {
@@ -209,7 +209,7 @@ func (r *FgdScheduleRepository) UpdateFgdSchedule(fgdSchedule *entity.FgdSchedul
 		return nil, tx.Error
 	}
 
-	if err := tx.Model(&entity.Interview{}).Where("id = ?", fgdSchedule.ID).Updates(fgdSchedule).Error; err != nil {
+	if err := tx.Model(&entity.FgdSchedule{}).Where("id = ?", fgdSchedule.ID).Updates(fgdSchedule).Error; err != nil {
 		tx.Rollback()
 		r.Log.Error("[FgdScheduleRepository.UpdateFgdSchedule] " + err.Error())
 		return nil, err
@@ -296,7 +296,7 @@ func (r *FgdScheduleRepository) FindAllByKeys(keys map[string]interface{}) (*[]e
 func (r *FgdScheduleRepository) FindByIDForAnswer(id, jobPostingID uuid.UUID) (*entity.FgdSchedule, error) {
 	var fgdSchedule entity.FgdSchedule
 	if err := r.DB.Preload("JobPosting").Preload("ProjectPic").Preload("ProjectRecruitmentHeader").Preload("ProjectRecruitmentLine.TemplateActivityLine").
-		Preload("Fgdpplicants.UserProfile").Preload("Fgdpplicants.InterviewResults.Fgdssessor").Preload("Fgdssessors").
+		Preload("Fgdpplicants.UserProfile").Preload("Fgdpplicants.FgdResults.Fgdssessor").Preload("Fgdssessors").
 		Where("id = ? AND job_posting_id = ?", id, jobPostingID).First(&fgdSchedule).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

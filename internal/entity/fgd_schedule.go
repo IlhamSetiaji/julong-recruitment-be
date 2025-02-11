@@ -62,11 +62,11 @@ func (tsh *FgdSchedule) BeforeDelete(tx *gorm.DB) (err error) {
 
 	tsh.DocumentNumber = tsh.DocumentNumber + "_deleted" + randomString
 
-	if err := tx.Model(&FgdApplicant{}).Where("interview_id = ?", tsh.ID).Delete(&FgdApplicant{}).Error; err != nil {
+	if err := tx.Model(&FgdApplicant{}).Where("fgd_schedule_id = ?", tsh.ID).Delete(&FgdApplicant{}).Error; err != nil {
 		return err
 	}
 
-	if err := tx.Model(&FgdAssessor{}).Where("interview_id = ?", tsh.ID).Delete(&FgdAssessor{}).Error; err != nil {
+	if err := tx.Model(&FgdAssessor{}).Where("fgd_schedule_id = ?", tsh.ID).Delete(&FgdAssessor{}).Error; err != nil {
 		return err
 	}
 

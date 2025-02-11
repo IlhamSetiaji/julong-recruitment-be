@@ -3,7 +3,6 @@ package usecase
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -125,6 +124,7 @@ func (uc *FgdScheduleUseCase) FindAllPaginated(page, pageSize int, search string
 }
 
 func (uc *FgdScheduleUseCase) CreateFgdSchedule(req *request.CreateFgdScheduleRequest) (*response.FgdScheduleResponse, error) {
+	uc.Log.Info("COKKKKK")
 	parsedJobPostingID, err := uuid.Parse(req.JobPostingID)
 	if err != nil {
 		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
@@ -270,30 +270,13 @@ func (uc *FgdScheduleUseCase) CreateFgdSchedule(req *request.CreateFgdScheduleRe
 	}
 
 	if applicantsPayload.Total < req.TotalCandidate {
-		zero, err := strconv.Atoi("0")
+		_, err = uc.Repository.UpdateFgdSchedule(&entity.FgdSchedule{
+			ID:             fgdSchedule.ID,
+			TotalCandidate: applicantsPayload.Total,
+		})
 		if err != nil {
 			uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
 			return nil, err
-		}
-		uc.Log.Warn("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + "Total candidate is less than requested")
-		if applicantsPayload.Total == zero {
-			_, err = uc.Repository.UpdateFgdSchedule(&entity.FgdSchedule{
-				ID:             fgdSchedule.ID,
-				TotalCandidate: zero,
-			})
-			if err != nil {
-				uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
-				return nil, err
-			}
-		} else {
-			_, err = uc.Repository.UpdateFgdSchedule(&entity.FgdSchedule{
-				ID:             fgdSchedule.ID,
-				TotalCandidate: applicantsPayload.Total,
-			})
-			if err != nil {
-				uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
-				return nil, err
-			}
 		}
 	}
 
@@ -312,6 +295,8 @@ func (uc *FgdScheduleUseCase) CreateFgdSchedule(req *request.CreateFgdScheduleRe
 		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
 		return nil, err
 	}
+
+	uc.Log.Error("Total Candidate: ", applicantsPayload)
 
 	return resp, nil
 }
@@ -465,8 +450,8 @@ func (uc *FgdScheduleUseCase) FindByID(id uuid.UUID) (*response.FgdScheduleRespo
 	}
 
 	if fgdSchedule == nil {
-		uc.Log.Error("[FgdScheduleUseCase.FindByID] Interview not found")
-		return nil, errors.New("interview not found")
+		uc.Log.Error("[FgdScheduleUseCase.FindByID] fgdSchedule not found")
+		return nil, errors.New("fgdSchedule not found")
 	}
 
 	resp, err := uc.DTO.ConvertEntityToResponse(fgdSchedule)
@@ -479,15 +464,15 @@ func (uc *FgdScheduleUseCase) FindByID(id uuid.UUID) (*response.FgdScheduleRespo
 }
 
 func (uc *FgdScheduleUseCase) DeleteByID(id uuid.UUID) error {
-	interview, err := uc.Repository.FindByID(id)
+	fgdSchedule, err := uc.Repository.FindByID(id)
 	if err != nil {
 		uc.Log.Error("[FgdScheduleUseCase.DeleteByID] " + err.Error())
 		return err
 	}
 
-	if interview == nil {
-		uc.Log.Error("[FgdScheduleUseCase.DeleteByID] Interview not found")
-		return errors.New("interview not found")
+	if fgdSchedule == nil {
+		uc.Log.Error("[FgdScheduleUseCase.DeleteByID] fgdSchedule not found")
+		return errors.New("fgdSchedule not found")
 	}
 
 	err = uc.Repository.DeleteFgdSchedule(id)
@@ -661,7 +646,7 @@ func (uc *FgdScheduleUseCase) FindScheduleForApplicant(applicantID, projectRecru
 		return nil, errors.New("job posting not found")
 	}
 
-	// find interview assessor id
+	// find fgdSchedule assessor id
 	fgdScheduleAssessor, err := uc.FgdAssessorRepository.FindByKeys(map[string]interface{}{
 		"employee_id": employeeID,
 	})
@@ -737,7 +722,7 @@ func (uc *FgdScheduleUseCase) FindMyScheduleForAssessor(employeeID, projectRecru
 		return nil, errors.New("job posting not found")
 	}
 
-	// find interview
+	// find fgdSchedule
 	fgdSchedules, err := uc.Repository.FindAllByKeys(map[string]interface{}{
 		"job_posting_id":              jobPostingID,
 		"project_recruitment_line_id": projectRecruitmentLineID,

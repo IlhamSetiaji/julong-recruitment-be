@@ -508,6 +508,8 @@ func (uc *FgdApplicantUseCase) UpdateFinalResultStatusTestApplicant(ctx context.
 		return nil, errors.New("[FgdApplicantUseCase.UpdateFinalResultStatusTestApplicant] test applicant with id " + id.String() + " not found")
 	}
 
+	uc.Log.Info("Final Result: ", ia.ID)
+
 	if ia.FinalResult == entity.FINAL_RESULT_STATUS_ACCEPTED || ia.FinalResult == entity.FINAL_RESULT_STATUS_REJECTED || ia.FinalResult == entity.FINAL_RESULT_STATUS_SHORTLISTED {
 		return nil, errors.New("final result status already set")
 	}

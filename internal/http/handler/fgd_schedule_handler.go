@@ -220,7 +220,7 @@ func (h *FgdScheduleHandler) FindAllPaginated(ctx *gin.Context) {
 // @Param id path string true "ID"
 // @Success 200 {object} response.FgdScheduleResponse
 // @Security BearerAuth
-// @Router /api/FgdSchedule/{id} [get]
+// @Router /api/fgd-schedules/{id} [get]
 func (h *FgdScheduleHandler) FindByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -287,7 +287,7 @@ func (h *FgdScheduleHandler) DeleteFgdSchedule(ctx *gin.Context) {
 // @Produce json
 // @Success 200 {string} string
 // @Security BearerAuth
-// @Router /api/fgd-schedules/generate-document-number [get]
+// @Router /api/fgd-schedules/document-number [get]
 func (h *FgdScheduleHandler) GenerateDocumentNumber(ctx *gin.Context) {
 	dateNow := time.Now()
 	documentNumber, err := h.UseCase.GenerateDocumentNumber(dateNow)

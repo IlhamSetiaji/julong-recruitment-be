@@ -130,7 +130,7 @@ func (h *FgdApplicantHandler) UpdateStatusFgdApplicants(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			user_profile_id	query	string	true	"User profile id"
-//	@Param			Fgd_id	query	string	true	"Fgd id"
+//	@Param			fgd_id	query	string	true	"Fgd id"
 //	@Success		200			{object}	response.FgdApplicantResponse
 //	@Security		BearerAuth
 //	@Router			/api/fgd-applicants/me [get]

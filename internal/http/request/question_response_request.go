@@ -33,3 +33,20 @@ type InterviewAnswerRequest struct {
 	InterviewAssessorID string `json:"interview_assessor_id" validate:"omitempty,uuid"`
 	Answer              string `json:"answer" validate:"required"`
 }
+
+type FgdQuestionResponseRequest struct {
+	TemplateQuestionID string `json:"template_question_id" validate:"required,uuid"`
+	Questions          []struct {
+		ID      string             `json:"id" validate:"required,uuid"`
+		Answers []FgdAnswerRequest `json:"answers" validate:"required,dive"`
+	} `json:"questions" validate:"required,dive"`
+	DeletedAnswerIDs []string `json:"deleted_answer_ids" validate:"omitempty,dive,uuid"`
+}
+
+type FgdAnswerRequest struct {
+	ID            string `json:"id" validate:"omitempty,uuid"`
+	JobPostingID  string `json:"job_posting_id" validate:"required,uuid"`
+	UserProfileID string `json:"user_profile_id" validate:"required,uuid"`
+	FgdAssessorID string `json:"fgd_assessor_id" validate:"omitempty,uuid"`
+	Answer        string `json:"answer" validate:"required"`
+}

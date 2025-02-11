@@ -19,6 +19,7 @@ type ITemplateQuestionRepository interface {
 	DeleteTemplateQuestion(id uuid.UUID) error
 	FindAllByFormType(formType entity.TemplateQuestionFormType) (*[]entity.TemplateQuestion, error)
 	FindByIDForInterviewAnswer(id uuid.UUID, userProfileID uuid.UUID, jobPostingID uuid.UUID) (*entity.TemplateQuestion, error)
+	FindByIDForFgdAnswer(id uuid.UUID, userProfileID uuid.UUID, jobPostingID uuid.UUID) (*entity.TemplateQuestion, error)
 }
 
 type TemplateQuestionRepository struct {
@@ -191,6 +192,26 @@ func (r *TemplateQuestionRepository) FindAllByFormType(formType entity.TemplateQ
 }
 
 func (r *TemplateQuestionRepository) FindByIDForInterviewAnswer(id uuid.UUID, userProfileID uuid.UUID, jobPostingID uuid.UUID) (*entity.TemplateQuestion, error) {
+	var tq entity.TemplateQuestion
+
+	if err := r.DB.
+		Where("id = ?", id).
+		Preload("Questions.AnswerType").
+		Preload("Questions.QuestionOptions").
+		Preload("Questions.QuestionResponses", "user_profile_id = ? AND job_posting_id = ?", userProfileID, jobPostingID).
+		First(&tq).
+		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &tq, nil
+}
+
+func (r *TemplateQuestionRepository) FindByIDForFgdAnswer(id uuid.UUID, userProfileID uuid.UUID, jobPostingID uuid.UUID) (*entity.TemplateQuestion, error) {
 	var tq entity.TemplateQuestion
 
 	if err := r.DB.

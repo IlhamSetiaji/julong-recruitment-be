@@ -244,6 +244,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				questionResponseRoute.POST("", c.QuestionResponseHandler.CreateOrUpdateQuestionResponses)
 				questionResponseRoute.POST("/answer-interview", c.QuestionResponseHandler.AnswerInterviewQuestionResponses)
+				questionResponseRoute.POST("/answer-fgd", c.QuestionResponseHandler.AnswerFgdQuestionResponses)
 			}
 			// administrative selections
 			administrativeSelectionRoute := apiRoute.Group("/administrative-selections")

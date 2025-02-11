@@ -18,6 +18,7 @@ import (
 type IQuestionResponseHandler interface {
 	CreateOrUpdateQuestionResponses(ctx *gin.Context)
 	AnswerInterviewQuestionResponses(ctx *gin.Context)
+	AnswerFgdQuestionResponses(ctx *gin.Context)
 }
 
 type QuestionResponseHandler struct {
@@ -187,6 +188,41 @@ func (h *QuestionResponseHandler) AnswerInterviewQuestionResponses(ctx *gin.Cont
 	questionResponse, err := h.UseCase.AnswerInterviewQuestionResponses(&payload)
 	if err != nil {
 		h.Log.Errorf("Error when answering interview question responses: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, 201, "success answer question", questionResponse)
+}
+
+// AnswerFgdQuestionResponses answer fgd question responses
+//
+//	@Summary		Answer fgd question responses
+//	@Description	Answer fgd question responses
+//	@Tags			Question Responses
+//	@Accept			json
+//	@Produce		json
+//	@Param			answer	body	request.FgdQuestionResponseRequest	true	"Answer Fgd Question"
+//	@Success		201			{object}	response.QuestionResponse
+//	@Security		BearerAuth
+//	@Router			/api/question-responses/answer-fgd [post]
+func (h *QuestionResponseHandler) AnswerFgdQuestionResponses(ctx *gin.Context) {
+	var payload request.FgdQuestionResponseRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Errorf("Error when binding payload: %v", err)
+		utils.ErrorResponse(ctx, 400, "error", err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Errorf("Error when validating payload: %v", err)
+		utils.ErrorResponse(ctx, 400, "error", err.Error())
+		return
+	}
+
+	questionResponse, err := h.UseCase.AnswerFgdQuestionResponses(&payload)
+	if err != nil {
+		h.Log.Errorf("Error when answering fgd question responses: %v", err)
 		utils.ErrorResponse(ctx, 500, "error", err.Error())
 		return
 	}

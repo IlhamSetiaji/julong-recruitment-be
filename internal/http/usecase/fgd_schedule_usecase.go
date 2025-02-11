@@ -75,7 +75,7 @@ func NewFgdUseCase(
 	}
 }
 
-func FgdUseCaseFactory(
+func FgdScheduleUseCaseFactory(
 	log *logrus.Logger,
 	viper *viper.Viper,
 ) IFgdScheduleUseCase {

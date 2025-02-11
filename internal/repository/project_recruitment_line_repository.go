@@ -22,6 +22,7 @@ type IProjectRecruitmentLineRepository interface {
 	FindAllByProjectRecruitmentHeaderIdAndIds(projectRecruitmentHeaderId uuid.UUID, ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 	FindByIDForAnswer(id, jobPostingID, userProfileID uuid.UUID) (*entity.ProjectRecruitmentLine, error)
 	FindByIDForAnswerInterview(id, jobPostingID, userProfileID, interviewAssessorID uuid.UUID) (*entity.ProjectRecruitmentLine, error)
+	FindByIDForAnswerFgd(id, jobPostingID, userProfileID, fgdAssessorID uuid.UUID) (*entity.ProjectRecruitmentLine, error)
 	FindByIDs(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 	FindByIDsAndHeaderID(ids []uuid.UUID, headerID uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 }
@@ -165,6 +166,20 @@ func (r *ProjectRecruitmentLineRepository) FindByIDForAnswerInterview(id, jobPos
 	var projectRecruitmentLine entity.ProjectRecruitmentLine
 
 	if err := r.DB.Preload("TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "user_profile_id = ? AND job_posting_id = ? AND interview_assessor_id = ?", userProfileID, jobPostingID, interviewAssessorID).Where("id = ?", id).First(&projectRecruitmentLine).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+
+	return &projectRecruitmentLine, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) FindByIDForAnswerFgd(id, jobPostingID, userProfileID, fgdAssessorID uuid.UUID) (*entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLine entity.ProjectRecruitmentLine
+
+	if err := r.DB.Preload("TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "user_profile_id = ? AND job_posting_id = ? AND fgd_assessor_id = ?", userProfileID, jobPostingID, fgdAssessorID).Where("id = ?", id).First(&projectRecruitmentLine).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

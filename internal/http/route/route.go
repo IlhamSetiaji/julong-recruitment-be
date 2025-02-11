@@ -42,6 +42,7 @@ type RouteConfig struct {
 	InterviewHandler                handler.IInterviewHandler
 	InterviewApplicantHandler       handler.IInterviewApplicantHandler
 	InterviewResultHandler          handler.IInterviewResultHandler
+	FgdScheduleHandler              handler.IFgdScheduleHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -298,6 +299,23 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				interviewResultRoute.GET("/find", c.InterviewResultHandler.FindByInterviewApplicantAndAssessorID)
 				interviewResultRoute.POST("", c.InterviewResultHandler.FillInterviewResult)
 			}
+			// fgd schedules
+			fgdScheduleRoute := apiRoute.Group("/fgd-schedules")
+			{
+				fgdScheduleRoute.GET("", c.FgdScheduleHandler.FindAllPaginated)
+				fgdScheduleRoute.GET("/my-schedule", c.FgdScheduleHandler.FindMySchedule)
+				fgdScheduleRoute.GET("/export-answers", c.FgdScheduleHandler.ExportFgdScheduleAnswer)
+				fgdScheduleRoute.GET("/export-result-template", c.FgdScheduleHandler.ExportResultTemplate)
+				fgdScheduleRoute.GET("/applicant-schedule", c.FgdScheduleHandler.FindApplicantSchedule)
+				fgdScheduleRoute.GET("/assessor-schedule", c.FgdScheduleHandler.FindMyScheduleForAssessor)
+				fgdScheduleRoute.GET("/document-number", c.FgdScheduleHandler.GenerateDocumentNumber)
+				fgdScheduleRoute.GET("/:id", c.FgdScheduleHandler.FindByID)
+				fgdScheduleRoute.POST("", c.FgdScheduleHandler.CreateFgdSchedule)
+				fgdScheduleRoute.POST("/read-result-template", c.FgdScheduleHandler.ReadResultTemplate)
+				fgdScheduleRoute.PUT("/update", c.FgdScheduleHandler.UpdateFgdSchedule)
+				fgdScheduleRoute.PUT("/update-status", c.FgdScheduleHandler.UpdateStatusFgdSchedule)
+				fgdScheduleRoute.DELETE("/:id", c.FgdScheduleHandler.DeleteFgdSchedule)
+			}
 		}
 	}
 }
@@ -330,6 +348,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	interviewHandler := handler.InterviewHandlerFactory(log, viper)
 	interviewApplicant := handler.InterviewApplicantHandlerFactory(log, viper)
 	interviewResultHandler := handler.InterviewResultHandlerFactory(log, viper)
+	fgdScheduleHandler := handler.FgdScheduleHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -362,5 +381,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		InterviewHandler:                interviewHandler,
 		InterviewApplicantHandler:       interviewApplicant,
 		InterviewResultHandler:          interviewResultHandler,
+		FgdScheduleHandler:              fgdScheduleHandler,
 	}
 }

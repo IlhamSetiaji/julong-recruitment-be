@@ -319,6 +319,122 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/FgdSchedule/assessor-schedule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find my FgdSchedule schedule for assessor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Find my FgdSchedule schedule for assessor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleMyselfForAssessorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/FgdSchedule/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find an FgdSchedule by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Find an FgdSchedule by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/FgdSchedules/read-result-template": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Read result template",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Read result template",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/administrative-results": {
             "post": {
                 "security": [
@@ -501,6 +617,418 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.AdministrativeResultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-schedules": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all FgdSchedules paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Find all FgdSchedules paginated",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created At",
+                        "name": "created_at",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new FgdSchedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Create a new FgdSchedule",
+                "parameters": [
+                    {
+                        "description": "Create FgdSchedule Request",
+                        "name": "FgdSchedule",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateFgdScheduleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-schedules/applicant-schedule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find applicant FgdSchedule schedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Find applicant FgdSchedule schedule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Applicant ID",
+                        "name": "applicant_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleMyselfResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-schedules/export-answer": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Export FgdSchedule schedule answer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Export FgdSchedule schedule answer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "FgdSchedule ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-schedules/export-result-template": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Export result template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Export result template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "FgdSchedule ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-schedules/generate-document-number": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generate a document number for an FgdSchedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Generate a document number for an FgdSchedule",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-schedules/my-schedule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find my FgdSchedule schedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Find my FgdSchedule schedule",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleMyselfResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-schedules/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an FgdSchedule",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Update an FgdSchedule",
+                "parameters": [
+                    {
+                        "description": "Update FgdSchedule Request",
+                        "name": "FgdSchedule",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateFgdScheduleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-schedules/update-status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update an FgdSchedule status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Update an FgdSchedule status",
+                "parameters": [
+                    {
+                        "description": "Update Status FgdSchedule Request",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStatusFgdScheduleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.FgdScheduleResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fgd-schedules/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete an FgdSchedule by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "FgdSchedule"
+                ],
+                "summary": "Delete an FgdSchedule by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -5892,6 +6420,206 @@ const docTemplate = `{
                 "EDUCATION_LEVEL_ENUM_TK"
             ]
         },
+        "entity.FgdApplicant": {
+            "type": "object",
+            "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/entity.Applicant"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
+                "assessment_status": {
+                    "$ref": "#/definitions/entity.AssessmentStatus"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "ended_time": {
+                    "type": "string"
+                },
+                "fgd_results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.FgdResult"
+                    }
+                },
+                "fgd_schedule": {
+                    "$ref": "#/definitions/entity.FgdSchedule"
+                },
+                "fgd_schedule_id": {
+                    "type": "string"
+                },
+                "final_result": {
+                    "$ref": "#/definitions/entity.FinalResultStatus"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "started_time": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/entity.UserProfile"
+                },
+                "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.FgdAssessor": {
+            "type": "object",
+            "properties": {
+                "employee_id": {
+                    "type": "string"
+                },
+                "fgd_results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.FgdResult"
+                    }
+                },
+                "fgd_schedule": {
+                    "$ref": "#/definitions/entity.FgdSchedule"
+                },
+                "fgd_schedule_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "question_responses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.QuestionResponse"
+                    }
+                }
+            }
+        },
+        "entity.FgdResult": {
+            "type": "object",
+            "properties": {
+                "fgd_applicant": {
+                    "$ref": "#/definitions/entity.FgdApplicant"
+                },
+                "fgd_assessor": {
+                    "$ref": "#/definitions/entity.FgdAssessor"
+                },
+                "fgd_assessor_id": {
+                    "type": "string"
+                },
+                "fgd_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.FgdResultStatus"
+                }
+            }
+        },
+        "entity.FgdResultStatus": {
+            "type": "string",
+            "enum": [
+                "ACCEPTED",
+                "REJECTED"
+            ],
+            "x-enum-varnames": [
+                "FGD_RESULT_STATUS_ACCEPTED",
+                "FGD_RESULT_STATUS_REJECTED"
+            ]
+        },
+        "entity.FgdSchedule": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "fgd_applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.FgdApplicant"
+                    }
+                },
+                "fgd_assessors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.FgdAssessor"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/entity.JobPosting"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/entity.ProjectPic"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentHeader"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentLine"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.FgdScheduleStatus"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.FgdScheduleStatus": {
+            "type": "string",
+            "enum": [
+                "DRAFT",
+                "IN PROGRESS",
+                "COMPLETED"
+            ],
+            "x-enum-varnames": [
+                "FGD_SCHEDULE_STATUS_DRAFT",
+                "FGD_SCHEDULE_STATUS_IN_PROGRESS",
+                "FGD_SCHEDULE_STATUS_COMPLETED"
+            ]
+        },
         "entity.FinalResultStatus": {
             "type": "string",
             "enum": [
@@ -6558,6 +7286,12 @@ const docTemplate = `{
                 "answer_file": {
                     "type": "string"
                 },
+                "fgd_assessor": {
+                    "$ref": "#/definitions/entity.FgdAssessor"
+                },
+                "fgd_assessor_id": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -7202,6 +7936,83 @@ const docTemplate = `{
                 },
                 "template_question_id": {
                     "type": "string"
+                }
+            }
+        },
+        "request.CreateFgdScheduleRequest": {
+            "type": "object",
+            "required": [
+                "document_number",
+                "end_time",
+                "fgd_schedule_assessors",
+                "job_posting_id",
+                "name",
+                "project_pic_id",
+                "project_recruitment_header_id",
+                "project_recruitment_line_id",
+                "schedule_date",
+                "start_time",
+                "status",
+                "total_candidate"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "fgd_schedule_assessors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "employee_id"
+                        ],
+                        "properties": {
+                            "employee_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_candidate": {
+                    "type": "integer"
                 }
             }
         },
@@ -7969,6 +8780,87 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateFgdScheduleRequest": {
+            "type": "object",
+            "required": [
+                "document_number",
+                "end_time",
+                "fgd_schedule_assessors",
+                "id",
+                "job_posting_id",
+                "name",
+                "project_pic_id",
+                "project_recruitment_header_id",
+                "project_recruitment_line_id",
+                "schedule_date",
+                "start_time",
+                "status",
+                "total_candidate"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "fgd_schedule_assessors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "employee_id"
+                        ],
+                        "properties": {
+                            "employee_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.UpdateFinalResultInterviewApplicantRequest": {
             "type": "object",
             "required": [
@@ -8107,6 +8999,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "template_activity_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateStatusFgdScheduleRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -8551,6 +9458,345 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.FgdApplicantResponse": {
+            "type": "object",
+            "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/response.ApplicantResponse"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
+                "assessment_status": {
+                    "$ref": "#/definitions/entity.AssessmentStatus"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "ended_time": {
+                    "type": "string"
+                },
+                "fgd_results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.FgdResultResponse"
+                    }
+                },
+                "fgd_schedule_id": {
+                    "type": "string"
+                },
+                "final_result": {
+                    "$ref": "#/definitions/entity.FinalResultStatus"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "started_time": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_profile": {
+                    "$ref": "#/definitions/response.UserProfileResponse"
+                },
+                "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.FgdAssessorResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "employee_id": {
+                    "type": "string"
+                },
+                "employee_name": {
+                    "type": "string"
+                },
+                "fgd_schedule_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.FgdResultResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "fgd_applicant": {
+                    "$ref": "#/definitions/response.FgdApplicantResponse"
+                },
+                "fgd_applicant_id": {
+                    "type": "string"
+                },
+                "fgd_assessor": {
+                    "$ref": "#/definitions/response.FgdAssessorResponse"
+                },
+                "fgd_assessor_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.FgdResultStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.FgdScheduleMyselfForAssessorResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "fgd_applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.FgdApplicantResponse"
+                    }
+                },
+                "fgd_assessor": {
+                    "$ref": "#/definitions/response.FgdAssessorResponse"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/response.ProjectPicResponse"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.FgdScheduleStatus"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.FgdScheduleMyselfResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "fgd_applicant": {
+                    "$ref": "#/definitions/response.FgdApplicantResponse"
+                },
+                "fgd_assessors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.FgdAssessorResponse"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/response.ProjectPicResponse"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.FgdScheduleStatus"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.FgdScheduleResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "fgd_applicants": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.FgdApplicantResponse"
+                    }
+                },
+                "fgd_assessors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.FgdAssessorResponse"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "location_link": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_pic": {
+                    "$ref": "#/definitions/response.ProjectPicResponse"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_recruitment_header": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentHeaderResponse"
+                },
+                "project_recruitment_header_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "range_duration": {
+                    "type": "integer"
+                },
+                "schedule_date": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.FgdScheduleStatus"
+                },
+                "total_candidate": {
+                    "type": "integer"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }

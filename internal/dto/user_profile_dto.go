@@ -76,6 +76,7 @@ func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) (*re
 		Age:           ent.Age,
 		BirthDate:     ent.BirthDate,
 		BirthPlace:    ent.BirthPlace,
+		Address:       ent.Address,
 		Ktp: func() *string {
 			if ent.Ktp != "" {
 				ktpURL := dto.Viper.GetString("app.url") + ent.Ktp

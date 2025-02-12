@@ -63,45 +63,46 @@ func UserProfileHandlerFactory(
 
 // FillUserProfile fill user profile
 //
-//	@Summary		Fill user profile
-//	@Description	Fill user profile
-//	@Tags			User Profiles
-//	@Accept			multipart/form-data
-//	@Produce		json
-//	@Param			id					formData	string					false	"ID"
-//	@Param			name				formData	string					false	"Name"
-//	@Param			marital_status		formData	string					true	"Marital Status"
-//	@Param			gender				formData	string					true	"Gender"
-//	@Param			phone_number		formData	string					true	"Phone Number"
-//	@Param			age					formData	int						true	"Age"
-//	@Param			birth_date			formData	string					true	"Birth Date"
-//	@Param			birth_place			formData	string					true	"Birth Place"
-//	@Param			ktp					formData	file					false	"KTP"
-//	@Param			curriculum_vitae	formData	file					false	"Curriculum Vitae"
-//	@Param			ktp_path			formData	string					false	"KTP Path"
-//	@Param			cv_path				formData	string					false	"CV Path"
-//	@Param			work_experiences.id					formData	string	false	"Work Experience ID"
-//	@Param			work_experiences.name				formData	string	false	"Work Experience Name"
-//	@Param			work_experiences.company_name		formData	string	false	"Work Experience Company Name"
-//	@Param			work_experiences.year_experience	formData	int		false	"Work Experience Year"
-//	@Param			work_experiences.job_description	formData	string	false	"Work Experience Job Description"
-//	@Param			work_experiences.certificate		formData	file	false	"Work Experience Certificate"
-//	@Param			educations.id						formData	string	false	"Education ID"
-//	@Param			educations.education_level			formData	string	false	"Education Level"
-//	@Param			educations.major					formData	string	false	"Education Major"
-//	@Param			educations.school_name				formData	string	false	"Education School Name"
-//	@Param			educations.graduate_year			formData	int		false	"Education Graduate Year"
-//	@Param			educations.end_date					formData	string	false	"Education End Date"
-//	@Param			educations.certificate				formData	file	false	"Education Certificate"
-//	@Param			educations.gpa						formData	float64	false	"Education GPA"
-//	@Param			skills.id							formData	string	false	"Skill ID"
-//	@Param			skills.name							formData	string	false	"Skill Name"
-//	@Param			skills.description					formData	string	false	"Skill Description"
-//	@Param			skills.level						formData	int		false	"Skill Level"
-//	@Param			skills.certificate					formData	file	false	"Skill Certificate"
-//	@Success		200					{object}	response.UserProfileResponse
-//	@Security		BearerAuth
-//	@Router			/user-profiles [post]
+//		@Summary		Fill user profile
+//		@Description	Fill user profile
+//		@Tags			User Profiles
+//		@Accept			multipart/form-data
+//		@Produce		json
+//		@Param			id					formData	string					false	"ID"
+//		@Param			name				formData	string					false	"Name"
+//		@Param			marital_status		formData	string					true	"Marital Status"
+//		@Param			gender				formData	string					true	"Gender"
+//		@Param			phone_number		formData	string					true	"Phone Number"
+//		@Param			age					formData	int						true	"Age"
+//		@Param			birth_date			formData	string					true	"Birth Date"
+//		@Param			birth_place			formData	string					true	"Birth Place"
+//		@Param			ktp					formData	file					false	"KTP"
+//	 @Param      address       formData  string        false "Address"
+//		@Param			curriculum_vitae	formData	file					false	"Curriculum Vitae"
+//		@Param			ktp_path			formData	string					false	"KTP Path"
+//		@Param			cv_path				formData	string					false	"CV Path"
+//		@Param			work_experiences.id					formData	string	false	"Work Experience ID"
+//		@Param			work_experiences.name				formData	string	false	"Work Experience Name"
+//		@Param			work_experiences.company_name		formData	string	false	"Work Experience Company Name"
+//		@Param			work_experiences.year_experience	formData	int		false	"Work Experience Year"
+//		@Param			work_experiences.job_description	formData	string	false	"Work Experience Job Description"
+//		@Param			work_experiences.certificate		formData	file	false	"Work Experience Certificate"
+//		@Param			educations.id						formData	string	false	"Education ID"
+//		@Param			educations.education_level			formData	string	false	"Education Level"
+//		@Param			educations.major					formData	string	false	"Education Major"
+//		@Param			educations.school_name				formData	string	false	"Education School Name"
+//		@Param			educations.graduate_year			formData	int		false	"Education Graduate Year"
+//		@Param			educations.end_date					formData	string	false	"Education End Date"
+//		@Param			educations.certificate				formData	file	false	"Education Certificate"
+//		@Param			educations.gpa						formData	float64	false	"Education GPA"
+//		@Param			skills.id							formData	string	false	"Skill ID"
+//		@Param			skills.name							formData	string	false	"Skill Name"
+//		@Param			skills.description					formData	string	false	"Skill Description"
+//		@Param			skills.level						formData	int		false	"Skill Level"
+//		@Param			skills.certificate					formData	file	false	"Skill Certificate"
+//		@Success		200					{object}	response.UserProfileResponse
+//		@Security		BearerAuth
+//		@Router			/user-profiles [post]
 func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 	user, err := middleware.GetUser(ctx, h.Log)
 	if err != nil {
@@ -143,6 +144,7 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 	payload.Age, _ = strconv.Atoi(ctx.PostForm("age"))
 	payload.BirthDate = ctx.PostForm("birth_date")
 	payload.BirthPlace = ctx.PostForm("birth_place")
+	payload.Address = ctx.PostForm("address")
 	if files, ok := ctx.Request.MultipartForm.File["ktp"]; ok && len(files) > 0 {
 		payload.Ktp = files[0]
 	} else {

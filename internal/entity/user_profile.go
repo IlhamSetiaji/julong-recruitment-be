@@ -43,6 +43,7 @@ type UserProfile struct {
 	Age             int               `json:"age" gorm:"type:int;default:null"`
 	BirthDate       time.Time         `json:"birth_date" gorm:"type:date;default:null"`
 	BirthPlace      string            `json:"birth_place" gorm:"type:varchar(255);default:null"`
+	Address         string            `json:"address" gorm:"type:text;default:null"`
 	Ktp             string            `json:"ktp" gorm:"type:varchar(255);default:null"`
 	CurriculumVitae string            `json:"curriculum_vitae" gorm:"type:text;default:null"`
 

@@ -15,6 +15,7 @@ type UserProfileResponse struct {
 	Gender          entity.UserGender         `json:"gender"`
 	PhoneNumber     string                    `json:"phone_number"`
 	Age             int                       `json:"age"`
+	Address         string                    `json:"address"`
 	BirthDate       time.Time                 `json:"birth_date"`
 	BirthPlace      string                    `json:"birth_place"`
 	Ktp             *string                   `json:"ktp"`

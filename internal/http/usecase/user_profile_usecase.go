@@ -90,6 +90,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 			BirthPlace:      req.BirthPlace,
 			Ktp:             req.KtpPath,
 			CurriculumVitae: req.CvPath,
+			Address:         req.Address,
 			Status:          entity.USER_INACTIVE,
 		})
 		if err != nil {
@@ -187,6 +188,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 			BirthPlace:      req.BirthPlace,
 			Ktp:             req.KtpPath,
 			CurriculumVitae: req.CvPath,
+			Address:         req.Address,
 			Status:          entity.USER_INACTIVE,
 		})
 		if err != nil {
@@ -442,6 +444,7 @@ func (uc *UserProfileUseCase) FillUserProfileMessage(req *request.FillUserProfil
 			BirthPlace:      req.BirthPlace,
 			Ktp:             req.KtpPath,
 			CurriculumVitae: req.CvPath,
+			Address:         req.Address,
 			Status:          entity.USER_INACTIVE,
 		})
 		if err != nil {
@@ -539,6 +542,7 @@ func (uc *UserProfileUseCase) FillUserProfileMessage(req *request.FillUserProfil
 			BirthPlace:      req.BirthPlace,
 			Ktp:             req.KtpPath,
 			CurriculumVitae: req.CvPath,
+			Address:         req.Address,
 			Status:          entity.USER_INACTIVE,
 		})
 		if err != nil {

@@ -25,12 +25,15 @@ type DocumentSendingResponse struct {
 	HomeLocation             string                       `json:"home_location"`
 	JobLevelID               *uuid.UUID                   `json:"job_level_id"`
 	JobID                    *uuid.UUID                   `json:"job_id"`
+	JobPostingID             *uuid.UUID                   `json:"job_posting_id"`
+	ForOrganizationID        *uuid.UUID                   `json:"for_organization_id"`
 	CreatedAt                time.Time                    `json:"created_at"`
 	UpdatedAt                time.Time                    `json:"updated_at"`
 
 	// ProjectRecruitmentLine *ProjectRecruitmentLineResponse `json:"project_recruitment_line"`
 	// Applicant              *ApplicantResponse              `json:"applicant"`
 	DocumentSetup *DocumentSetupResponse `json:"document_setup"`
+	JobPosting    *JobPostingResponse    `json:"job_posting"`
 
 	JobLevel *map[string]interface{} `json:"job_level"`
 	Job      *map[string]interface{} `json:"job"`

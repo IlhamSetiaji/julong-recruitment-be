@@ -27,7 +27,6 @@ func main() {
 		&entity.DocumentType{},
 		&entity.MailTemplate{},
 		&entity.DocumentSetup{},
-		&entity.DocumentSending{},
 		&entity.DocumentVerification{},
 		&entity.TemplateActivity{},
 		&entity.TemplateActivityLine{},
@@ -49,6 +48,7 @@ func main() {
 		&entity.FgdApplicant{},
 		&entity.FgdAssessor{},
 		&entity.FgdResult{},
+		&entity.DocumentSending{},
 	)
 	if err != nil {
 		log.Fatal(err)

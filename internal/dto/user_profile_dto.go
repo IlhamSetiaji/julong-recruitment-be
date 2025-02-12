@@ -52,18 +52,21 @@ func UserProfileDTOFactory(
 }
 
 func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) (*response.UserProfileResponse, error) {
+	var userData map[string]interface{}
 	messageResponse, err := dto.UserMessage.SendGetUserMe(request.SendFindUserByIDMessageRequest{
 		ID: ent.UserID.String(),
 	})
 	if err != nil {
 		dto.Log.Errorf("[UserProfileDTO.ConvertEntityToResponse] error when sending message to user service: %s", err.Error())
-		return nil, err
-	}
-
-	userData, ok := messageResponse.User["user"].(map[string]interface{})
-	if !ok {
-		dto.Log.Errorf("User information is missing or invalid")
-		return nil, err
+		userData = map[string]interface{}{}
+		// return nil, err
+	} else {
+		var ok bool
+		userData, ok = messageResponse.User["user"].(map[string]interface{})
+		if !ok {
+			dto.Log.Errorf("User information is missing or invalid")
+			return nil, err
+		}
 	}
 
 	return &response.UserProfileResponse{

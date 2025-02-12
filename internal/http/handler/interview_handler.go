@@ -287,7 +287,7 @@ func (h *InterviewHandler) DeleteInterview(ctx *gin.Context) {
 // @Produce json
 // @Success 200 {string} string
 // @Security BearerAuth
-// @Router /api/interview/generate-document-number [get]
+// @Router /api/interview/document-number [get]
 func (h *InterviewHandler) GenerateDocumentNumber(ctx *gin.Context) {
 	dateNow := time.Now()
 	documentNumber, err := h.UseCase.GenerateDocumentNumber(dateNow)

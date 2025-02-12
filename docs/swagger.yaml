@@ -137,6 +137,8 @@ definitions:
         type: string
       basic_wage:
         type: number
+      detail_content:
+        type: string
       document_date:
         type: string
       document_number:
@@ -144,6 +146,10 @@ definitions:
       document_setup:
         $ref: '#/definitions/entity.DocumentSetup'
       document_setup_id:
+        type: string
+      for_organization_id:
+        type: string
+      for_organization_name:
         type: string
       home_location:
         type: string
@@ -155,7 +161,17 @@ definitions:
         type: string
       job_level_id:
         type: string
+      job_level_name:
+        type: string
       job_location:
+        type: string
+      job_name:
+        type: string
+      job_posting:
+        $ref: '#/definitions/entity.JobPosting'
+      job_posting_id:
+        type: string
+      joined_date:
         type: string
       meal_allowance:
         type: number
@@ -174,11 +190,13 @@ definitions:
     type: object
   entity.DocumentSendingStatus:
     enum:
+    - DRAFT
     - PENDING
     - SENT
     - FAILED
     type: string
     x-enum-varnames:
+    - DOCUMENT_SENDING_STATUS_DRAFT
     - DOCUMENT_SENDING_STATUS_PENDING
     - DOCUMENT_SENDING_STATUS_SENT
     - DOCUMENT_SENDING_STATUS_FAILED
@@ -1300,6 +1318,72 @@ definitions:
     - project_pic_id
     - status
     type: object
+  request.CreateDocumentSendingRequest:
+    properties:
+      applicant_id:
+        type: string
+      basic_wage:
+        type: number
+      detail_content:
+        type: string
+      document_date:
+        type: string
+      document_number:
+        type: string
+      document_setup_id:
+        type: string
+      for_organization_id:
+        type: string
+      home_location:
+        type: string
+      hometrip_ticket:
+        type: string
+      job_level_id:
+        type: string
+      job_location:
+        type: string
+      job_posting_id:
+        description: JobID                    string  `json:"job_id" validate:"uuid"`
+        type: string
+      joined_date:
+        type: string
+      meal_allowance:
+        type: number
+      operational_allowance:
+        type: number
+      period_agreement:
+        type: string
+      positional_allowance:
+        type: number
+      project_recruitment_line_id:
+        type: string
+      status:
+        enum:
+        - DRAFT
+        - PENDING
+        - SENT
+        - FAILED
+        type: string
+    required:
+    - applicant_id
+    - basic_wage
+    - detail_content
+    - document_date
+    - document_number
+    - document_setup_id
+    - for_organization_id
+    - home_location
+    - hometrip_ticket
+    - job_level_id
+    - job_location
+    - job_posting_id
+    - meal_allowance
+    - operational_allowance
+    - period_agreement
+    - positional_allowance
+    - project_recruitment_line_id
+    - status
+    type: object
   request.CreateDocumentSetupRequest:
     properties:
       body:
@@ -1972,6 +2056,75 @@ definitions:
     - project_pic_id
     - status
     type: object
+  request.UpdateDocumentSendingRequest:
+    properties:
+      applicant_id:
+        type: string
+      basic_wage:
+        type: number
+      detail_content:
+        type: string
+      document_date:
+        type: string
+      document_number:
+        type: string
+      document_setup_id:
+        type: string
+      for_organization_id:
+        type: string
+      home_location:
+        type: string
+      hometrip_ticket:
+        type: string
+      id:
+        type: string
+      job_level_id:
+        type: string
+      job_location:
+        type: string
+      job_posting_id:
+        description: JobID                    string  `json:"job_id" validate:"uuid"`
+        type: string
+      joined_date:
+        type: string
+      meal_allowance:
+        type: number
+      operational_allowance:
+        type: number
+      period_agreement:
+        type: string
+      positional_allowance:
+        type: number
+      project_recruitment_line_id:
+        type: string
+      status:
+        enum:
+        - DRAFT
+        - PENDING
+        - SENT
+        - FAILED
+        type: string
+    required:
+    - applicant_id
+    - basic_wage
+    - detail_content
+    - document_date
+    - document_number
+    - document_setup_id
+    - for_organization_id
+    - home_location
+    - hometrip_ticket
+    - id
+    - job_level_id
+    - job_location
+    - job_posting_id
+    - meal_allowance
+    - operational_allowance
+    - period_agreement
+    - positional_allowance
+    - project_recruitment_line_id
+    - status
+    type: object
   request.UpdateDocumentSetupRequest:
     properties:
       body:
@@ -2431,6 +2584,65 @@ definitions:
       user_profile:
         $ref: '#/definitions/response.UserProfileResponse'
       user_profile_id:
+        type: string
+    type: object
+  response.DocumentSendingResponse:
+    properties:
+      applicant_id:
+        type: string
+      basic_wage:
+        type: number
+      created_at:
+        type: string
+      document_date:
+        type: string
+      document_number:
+        type: string
+      document_setup:
+        allOf:
+        - $ref: '#/definitions/response.DocumentSetupResponse'
+        description: |-
+          ProjectRecruitmentLine *ProjectRecruitmentLineResponse `json:"project_recruitment_line"`
+          Applicant              *ApplicantResponse              `json:"applicant"`
+      document_setup_id:
+        type: string
+      for_organization_id:
+        type: string
+      for_organization_name:
+        type: string
+      home_location:
+        type: string
+      hometrip_ticket:
+        type: string
+      id:
+        type: string
+      job:
+        $ref: '#/definitions/response.SendFindJobByIDMessageResponse'
+      job_id:
+        type: string
+      job_level:
+        $ref: '#/definitions/response.SendFindJobLevelByIDMessageResponse'
+      job_level_id:
+        type: string
+      job_location:
+        type: string
+      job_posting:
+        $ref: '#/definitions/response.JobPostingResponse'
+      job_posting_id:
+        type: string
+      meal_allowance:
+        type: number
+      operational_allowance:
+        type: number
+      period_agreement:
+        type: string
+      positional_allowance:
+        type: number
+      project_recruitment_line_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.DocumentSendingStatus'
+      updated_at:
         type: string
     type: object
   response.DocumentSetupResponse:
@@ -3337,6 +3549,22 @@ definitions:
       key:
         type: string
       value:
+        type: string
+    type: object
+  response.SendFindJobByIDMessageResponse:
+    properties:
+      job_id:
+        type: string
+      name:
+        type: string
+    type: object
+  response.SendFindJobLevelByIDMessageResponse:
+    properties:
+      job_level_id:
+        type: string
+      level:
+        type: number
+      name:
         type: string
     type: object
   response.SkillResponse:
@@ -4721,7 +4949,7 @@ paths:
       summary: Find my interview schedule for assessor
       tags:
       - Interview
-  /api/interview/generate-document-number:
+  /api/interview/document-number:
     get:
       consumes:
       - application/json
@@ -5987,6 +6215,179 @@ paths:
       summary: find applicant by job posting ID and user ID
       tags:
       - Applicants
+  /document-sending:
+    get:
+      consumes:
+      - application/json
+      description: find all paginated by document type id
+      parameters:
+      - description: Document Type ID
+        in: query
+        name: document_type_id
+        required: true
+        type: string
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.DocumentSendingResponse'
+      security:
+      - BearerAuth: []
+      summary: find all paginated by document type id
+      tags:
+      - Document Sendings
+    post:
+      consumes:
+      - application/json
+      description: create document sending
+      parameters:
+      - description: Document Sending
+        in: body
+        name: document_sending
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateDocumentSendingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.DocumentSendingResponse'
+      security:
+      - BearerAuth: []
+      summary: create document sending
+      tags:
+      - Document Sendings
+  /document-sending/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete document sending
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: delete document sending
+      tags:
+      - Document Sendings
+    get:
+      consumes:
+      - application/json
+      description: find by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.DocumentSendingResponse'
+      security:
+      - BearerAuth: []
+      summary: find by id
+      tags:
+      - Document Sendings
+  /document-sending/document-number:
+    get:
+      consumes:
+      - application/json
+      description: generate document number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: generate document number
+      tags:
+      - Document Sendings
+  /document-sending/document-setup/{document_setup_id}:
+    get:
+      consumes:
+      - application/json
+      description: find all by document setup id
+      parameters:
+      - description: Document Setup ID
+        in: path
+        name: document_setup_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.DocumentSendingResponse'
+      security:
+      - BearerAuth: []
+      summary: find all by document setup id
+      tags:
+      - Document Sendings
+  /document-sending/update:
+    put:
+      consumes:
+      - application/json
+      description: update document sending
+      parameters:
+      - description: Document Sending
+        in: body
+        name: document_sending
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDocumentSendingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.DocumentSendingResponse'
+      security:
+      - BearerAuth: []
+      summary: update document sending
+      tags:
+      - Document Sendings
   /document-setups:
     get:
       consumes:

@@ -10,6 +10,7 @@ import (
 type DocumentSendingStatus string
 
 const (
+	DOCUMENT_SENDING_STATUS_DRAFT   DocumentSendingStatus = "DRAFT"
 	DOCUMENT_SENDING_STATUS_PENDING DocumentSendingStatus = "PENDING"
 	DOCUMENT_SENDING_STATUS_SENT    DocumentSendingStatus = "SENT"
 	DOCUMENT_SENDING_STATUS_FAILED  DocumentSendingStatus = "FAILED"

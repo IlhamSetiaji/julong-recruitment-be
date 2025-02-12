@@ -1671,7 +1671,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/interview/generate-document-number": {
+        "/api/interview/document-number": {
             "get": {
                 "security": [
                     {
@@ -3756,6 +3756,282 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.ApplicantResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-sending": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "find all paginated by document type id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Sendings"
+                ],
+                "summary": "find all paginated by document type id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document Type ID",
+                        "name": "document_type_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSendingResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "create document sending",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Sendings"
+                ],
+                "summary": "create document sending",
+                "parameters": [
+                    {
+                        "description": "Document Sending",
+                        "name": "document_sending",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateDocumentSendingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSendingResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-sending/document-number": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "generate document number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Sendings"
+                ],
+                "summary": "generate document number",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-sending/document-setup/{document_setup_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "find all by document setup id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Sendings"
+                ],
+                "summary": "find all by document setup id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document Setup ID",
+                        "name": "document_setup_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSendingResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-sending/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "update document sending",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Sendings"
+                ],
+                "summary": "update document sending",
+                "parameters": [
+                    {
+                        "description": "Document Sending",
+                        "name": "document_sending",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateDocumentSendingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSendingResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-sending/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "find by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Sendings"
+                ],
+                "summary": "find by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSendingResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "delete document sending",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Sendings"
+                ],
+                "summary": "delete document sending",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -6599,6 +6875,9 @@ const docTemplate = `{
                 "basic_wage": {
                     "type": "number"
                 },
+                "detail_content": {
+                    "type": "string"
+                },
                 "document_date": {
                     "type": "string"
                 },
@@ -6609,6 +6888,12 @@ const docTemplate = `{
                     "$ref": "#/definitions/entity.DocumentSetup"
                 },
                 "document_setup_id": {
+                    "type": "string"
+                },
+                "for_organization_id": {
+                    "type": "string"
+                },
+                "for_organization_name": {
                     "type": "string"
                 },
                 "home_location": {
@@ -6626,7 +6911,22 @@ const docTemplate = `{
                 "job_level_id": {
                     "type": "string"
                 },
+                "job_level_name": {
+                    "type": "string"
+                },
                 "job_location": {
+                    "type": "string"
+                },
+                "job_name": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/entity.JobPosting"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "joined_date": {
                     "type": "string"
                 },
                 "meal_allowance": {
@@ -6655,11 +6955,13 @@ const docTemplate = `{
         "entity.DocumentSendingStatus": {
             "type": "string",
             "enum": [
+                "DRAFT",
                 "PENDING",
                 "SENT",
                 "FAILED"
             ],
             "x-enum-varnames": [
+                "DOCUMENT_SENDING_STATUS_DRAFT",
                 "DOCUMENT_SENDING_STATUS_PENDING",
                 "DOCUMENT_SENDING_STATUS_SENT",
                 "DOCUMENT_SENDING_STATUS_FAILED"
@@ -8296,6 +8598,95 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateDocumentSendingRequest": {
+            "type": "object",
+            "required": [
+                "applicant_id",
+                "basic_wage",
+                "detail_content",
+                "document_date",
+                "document_number",
+                "document_setup_id",
+                "for_organization_id",
+                "home_location",
+                "hometrip_ticket",
+                "job_level_id",
+                "job_location",
+                "job_posting_id",
+                "meal_allowance",
+                "operational_allowance",
+                "period_agreement",
+                "positional_allowance",
+                "project_recruitment_line_id",
+                "status"
+            ],
+            "properties": {
+                "applicant_id": {
+                    "type": "string"
+                },
+                "basic_wage": {
+                    "type": "number"
+                },
+                "detail_content": {
+                    "type": "string"
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "document_setup_id": {
+                    "type": "string"
+                },
+                "for_organization_id": {
+                    "type": "string"
+                },
+                "home_location": {
+                    "type": "string"
+                },
+                "hometrip_ticket": {
+                    "type": "string"
+                },
+                "job_level_id": {
+                    "type": "string"
+                },
+                "job_location": {
+                    "type": "string"
+                },
+                "job_posting_id": {
+                    "description": "JobID                    string  ` + "`" + `json:\"job_id\" validate:\"uuid\"` + "`" + `",
+                    "type": "string"
+                },
+                "joined_date": {
+                    "type": "string"
+                },
+                "meal_allowance": {
+                    "type": "number"
+                },
+                "operational_allowance": {
+                    "type": "number"
+                },
+                "period_agreement": {
+                    "type": "string"
+                },
+                "positional_allowance": {
+                    "type": "number"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "DRAFT",
+                        "PENDING",
+                        "SENT",
+                        "FAILED"
+                    ]
+                }
+            }
+        },
         "request.CreateDocumentSetupRequest": {
             "type": "object",
             "required": [
@@ -9267,6 +9658,99 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateDocumentSendingRequest": {
+            "type": "object",
+            "required": [
+                "applicant_id",
+                "basic_wage",
+                "detail_content",
+                "document_date",
+                "document_number",
+                "document_setup_id",
+                "for_organization_id",
+                "home_location",
+                "hometrip_ticket",
+                "id",
+                "job_level_id",
+                "job_location",
+                "job_posting_id",
+                "meal_allowance",
+                "operational_allowance",
+                "period_agreement",
+                "positional_allowance",
+                "project_recruitment_line_id",
+                "status"
+            ],
+            "properties": {
+                "applicant_id": {
+                    "type": "string"
+                },
+                "basic_wage": {
+                    "type": "number"
+                },
+                "detail_content": {
+                    "type": "string"
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "document_setup_id": {
+                    "type": "string"
+                },
+                "for_organization_id": {
+                    "type": "string"
+                },
+                "home_location": {
+                    "type": "string"
+                },
+                "hometrip_ticket": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_level_id": {
+                    "type": "string"
+                },
+                "job_location": {
+                    "type": "string"
+                },
+                "job_posting_id": {
+                    "description": "JobID                    string  ` + "`" + `json:\"job_id\" validate:\"uuid\"` + "`" + `",
+                    "type": "string"
+                },
+                "joined_date": {
+                    "type": "string"
+                },
+                "meal_allowance": {
+                    "type": "number"
+                },
+                "operational_allowance": {
+                    "type": "number"
+                },
+                "period_agreement": {
+                    "type": "string"
+                },
+                "positional_allowance": {
+                    "type": "number"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "DRAFT",
+                        "PENDING",
+                        "SENT",
+                        "FAILED"
+                    ]
+                }
+            }
+        },
         "request.UpdateDocumentSetupRequest": {
             "type": "object",
             "required": [
@@ -9923,6 +10407,94 @@ const docTemplate = `{
                     "$ref": "#/definitions/response.UserProfileResponse"
                 },
                 "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.DocumentSendingResponse": {
+            "type": "object",
+            "properties": {
+                "applicant_id": {
+                    "type": "string"
+                },
+                "basic_wage": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string"
+                },
+                "document_setup": {
+                    "description": "ProjectRecruitmentLine *ProjectRecruitmentLineResponse ` + "`" + `json:\"project_recruitment_line\"` + "`" + `\nApplicant              *ApplicantResponse              ` + "`" + `json:\"applicant\"` + "`" + `",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.DocumentSetupResponse"
+                        }
+                    ]
+                },
+                "document_setup_id": {
+                    "type": "string"
+                },
+                "for_organization_id": {
+                    "type": "string"
+                },
+                "for_organization_name": {
+                    "type": "string"
+                },
+                "home_location": {
+                    "type": "string"
+                },
+                "hometrip_ticket": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job": {
+                    "$ref": "#/definitions/response.SendFindJobByIDMessageResponse"
+                },
+                "job_id": {
+                    "type": "string"
+                },
+                "job_level": {
+                    "$ref": "#/definitions/response.SendFindJobLevelByIDMessageResponse"
+                },
+                "job_level_id": {
+                    "type": "string"
+                },
+                "job_location": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "meal_allowance": {
+                    "type": "number"
+                },
+                "operational_allowance": {
+                    "type": "number"
+                },
+                "period_agreement": {
+                    "type": "string"
+                },
+                "positional_allowance": {
+                    "type": "number"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.DocumentSendingStatus"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -11293,6 +11865,31 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.SendFindJobByIDMessageResponse": {
+            "type": "object",
+            "properties": {
+                "job_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.SendFindJobLevelByIDMessageResponse": {
+            "type": "object",
+            "properties": {
+                "job_level_id": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "number"
+                },
+                "name": {
                     "type": "string"
                 }
             }

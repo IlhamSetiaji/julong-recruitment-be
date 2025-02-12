@@ -356,3 +356,19 @@ func FgdResultStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func DocumentSendingStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.DocumentSendingStatus(status) {
+	case entity.DOCUMENT_SENDING_STATUS_DRAFT,
+		entity.DOCUMENT_SENDING_STATUS_PENDING,
+		entity.DOCUMENT_SENDING_STATUS_SENT,
+		entity.DOCUMENT_SENDING_STATUS_FAILED:
+		return true
+	default:
+		return false
+	}
+}

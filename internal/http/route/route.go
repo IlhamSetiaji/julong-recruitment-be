@@ -45,6 +45,7 @@ type RouteConfig struct {
 	FgdScheduleHandler              handler.IFgdScheduleHandler
 	FgdApplicantHandler             handler.IFgdApplicantHandler
 	FgdResultHandler                handler.IFgdResultHandler
+	DocumentSendingHandler          handler.IDocumentSendingHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -335,6 +336,17 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				fgdResultRoute.GET("/find", c.FgdResultHandler.FindByFgdApplicantAndAssessorID)
 				fgdResultRoute.POST("", c.FgdResultHandler.FillFgdResult)
 			}
+			// document sending
+			documentSendingRoute := apiRoute.Group("/document-sending")
+			{
+				documentSendingRoute.GET("", c.DocumentSendingHandler.FindAllPaginatedByDocumentTypeID)
+				documentSendingRoute.GET("/document-number", c.DocumentSendingHandler.GenerateDocumentNumber)
+				documentSendingRoute.GET("/document-setup/:document_setup_id", c.DocumentSendingHandler.FindAllByDocumentSetupID)
+				documentSendingRoute.GET("/:id", c.DocumentSendingHandler.FindByID)
+				documentSendingRoute.POST("", c.DocumentSendingHandler.CreateDocumentSending)
+				documentSendingRoute.PUT("/update", c.DocumentSendingHandler.UpdateDocumentSending)
+				documentSendingRoute.DELETE("/:id", c.DocumentSendingHandler.DeleteDocumentSending)
+			}
 		}
 	}
 }
@@ -370,6 +382,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	fgdScheduleHandler := handler.FgdScheduleHandlerFactory(log, viper)
 	fgdApplicantHandler := handler.FgdApplicantHandlerFactory(log, viper)
 	fgdResultHandler := handler.FgdResultHandlerFactory(log, viper)
+	documentSendingHandler := handler.DocumentSendingHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -405,5 +418,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		FgdScheduleHandler:              fgdScheduleHandler,
 		FgdApplicantHandler:             fgdApplicantHandler,
 		FgdResultHandler:                fgdResultHandler,
+		DocumentSendingHandler:          documentSendingHandler,
 	}
 }

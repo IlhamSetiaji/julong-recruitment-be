@@ -18,7 +18,9 @@ type UserProfileResponse struct {
 	Address         string                    `json:"address"`
 	BirthDate       time.Time                 `json:"birth_date"`
 	BirthPlace      string                    `json:"birth_place"`
+	Bilingual       string                    `json:"bilingual"`
 	Ktp             *string                   `json:"ktp"`
+	Avatar          *string                   `json:"avatar"`
 	CurriculumVitae *string                   `json:"curriculum_vitae"`
 	Status          entity.UserStatus         `json:"status"`
 	CreatedAt       time.Time                 `json:"created_at"`

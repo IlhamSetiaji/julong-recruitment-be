@@ -1199,6 +1199,10 @@ definitions:
         items:
           $ref: '#/definitions/entity.Applicant'
         type: array
+      avatar:
+        type: string
+      bilingual:
+        type: string
       birth_date:
         type: string
       birth_place:
@@ -3557,6 +3561,10 @@ definitions:
         type: string
       age:
         type: integer
+      avatar:
+        type: string
+      bilingual:
+        type: string
       birth_date:
         type: string
       birth_place:
@@ -7590,6 +7598,32 @@ paths:
       security:
       - BearerAuth: []
       summary: Find user profile by id
+      tags:
+      - User Profiles
+  /user-profiles/update-avatar:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update user profile avatar
+      parameters:
+      - description: ID
+        in: formData
+        name: id
+        type: string
+      - description: Avatar
+        in: formData
+        name: avatar
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserProfileResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user profile avatar
       tags:
       - User Profiles
   /user-profiles/update-status:

@@ -46,6 +46,8 @@ type UserProfile struct {
 	Address         string            `json:"address" gorm:"type:text;default:null"`
 	Ktp             string            `json:"ktp" gorm:"type:varchar(255);default:null"`
 	CurriculumVitae string            `json:"curriculum_vitae" gorm:"type:text;default:null"`
+	Avatar          string            `json:"avatar" gorm:"type:text;default:null"`
+	Bilingual       string            `json:"bilingual" gorm:"type:varchar(255);default:null"`
 
 	Applicants            []Applicant            `json:"applicants" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	WorkExperiences       []WorkExperience       `json:"work_experiences" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

@@ -196,6 +196,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				userProfileRoute.GET("/:id", c.UserProfileHandler.FindByID)
 				userProfileRoute.POST("", c.UserProfileHandler.FillUserProfile)
 				userProfileRoute.PUT("/update/status", c.UserProfileHandler.UpdateStatusUserProfile)
+				userProfileRoute.PUT("/update-avatar", c.UserProfileHandler.UpdateAvatar)
 				userProfileRoute.DELETE("/:id", c.UserProfileHandler.DeleteUserProfile)
 			}
 			// applicants

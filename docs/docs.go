@@ -6222,6 +6222,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/user-profiles/update-avatar": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update user profile avatar",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Profiles"
+                ],
+                "summary": "Update user profile avatar",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Avatar",
+                        "name": "avatar",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UserProfileResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user-profiles/update-status": {
             "put": {
                 "security": [
@@ -8102,6 +8144,12 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/entity.Applicant"
                     }
+                },
+                "avatar": {
+                    "type": "string"
+                },
+                "bilingual": {
+                    "type": "string"
                 },
                 "birth_date": {
                     "type": "string"
@@ -11585,6 +11633,12 @@ const docTemplate = `{
                 },
                 "age": {
                     "type": "integer"
+                },
+                "avatar": {
+                    "type": "string"
+                },
+                "bilingual": {
+                    "type": "string"
                 },
                 "birth_date": {
                     "type": "string"

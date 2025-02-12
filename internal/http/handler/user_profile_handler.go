@@ -25,6 +25,7 @@ type IUserProfileHandler interface {
 	FindByUserID(ctx *gin.Context)
 	UpdateStatusUserProfile(ctx *gin.Context)
 	DeleteUserProfile(ctx *gin.Context)
+	UpdateAvatar(ctx *gin.Context)
 }
 
 type UserProfileHandler struct {
@@ -145,6 +146,7 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 	payload.BirthDate = ctx.PostForm("birth_date")
 	payload.BirthPlace = ctx.PostForm("birth_place")
 	payload.Address = ctx.PostForm("address")
+	payload.Bilingual = ctx.PostForm("bilingual")
 	if files, ok := ctx.Request.MultipartForm.File["ktp"]; ok && len(files) > 0 {
 		payload.Ktp = files[0]
 	} else {
@@ -585,4 +587,78 @@ func (h *UserProfileHandler) DeleteUserProfile(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, 200, "success", nil)
+}
+
+// UpdateAvatar update user profile avatar
+//
+//	@Summary		Update user profile avatar
+//	@Description	Update user profile avatar
+//	@Tags			User Profiles
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			id		formData	string	false	"ID"
+//	@Param			avatar	formData	file	false	"Avatar"
+//	@Success		200	{object}	response.UserProfileResponse
+//	@Security		BearerAuth
+//	@Router			/user-profiles/update-avatar	[put]
+func (h *UserProfileHandler) UpdateAvatar(ctx *gin.Context) {
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	if err := ctx.Request.ParseMultipartForm(10 << 20); err != nil { // 10MB limit
+		h.Log.Error("Failed to parse form-data: ", err)
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	id := ctx.PostForm("id")
+	if id == "" {
+		id = userUUID.String()
+	}
+
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.UpdateAvatar] " + err.Error())
+		utils.ErrorResponse(ctx, 400, "bad request", err.Error())
+		return
+	}
+
+	avatar, err := ctx.FormFile("avatar")
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.UpdateAvatar] " + err.Error())
+		utils.ErrorResponse(ctx, 400, "bad request", err.Error())
+		return
+	}
+
+	timestamp := time.Now().UnixNano()
+	avatarPath := "storage/user_profiles/avatar/" + strconv.FormatInt(timestamp, 10) + "_" + avatar.Filename
+	if err := ctx.SaveUploadedFile(avatar, avatarPath); err != nil {
+		h.Log.Error("failed to save avatar: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to save avatar", err.Error())
+		return
+	}
+
+	userProfile, err := h.UseCase.UpdateAvatar(parsedID, avatarPath)
+	if err != nil {
+		h.Log.Error("[UserProfileHandler.UpdateAvatar] " + err.Error())
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, 200, "success", userProfile)
 }

@@ -22,6 +22,7 @@ type IUserProfileUseCase interface {
 	FindByUserID(userID uuid.UUID) (*response.UserProfileResponse, error)
 	UpdateStatusUserProfile(req *request.UpdateStatusUserProfileRequest) (*response.UserProfileResponse, error)
 	DeleteUserProfile(id uuid.UUID) error
+	UpdateAvatar(id uuid.UUID, avatarPath string) (*response.UserProfileResponse, error)
 }
 
 type UserProfileUseCase struct {
@@ -91,6 +92,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 			Ktp:             req.KtpPath,
 			CurriculumVitae: req.CvPath,
 			Address:         req.Address,
+			Bilingual:       req.Bilingual,
 			Status:          entity.USER_INACTIVE,
 		})
 		if err != nil {
@@ -189,6 +191,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 			Ktp:             req.KtpPath,
 			CurriculumVitae: req.CvPath,
 			Address:         req.Address,
+			Bilingual:       req.Bilingual,
 			Status:          entity.USER_INACTIVE,
 		})
 		if err != nil {
@@ -445,6 +448,7 @@ func (uc *UserProfileUseCase) FillUserProfileMessage(req *request.FillUserProfil
 			Ktp:             req.KtpPath,
 			CurriculumVitae: req.CvPath,
 			Address:         req.Address,
+			Bilingual:       req.Bilingual,
 			Status:          entity.USER_INACTIVE,
 		})
 		if err != nil {
@@ -851,4 +855,27 @@ func (uc *UserProfileUseCase) DeleteUserProfile(id uuid.UUID) error {
 		return errors.New("[UserProfileUseCase.DeleteUserProfile] error when deleting user profile: " + err.Error())
 	}
 	return nil
+}
+
+func (uc *UserProfileUseCase) UpdateAvatar(id uuid.UUID, avatarPath string) (*response.UserProfileResponse, error) {
+	profile, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.UpdateAvatar] error when finding user profile by ID: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.UpdateAvatar] error when finding user profile by ID: " + err.Error())
+	}
+	if profile == nil {
+		uc.Log.Errorf("[UserProfileUseCase.UpdateAvatar] user profile not found")
+		return nil, errors.New("[UserProfileUseCase.UpdateAvatar] user profile not found")
+	}
+
+	updatedProfile, err := uc.Repository.UpdateUserProfile(&entity.UserProfile{
+		ID:     id,
+		Avatar: avatarPath,
+	})
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.UpdateAvatar] error when updating user profile: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.UpdateAvatar] error when updating user profile: " + err.Error())
+	}
+
+	return uc.DTO.ConvertEntityToResponse(updatedProfile)
 }

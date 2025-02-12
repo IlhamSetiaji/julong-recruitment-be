@@ -187,6 +187,27 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 				workExpID = &workExpIDs[i]
 			}
 
+			if len(workExpYears) == 0 {
+				h.Log.Error("Work experience years are missing, column_name: work_experiences.year_experience")
+				utils.ErrorResponse(ctx, http.StatusBadRequest, "Work experience years are missing", "Work experience years are required")
+				return
+			}
+			if len(workExpNames) == 0 {
+				h.Log.Error("Work experience names are missing, column_name: work_experiences.name")
+				utils.ErrorResponse(ctx, http.StatusBadRequest, "Work experience names are missing", "Work experience names are required")
+				return
+			}
+			if len(workExpCompanies) == 0 {
+				h.Log.Error("Work experience companies are missing, column_name: work_experiences.company_name")
+				utils.ErrorResponse(ctx, http.StatusBadRequest, "Work experience companies are missing", "Work experience companies are required")
+				return
+			}
+			if len(workExpDescriptions) == 0 {
+				h.Log.Error("Work experience descriptions are missing, column_name: work_experiences.job_description")
+				utils.ErrorResponse(ctx, http.StatusBadRequest, "Work experience descriptions are missing", "Work experience descriptions are required")
+				return
+			}
+
 			payload.WorkExperiences = append(payload.WorkExperiences, request.WorkExperience{
 				ID:             workExpID,
 				Name:           workExpNames[i],
@@ -231,6 +252,32 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 			eduID = &eduIDs[i]
 		}
 
+		if len(eduGradYears) == 0 {
+			h.Log.Error("Education graduate years are missing, column_name: educations.graduate_year")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Education graduate years are missing", "Education graduate years are required")
+			return
+		}
+		if len(eduMajors) == 0 {
+			h.Log.Error("Education majors are missing, column_name: educations.major")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Education majors are missing", "Education majors are required")
+			return
+		}
+		if len(eduSchools) == 0 {
+			h.Log.Error("Education school names are missing, column_name: educations.school_name")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Education school names are missing", "Education school names are required")
+			return
+		}
+		if len(eduEndDates) == 0 {
+			h.Log.Error("Education end dates are missing, column_name: educations.end_date")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Education end dates are missing", "Education end dates are required")
+			return
+		}
+		if len(eduGpas) == 0 {
+			h.Log.Error("Education GPAs are missing, column_name: educations.gpa")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Education GPAs are missing", "Education GPAs are required")
+			return
+		}
+
 		payload.Educations = append(payload.Educations, request.Education{
 			ID:             eduID,
 			EducationLevel: eduLevels[i],
@@ -272,6 +319,22 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 		var skillID *string
 		if len(skillIDs) > i {
 			skillID = &skillIDs[i]
+		}
+
+		if len(skillNames) == 0 {
+			h.Log.Error("Skill names are missing, column_name: skills.name")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Skill names are missing", "Skill names are required")
+			return
+		}
+		if len(skillDescriptions) == 0 {
+			h.Log.Error("Skill descriptions are missing, column_name: skills.description")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Skill descriptions are missing", "Skill descriptions are required")
+			return
+		}
+		if len(skillLevels) == 0 {
+			h.Log.Error("Skill levels are missing, column_name: skills.level")
+			utils.ErrorResponse(ctx, http.StatusBadRequest, "Skill levels are missing", "Skill levels are required")
+			return
 		}
 
 		payload.Skills = append(payload.Skills, request.Skill{

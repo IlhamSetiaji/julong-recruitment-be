@@ -6074,6 +6074,12 @@ const docTemplate = `{
                         "in": "formData"
                     },
                     {
+                        "type": "string",
+                        "description": "Address",
+                        "name": "address",
+                        "in": "formData"
+                    },
+                    {
                         "type": "file",
                         "description": "Curriculum Vitae",
                         "name": "curriculum_vitae",
@@ -8079,6 +8085,9 @@ const docTemplate = `{
         "entity.UserProfile": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "administrative_results": {
                     "type": "array",
                     "items": {
@@ -11571,6 +11580,9 @@ const docTemplate = `{
         "response.UserProfileResponse": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "age": {
                     "type": "integer"
                 },

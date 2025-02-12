@@ -1187,6 +1187,8 @@ definitions:
     - FEMALE
   entity.UserProfile:
     properties:
+      address:
+        type: string
       administrative_results:
         items:
           $ref: '#/definitions/entity.AdministrativeResult'
@@ -3551,6 +3553,8 @@ definitions:
     type: object
   response.UserProfileResponse:
     properties:
+      address:
+        type: string
       age:
         type: integer
       birth_date:
@@ -7439,6 +7443,10 @@ paths:
         in: formData
         name: ktp
         type: file
+      - description: Address
+        in: formData
+        name: address
+        type: string
       - description: Curriculum Vitae
         in: formData
         name: curriculum_vitae

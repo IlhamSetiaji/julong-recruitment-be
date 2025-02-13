@@ -12,6 +12,7 @@ type IDocumentSendingRepository interface {
 	CreateDocumentSending(ent *entity.DocumentSending) (*entity.DocumentSending, error)
 	UpdateDocumentSending(ent *entity.DocumentSending) (*entity.DocumentSending, error)
 	FindAllPaginatedByDocumentSetupIDs(documentSetupIDs []uuid.UUID, page, pageSize int, search string, sort map[string]interface{}) (*[]entity.DocumentSending, int64, error)
+	FindByDocumentSetupIDsAndApplicantID(documentSetupIDs []uuid.UUID, applicantID uuid.UUID) (*entity.DocumentSending, error)
 	FindByID(id uuid.UUID) (*entity.DocumentSending, error)
 	DeleteDocumentSending(id uuid.UUID) error
 	FindAllByDocumentSetupID(documentSetupID uuid.UUID) (*[]entity.DocumentSending, error)
@@ -189,4 +190,18 @@ func (r *DocumentSendingRepository) GetHighestDocumentNumberByDate(date string) 
 		return 0, err
 	}
 	return maxNumber, nil
+}
+
+func (r *DocumentSendingRepository) FindByDocumentSetupIDsAndApplicantID(documentSetupIDs []uuid.UUID, applicantID uuid.UUID) (*entity.DocumentSending, error) {
+	var documentSending entity.DocumentSending
+
+	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id IN (?)", documentSetupIDs).Where("applicant_id = ?", applicantID).First(&documentSending).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		r.Log.Error("[DocumentSendingRepository.FindByDocumentSetupIDsAndApplicantID] " + err.Error())
+		return nil, err
+	}
+
+	return &documentSending, nil
 }

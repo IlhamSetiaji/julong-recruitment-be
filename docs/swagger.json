@@ -4016,6 +4016,50 @@
                 }
             }
         },
+        "/document-sending/applicant": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "find by document type id and applicant id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Sendings"
+                ],
+                "summary": "find by document type id and applicant id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document Type ID",
+                        "name": "document_type_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Applicant ID",
+                        "name": "applicant_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentSendingResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/document-sending/document-number": {
             "get": {
                 "security": [

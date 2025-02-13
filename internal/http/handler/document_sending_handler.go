@@ -24,6 +24,7 @@ type IDocumentSendingHandler interface {
 	DeleteDocumentSending(ctx *gin.Context)
 	GenerateDocumentNumber(ctx *gin.Context)
 	FindAllByDocumentSetupID(ctx *gin.Context)
+	FindByDocumentTypeIDAndApplicantID(ctx *gin.Context)
 }
 
 type DocumentSendingHandler struct {
@@ -290,6 +291,51 @@ func (h *DocumentSendingHandler) FindAllByDocumentSetupID(ctx *gin.Context) {
 	if err != nil {
 		h.Log.Errorf("[DocumentSendingHandler.FindAllByDocumentSetupID] error when finding all by document setup id: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find all by document setup id", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Document sending found", res)
+}
+
+// FindByDocumentTypeIDAndApplicantID  find by document type id and applicant id
+//
+// @Summary find by document type id and applicant id
+// @Description find by document type id and applicant id
+// @Tags Document Sendings
+// @Accept json
+// @Produce json
+// @Param document_type_id query string true "Document Type ID"
+// @Param applicant_id query string true "Applicant ID"
+// @Success 200 {object} response.DocumentSendingResponse "Success"
+// @Security BearerAuth
+// @Router /document-sending/applicant [get]
+func (h *DocumentSendingHandler) FindByDocumentTypeIDAndApplicantID(ctx *gin.Context) {
+	documentTypeID := ctx.Query("document_type_id")
+	if documentTypeID == "" {
+		utils.BadRequestResponse(ctx, "Document type id is required", nil)
+		return
+	}
+	parsedDocumentTypeID, err := uuid.Parse(documentTypeID)
+	if err != nil {
+		utils.BadRequestResponse(ctx, "Invalid document type id", err)
+		return
+	}
+
+	applicantID := ctx.Query("applicant_id")
+	if applicantID == "" {
+		utils.BadRequestResponse(ctx, "Applicant id is required", nil)
+		return
+	}
+	parsedApplicantID, err := uuid.Parse(applicantID)
+	if err != nil {
+		utils.BadRequestResponse(ctx, "Invalid applicant id", err)
+		return
+	}
+
+	res, err := h.UseCase.FindByDocumentTypeIDAndApplicantID(parsedDocumentTypeID, parsedApplicantID)
+	if err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.FindByDocumentTypeIDAndApplicantID] error when finding by document type id and applicant id: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find by document type id and applicant id", err.Error())
 		return
 	}
 

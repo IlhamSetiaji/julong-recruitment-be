@@ -341,6 +341,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			documentSendingRoute := apiRoute.Group("/document-sending")
 			{
 				documentSendingRoute.GET("", c.DocumentSendingHandler.FindAllPaginatedByDocumentTypeID)
+				documentSendingRoute.GET("/applicant", c.DocumentSendingHandler.FindByDocumentTypeIDAndApplicantID)
 				documentSendingRoute.GET("/document-number", c.DocumentSendingHandler.GenerateDocumentNumber)
 				documentSendingRoute.GET("/document-setup/:document_setup_id", c.DocumentSendingHandler.FindAllByDocumentSetupID)
 				documentSendingRoute.GET("/:id", c.DocumentSendingHandler.FindByID)

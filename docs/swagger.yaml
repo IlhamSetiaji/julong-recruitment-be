@@ -6499,6 +6499,34 @@ paths:
       summary: find by id
       tags:
       - Document Sendings
+  /document-sending/applicant:
+    get:
+      consumes:
+      - application/json
+      description: find by document type id and applicant id
+      parameters:
+      - description: Document Type ID
+        in: query
+        name: document_type_id
+        required: true
+        type: string
+      - description: Applicant ID
+        in: query
+        name: applicant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.DocumentSendingResponse'
+      security:
+      - BearerAuth: []
+      summary: find by document type id and applicant id
+      tags:
+      - Document Sendings
   /document-sending/document-number:
     get:
       consumes:

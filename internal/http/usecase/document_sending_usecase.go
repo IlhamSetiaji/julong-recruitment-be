@@ -18,6 +18,7 @@ import (
 type IDocumentSendingUseCase interface {
 	CreateDocumentSending(req *request.CreateDocumentSendingRequest) (*response.DocumentSendingResponse, error)
 	FindAllPaginatedByDocumentTypeID(documentTypeID uuid.UUID, page int, pageSize int, search string, sort map[string]interface{}) (*[]response.DocumentSendingResponse, int64, error)
+	FindByDocumentTypeIDAndApplicantID(documentTypeID uuid.UUID, applicantID uuid.UUID) (*response.DocumentSendingResponse, error)
 	FindByID(id string) (*response.DocumentSendingResponse, error)
 	UpdateDocumentSending(req *request.UpdateDocumentSendingRequest) (*response.DocumentSendingResponse, error)
 	DeleteDocumentSending(id string) error
@@ -236,6 +237,43 @@ func (uc *DocumentSendingUseCase) FindAllPaginatedByDocumentTypeID(documentTypeI
 	}
 
 	return &documentSendingResponses, total, nil
+}
+
+func (uc *DocumentSendingUseCase) FindByDocumentTypeIDAndApplicantID(documentTypeID uuid.UUID, applicantID uuid.UUID) (*response.DocumentSendingResponse, error) {
+	docType, err := uc.DocumentTypeRepository.FindByID(documentTypeID)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.FindByDocumentTypeIDAndApplicantID] " + err.Error())
+		return nil, err
+	}
+	if docType == nil {
+		uc.Log.Error("[DocumentSendingUseCase.FindByDocumentTypeIDAndApplicantID] document type not found")
+		return nil, errors.New("document type not found")
+	}
+
+	documentSetups, err := uc.DocumentSetupRepository.FindByDocumentTypeID(documentTypeID)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.FindByDocumentTypeIDAndApplicantID] " + err.Error())
+		return nil, err
+	}
+
+	documentSetupIDs := make([]uuid.UUID, 0)
+
+	for _, documentSetup := range documentSetups {
+		documentSetupIDs = append(documentSetupIDs, documentSetup.ID)
+	}
+
+	documentSending, err := uc.Repository.FindByDocumentSetupIDsAndApplicantID(documentSetupIDs, applicantID)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.FindByDocumentTypeIDAndApplicantID] " + err.Error())
+		return nil, err
+	}
+
+	if documentSending == nil {
+		uc.Log.Error("[DocumentSendingUseCase.FindByDocumentTypeIDAndApplicantID] document sending not found")
+		return nil, errors.New("document sending not found")
+	}
+
+	return uc.DTO.ConvertEntityToResponse(documentSending), nil
 }
 
 func (uc *DocumentSendingUseCase) FindByID(id string) (*response.DocumentSendingResponse, error) {

@@ -113,12 +113,30 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		JobID:                    ent.JobID,
 		JobPostingID:             ent.JobPostingID,
 		ForOrganizationID:        ent.ForOrganizationID,
+		DetailContent:            ent.DetailContent,
 		CreatedAt:                ent.CreatedAt,
 		UpdatedAt:                ent.UpdatedAt,
-		DocumentSetup:            dto.DocumentSetupDTO.ConvertEntityToResponse(ent.DocumentSetup),
-		JobPosting:               dto.JobPostingDTO.ConvertEntityToResponse(ent.JobPosting),
-		JobLevel:                 jobLevel,
-		Job:                      job,
-		ForOrganizationName:      &organizationName,
+		ProjectRecruitmentLine: func() *response.ProjectRecruitmentLineResponse {
+			if ent.ProjectRecruitmentLine != nil {
+				return dto.ProjectRecruitmentLineDTO.ConvertEntityToResponse(ent.ProjectRecruitmentLine)
+			}
+			return nil
+		}(),
+		Applicant: func() *response.ApplicantResponse {
+			if ent.Applicant != nil {
+				res, err := dto.ApplicantDTO.ConvertEntityToResponse(ent.Applicant)
+				if err != nil {
+					dto.Log.Errorf("[DocumentSendingDTO.ConvertEntityToResponse] " + err.Error())
+					return nil
+				}
+				return res
+			}
+			return nil
+		}(),
+		DocumentSetup:       dto.DocumentSetupDTO.ConvertEntityToResponse(ent.DocumentSetup),
+		JobPosting:          dto.JobPostingDTO.ConvertEntityToResponse(ent.JobPosting),
+		JobLevel:            jobLevel,
+		Job:                 job,
+		ForOrganizationName: &organizationName,
 	}
 }

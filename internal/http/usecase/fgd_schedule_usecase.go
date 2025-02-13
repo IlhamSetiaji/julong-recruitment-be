@@ -778,20 +778,6 @@ func (uc *FgdScheduleUseCase) getApplicantIDsByJobPostingID(jobPostingID uuid.UU
 		return nil, errors.New("job posting not found")
 	}
 
-	applicants, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
-		"job_posting_id": jobPostingID,
-		// "order":          order,
-	})
-	if err != nil {
-		uc.Log.Error("[FgdScheduleUseCase.GetApplicantsByJobPostingID] " + err.Error())
-		return nil, err
-	}
-
-	applicantIDs := []uuid.UUID{}
-	for _, applicant := range applicants {
-		applicantIDs = append(applicantIDs, applicant.ID)
-	}
-
 	var totalResult int = total
 
 	// find project recruitment line that has order
@@ -807,6 +793,20 @@ func (uc *FgdScheduleUseCase) getApplicantIDsByJobPostingID(jobPostingID uuid.UU
 	if projectRecruitmentLine == nil {
 		uc.Log.Error("[FgdScheduleUseCase.GetApplicantsByJobPostingID] " + "Project Recruitment Line not found")
 		return nil, errors.New("project recruitment line not found")
+	}
+
+	applicants, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
+		"job_posting_id": jobPostingID,
+		"order":          projectRecruitmentLine.Order,
+	})
+	if err != nil {
+		uc.Log.Error("[FgdScheduleUseCase.GetApplicantsByJobPostingID] " + err.Error())
+		return nil, err
+	}
+
+	applicantIDs := []uuid.UUID{}
+	for _, applicant := range applicants {
+		applicantIDs = append(applicantIDs, applicant.ID)
 	}
 
 	applicantIDs = []uuid.UUID{}

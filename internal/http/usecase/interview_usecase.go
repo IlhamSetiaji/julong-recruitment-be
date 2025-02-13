@@ -811,20 +811,6 @@ func (uc *InterviewUseCase) getApplicantIDsByJobPostingID(jobPostingID uuid.UUID
 		return nil, errors.New("job posting not found")
 	}
 
-	applicants, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
-		"job_posting_id": jobPostingID,
-		// "order":          order,
-	})
-	if err != nil {
-		uc.Log.Error("[InterviewUseCase.GetApplicantsByJobPostingID] " + err.Error())
-		return nil, err
-	}
-
-	applicantIDs := []uuid.UUID{}
-	for _, applicant := range applicants {
-		applicantIDs = append(applicantIDs, applicant.ID)
-	}
-
 	var totalResult int = total
 
 	// find project recruitment line that has order
@@ -840,6 +826,20 @@ func (uc *InterviewUseCase) getApplicantIDsByJobPostingID(jobPostingID uuid.UUID
 	if projectRecruitmentLine == nil {
 		uc.Log.Error("[InterviewUseCase.GetApplicantsByJobPostingID] " + "Project Recruitment Line not found")
 		return nil, errors.New("project recruitment line not found")
+	}
+
+	applicants, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
+		"job_posting_id": jobPostingID,
+		"order":          projectRecruitmentLine.Order,
+	})
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.GetApplicantsByJobPostingID] " + err.Error())
+		return nil, err
+	}
+
+	applicantIDs := []uuid.UUID{}
+	for _, applicant := range applicants {
+		applicantIDs = append(applicantIDs, applicant.ID)
 	}
 
 	applicantIDs = []uuid.UUID{}

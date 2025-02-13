@@ -17,6 +17,7 @@ type IDocumentSendingRepository interface {
 	DeleteDocumentSending(id uuid.UUID) error
 	FindAllByDocumentSetupID(documentSetupID uuid.UUID) (*[]entity.DocumentSending, error)
 	GetHighestDocumentNumberByDate(date string) (int, error)
+	FindByKeys(keys map[string]interface{}) (*entity.DocumentSending, error)
 }
 
 type DocumentSendingRepository struct {
@@ -204,4 +205,17 @@ func (r *DocumentSendingRepository) FindByDocumentSetupIDsAndApplicantID(documen
 	}
 
 	return &documentSending, nil
+}
+
+func (r *DocumentSendingRepository) FindByKeys(keys map[string]interface{}) (*entity.DocumentSending, error) {
+	var ent entity.DocumentSending
+	if err := r.DB.Where(keys).Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").First(&ent).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		r.Log.Error("[DocumentSendingRepository.FindByKeys] " + err.Error())
+		return nil, err
+	}
+
+	return &ent, nil
 }

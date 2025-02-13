@@ -75,6 +75,20 @@ func (uc *DocumentAgreementUseCase) CreateDocumentAgreement(req *request.CreateD
 		return nil, errors.New("applicant not found")
 	}
 
+	exist, err := uc.Repository.FindByKeys(map[string]interface{}{
+		"document_sending_id": parsedDocumentSendingID,
+		"applicant_id":        parsedApplicantID,
+		"status":              entity.DOCUMENT_AGREEMENT_STATUS_SUBMITTED,
+	})
+	if err != nil {
+		uc.Log.Error(err)
+		return nil, err
+	}
+	if exist != nil {
+		uc.Log.Error("document agreement already exist")
+		return nil, errors.New("document agreement already exist")
+	}
+
 	result, err := uc.Repository.CreateDocumentAgreement(&entity.DocumentAgreement{
 		DocumentSendingID: parsedDocumentSendingID,
 		ApplicantID:       parsedApplicantID,

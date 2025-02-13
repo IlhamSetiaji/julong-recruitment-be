@@ -196,7 +196,7 @@ func (r *DocumentSendingRepository) GetHighestDocumentNumberByDate(date string) 
 func (r *DocumentSendingRepository) FindByDocumentSetupIDsAndApplicantID(documentSetupIDs []uuid.UUID, applicantID uuid.UUID) (*entity.DocumentSending, error) {
 	var documentSending entity.DocumentSending
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id IN (?)", documentSetupIDs).Where("applicant_id = ?", applicantID).First(&documentSending).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup.DocumentType").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id IN (?)", documentSetupIDs).Where("applicant_id = ?", applicantID).First(&documentSending).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}

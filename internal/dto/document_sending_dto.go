@@ -133,7 +133,12 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 			}
 			return nil
 		}(),
-		DocumentSetup: dto.DocumentSetupDTO.ConvertEntityToResponse(ent.DocumentSetup),
+		DocumentSetup: func() *response.DocumentSetupResponse {
+			if ent.DocumentSetup != nil {
+				return dto.DocumentSetupDTO.ConvertEntityToResponse(ent.DocumentSetup)
+			}
+			return nil
+		}(),
 		JobPosting: func() *response.JobPostingResponse {
 			if ent.JobPosting != nil {
 				return dto.JobPostingDTO.ConvertEntityToResponse(ent.JobPosting)

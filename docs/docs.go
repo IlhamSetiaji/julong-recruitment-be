@@ -3761,6 +3761,167 @@ const docTemplate = `{
                 }
             }
         },
+        "/document-agreement": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create document agreement",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Agreement"
+                ],
+                "summary": "Create document agreement",
+                "parameters": [
+                    {
+                        "description": "Document Agreement",
+                        "name": "document_agreement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateDocumentAgreementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentAgreementResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-agreement/find": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find document agreement by document sending id and applicant id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Agreement"
+                ],
+                "summary": "Find document agreement by document sending id and applicant id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document Sending ID",
+                        "name": "document_sending_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Applicant ID",
+                        "name": "applicant_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentAgreementResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-agreement/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update document agreement",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Agreement"
+                ],
+                "summary": "Update document agreement",
+                "parameters": [
+                    {
+                        "description": "Document Agreement",
+                        "name": "document_agreement",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateDocumentAgreementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentAgreementResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-agreement/update-status": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update status document agreement",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Agreement"
+                ],
+                "summary": "Update status document agreement",
+                "parameters": [
+                    {
+                        "description": "Document Agreement Status",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateStatusDocumentAgreementRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentAgreementResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/document-sending": {
             "get": {
                 "security": [
@@ -6863,6 +7024,19 @@ const docTemplate = `{
                 "ASSESSMENT_STATUS_COMPLETED"
             ]
         },
+        "entity.DocumentAgreementStatus": {
+            "type": "string",
+            "enum": [
+                "SUBMITTED",
+                "APPROVED",
+                "REJECTED"
+            ],
+            "x-enum-varnames": [
+                "DOCUMENT_AGREEMENT_STATUS_SUBMITTED",
+                "DOCUMENT_AGREEMENT_STATUS_APPROVED",
+                "DOCUMENT_AGREEMENT_STATUS_REJECTED"
+            ]
+        },
         "entity.DocumentSending": {
             "type": "object",
             "properties": {
@@ -8571,6 +8745,20 @@ const docTemplate = `{
                 }
             }
         },
+        "multipart.FileHeader": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string"
+                },
+                "header": {
+                    "$ref": "#/definitions/textproto.MIMEHeader"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.CreateAdministrativeSelectionRequest": {
             "type": "object",
             "required": [
@@ -8594,6 +8782,28 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CreateDocumentAgreementRequest": {
+            "type": "object",
+            "required": [
+                "applicant_id",
+                "document_sending_id",
+                "file"
+            ],
+            "properties": {
+                "applicant_id": {
+                    "type": "string"
+                },
+                "document_sending_id": {
+                    "type": "string"
+                },
+                "file": {
+                    "$ref": "#/definitions/multipart.FileHeader"
+                },
+                "path": {
                     "type": "string"
                 }
             }
@@ -9648,6 +9858,32 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateDocumentAgreementRequest": {
+            "type": "object",
+            "required": [
+                "applicant_id",
+                "document_sending_id",
+                "file",
+                "id"
+            ],
+            "properties": {
+                "applicant_id": {
+                    "type": "string"
+                },
+                "document_sending_id": {
+                    "type": "string"
+                },
+                "file": {
+                    "$ref": "#/definitions/multipart.FileHeader"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateDocumentSendingRequest": {
             "type": "object",
             "required": [
@@ -10027,6 +10263,21 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateStatusDocumentAgreementRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateStatusFgdApplicantRequest": {
             "type": "object",
             "required": [
@@ -10387,6 +10638,38 @@ const docTemplate = `{
                     "$ref": "#/definitions/response.UserProfileResponse"
                 },
                 "user_profile_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.DocumentAgreementResponse": {
+            "type": "object",
+            "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/response.ApplicantResponse"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "document_sending": {
+                    "$ref": "#/definitions/response.DocumentSendingResponse"
+                },
+                "document_sending_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.DocumentAgreementStatus"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -12318,6 +12601,15 @@ const docTemplate = `{
                 },
                 "year_experience": {
                     "type": "integer"
+                }
+            }
+        },
+        "textproto.MIMEHeader": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "type": "string"
                 }
             }
         }

@@ -46,6 +46,7 @@ type RouteConfig struct {
 	FgdApplicantHandler             handler.IFgdApplicantHandler
 	FgdResultHandler                handler.IFgdResultHandler
 	DocumentSendingHandler          handler.IDocumentSendingHandler
+	DocumentAgreementHandler        handler.IDocumentAgreementHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -347,6 +348,14 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentSendingRoute.PUT("/update", c.DocumentSendingHandler.UpdateDocumentSending)
 				documentSendingRoute.DELETE("/:id", c.DocumentSendingHandler.DeleteDocumentSending)
 			}
+			// document agreement
+			documentAgreementRoute := apiRoute.Group("/document-agreement")
+			{
+				documentAgreementRoute.GET("/find", c.DocumentAgreementHandler.FindByDocumentSendingIDAndApplicantID)
+				documentAgreementRoute.POST("", c.DocumentAgreementHandler.CreateDocumentAgreement)
+				documentAgreementRoute.PUT("/update", c.DocumentAgreementHandler.UpdateDocumentAgreement)
+				documentAgreementRoute.PUT("/update-status", c.DocumentAgreementHandler.UpdateStatusDocumentAgreement)
+			}
 		}
 	}
 }
@@ -383,6 +392,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	fgdApplicantHandler := handler.FgdApplicantHandlerFactory(log, viper)
 	fgdResultHandler := handler.FgdResultHandlerFactory(log, viper)
 	documentSendingHandler := handler.DocumentSendingHandlerFactory(log, viper)
+	documentAgreementHandler := handler.DocumentAgreementHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                             app,
 		Log:                             log,
@@ -419,5 +429,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		FgdApplicantHandler:             fgdApplicantHandler,
 		FgdResultHandler:                fgdResultHandler,
 		DocumentSendingHandler:          documentSendingHandler,
+		DocumentAgreementHandler:        documentAgreementHandler,
 	}
 }

@@ -100,7 +100,7 @@ func (r *DocumentSendingRepository) FindAllPaginatedByDocumentSetupIDs(documentS
 	var documentSendings []entity.DocumentSending
 	var total int64
 
-	query := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id IN (?)", documentSetupIDs).
+	query := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id IN (?)", documentSetupIDs).
 		Where("document_setup_id IN (?)", documentSetupIDs)
 
 	if search != "" {
@@ -126,7 +126,7 @@ func (r *DocumentSendingRepository) FindAllPaginatedByDocumentSetupIDs(documentS
 func (r *DocumentSendingRepository) FindByID(id uuid.UUID) (*entity.DocumentSending, error) {
 	var documentSending entity.DocumentSending
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").First(&documentSending, id).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting").First(&documentSending, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}

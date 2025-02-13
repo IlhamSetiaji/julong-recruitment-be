@@ -146,7 +146,11 @@ func (uc *DocumentAgreementUseCase) FindByDocumentSendingIDAndApplicantID(docume
 		return nil, errors.New("applicant not found")
 	}
 
-	documentAgreement, err := uc.Repository.FindByKeys(map[string]interface{}{"document_sending_id": parsedDocumentSendingID, "applicant_id": parsedApplicantID})
+	documentAgreement, err := uc.Repository.FindByKeys(map[string]interface{}{
+		"document_sending_id": parsedDocumentSendingID,
+		"applicant_id":        parsedApplicantID,
+		"status":              entity.DOCUMENT_AGREEMENT_STATUS_SUBMITTED,
+	})
 	if err != nil {
 		uc.Log.Error(err)
 		return nil, err

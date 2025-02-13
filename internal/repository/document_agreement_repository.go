@@ -51,7 +51,7 @@ func (r *DocumentAgreementRepository) CreateDocumentAgreement(ent *entity.Docume
 		return nil, err
 	}
 
-	if err := r.DB.Preload("DocumentSending").Preload("Applicant").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("DocumentSending").Preload("Applicant.UserProfile").First(ent, ent.ID).Error; err != nil {
 		r.Log.Error("[DocumentAgreementRepository.CreateDocumentAgreement] " + err.Error())
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (r *DocumentAgreementRepository) UpdateDocumentAgreement(ent *entity.Docume
 		return nil, err
 	}
 
-	if err := r.DB.Preload("DocumentSending").Preload("Applicant").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("DocumentSending").Preload("Applicant.UserProfile").First(ent, ent.ID).Error; err != nil {
 		r.Log.Error("[DocumentAgreementRepository.UpdateDocumentAgreement] " + err.Error())
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (r *DocumentAgreementRepository) UpdateDocumentAgreement(ent *entity.Docume
 
 func (r *DocumentAgreementRepository) FindByKeys(keys map[string]interface{}) (*entity.DocumentAgreement, error) {
 	var ent entity.DocumentAgreement
-	if err := r.DB.Where(keys).Preload("DocumentSending").Preload("Applicant").First(&ent).Error; err != nil {
+	if err := r.DB.Where(keys).Preload("DocumentSending").Preload("Applicant.UserProfile").First(&ent).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

@@ -43,12 +43,6 @@ func ApplicantDTOFactory(log *logrus.Logger, viper *viper.Viper) IApplicantDTO {
 }
 
 func (dto *ApplicantDTO) ConvertEntityToResponse(ent *entity.Applicant) (*response.ApplicantResponse, error) {
-	userProfile, err := dto.UserProfileDTO.ConvertEntityToResponse(ent.UserProfile)
-	if err != nil {
-		dto.Log.Error("[ApplicantDTO.ConvertEntityToResponse] " + err.Error())
-		return nil, err
-	}
-
 	return &response.ApplicantResponse{
 		ID:            ent.ID,
 		UserProfileID: ent.UserProfileID,
@@ -62,15 +56,21 @@ func (dto *ApplicantDTO) ConvertEntityToResponse(ent *entity.Applicant) (*respon
 			if ent.TemplateQuestion == nil {
 				return nil
 			}
-
 			tq := dto.TemplateQuestionDTO.ConvertEntityToResponse(ent.TemplateQuestion)
+			return tq
+		}(),
+		UserProfile: func() *response.UserProfileResponse {
+			if ent.UserProfile == nil {
+				return nil
+			}
+
+			up, err := dto.UserProfileDTO.ConvertEntityToResponse(ent.UserProfile)
 			if err != nil {
 				dto.Log.Error("[ApplicantDTO.ConvertEntityToResponse] " + err.Error())
 				return nil
 			}
-			return tq
+			return up
 		}(),
-		UserProfile: userProfile,
 		JobPosting: func() *response.JobPostingResponse {
 			if ent.JobPosting == nil {
 				return nil

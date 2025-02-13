@@ -129,6 +129,16 @@ definitions:
     - ASSESSMENT_STATUS_DRAFT
     - ASSESSMENT_STATUS_IN_PROGRESS
     - ASSESSMENT_STATUS_COMPLETED
+  entity.DocumentAgreementStatus:
+    enum:
+    - SUBMITTED
+    - APPROVED
+    - REJECTED
+    type: string
+    x-enum-varnames:
+    - DOCUMENT_AGREEMENT_STATUS_SUBMITTED
+    - DOCUMENT_AGREEMENT_STATUS_APPROVED
+    - DOCUMENT_AGREEMENT_STATUS_REJECTED
   entity.DocumentSending:
     properties:
       applicant:
@@ -1299,6 +1309,15 @@ definitions:
       year_experienced:
         type: integer
     type: object
+  multipart.FileHeader:
+    properties:
+      filename:
+        type: string
+      header:
+        $ref: '#/definitions/textproto.MIMEHeader'
+      size:
+        type: integer
+    type: object
   request.CreateAdministrativeSelectionRequest:
     properties:
       document_date:
@@ -1317,6 +1336,21 @@ definitions:
     - job_posting_id
     - project_pic_id
     - status
+    type: object
+  request.CreateDocumentAgreementRequest:
+    properties:
+      applicant_id:
+        type: string
+      document_sending_id:
+        type: string
+      file:
+        $ref: '#/definitions/multipart.FileHeader'
+      path:
+        type: string
+    required:
+    - applicant_id
+    - document_sending_id
+    - file
     type: object
   request.CreateDocumentSendingRequest:
     properties:
@@ -2046,6 +2080,24 @@ definitions:
     - project_pic_id
     - status
     type: object
+  request.UpdateDocumentAgreementRequest:
+    properties:
+      applicant_id:
+        type: string
+      document_sending_id:
+        type: string
+      file:
+        $ref: '#/definitions/multipart.FileHeader'
+      id:
+        type: string
+      path:
+        type: string
+    required:
+    - applicant_id
+    - document_sending_id
+    - file
+    - id
+    type: object
   request.UpdateDocumentSendingRequest:
     properties:
       applicant_id:
@@ -2315,6 +2367,16 @@ definitions:
     - status
     - template_activity_id
     type: object
+  request.UpdateStatusDocumentAgreementRequest:
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+    required:
+    - id
+    - status
+    type: object
   request.UpdateStatusFgdApplicantRequest:
     properties:
       id:
@@ -2564,6 +2626,27 @@ definitions:
       user_profile:
         $ref: '#/definitions/response.UserProfileResponse'
       user_profile_id:
+        type: string
+    type: object
+  response.DocumentAgreementResponse:
+    properties:
+      applicant:
+        $ref: '#/definitions/response.ApplicantResponse'
+      applicant_id:
+        type: string
+      created_at:
+        type: string
+      document_sending:
+        $ref: '#/definitions/response.DocumentSendingResponse'
+      document_sending_id:
+        type: string
+      id:
+        type: string
+      path:
+        type: string
+      status:
+        $ref: '#/definitions/entity.DocumentAgreementStatus'
+      updated_at:
         type: string
     type: object
   response.DocumentSendingResponse:
@@ -3841,6 +3924,12 @@ definitions:
         type: string
       year_experience:
         type: integer
+    type: object
+  textproto.MIMEHeader:
+    additionalProperties:
+      items:
+        type: string
+      type: array
     type: object
 externalDocs:
   description: OpenAPI
@@ -6201,6 +6290,106 @@ paths:
       summary: find applicant by job posting ID and user ID
       tags:
       - Applicants
+  /document-agreement:
+    post:
+      consumes:
+      - application/json
+      description: Create document agreement
+      parameters:
+      - description: Document Agreement
+        in: body
+        name: document_agreement
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateDocumentAgreementRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentAgreementResponse'
+      security:
+      - BearerAuth: []
+      summary: Create document agreement
+      tags:
+      - Document Agreement
+  /document-agreement/find:
+    get:
+      consumes:
+      - application/json
+      description: Find document agreement by document sending id and applicant id
+      parameters:
+      - description: Document Sending ID
+        in: query
+        name: document_sending_id
+        required: true
+        type: string
+      - description: Applicant ID
+        in: query
+        name: applicant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentAgreementResponse'
+      security:
+      - BearerAuth: []
+      summary: Find document agreement by document sending id and applicant id
+      tags:
+      - Document Agreement
+  /document-agreement/update:
+    put:
+      consumes:
+      - application/json
+      description: Update document agreement
+      parameters:
+      - description: Document Agreement
+        in: body
+        name: document_agreement
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDocumentAgreementRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentAgreementResponse'
+      security:
+      - BearerAuth: []
+      summary: Update document agreement
+      tags:
+      - Document Agreement
+  /document-agreement/update-status:
+    put:
+      consumes:
+      - application/json
+      description: Update status document agreement
+      parameters:
+      - description: Document Agreement Status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStatusDocumentAgreementRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentAgreementResponse'
+      security:
+      - BearerAuth: []
+      summary: Update status document agreement
+      tags:
+      - Document Agreement
   /document-sending:
     get:
       consumes:

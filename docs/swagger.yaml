@@ -1366,21 +1366,11 @@ definitions:
         type: string
     required:
     - applicant_id
-    - basic_wage
     - detail_content
     - document_date
     - document_number
     - document_setup_id
-    - for_organization_id
-    - home_location
-    - hometrip_ticket
-    - job_level_id
-    - job_location
     - job_posting_id
-    - meal_allowance
-    - operational_allowance
-    - period_agreement
-    - positional_allowance
     - project_recruitment_line_id
     - status
     type: object
@@ -2106,22 +2096,12 @@ definitions:
         type: string
     required:
     - applicant_id
-    - basic_wage
     - detail_content
     - document_date
     - document_number
     - document_setup_id
-    - for_organization_id
-    - home_location
-    - hometrip_ticket
     - id
-    - job_level_id
-    - job_location
     - job_posting_id
-    - meal_allowance
-    - operational_allowance
-    - period_agreement
-    - positional_allowance
     - project_recruitment_line_id
     - status
     type: object

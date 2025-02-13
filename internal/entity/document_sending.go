@@ -35,7 +35,7 @@ type DocumentSending struct {
 	HomeLocation             string                `json:"home_location" gorm:"type:text;default:null"`
 	JobLevelID               *uuid.UUID            `json:"job_level_id" gorm:"type:char(36);default:null"`
 	JobID                    *uuid.UUID            `json:"job_id" gorm:"type:char(36);default:null"`
-	JoinedDate               time.Time             `json:"joined_date" gorm:"type:date;default:null"`
+	JoinedDate               *time.Time            `json:"joined_date" gorm:"type:date;default:null"`
 	ForOrganizationID        *uuid.UUID            `json:"for_organization_id" gorm:"type:char(36);default:null"`
 	JobPostingID             uuid.UUID             `json:"job_posting_id" gorm:"type:char(36);default:null"`
 	DetailContent            string                `json:"detail_content" gorm:"type:text;default:null"`

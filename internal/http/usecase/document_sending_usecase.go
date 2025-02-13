@@ -135,16 +135,25 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		return nil, errors.New("job posting not found")
 	}
 
-	parsedJobLevelID, err := uuid.Parse(req.JobLevelID)
-	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
-		return nil, err
+	var parsedJobLevelID *uuid.UUID
+	if req.JobLevelID != "" {
+		parsedJobLevelUUID, err := uuid.Parse(req.JobLevelID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		parsedJobLevelID = &parsedJobLevelUUID
 	}
 
-	parsedForOrganizationID, err := uuid.Parse(req.ForOrganizationID)
-	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
-		return nil, err
+	var parsedForOrganizationID *uuid.UUID
+	if req.ForOrganizationID != "" {
+		parsedForOrganizationUUID, err := uuid.Parse(req.ForOrganizationID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+
+		parsedForOrganizationID = &parsedForOrganizationUUID
 	}
 
 	parsedDocumentDate, err := time.Parse("2006-01-02", req.DocumentDate)
@@ -153,10 +162,14 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		return nil, err
 	}
 
-	parsedJoinedDate, err := time.Parse("2006-01-02", req.JoinedDate)
-	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
-		return nil, err
+	var parsedJoinedDate *time.Time
+	if req.JoinedDate != "" {
+		parsedJoinDate, err := time.Parse("2006-01-02", req.JoinedDate)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		parsedJoinedDate = &parsedJoinDate
 	}
 
 	documentSending, err := uc.Repository.CreateDocumentSending(&entity.DocumentSending{
@@ -172,8 +185,8 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		HometripTicket:           req.HometripTicket,
 		PeriodAgreement:          req.PeriodAgreement,
 		HomeLocation:             req.HomeLocation,
-		JobLevelID:               &parsedJobLevelID,
-		ForOrganizationID:        &parsedForOrganizationID,
+		JobLevelID:               parsedJobLevelID,
+		ForOrganizationID:        parsedForOrganizationID,
 		DocumentDate:             parsedDocumentDate,
 		JoinedDate:               parsedJoinedDate,
 		DocumentNumber:           req.DocumentNumber,
@@ -324,16 +337,25 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		return nil, errors.New("job posting not found")
 	}
 
-	parsedJobLevelID, err := uuid.Parse(req.JobLevelID)
-	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
-		return nil, err
+	var parsedJobLevelID *uuid.UUID
+	if req.JobLevelID != "" {
+		parsedJobLevelUUID, err := uuid.Parse(req.JobLevelID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		parsedJobLevelID = &parsedJobLevelUUID
 	}
 
-	parsedForOrganizationID, err := uuid.Parse(req.ForOrganizationID)
-	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
-		return nil, err
+	var parsedForOrganizationID *uuid.UUID
+	if req.ForOrganizationID != "" {
+		parsedForOrganizationUUID, err := uuid.Parse(req.ForOrganizationID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+
+		parsedForOrganizationID = &parsedForOrganizationUUID
 	}
 
 	parsedDocumentDate, err := time.Parse("2006-01-02", req.DocumentDate)
@@ -342,10 +364,14 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		return nil, err
 	}
 
-	parsedJoinedDate, err := time.Parse("2006-01-02", req.JoinedDate)
-	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
-		return nil, err
+	var parsedJoinedDate *time.Time
+	if req.JoinedDate != "" {
+		parsedJoinDate, err := time.Parse("2006-01-02", req.JoinedDate)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		parsedJoinedDate = &parsedJoinDate
 	}
 
 	documentSending, err := uc.Repository.UpdateDocumentSending(&entity.DocumentSending{
@@ -362,8 +388,8 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		HometripTicket:           req.HometripTicket,
 		PeriodAgreement:          req.PeriodAgreement,
 		HomeLocation:             req.HomeLocation,
-		JobLevelID:               &parsedJobLevelID,
-		ForOrganizationID:        &parsedForOrganizationID,
+		JobLevelID:               parsedJobLevelID,
+		ForOrganizationID:        parsedForOrganizationID,
 		DocumentDate:             parsedDocumentDate,
 		JoinedDate:               parsedJoinedDate,
 		DocumentNumber:           req.DocumentNumber,

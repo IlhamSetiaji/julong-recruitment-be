@@ -372,3 +372,18 @@ func DocumentSendingStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func DocumentAgreementStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.DocumentAgreementStatus(status) {
+	case entity.DOCUMENT_AGREEMENT_STATUS_SUBMITTED,
+		entity.DOCUMENT_AGREEMENT_STATUS_APPROVED,
+		entity.DOCUMENT_AGREEMENT_STATUS_REJECTED:
+		return true
+	default:
+		return false
+	}
+}

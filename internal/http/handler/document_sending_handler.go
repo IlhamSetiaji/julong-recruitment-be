@@ -71,13 +71,13 @@ func (h *DocumentSendingHandler) CreateDocumentSending(ctx *gin.Context) {
 	var payload request.CreateDocumentSendingRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		h.Log.Errorf("[DocumentSendingHandler.CreateDocumentSending] error when binding request: %v", err)
-		utils.BadRequestResponse(ctx, err.Error(), err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
 	if err := h.Validate.Struct(payload); err != nil {
 		h.Log.Errorf("[DocumentSendingHandler.CreateDocumentSending] error when validating request: %v", err)
-		utils.BadRequestResponse(ctx, err.Error(), err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
@@ -106,13 +106,13 @@ func (h *DocumentSendingHandler) UpdateDocumentSending(ctx *gin.Context) {
 	var payload request.UpdateDocumentSendingRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		h.Log.Errorf("[DocumentSendingHandler.UpdateDocumentSending] error when binding request: %v", err)
-		utils.BadRequestResponse(ctx, err.Error(), err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
 	if err := h.Validate.Struct(payload); err != nil {
 		h.Log.Errorf("[DocumentSendingHandler.UpdateDocumentSending] error when validating request: %v", err)
-		utils.BadRequestResponse(ctx, err.Error(), err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 

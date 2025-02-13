@@ -49,6 +49,7 @@ func main() {
 		&entity.FgdAssessor{},
 		&entity.FgdResult{},
 		&entity.DocumentSending{},
+		&entity.DocumentAgreement{},
 	)
 	if err != nil {
 		log.Fatal(err)

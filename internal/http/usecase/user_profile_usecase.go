@@ -801,6 +801,11 @@ func (uc *UserProfileUseCase) FindByID(id uuid.UUID) (*response.UserProfileRespo
 		return nil, errors.New("[UserProfileUseCase.FindByID] error when finding user profile by ID: " + err.Error())
 	}
 
+	if profile == nil {
+		uc.Log.Errorf("[UserProfileUseCase.FindByID] user profile not found")
+		return nil, errors.New("[UserProfileUseCase.FindByID] user profile not found")
+	}
+
 	return uc.DTO.ConvertEntityToResponse(profile)
 }
 

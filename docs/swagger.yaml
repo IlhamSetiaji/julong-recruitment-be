@@ -2568,11 +2568,15 @@ definitions:
     type: object
   response.DocumentSendingResponse:
     properties:
+      applicant:
+        $ref: '#/definitions/response.ApplicantResponse'
       applicant_id:
         type: string
       basic_wage:
         type: number
       created_at:
+        type: string
+      detail_content:
         type: string
       document_date:
         type: string
@@ -2618,6 +2622,8 @@ definitions:
         type: string
       positional_allowance:
         type: number
+      project_recruitment_line:
+        $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
       project_recruitment_line_id:
         type: string
       status:

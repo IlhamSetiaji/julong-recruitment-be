@@ -10394,6 +10394,9 @@ const docTemplate = `{
         "response.DocumentSendingResponse": {
             "type": "object",
             "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/response.ApplicantResponse"
+                },
                 "applicant_id": {
                     "type": "string"
                 },
@@ -10401,6 +10404,9 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "created_at": {
+                    "type": "string"
+                },
+                "detail_content": {
                     "type": "string"
                 },
                 "document_date": {
@@ -10467,6 +10473,9 @@ const docTemplate = `{
                 },
                 "positional_allowance": {
                     "type": "number"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
                 },
                 "project_recruitment_line_id": {
                     "type": "string"

@@ -133,8 +133,13 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 			}
 			return nil
 		}(),
-		DocumentSetup:       dto.DocumentSetupDTO.ConvertEntityToResponse(ent.DocumentSetup),
-		JobPosting:          dto.JobPostingDTO.ConvertEntityToResponse(ent.JobPosting),
+		DocumentSetup: dto.DocumentSetupDTO.ConvertEntityToResponse(ent.DocumentSetup),
+		JobPosting: func() *response.JobPostingResponse {
+			if ent.JobPosting != nil {
+				return dto.JobPostingDTO.ConvertEntityToResponse(ent.JobPosting)
+			}
+			return nil
+		}(),
 		JobLevel:            jobLevel,
 		Job:                 job,
 		ForOrganizationName: &organizationName,

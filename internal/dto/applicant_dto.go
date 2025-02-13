@@ -49,8 +49,6 @@ func (dto *ApplicantDTO) ConvertEntityToResponse(ent *entity.Applicant) (*respon
 		return nil, err
 	}
 
-	jobPosting := dto.JobPostingDTO.ConvertEntityToResponse(ent.JobPosting)
-
 	return &response.ApplicantResponse{
 		ID:            ent.ID,
 		UserProfileID: ent.UserProfileID,
@@ -73,6 +71,12 @@ func (dto *ApplicantDTO) ConvertEntityToResponse(ent *entity.Applicant) (*respon
 			return tq
 		}(),
 		UserProfile: userProfile,
-		JobPosting:  jobPosting,
+		JobPosting: func() *response.JobPostingResponse {
+			if ent.JobPosting == nil {
+				return nil
+			}
+			jobPosting := dto.JobPostingDTO.ConvertEntityToResponse(ent.JobPosting)
+			return jobPosting
+		}(),
 	}, nil
 }

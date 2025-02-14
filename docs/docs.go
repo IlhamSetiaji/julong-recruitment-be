@@ -7258,6 +7258,9 @@ const docTemplate = `{
                 "operational_allowance": {
                     "type": "number"
                 },
+                "organization_location_id": {
+                    "type": "string"
+                },
                 "period_agreement": {
                     "type": "string"
                 },
@@ -7284,7 +7287,7 @@ const docTemplate = `{
                 "FAILED",
                 "REVISED",
                 "REJECTED",
-                "COMPLETED"
+                "APPROVED"
             ],
             "x-enum-varnames": [
                 "DOCUMENT_SENDING_STATUS_DRAFT",
@@ -7293,7 +7296,7 @@ const docTemplate = `{
                 "DOCUMENT_SENDING_STATUS_FAILED",
                 "DOCUMENT_SENDING_STATUS_REVISED",
                 "DOCUMENT_SENDING_STATUS_REJECTED",
-                "DOCUMENT_SENDING_STATUS_COMPLETED"
+                "DOCUMENT_SENDING_STATUS_APPROVED"
             ]
         },
         "entity.DocumentSetup": {
@@ -9022,6 +9025,9 @@ const docTemplate = `{
                 "operational_allowance": {
                     "type": "number"
                 },
+                "organization_location_id": {
+                    "type": "string"
+                },
                 "period_agreement": {
                     "type": "string"
                 },
@@ -10096,6 +10102,9 @@ const docTemplate = `{
                 "operational_allowance": {
                     "type": "number"
                 },
+                "organization_location_id": {
+                    "type": "string"
+                },
                 "period_agreement": {
                     "type": "string"
                 },
@@ -10893,6 +10902,9 @@ const docTemplate = `{
                 },
                 "operational_allowance": {
                     "type": "number"
+                },
+                "organization_location_name": {
+                    "type": "string"
                 },
                 "period_agreement": {
                     "type": "string"

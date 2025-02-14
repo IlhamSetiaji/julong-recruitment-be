@@ -60,6 +60,7 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 	jobLevel := &response.SendFindJobLevelByIDMessageResponse{}
 	job := &response.SendFindJobByIDMessageResponse{}
 	var organizationName string
+	var organizationLocationName string
 	var err error
 
 	if ent.JobLevelID != nil {
@@ -91,6 +92,17 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 			organizationName = ""
 		}
 		organizationName = organizationData.Name
+	}
+
+	if ent.OrganizationLocationID != nil {
+		organizationLocationData, err := dto.OrganizationMessage.SendFindOrganizationLocationByIDMessage(request.SendFindOrganizationLocationByIDMessageRequest{
+			ID: ent.OrganizationLocationID.String(),
+		})
+		if err != nil {
+			dto.Log.Errorf("[DocumentSendingDTO.ConvertEntityToResponse] " + err.Error())
+			organizationLocationName = ""
+		}
+		organizationLocationName = organizationLocationData.Name
 	}
 
 	return &response.DocumentSendingResponse{
@@ -145,8 +157,9 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 			}
 			return nil
 		}(),
-		JobLevel:            jobLevel,
-		Job:                 job,
-		ForOrganizationName: &organizationName,
+		JobLevel:                 jobLevel,
+		Job:                      job,
+		ForOrganizationName:      &organizationName,
+		OrganizationLocationName: &organizationLocationName,
 	}
 }

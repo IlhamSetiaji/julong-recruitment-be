@@ -17,10 +17,11 @@ type CreateDocumentSendingRequest struct {
 	HomeLocation             string  `json:"home_location" validate:"omitempty"`
 	JobLevelID               string  `json:"job_level_id" validate:"omitempty"`
 	// JobID                    string  `json:"job_id" validate:"uuid"`
-	JobPostingID      string `json:"job_posting_id" validate:"required,uuid"`
-	JoinedDate        string `json:"joined_date" validate:"omitempty,datetime=2006-01-02"`
-	ForOrganizationID string `json:"for_organization_id" validate:"omitempty"`
-	DetailContent     string `json:"detail_content" validate:"required"`
+	JobPostingID           string `json:"job_posting_id" validate:"required,uuid"`
+	JoinedDate             string `json:"joined_date" validate:"omitempty,datetime=2006-01-02"`
+	ForOrganizationID      string `json:"for_organization_id" validate:"omitempty"`
+	OrganizationLocationID string `json:"organization_location_id" validate:"omitempty"`
+	DetailContent          string `json:"detail_content" validate:"required"`
 }
 
 type UpdateDocumentSendingRequest struct {
@@ -41,8 +42,9 @@ type UpdateDocumentSendingRequest struct {
 	HomeLocation             string  `json:"home_location" validate:"omitempty"`
 	JobLevelID               string  `json:"job_level_id" validate:"omitempty"`
 	// JobID                    string  `json:"job_id" validate:"uuid"`
-	JobPostingID      string `json:"job_posting_id" validate:"required,uuid"`
-	JoinedDate        string `json:"joined_date" validate:"omitempty,datetime=2006-01-02"`
-	ForOrganizationID string `json:"for_organization_id" validate:"omitempty"`
-	DetailContent     string `json:"detail_content" validate:"required"`
+	JobPostingID           string `json:"job_posting_id" validate:"required,uuid"`
+	JoinedDate             string `json:"joined_date" validate:"omitempty,datetime=2006-01-02"`
+	ForOrganizationID      string `json:"for_organization_id" validate:"omitempty"`
+	OrganizationLocationID string `json:"organization_location_id" validate:"omitempty"`
+	DetailContent          string `json:"detail_content" validate:"required"`
 }

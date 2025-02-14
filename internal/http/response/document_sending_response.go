@@ -38,7 +38,8 @@ type DocumentSendingResponse struct {
 	ProjectRecruitmentLine *ProjectRecruitmentLineResponse `json:"project_recruitment_line"`
 	Applicant              *ApplicantResponse              `json:"applicant"`
 
-	ForOrganizationName *string                              `json:"for_organization_name"`
-	JobLevel            *SendFindJobLevelByIDMessageResponse `json:"job_level"`
-	Job                 *SendFindJobByIDMessageResponse      `json:"job"`
+	ForOrganizationName      *string                              `json:"for_organization_name"`
+	OrganizationLocationName *string                              `json:"organization_location_name"`
+	JobLevel                 *SendFindJobLevelByIDMessageResponse `json:"job_level"`
+	Job                      *SendFindJobByIDMessageResponse      `json:"job"`
 }

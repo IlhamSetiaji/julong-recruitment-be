@@ -190,6 +190,16 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		parsedJoinedDate = &parsedJoinDate
 	}
 
+	var parsedOrganizationLocationID *uuid.UUID
+	if req.OrganizationLocationID != "" {
+		parsedOrganizationLocationUUID, err := uuid.Parse(req.OrganizationLocationID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		parsedOrganizationLocationID = &parsedOrganizationLocationUUID
+	}
+
 	documentSending, err := uc.Repository.CreateDocumentSending(&entity.DocumentSending{
 		DocumentSetupID:          parsedDocumentSetupID,
 		ProjectRecruitmentLineID: parsedProjectRecruitmentLineID,
@@ -205,6 +215,7 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		HomeLocation:             req.HomeLocation,
 		JobLevelID:               parsedJobLevelID,
 		ForOrganizationID:        parsedForOrganizationID,
+		OrganizationLocationID:   parsedOrganizationLocationID,
 		DocumentDate:             parsedDocumentDate,
 		JoinedDate:               parsedJoinedDate,
 		DocumentNumber:           req.DocumentNumber,
@@ -429,12 +440,23 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		parsedJoinedDate = &parsedJoinDate
 	}
 
+	var parsedOrganizationLocationID *uuid.UUID
+	if req.OrganizationLocationID != "" {
+		parsedOrganizationLocationUUID, err := uuid.Parse(req.OrganizationLocationID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		parsedOrganizationLocationID = &parsedOrganizationLocationUUID
+	}
+
 	documentSending, err := uc.Repository.UpdateDocumentSending(&entity.DocumentSending{
 		ID:                       parsedID,
 		DocumentSetupID:          parsedDocumentSetupID,
 		ProjectRecruitmentLineID: parsedProjectRecruitmentLineID,
 		ApplicantID:              parsedApplicantID,
 		JobPostingID:             parsedJobPostingID,
+		OrganizationLocationID:   parsedOrganizationLocationID,
 		BasicWage:                req.BasicWage,
 		PositionalAllowance:      req.PositionalAllowance,
 		OperationalAllowance:     req.OperationalAllowance,

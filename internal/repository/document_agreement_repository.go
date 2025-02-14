@@ -118,10 +118,8 @@ func (r *DocumentAgreementRepository) FindAllPaginated(page, pageSize int, searc
 		db = db.Where("id IN (?)", iDs)
 	}
 
-	if filter != nil {
-		for key, value := range filter {
-			db = db.Where(key+" = ?", value)
-		}
+	if filter["status"] != nil && filter["status"] != "" {
+		db = db.Where("status = ?", filter["status"])
 	}
 
 	for key, value := range sort {

@@ -131,7 +131,7 @@ func (r *DocumentAgreementRepository) FindAllPaginated(page, pageSize int, searc
 		return nil, 0, err
 	}
 
-	if err := db.Preload("DocumentSending.ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("DocumentSending.JobPosting").Preload("Applicant.UserProfile").Limit(pageSize).Offset((page - 1) * pageSize).Find(&documentAgreements).Error; err != nil {
+	if err := db.Preload("DocumentSending.ProjectRecruitmentLine").Preload("DocumentSending.JobPosting.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Limit(pageSize).Offset((page - 1) * pageSize).Find(&documentAgreements).Error; err != nil {
 		r.Log.Error("[DocumentAgreementRepository.FindAllPaginated] " + err.Error())
 		return nil, 0, err
 	}

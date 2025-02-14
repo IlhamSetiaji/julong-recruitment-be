@@ -199,6 +199,8 @@ definitions:
         $ref: '#/definitions/entity.ProjectRecruitmentLine'
       project_recruitment_line_id:
         type: string
+      recruitment_type:
+        $ref: '#/definitions/entity.ProjectRecruitmentType'
       status:
         $ref: '#/definitions/entity.DocumentSendingStatus'
     type: object
@@ -1403,6 +1405,8 @@ definitions:
         type: number
       project_recruitment_line_id:
         type: string
+      recruitment_type:
+        type: string
       status:
         type: string
     required:
@@ -1413,6 +1417,7 @@ definitions:
     - document_setup_id
     - job_posting_id
     - project_recruitment_line_id
+    - recruitment_type
     - status
     type: object
   request.CreateDocumentSetupRequest:
@@ -2148,6 +2153,8 @@ definitions:
         type: number
       project_recruitment_line_id:
         type: string
+      recruitment_type:
+        type: string
       status:
         type: string
     required:
@@ -2159,6 +2166,7 @@ definitions:
     - id
     - job_posting_id
     - project_recruitment_line_id
+    - recruitment_type
     - status
     type: object
   request.UpdateDocumentSetupRequest:
@@ -2715,6 +2723,8 @@ definitions:
         $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
       project_recruitment_line_id:
         type: string
+      recruitment_type:
+        $ref: '#/definitions/entity.ProjectRecruitmentType'
       status:
         $ref: '#/definitions/entity.DocumentSendingStatus'
       updated_at:

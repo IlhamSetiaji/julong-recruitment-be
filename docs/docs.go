@@ -7273,6 +7273,9 @@ const docTemplate = `{
                 "project_recruitment_line_id": {
                     "type": "string"
                 },
+                "recruitment_type": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentType"
+                },
                 "status": {
                     "$ref": "#/definitions/entity.DocumentSendingStatus"
                 }
@@ -8976,6 +8979,7 @@ const docTemplate = `{
                 "document_setup_id",
                 "job_posting_id",
                 "project_recruitment_line_id",
+                "recruitment_type",
                 "status"
             ],
             "properties": {
@@ -9035,6 +9039,9 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "recruitment_type": {
                     "type": "string"
                 },
                 "status": {
@@ -10050,6 +10057,7 @@ const docTemplate = `{
                 "id",
                 "job_posting_id",
                 "project_recruitment_line_id",
+                "recruitment_type",
                 "status"
             ],
             "properties": {
@@ -10112,6 +10120,9 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "recruitment_type": {
                     "type": "string"
                 },
                 "status": {
@@ -10917,6 +10928,9 @@ const docTemplate = `{
                 },
                 "project_recruitment_line_id": {
                     "type": "string"
+                },
+                "recruitment_type": {
+                    "$ref": "#/definitions/entity.ProjectRecruitmentType"
                 },
                 "status": {
                     "$ref": "#/definitions/entity.DocumentSendingStatus"

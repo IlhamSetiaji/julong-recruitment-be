@@ -452,6 +452,37 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		return nil, err
 	}
 
+	if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_COMPLETED {
+		applicantOrder := applicant.Order
+		var TemplateQuestionID *uuid.UUID
+		for i := range jobPosting.ProjectRecruitmentHeader.ProjectRecruitmentLines {
+			if jobPosting.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == applicantOrder+1 {
+				projectRecruitmentLine := &jobPosting.ProjectRecruitmentHeader.ProjectRecruitmentLines[i]
+				TemplateQuestionID = &projectRecruitmentLine.TemplateActivityLine.QuestionTemplateID
+				break
+			} else {
+				TemplateQuestionID = &applicant.TemplateQuestionID
+			}
+		}
+		_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+			ID:                 applicant.ID,
+			Order:              applicant.Order + 1,
+			TemplateQuestionID: *TemplateQuestionID,
+		})
+		if err != nil {
+			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
+			return nil, err
+		}
+	} else if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_REJECTED {
+		_, err = uc.ApplicantRepository.UpdateApplicantWhenRejected(&entity.Applicant{
+			ID: applicant.ID,
+		})
+		if err != nil {
+			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
+			return nil, err
+		}
+	}
+
 	return uc.DTO.ConvertEntityToResponse(documentSending), nil
 }
 

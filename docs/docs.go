@@ -7281,13 +7281,19 @@ const docTemplate = `{
                 "DRAFT",
                 "PENDING",
                 "SENT",
-                "FAILED"
+                "FAILED",
+                "REVISED",
+                "REJECTED",
+                "COMPLETED"
             ],
             "x-enum-varnames": [
                 "DOCUMENT_SENDING_STATUS_DRAFT",
                 "DOCUMENT_SENDING_STATUS_PENDING",
                 "DOCUMENT_SENDING_STATUS_SENT",
-                "DOCUMENT_SENDING_STATUS_FAILED"
+                "DOCUMENT_SENDING_STATUS_FAILED",
+                "DOCUMENT_SENDING_STATUS_REVISED",
+                "DOCUMENT_SENDING_STATUS_REJECTED",
+                "DOCUMENT_SENDING_STATUS_COMPLETED"
             ]
         },
         "entity.DocumentSetup": {

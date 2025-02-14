@@ -481,6 +481,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		documentAgreement, err := uc.DocumentAgreementRepository.FindByKeys(map[string]interface{}{
 			"document_sending_id": documentSending.ID,
 			"applicant_id":        documentSending.ApplicantID,
+			"status":              entity.DOCUMENT_AGREEMENT_STATUS_SUBMITTED,
 		})
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
@@ -503,6 +504,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		documentAgreement, err := uc.DocumentAgreementRepository.FindByKeys(map[string]interface{}{
 			"document_sending_id": documentSending.ID,
 			"applicant_id":        documentSending.ApplicantID,
+			"status":              entity.DOCUMENT_AGREEMENT_STATUS_SUBMITTED,
 		})
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
@@ -518,6 +520,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		documentAgreement, err := uc.DocumentAgreementRepository.FindByKeys(map[string]interface{}{
 			"document_sending_id": documentSending.ID,
 			"applicant_id":        documentSending.ApplicantID,
+			"status":              entity.DOCUMENT_AGREEMENT_STATUS_SUBMITTED,
 		})
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())

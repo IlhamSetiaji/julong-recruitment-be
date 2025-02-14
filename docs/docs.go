@@ -3811,6 +3811,12 @@ const docTemplate = `{
                         "description": "Status",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Document Type ID",
+                        "name": "document_type_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {

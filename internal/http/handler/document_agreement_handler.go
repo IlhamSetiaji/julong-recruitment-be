@@ -220,6 +220,7 @@ func (h *DocumentAgreementHandler) FindByDocumentSendingIDAndApplicantID(ctx *gi
 // @Param search query string false "Search"
 // @Param sort query string false "Sort"
 // @Param status query string false "Status"
+// @Param document_type_id query string false "Document Type ID"
 // @Success 200 {object} response.DocumentAgreementResponse
 // @Security BearerAuth
 // @Router /document-agreement [get]
@@ -257,7 +258,12 @@ func (h *DocumentAgreementHandler) FindAllPaginated(ctx *gin.Context) {
 		"status": status,
 	}
 
-	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
+	documentTypeID := ctx.Query("document_type_id")
+	if documentTypeID == "" {
+		documentTypeID = ""
+	}
+
+	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter, documentTypeID)
 	if err != nil {
 		h.Log.Error("[DocumentAgreementHandler.FindAllPaginated] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find all document agreement", err.Error())

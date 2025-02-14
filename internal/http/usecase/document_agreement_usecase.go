@@ -18,7 +18,7 @@ type IDocumentAgreementUseCase interface {
 	UpdateDocumentAgreement(req *request.UpdateDocumentAgreementRequest) (*response.DocumentAgreementResponse, error)
 	FindByDocumentSendingIDAndApplicantID(documentSendingID string, applicantID string) (*response.DocumentAgreementResponse, error)
 	UpdateStatusDocumentAgreement(req *request.UpdateStatusDocumentAgreementRequest) (*response.DocumentAgreementResponse, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.DocumentAgreementResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, documentTypeID string) (*[]response.DocumentAgreementResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.DocumentAgreementResponse, error)
 }
 
@@ -29,9 +29,20 @@ type DocumentAgreementUseCase struct {
 	DTO                       dto.IDocumentAgreementDTO
 	ApplicantRepository       repository.IApplicantRepository
 	Viper                     *viper.Viper
+	DocumentTypeRepository    repository.IDocumentTypeRepository
+	DocumentSetupRepository   repository.IDocumentSetupRepository
 }
 
-func NewDocumentAgreementUseCase(log *logrus.Logger, repository repository.IDocumentAgreementRepository, documentSendingRepository repository.IDocumentSendingRepository, dto dto.IDocumentAgreementDTO, applicantRepository repository.IApplicantRepository, viper *viper.Viper) IDocumentAgreementUseCase {
+func NewDocumentAgreementUseCase(
+	log *logrus.Logger,
+	repository repository.IDocumentAgreementRepository,
+	documentSendingRepository repository.IDocumentSendingRepository,
+	dto dto.IDocumentAgreementDTO,
+	applicantRepository repository.IApplicantRepository,
+	viper *viper.Viper,
+	documentTypeRepository repository.IDocumentTypeRepository,
+	documentSetupRepository repository.IDocumentSetupRepository,
+) IDocumentAgreementUseCase {
 	return &DocumentAgreementUseCase{
 		Log:                       log,
 		Repository:                repository,
@@ -39,6 +50,8 @@ func NewDocumentAgreementUseCase(log *logrus.Logger, repository repository.IDocu
 		DTO:                       dto,
 		ApplicantRepository:       applicantRepository,
 		Viper:                     viper,
+		DocumentTypeRepository:    documentTypeRepository,
+		DocumentSetupRepository:   documentSetupRepository,
 	}
 }
 
@@ -47,7 +60,9 @@ func DocumentAgreementUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDo
 	documentSendingRepository := repository.DocumentSendingRepositoryFactory(log)
 	applicantRepository := repository.ApplicantRepositoryFactory(log)
 	dto := dto.DocumentAgreementDTOIDocumentAgreementDTOFactory(log, viper)
-	return NewDocumentAgreementUseCase(log, daRepository, documentSendingRepository, dto, applicantRepository, viper)
+	documentTypeRepository := repository.DocumentTypeRepositoryFactory(log)
+	documentSetupRepository := repository.DocumentSetupRepositoryFactory(log)
+	return NewDocumentAgreementUseCase(log, daRepository, documentSendingRepository, dto, applicantRepository, viper, documentTypeRepository, documentSetupRepository)
 }
 
 func (uc *DocumentAgreementUseCase) CreateDocumentAgreement(req *request.CreateDocumentAgreementRequest) (*response.DocumentAgreementResponse, error) {
@@ -206,8 +221,64 @@ func (uc *DocumentAgreementUseCase) UpdateStatusDocumentAgreement(req *request.U
 	return uc.DTO.ConvertEntityToResponse(result), nil
 }
 
-func (uc *DocumentAgreementUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.DocumentAgreementResponse, int64, error) {
-	documentAgreements, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
+func (uc *DocumentAgreementUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, documentTypeID string) (*[]response.DocumentAgreementResponse, int64, error) {
+	var docType *entity.DocumentType
+	var err error
+	documentAgreementIDs := make([]uuid.UUID, 0)
+
+	if documentTypeID != "" {
+		parsedDocumentTypeID, err := uuid.Parse(documentTypeID)
+		if err != nil {
+			uc.Log.Error(err)
+			return nil, 0, err
+		}
+
+		docType, err = uc.DocumentTypeRepository.FindByID(parsedDocumentTypeID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.FindAllPaginatedByDocumentTypeID] " + err.Error())
+			return nil, 0, err
+		}
+		if docType == nil {
+			uc.Log.Error("[DocumentSendingUseCase.FindAllPaginatedByDocumentTypeID] document type not found")
+			return nil, 0, errors.New("document type not found")
+		}
+
+		documentSetups, err := uc.DocumentSetupRepository.FindByDocumentTypeID(parsedDocumentTypeID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.FindAllPaginatedByDocumentTypeID] " + err.Error())
+			return nil, 0, err
+		}
+
+		documentSetupIDs := make([]uuid.UUID, 0)
+
+		for _, documentSetup := range documentSetups {
+			documentSetupIDs = append(documentSetupIDs, documentSetup.ID)
+		}
+
+		documentSendings, err := uc.DocumentSendingRepository.FindAllByDocumentSetupIDs(documentSetupIDs)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.FindAllPaginatedByDocumentTypeID] " + err.Error())
+			return nil, 0, err
+		}
+
+		documentSendingIDs := make([]uuid.UUID, 0)
+
+		for _, documentSending := range *documentSendings {
+			documentSendingIDs = append(documentSendingIDs, documentSending.ID)
+		}
+
+		dAgreements, err := uc.Repository.FindAllByDocumentSendingIDs(documentSendingIDs)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.FindAllPaginatedByDocumentTypeID] " + err.Error())
+			return nil, 0, err
+		}
+
+		for _, dAgreement := range *dAgreements {
+			documentAgreementIDs = append(documentAgreementIDs, dAgreement.ID)
+		}
+	}
+
+	documentAgreements, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter, documentAgreementIDs)
 	if err != nil {
 		uc.Log.Error(err)
 		return nil, 0, err

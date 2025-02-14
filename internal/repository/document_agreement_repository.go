@@ -5,6 +5,7 @@ import (
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -13,7 +14,9 @@ type IDocumentAgreementRepository interface {
 	CreateDocumentAgreement(ent *entity.DocumentAgreement) (*entity.DocumentAgreement, error)
 	UpdateDocumentAgreement(ent *entity.DocumentAgreement) (*entity.DocumentAgreement, error)
 	FindByKeys(keys map[string]interface{}) (*entity.DocumentAgreement, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.DocumentAgreement, int64, error)
+	FindAllByKeys(keys map[string]interface{}) (*[]entity.DocumentAgreement, error)
+	FindAllByDocumentSendingIDs(documentSendings []uuid.UUID) (*[]entity.DocumentAgreement, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, iDs []uuid.UUID) (*[]entity.DocumentAgreement, int64, error)
 }
 
 type DocumentAgreementRepository struct {
@@ -101,7 +104,7 @@ func (r *DocumentAgreementRepository) FindByKeys(keys map[string]interface{}) (*
 	return &ent, nil
 }
 
-func (r *DocumentAgreementRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.DocumentAgreement, int64, error) {
+func (r *DocumentAgreementRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, iDs []uuid.UUID) (*[]entity.DocumentAgreement, int64, error) {
 	var documentAgreements []entity.DocumentAgreement
 	var total int64
 
@@ -109,6 +112,10 @@ func (r *DocumentAgreementRepository) FindAllPaginated(page, pageSize int, searc
 
 	if search != "" {
 		db = db.Where("document_agreement.applicant.user_profile.name LIKE ?", "%"+search+"%")
+	}
+
+	if len(iDs) > 0 {
+		db = db.Where("id IN (?)", iDs)
 	}
 
 	if filter != nil {
@@ -132,4 +139,24 @@ func (r *DocumentAgreementRepository) FindAllPaginated(page, pageSize int, searc
 	}
 
 	return &documentAgreements, total, nil
+}
+
+func (r *DocumentAgreementRepository) FindAllByKeys(keys map[string]interface{}) (*[]entity.DocumentAgreement, error) {
+	var documentAgreements []entity.DocumentAgreement
+	if err := r.DB.Where(keys).Preload("DocumentSending").Preload("Applicant.UserProfile").Find(&documentAgreements).Error; err != nil {
+		r.Log.Error("[DocumentAgreementRepository.FindAllByKeys] " + err.Error())
+		return nil, err
+	}
+
+	return &documentAgreements, nil
+}
+
+func (r *DocumentAgreementRepository) FindAllByDocumentSendingIDs(documentSendingIDs []uuid.UUID) (*[]entity.DocumentAgreement, error) {
+	var documentAgreements []entity.DocumentAgreement
+	if err := r.DB.Where("document_sending_id IN (?)", documentSendingIDs).Preload("DocumentSending").Preload("Applicant.UserProfile").Find(&documentAgreements).Error; err != nil {
+		r.Log.Error("[DocumentAgreementRepository.FindAllByDocumentSetupIDs] " + err.Error())
+		return nil, err
+	}
+
+	return &documentAgreements, nil
 }

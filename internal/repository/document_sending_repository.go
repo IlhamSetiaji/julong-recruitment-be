@@ -18,6 +18,7 @@ type IDocumentSendingRepository interface {
 	FindAllByDocumentSetupID(documentSetupID uuid.UUID) (*[]entity.DocumentSending, error)
 	GetHighestDocumentNumberByDate(date string) (int, error)
 	FindByKeys(keys map[string]interface{}) (*entity.DocumentSending, error)
+	FindAllByDocumentSetupIDs(documentSetupIDs []uuid.UUID) (*[]entity.DocumentSending, error)
 }
 
 type DocumentSendingRepository struct {
@@ -218,4 +219,15 @@ func (r *DocumentSendingRepository) FindByKeys(keys map[string]interface{}) (*en
 	}
 
 	return &ent, nil
+}
+
+func (r *DocumentSendingRepository) FindAllByDocumentSetupIDs(documentSetupIDs []uuid.UUID) (*[]entity.DocumentSending, error) {
+	var documentSendings []entity.DocumentSending
+
+	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id IN (?)", documentSetupIDs).Find(&documentSendings).Error; err != nil {
+		r.Log.Error("[DocumentSendingRepository.FindAllByDocumentSetupIDs] " + err.Error())
+		return nil, err
+	}
+
+	return &documentSendings, nil
 }

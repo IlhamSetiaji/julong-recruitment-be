@@ -7482,6 +7482,9 @@ const docTemplate = `{
         "entity.FgdResult": {
             "type": "object",
             "properties": {
+                "fgd_appicant_id": {
+                    "type": "string"
+                },
                 "fgd_applicant": {
                     "$ref": "#/definitions/entity.FgdApplicant"
                 },
@@ -7489,9 +7492,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/entity.FgdAssessor"
                 },
                 "fgd_assessor_id": {
-                    "type": "string"
-                },
-                "fgd_id": {
                     "type": "string"
                 },
                 "id": {

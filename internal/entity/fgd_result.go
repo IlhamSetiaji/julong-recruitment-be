@@ -17,7 +17,7 @@ const (
 type FgdResult struct {
 	gorm.Model     `json:"-"`
 	ID             uuid.UUID       `json:"id" gorm:"type:char(36);primaryKey;"`
-	FgdApplicantID uuid.UUID       `json:"fgd_id" gorm:"type:char(36);not null"`
+	FgdApplicantID uuid.UUID       `json:"fgd_appicant_id" gorm:"type:char(36);not null"`
 	FgdAssessorID  uuid.UUID       `json:"fgd_assessor_id" gorm:"type:char(36);not null"`
 	Status         FgdResultStatus `json:"status" gorm:"type:varchar(255);default:'REJECTED'"`
 

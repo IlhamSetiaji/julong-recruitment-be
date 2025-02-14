@@ -32,8 +32,22 @@ func FgdResultRepositoryFactory(log *logrus.Logger) IFgdResultRepository {
 }
 
 func (r *FgdResultRepository) CreateFgdResult(ent *entity.FgdResult) (*entity.FgdResult, error) {
-	if err := r.DB.Create(ent).Error; err != nil {
-		r.Log.Error("[FgdResultRepository.CreateResultRepository] " + err.Error())
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	if err := tx.Create(ent).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.DB.Preload("FgdApplicant").Preload("FgdAssessor").First(ent, ent.ID).Error; err != nil {
+		r.Log.Error("[FgdResultRepository.CreateFgdResult] " + err.Error())
 		return nil, err
 	}
 	return ent, nil

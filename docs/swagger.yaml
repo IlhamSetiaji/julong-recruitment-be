@@ -372,13 +372,13 @@ definitions:
     type: object
   entity.FgdResult:
     properties:
+      fgd_appicant_id:
+        type: string
       fgd_applicant:
         $ref: '#/definitions/entity.FgdApplicant'
       fgd_assessor:
         $ref: '#/definitions/entity.FgdAssessor'
       fgd_assessor_id:
-        type: string
-      fgd_id:
         type: string
       id:
         type: string

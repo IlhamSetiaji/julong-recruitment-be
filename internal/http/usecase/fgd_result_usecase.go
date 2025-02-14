@@ -60,13 +60,15 @@ func (uc *FgdResultUseCase) FillFgdResult(req *request.FillFgdResultRequest) (*r
 		return nil, err
 	}
 
-	FgdApplicant, err := uc.FgdApplicantRepository.FindByID(parsedFgdApplicantID)
+	FgdApplicant, err := uc.FgdApplicantRepository.FindByKeys(map[string]interface{}{
+		"applicant_id": parsedFgdApplicantID,
+	})
 	if err != nil {
 		uc.Log.Errorf("[FgdResultUseCase.FillFgdResult] " + err.Error())
 		return nil, err
 	}
 	if FgdApplicant == nil {
-		return nil, nil
+		return nil, errors.New("Fgd applicant not found")
 	}
 
 	parsedFgdAssessorID, err := uuid.Parse(req.FgdAssessorID)
@@ -81,12 +83,12 @@ func (uc *FgdResultUseCase) FillFgdResult(req *request.FillFgdResultRequest) (*r
 		return nil, err
 	}
 	if FgdAssessor == nil {
-		return nil, nil
+		return nil, errors.New("Fgd assessor not found")
 	}
 
 	FgdResult, err := uc.Repository.FindByKeys(map[string]interface{}{
-		"Fgd_applicant_id": req.FgdApplicantID,
-		"Fgd_assessor_id":  req.FgdAssessorID,
+		"fgd_applicant_id": req.FgdApplicantID,
+		"fgd_assessor_id":  req.FgdAssessorID,
 	})
 
 	if err != nil {
@@ -99,7 +101,7 @@ func (uc *FgdResultUseCase) FillFgdResult(req *request.FillFgdResultRequest) (*r
 	}
 
 	createdFgdResult, err := uc.Repository.CreateFgdResult(&entity.FgdResult{
-		FgdApplicantID: parsedFgdApplicantID,
+		FgdApplicantID: FgdApplicant.ID,
 		FgdAssessorID:  parsedFgdAssessorID,
 		Status:         entity.FgdResultStatus(req.Status),
 	})

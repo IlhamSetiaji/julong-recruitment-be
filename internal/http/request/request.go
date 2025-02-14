@@ -388,3 +388,18 @@ func DocumentAgreementStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func DocumentVerificationHeaderStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.DocumentVerificationHeaderStatus(status) {
+	case entity.DOCUMENT_VERIFICATION_HEADER_STATUS_PENDING,
+		entity.DOCUMENT_VERIFICATION_HEADER_STATUS_VERIFIED,
+		entity.DOCUMENT_VERIFICATION_HEADER_STATUS_REJECTED:
+		return true
+	default:
+		return false
+	}
+}

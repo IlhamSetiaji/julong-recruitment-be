@@ -50,6 +50,8 @@ func main() {
 		&entity.FgdResult{},
 		&entity.DocumentSending{},
 		&entity.DocumentAgreement{},
+		&entity.DocumentVerificationHeader{},
+		&entity.DocumentVerificationLine{},
 	)
 	if err != nil {
 		log.Fatal(err)

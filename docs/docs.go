@@ -3982,6 +3982,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/document-agreement/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find document agreement by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Agreement"
+                ],
+                "summary": "Find document agreement by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentAgreementResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/document-sending": {
             "get": {
                 "security": [

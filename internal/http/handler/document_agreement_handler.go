@@ -12,6 +12,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -22,6 +23,7 @@ type IDocumentAgreementHandler interface {
 	UpdateStatusDocumentAgreement(ctx *gin.Context)
 	FindByDocumentSendingIDAndApplicantID(ctx *gin.Context)
 	FindAllPaginated(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
 }
 
 type DocumentAgreementHandler struct {
@@ -266,4 +268,34 @@ func (h *DocumentAgreementHandler) FindAllPaginated(ctx *gin.Context) {
 		"document_agreements": res,
 		"total":               total,
 	})
+}
+
+// FindByID find document agreement by id
+//
+// @Summary Find document agreement by id
+// @Description Find document agreement by id
+// @Tags Document Agreement
+// @Accept json
+// @Produce json
+// @Param id path string true "ID"
+// @Success 200 {object} response.DocumentAgreementResponse
+// @Security BearerAuth
+// @Router /document-agreement/{id} [get]
+func (h *DocumentAgreementHandler) FindByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("[DocumentAgreementHandler.FindByID] " + err.Error())
+		utils.BadRequestResponse(ctx, "Invalid ID", err)
+		return
+	}
+
+	res, err := h.UseCase.FindByID(parsedID)
+	if err != nil {
+		h.Log.Error("[DocumentAgreementHandler.FindByID] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find document agreement", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Document agreement found", res)
 }

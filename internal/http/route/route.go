@@ -354,6 +354,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				documentAgreementRoute.GET("", c.DocumentAgreementHandler.FindAllPaginated)
 				documentAgreementRoute.GET("/find", c.DocumentAgreementHandler.FindByDocumentSendingIDAndApplicantID)
+				documentAgreementRoute.GET("/:id", c.DocumentAgreementHandler.FindByID)
 				documentAgreementRoute.POST("", c.DocumentAgreementHandler.CreateDocumentAgreement)
 				documentAgreementRoute.PUT("/update", c.DocumentAgreementHandler.UpdateDocumentAgreement)
 				documentAgreementRoute.PUT("/update-status", c.DocumentAgreementHandler.UpdateStatusDocumentAgreement)

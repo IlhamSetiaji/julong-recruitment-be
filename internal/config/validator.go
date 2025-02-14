@@ -32,5 +32,6 @@ func NewValidator(viper *viper.Viper) *validator.Validate {
 	validate.RegisterValidation("fgd_schedule_status_validation", request.FgdScheduleStatusValidation)
 	validate.RegisterValidation("document_sending_status_validation", request.DocumentSendingStatusValidation)
 	validate.RegisterValidation("document_agreement_status_validation", request.DocumentAgreementStatusValidation)
+	validate.RegisterValidation("document_verification_header_status_validation", request.DocumentVerificationHeaderStatusValidation)
 	return validate
 }

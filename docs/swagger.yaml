@@ -1400,11 +1400,6 @@ definitions:
       project_recruitment_line_id:
         type: string
       status:
-        enum:
-        - DRAFT
-        - PENDING
-        - SENT
-        - FAILED
         type: string
     required:
     - applicant_id
@@ -2148,11 +2143,6 @@ definitions:
       project_recruitment_line_id:
         type: string
       status:
-        enum:
-        - DRAFT
-        - PENDING
-        - SENT
-        - FAILED
         type: string
     required:
     - applicant_id

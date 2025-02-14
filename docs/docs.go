@@ -9032,13 +9032,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "type": "string",
-                    "enum": [
-                        "DRAFT",
-                        "PENDING",
-                        "SENT",
-                        "FAILED"
-                    ]
+                    "type": "string"
                 }
             }
         },
@@ -10112,13 +10106,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "type": "string",
-                    "enum": [
-                        "DRAFT",
-                        "PENDING",
-                        "SENT",
-                        "FAILED"
-                    ]
+                    "type": "string"
                 }
             }
         },

@@ -6,7 +6,7 @@ type CreateDocumentSendingRequest struct {
 	DocumentSetupID          string  `json:"document_setup_id" validate:"required,uuid"`
 	DocumentDate             string  `json:"document_date" validate:"required,datetime=2006-01-02"`
 	DocumentNumber           string  `json:"document_number" validate:"required"`
-	Status                   string  `json:"status" validate:"required,oneof=DRAFT PENDING SENT FAILED"`
+	Status                   string  `json:"status" validate:"required,document_sending_status_validation"`
 	BasicWage                float64 `json:"basic_wage" validate:"omitempty"`
 	PositionalAllowance      float64 `json:"positional_allowance" validate:"omitempty"`
 	OperationalAllowance     float64 `json:"operational_allowance" validate:"omitempty"`
@@ -30,7 +30,7 @@ type UpdateDocumentSendingRequest struct {
 	DocumentSetupID          string  `json:"document_setup_id" validate:"required,uuid"`
 	DocumentDate             string  `json:"document_date" validate:"required,datetime=2006-01-02"`
 	DocumentNumber           string  `json:"document_number" validate:"required"`
-	Status                   string  `json:"status" validate:"required,oneof=DRAFT PENDING SENT FAILED"`
+	Status                   string  `json:"status" validate:"required,document_sending_status_validation"`
 	BasicWage                float64 `json:"basic_wage" validate:"omitempty"`
 	PositionalAllowance      float64 `json:"positional_allowance" validate:"omitempty"`
 	OperationalAllowance     float64 `json:"operational_allowance" validate:"omitempty"`

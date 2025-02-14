@@ -9026,13 +9026,7 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "string",
-                    "enum": [
-                        "DRAFT",
-                        "PENDING",
-                        "SENT",
-                        "FAILED"
-                    ]
+                    "type": "string"
                 }
             }
         },
@@ -10106,13 +10100,7 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "string",
-                    "enum": [
-                        "DRAFT",
-                        "PENDING",
-                        "SENT",
-                        "FAILED"
-                    ]
+                    "type": "string"
                 }
             }
         },

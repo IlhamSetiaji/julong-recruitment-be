@@ -36,6 +36,7 @@ type DocumentSendingUseCase struct {
 	DocumentSetupRepository          repository.IDocumentSetupRepository
 	Viper                            *viper.Viper
 	DocumentTypeRepository           repository.IDocumentTypeRepository
+	DocumentAgreementRepository      repository.IDocumentAgreementRepository
 }
 
 func NewDocumentSendingUseCase(
@@ -48,6 +49,7 @@ func NewDocumentSendingUseCase(
 	documentSetupRepository repository.IDocumentSetupRepository,
 	viper *viper.Viper,
 	documentTypeRepository repository.IDocumentTypeRepository,
+	documentAgreementRepository repository.IDocumentAgreementRepository,
 ) IDocumentSendingUseCase {
 	return &DocumentSendingUseCase{
 		Log:                              log,
@@ -59,6 +61,7 @@ func NewDocumentSendingUseCase(
 		DocumentSetupRepository:          documentSetupRepository,
 		Viper:                            viper,
 		DocumentTypeRepository:           documentTypeRepository,
+		DocumentAgreementRepository:      repository.DocumentAgreementRepositoryFactory(log),
 	}
 }
 
@@ -70,7 +73,8 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 	projectRecruitmentLineRepository := repository.ProjectRecruitmentLineRepositoryFactory(log)
 	documentSetupRepository := repository.DocumentSetupRepositoryFactory(log)
 	documentTypeRepository := repository.DocumentTypeRepositoryFactory(log)
-	return NewDocumentSendingUseCase(log, repo, dto, jobPostingRepository, applicantRepository, projectRecruitmentLineRepository, documentSetupRepository, viper, documentTypeRepository)
+	documentAgreementRepository := repository.DocumentAgreementRepositoryFactory(log)
+	return NewDocumentSendingUseCase(log, repo, dto, jobPostingRepository, applicantRepository, projectRecruitmentLineRepository, documentSetupRepository, viper, documentTypeRepository, documentAgreementRepository)
 }
 
 func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocumentSendingRequest) (*response.DocumentSendingResponse, error) {
@@ -473,6 +477,21 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
 			return nil, err
 		}
+
+		documentAgreement, err := uc.DocumentAgreementRepository.FindByKeys(map[string]interface{}{
+			"document_sending_id": documentSending.ID,
+			"applicant_id":        documentSending.ApplicantID,
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		if documentAgreement != nil {
+			_, err = uc.DocumentAgreementRepository.UpdateDocumentAgreement(&entity.DocumentAgreement{
+				ID:     documentAgreement.ID,
+				Status: entity.DOCUMENT_AGREEMENT_STATUS_APPROVED,
+			})
+		}
 	} else if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_REJECTED {
 		_, err = uc.ApplicantRepository.UpdateApplicantWhenRejected(&entity.Applicant{
 			ID: applicant.ID,
@@ -480,6 +499,35 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		if err != nil {
 			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
 			return nil, err
+		}
+		documentAgreement, err := uc.DocumentAgreementRepository.FindByKeys(map[string]interface{}{
+			"document_sending_id": documentSending.ID,
+			"applicant_id":        documentSending.ApplicantID,
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		if documentAgreement != nil {
+			_, err = uc.DocumentAgreementRepository.UpdateDocumentAgreement(&entity.DocumentAgreement{
+				ID:     documentAgreement.ID,
+				Status: entity.DOCUMENT_AGREEMENT_STATUS_REJECTED,
+			})
+		}
+	} else {
+		documentAgreement, err := uc.DocumentAgreementRepository.FindByKeys(map[string]interface{}{
+			"document_sending_id": documentSending.ID,
+			"applicant_id":        documentSending.ApplicantID,
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		if documentAgreement != nil {
+			_, err = uc.DocumentAgreementRepository.UpdateDocumentAgreement(&entity.DocumentAgreement{
+				ID:     documentAgreement.ID,
+				Status: entity.DOCUMENT_AGREEMENT_STATUS_REVISED,
+			})
 		}
 	}
 

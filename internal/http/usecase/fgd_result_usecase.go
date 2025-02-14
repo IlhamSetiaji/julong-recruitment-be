@@ -113,8 +113,8 @@ func (uc *FgdResultUseCase) FillFgdResult(req *request.FillFgdResultRequest) (*r
 
 func (uc *FgdResultUseCase) FindByFgdApplicantAndAssessorID(FgdApplicantID, FgdAssessorID uuid.UUID) (*response.FgdResultResponse, error) {
 	FgdResult, err := uc.Repository.FindByKeys(map[string]interface{}{
-		"Fgd_applicant_id": FgdApplicantID,
-		"Fgd_assessor_id":  FgdAssessorID,
+		"fgd_applicant_id": FgdApplicantID,
+		"fgd_assessor_id":  FgdAssessorID,
 	})
 	if err != nil {
 		uc.Log.Errorf("[FgdResultUseCase.FindByFgdApplicantAndAssessorID] " + err.Error())

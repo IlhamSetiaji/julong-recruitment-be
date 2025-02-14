@@ -46,6 +46,7 @@ func (r *FgdResultRepository) FindByKeys(keys map[string]interface{}) (*entity.F
 			return nil, nil
 		} else {
 			r.Log.Error("[FgdResultRepository.FindByKeys] " + err.Error())
+			return nil, err
 		}
 	}
 	return &fgdResult, nil

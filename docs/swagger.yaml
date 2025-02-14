@@ -134,11 +134,13 @@ definitions:
     - SUBMITTED
     - APPROVED
     - REJECTED
+    - REVISED
     type: string
     x-enum-varnames:
     - DOCUMENT_AGREEMENT_STATUS_SUBMITTED
     - DOCUMENT_AGREEMENT_STATUS_APPROVED
     - DOCUMENT_AGREEMENT_STATUS_REJECTED
+    - DOCUMENT_AGREEMENT_STATUS_REVISED
   entity.DocumentSending:
     properties:
       applicant:
@@ -6291,6 +6293,45 @@ paths:
       tags:
       - Applicants
   /document-agreement:
+    get:
+      consumes:
+      - application/json
+      description: Find all document agreement paginated
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentAgreementResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all document agreement paginated
+      tags:
+      - Document Agreement
     post:
       consumes:
       - application/json

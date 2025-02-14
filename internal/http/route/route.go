@@ -352,6 +352,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// document agreement
 			documentAgreementRoute := apiRoute.Group("/document-agreement")
 			{
+				documentAgreementRoute.GET("", c.DocumentAgreementHandler.FindAllPaginated)
 				documentAgreementRoute.GET("/find", c.DocumentAgreementHandler.FindByDocumentSendingIDAndApplicantID)
 				documentAgreementRoute.POST("", c.DocumentAgreementHandler.CreateDocumentAgreement)
 				documentAgreementRoute.PUT("/update", c.DocumentAgreementHandler.UpdateDocumentAgreement)

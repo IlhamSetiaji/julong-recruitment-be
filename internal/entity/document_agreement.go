@@ -13,6 +13,7 @@ const (
 	DOCUMENT_AGREEMENT_STATUS_SUBMITTED DocumentAgreementStatus = "SUBMITTED"
 	DOCUMENT_AGREEMENT_STATUS_APPROVED  DocumentAgreementStatus = "APPROVED"
 	DOCUMENT_AGREEMENT_STATUS_REJECTED  DocumentAgreementStatus = "REJECTED"
+	DOCUMENT_AGREEMENT_STATUS_REVISED   DocumentAgreementStatus = "REVISED"
 )
 
 type DocumentAgreement struct {

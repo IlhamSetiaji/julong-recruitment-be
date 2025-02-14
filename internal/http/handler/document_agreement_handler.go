@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -20,6 +21,7 @@ type IDocumentAgreementHandler interface {
 	UpdateDocumentAgreement(ctx *gin.Context)
 	UpdateStatusDocumentAgreement(ctx *gin.Context)
 	FindByDocumentSendingIDAndApplicantID(ctx *gin.Context)
+	FindAllPaginated(ctx *gin.Context)
 }
 
 type DocumentAgreementHandler struct {
@@ -202,4 +204,66 @@ func (h *DocumentAgreementHandler) FindByDocumentSendingIDAndApplicantID(ctx *gi
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Document agreement found", res)
+}
+
+// FindAllPaginated find all document agreement paginated
+//
+// @Summary Find all document agreement paginated
+// @Description Find all document agreement paginated
+// @Tags Document Agreement
+// @Accept json
+// @Produce json
+// @Param page query int true "Page"
+// @Param page_size query int true "Page Size"
+// @Param search query string false "Search"
+// @Param sort query string false "Sort"
+// @Param status query string false "Status"
+// @Success 200 {object} response.DocumentAgreementResponse
+// @Security BearerAuth
+// @Router /document-agreement [get]
+func (h *DocumentAgreementHandler) FindAllPaginated(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	status := ctx.Query("status")
+	if status != "" {
+		status = string(entity.DocumentAgreementStatus(status))
+	}
+
+	filter := map[string]interface{}{
+		"status": status,
+	}
+
+	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
+	if err != nil {
+		h.Log.Error("[DocumentAgreementHandler.FindAllPaginated] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find all document agreement", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Document agreement found", gin.H{
+		"document_agreements": res,
+		"total":               total,
+	})
 }

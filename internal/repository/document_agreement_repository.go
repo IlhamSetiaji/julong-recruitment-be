@@ -13,6 +13,7 @@ type IDocumentAgreementRepository interface {
 	CreateDocumentAgreement(ent *entity.DocumentAgreement) (*entity.DocumentAgreement, error)
 	UpdateDocumentAgreement(ent *entity.DocumentAgreement) (*entity.DocumentAgreement, error)
 	FindByKeys(keys map[string]interface{}) (*entity.DocumentAgreement, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.DocumentAgreement, int64, error)
 }
 
 type DocumentAgreementRepository struct {
@@ -98,4 +99,37 @@ func (r *DocumentAgreementRepository) FindByKeys(keys map[string]interface{}) (*
 	}
 
 	return &ent, nil
+}
+
+func (r *DocumentAgreementRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.DocumentAgreement, int64, error) {
+	var documentAgreements []entity.DocumentAgreement
+	var total int64
+
+	db := r.DB.Model(&entity.DocumentAgreement{})
+
+	if search != "" {
+		db = db.Where("document_agreement.applicant.user_profile.name LIKE ?", "%"+search+"%")
+	}
+
+	if filter != nil {
+		for key, value := range filter {
+			db = db.Where(key+" = ?", value)
+		}
+	}
+
+	for key, value := range sort {
+		db = db.Order(key + " " + value.(string))
+	}
+
+	if err := db.Count(&total).Error; err != nil {
+		r.Log.Error("[DocumentAgreementRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	if err := db.Preload("DocumentSending").Preload("Applicant.UserProfile").Limit(pageSize).Offset((page - 1) * pageSize).Find(&documentAgreements).Error; err != nil {
+		r.Log.Error("[DocumentAgreementRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	return &documentAgreements, total, nil
 }

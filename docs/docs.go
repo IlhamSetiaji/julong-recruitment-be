@@ -3762,6 +3762,66 @@ const docTemplate = `{
             }
         },
         "/document-agreement": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all document agreement paginated",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Agreement"
+                ],
+                "summary": "Find all document agreement paginated",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentAgreementResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -7073,12 +7133,14 @@ const docTemplate = `{
             "enum": [
                 "SUBMITTED",
                 "APPROVED",
-                "REJECTED"
+                "REJECTED",
+                "REVISED"
             ],
             "x-enum-varnames": [
                 "DOCUMENT_AGREEMENT_STATUS_SUBMITTED",
                 "DOCUMENT_AGREEMENT_STATUS_APPROVED",
-                "DOCUMENT_AGREEMENT_STATUS_REJECTED"
+                "DOCUMENT_AGREEMENT_STATUS_REJECTED",
+                "DOCUMENT_AGREEMENT_STATUS_REVISED"
             ]
         },
         "entity.DocumentSending": {

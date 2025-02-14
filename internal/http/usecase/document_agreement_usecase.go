@@ -18,6 +18,7 @@ type IDocumentAgreementUseCase interface {
 	UpdateDocumentAgreement(req *request.UpdateDocumentAgreementRequest) (*response.DocumentAgreementResponse, error)
 	FindByDocumentSendingIDAndApplicantID(documentSendingID string, applicantID string) (*response.DocumentAgreementResponse, error)
 	UpdateStatusDocumentAgreement(req *request.UpdateStatusDocumentAgreementRequest) (*response.DocumentAgreementResponse, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.DocumentAgreementResponse, int64, error)
 }
 
 type DocumentAgreementUseCase struct {
@@ -202,4 +203,19 @@ func (uc *DocumentAgreementUseCase) UpdateStatusDocumentAgreement(req *request.U
 	}
 
 	return uc.DTO.ConvertEntityToResponse(result), nil
+}
+
+func (uc *DocumentAgreementUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.DocumentAgreementResponse, int64, error) {
+	documentAgreements, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
+	if err != nil {
+		uc.Log.Error(err)
+		return nil, 0, err
+	}
+
+	var result []response.DocumentAgreementResponse
+	for _, documentAgreement := range *documentAgreements {
+		result = append(result, *uc.DTO.ConvertEntityToResponse(&documentAgreement))
+	}
+
+	return &result, total, nil
 }

@@ -11,42 +11,43 @@ import (
 )
 
 type RouteConfig struct {
-	App                             *gin.Engine
-	Log                             *logrus.Logger
-	Viper                           *viper.Viper
-	AuthMiddleware                  gin.HandlerFunc
-	MPRequestHandler                handler.IMPRequestHandler
-	RecruitmentTypeHandler          handler.IRecruitmentTypeHandler
-	TemplateQuestionHandler         handler.ITemplateQuestionHandler
-	AnswerTypeHandler               handler.IAnswerTypeHandler
-	QuestionHandler                 handler.IQuestionHandler
-	DocumentTypeHandler             handler.IDocumentTypeHandler
-	DocumentSetupHandler            handler.IDocumentSetupHandler
-	DocumentVerificationHandler     handler.IDocumentVerificationHandler
-	TemplateActivityHandler         handler.ITemplateActivityHandler
-	TemplateActivityLineHandler     handler.ITemplateActivityLineHandler
-	ProjectRecruitmentHeaderHandler handler.IProjectRecruitmentHeaderHandler
-	ProjectRecruitmentLineHandler   handler.IProjectRecruitmentLineHandler
-	JobPostingHandler               handler.IJobPostingHandler
-	UniversityHandler               handler.IUniversityHandler
-	MailTemplateHandler             handler.IMailTemplateHandler
-	UserProfileHandler              handler.IUserProfileHandler
-	ApplicantHandler                handler.IApplicantHandler
-	TestTypeHandler                 handler.ITestTypeHandler
-	TestScheduleHeaderHandler       handler.ITestScheduleHeaderHandler
-	TestApplicantHandler            handler.ITestApplicantHandler
-	QuestionResponseHandler         handler.IQuestionResponseHandler
-	AdministrativeSelectionHandler  handler.IAdministrativeSelectionHandler
-	AdministrativeResultHandler     handler.IAdministrativeResultHandler
-	ProjectPicHandler               handler.IProjectPicHandler
-	InterviewHandler                handler.IInterviewHandler
-	InterviewApplicantHandler       handler.IInterviewApplicantHandler
-	InterviewResultHandler          handler.IInterviewResultHandler
-	FgdScheduleHandler              handler.IFgdScheduleHandler
-	FgdApplicantHandler             handler.IFgdApplicantHandler
-	FgdResultHandler                handler.IFgdResultHandler
-	DocumentSendingHandler          handler.IDocumentSendingHandler
-	DocumentAgreementHandler        handler.IDocumentAgreementHandler
+	App                               *gin.Engine
+	Log                               *logrus.Logger
+	Viper                             *viper.Viper
+	AuthMiddleware                    gin.HandlerFunc
+	MPRequestHandler                  handler.IMPRequestHandler
+	RecruitmentTypeHandler            handler.IRecruitmentTypeHandler
+	TemplateQuestionHandler           handler.ITemplateQuestionHandler
+	AnswerTypeHandler                 handler.IAnswerTypeHandler
+	QuestionHandler                   handler.IQuestionHandler
+	DocumentTypeHandler               handler.IDocumentTypeHandler
+	DocumentSetupHandler              handler.IDocumentSetupHandler
+	DocumentVerificationHandler       handler.IDocumentVerificationHandler
+	TemplateActivityHandler           handler.ITemplateActivityHandler
+	TemplateActivityLineHandler       handler.ITemplateActivityLineHandler
+	ProjectRecruitmentHeaderHandler   handler.IProjectRecruitmentHeaderHandler
+	ProjectRecruitmentLineHandler     handler.IProjectRecruitmentLineHandler
+	JobPostingHandler                 handler.IJobPostingHandler
+	UniversityHandler                 handler.IUniversityHandler
+	MailTemplateHandler               handler.IMailTemplateHandler
+	UserProfileHandler                handler.IUserProfileHandler
+	ApplicantHandler                  handler.IApplicantHandler
+	TestTypeHandler                   handler.ITestTypeHandler
+	TestScheduleHeaderHandler         handler.ITestScheduleHeaderHandler
+	TestApplicantHandler              handler.ITestApplicantHandler
+	QuestionResponseHandler           handler.IQuestionResponseHandler
+	AdministrativeSelectionHandler    handler.IAdministrativeSelectionHandler
+	AdministrativeResultHandler       handler.IAdministrativeResultHandler
+	ProjectPicHandler                 handler.IProjectPicHandler
+	InterviewHandler                  handler.IInterviewHandler
+	InterviewApplicantHandler         handler.IInterviewApplicantHandler
+	InterviewResultHandler            handler.IInterviewResultHandler
+	FgdScheduleHandler                handler.IFgdScheduleHandler
+	FgdApplicantHandler               handler.IFgdApplicantHandler
+	FgdResultHandler                  handler.IFgdResultHandler
+	DocumentSendingHandler            handler.IDocumentSendingHandler
+	DocumentAgreementHandler          handler.IDocumentAgreementHandler
+	DocumentVerificationHeaderHandler handler.IDocumentVerificationHeaderHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -359,6 +360,15 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentAgreementRoute.PUT("/update", c.DocumentAgreementHandler.UpdateDocumentAgreement)
 				documentAgreementRoute.PUT("/update-status", c.DocumentAgreementHandler.UpdateStatusDocumentAgreement)
 			}
+			// document verification headers
+			documentVerificationHeaderRoute := apiRoute.Group("/document-verification-headers")
+			{
+				documentVerificationHeaderRoute.GET("", c.DocumentVerificationHeaderHandler.FindAllPaginated)
+				documentVerificationHeaderRoute.GET("/:id", c.DocumentVerificationHeaderHandler.FindByID)
+				documentVerificationHeaderRoute.POST("", c.DocumentVerificationHeaderHandler.CreateDocumentVerificationHeader)
+				documentVerificationHeaderRoute.PUT("/update", c.DocumentVerificationHeaderHandler.UpdateDocumentVerificationHeader)
+				documentVerificationHeaderRoute.DELETE("/:id", c.DocumentVerificationHeaderHandler.DeleteDocumentVerificationHeader)
+			}
 		}
 	}
 }
@@ -396,42 +406,44 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	fgdResultHandler := handler.FgdResultHandlerFactory(log, viper)
 	documentSendingHandler := handler.DocumentSendingHandlerFactory(log, viper)
 	documentAgreementHandler := handler.DocumentAgreementHandlerFactory(log, viper)
+	documentVerificationHeaderHandler := handler.DocumentVerificationHeaderHandlerFactory(log, viper)
 	return &RouteConfig{
-		App:                             app,
-		Log:                             log,
-		Viper:                           viper,
-		AuthMiddleware:                  authMiddleware,
-		MPRequestHandler:                mpRequestHandler,
-		RecruitmentTypeHandler:          recruitmentTypeHandler,
-		TemplateQuestionHandler:         templateQuestionHandler,
-		AnswerTypeHandler:               answerTypeHandler,
-		QuestionHandler:                 questionHandler,
-		DocumentTypeHandler:             documentTypeHandler,
-		DocumentSetupHandler:            documentSetupHandler,
-		DocumentVerificationHandler:     documentVerificationHandler,
-		TemplateActivityHandler:         templateActivityHandler,
-		TemplateActivityLineHandler:     templateActivityLineHandler,
-		ProjectRecruitmentHeaderHandler: projectRecruitmentHeaderHandler,
-		ProjectRecruitmentLineHandler:   projectRecruitmentLineHandler,
-		JobPostingHandler:               handler.JobPostingHandlerFactory(log, viper),
-		UniversityHandler:               universityHandler,
-		MailTemplateHandler:             mailTemplateHandler,
-		UserProfileHandler:              userProfileHandler,
-		ApplicantHandler:                applicantHandler,
-		TestTypeHandler:                 testTypeHandler,
-		TestScheduleHeaderHandler:       testScheduleHeaderHandler,
-		TestApplicantHandler:            testApplicantHandler,
-		QuestionResponseHandler:         questionResponseHandler,
-		AdministrativeSelectionHandler:  administrativeSelectionHandler,
-		AdministrativeResultHandler:     administrativeResultHandler,
-		ProjectPicHandler:               projectPicHandler,
-		InterviewHandler:                interviewHandler,
-		InterviewApplicantHandler:       interviewApplicant,
-		InterviewResultHandler:          interviewResultHandler,
-		FgdScheduleHandler:              fgdScheduleHandler,
-		FgdApplicantHandler:             fgdApplicantHandler,
-		FgdResultHandler:                fgdResultHandler,
-		DocumentSendingHandler:          documentSendingHandler,
-		DocumentAgreementHandler:        documentAgreementHandler,
+		App:                               app,
+		Log:                               log,
+		Viper:                             viper,
+		AuthMiddleware:                    authMiddleware,
+		MPRequestHandler:                  mpRequestHandler,
+		RecruitmentTypeHandler:            recruitmentTypeHandler,
+		TemplateQuestionHandler:           templateQuestionHandler,
+		AnswerTypeHandler:                 answerTypeHandler,
+		QuestionHandler:                   questionHandler,
+		DocumentTypeHandler:               documentTypeHandler,
+		DocumentSetupHandler:              documentSetupHandler,
+		DocumentVerificationHandler:       documentVerificationHandler,
+		TemplateActivityHandler:           templateActivityHandler,
+		TemplateActivityLineHandler:       templateActivityLineHandler,
+		ProjectRecruitmentHeaderHandler:   projectRecruitmentHeaderHandler,
+		ProjectRecruitmentLineHandler:     projectRecruitmentLineHandler,
+		JobPostingHandler:                 handler.JobPostingHandlerFactory(log, viper),
+		UniversityHandler:                 universityHandler,
+		MailTemplateHandler:               mailTemplateHandler,
+		UserProfileHandler:                userProfileHandler,
+		ApplicantHandler:                  applicantHandler,
+		TestTypeHandler:                   testTypeHandler,
+		TestScheduleHeaderHandler:         testScheduleHeaderHandler,
+		TestApplicantHandler:              testApplicantHandler,
+		QuestionResponseHandler:           questionResponseHandler,
+		AdministrativeSelectionHandler:    administrativeSelectionHandler,
+		AdministrativeResultHandler:       administrativeResultHandler,
+		ProjectPicHandler:                 projectPicHandler,
+		InterviewHandler:                  interviewHandler,
+		InterviewApplicantHandler:         interviewApplicant,
+		InterviewResultHandler:            interviewResultHandler,
+		FgdScheduleHandler:                fgdScheduleHandler,
+		FgdApplicantHandler:               fgdApplicantHandler,
+		FgdResultHandler:                  fgdResultHandler,
+		DocumentSendingHandler:            documentSendingHandler,
+		DocumentAgreementHandler:          documentAgreementHandler,
+		DocumentVerificationHeaderHandler: documentVerificationHeaderHandler,
 	}
 }

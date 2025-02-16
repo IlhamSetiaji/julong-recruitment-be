@@ -4617,6 +4617,178 @@ const docTemplate = `{
                 }
             }
         },
+        "/document-verification-headers": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all document verification header with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Header"
+                ],
+                "summary": "Find all document verification header with pagination",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentVerificationHeaderResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create document verification header",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Header"
+                ],
+                "summary": "Create document verification header",
+                "parameters": [
+                    {
+                        "description": "Create Document Verification Header",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateDocumentVerificationHeaderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentVerificationHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-verification-headers/update": {
+            "put": {
+                "description": "Update document verification header",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Header"
+                ],
+                "summary": "Update document verification header",
+                "parameters": [
+                    {
+                        "description": "Update Document Verification Header",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateDocumentVerificationHeaderRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentVerificationHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-verification-headers/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentVerificationHeaderResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete document verification header by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Header"
+                ],
+                "summary": "Delete document verification header by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/document-verifications": {
             "get": {
                 "security": [
@@ -7386,6 +7558,19 @@ const docTemplate = `{
                 }
             }
         },
+        "entity.DocumentVerificationHeaderStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "ACCEPTED",
+                "REJECTED"
+            ],
+            "x-enum-varnames": [
+                "DOCUMENT_VERIFICATION_HEADER_STATUS_PENDING",
+                "DOCUMENT_VERIFICATION_HEADER_STATUS_VERIFIED",
+                "DOCUMENT_VERIFICATION_HEADER_STATUS_REJECTED"
+            ]
+        },
         "entity.Education": {
             "type": "object",
             "properties": {
@@ -9080,6 +9265,29 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateDocumentVerificationHeaderRequest": {
+            "type": "object",
+            "required": [
+                "applicant_id",
+                "job_posting_id",
+                "project_recruitment_line_id",
+                "status"
+            ],
+            "properties": {
+                "applicant_id": {
+                    "type": "string"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateDocumentVerificationRequest": {
             "type": "object",
             "required": [
@@ -10165,6 +10373,36 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateDocumentVerificationHeaderRequest": {
+            "type": "object",
+            "required": [
+                "applicant_id",
+                "id",
+                "job_posting_id",
+                "project_recruitment_line_id",
+                "status"
+            ],
+            "properties": {
+                "applicant_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "verified_by": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateDocumentVerificationRequest": {
             "type": "object",
             "required": [
@@ -10985,6 +11223,82 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.DocumentVerificationHeaderResponse": {
+            "type": "object",
+            "properties": {
+                "applicant": {
+                    "$ref": "#/definitions/response.ApplicantResponse"
+                },
+                "applicant_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "document_verification_lines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.DocumentVerificationLineResponse"
+                    }
+                },
+                "employee_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_posting": {
+                    "$ref": "#/definitions/response.JobPostingResponse"
+                },
+                "job_posting_id": {
+                    "type": "string"
+                },
+                "project_recruitment_line": {
+                    "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                },
+                "project_recruitment_line_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.DocumentVerificationHeaderStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "verified_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.DocumentVerificationLineResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "document_verification": {
+                    "$ref": "#/definitions/response.DocumentVerificationResponse"
+                },
+                "document_verification_header": {
+                    "$ref": "#/definitions/response.DocumentVerificationHeaderResponse"
+                },
+                "document_verification_header_id": {
+                    "type": "string"
+                },
+                "document_verification_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "path": {
                     "type": "string"
                 },
                 "updated_at": {

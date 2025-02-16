@@ -277,6 +277,16 @@ definitions:
       template_question_id:
         type: string
     type: object
+  entity.DocumentVerificationHeaderStatus:
+    enum:
+    - PENDING
+    - ACCEPTED
+    - REJECTED
+    type: string
+    x-enum-varnames:
+    - DOCUMENT_VERIFICATION_HEADER_STATUS_PENDING
+    - DOCUMENT_VERIFICATION_HEADER_STATUS_VERIFIED
+    - DOCUMENT_VERIFICATION_HEADER_STATUS_REJECTED
   entity.Education:
     properties:
       certificate:
@@ -1442,6 +1452,22 @@ definitions:
     - recruitment_type
     - title
     type: object
+  request.CreateDocumentVerificationHeaderRequest:
+    properties:
+      applicant_id:
+        type: string
+      job_posting_id:
+        type: string
+      project_recruitment_line_id:
+        type: string
+      status:
+        type: string
+    required:
+    - applicant_id
+    - job_posting_id
+    - project_recruitment_line_id
+    - status
+    type: object
   request.CreateDocumentVerificationRequest:
     properties:
       format:
@@ -2194,6 +2220,27 @@ definitions:
     - recruitment_type
     - title
     type: object
+  request.UpdateDocumentVerificationHeaderRequest:
+    properties:
+      applicant_id:
+        type: string
+      id:
+        type: string
+      job_posting_id:
+        type: string
+      project_recruitment_line_id:
+        type: string
+      status:
+        type: string
+      verified_by:
+        type: string
+    required:
+    - applicant_id
+    - id
+    - job_posting_id
+    - project_recruitment_line_id
+    - status
+    type: object
   request.UpdateDocumentVerificationRequest:
     properties:
       format:
@@ -2760,6 +2807,56 @@ definitions:
       id:
         type: string
       name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.DocumentVerificationHeaderResponse:
+    properties:
+      applicant:
+        $ref: '#/definitions/response.ApplicantResponse'
+      applicant_id:
+        type: string
+      created_at:
+        type: string
+      document_verification_lines:
+        items:
+          $ref: '#/definitions/response.DocumentVerificationLineResponse'
+        type: array
+      employee_name:
+        type: string
+      id:
+        type: string
+      job_posting:
+        $ref: '#/definitions/response.JobPostingResponse'
+      job_posting_id:
+        type: string
+      project_recruitment_line:
+        $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
+      project_recruitment_line_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.DocumentVerificationHeaderStatus'
+      updated_at:
+        type: string
+      verified_by:
+        type: string
+    type: object
+  response.DocumentVerificationLineResponse:
+    properties:
+      created_at:
+        type: string
+      document_verification:
+        $ref: '#/definitions/response.DocumentVerificationResponse'
+      document_verification_header:
+        $ref: '#/definitions/response.DocumentVerificationHeaderResponse'
+      document_verification_header_id:
+        type: string
+      document_verification_id:
+        type: string
+      id:
+        type: string
+      path:
         type: string
       updated_at:
         type: string
@@ -6843,6 +6940,114 @@ paths:
       summary: Find all document types
       tags:
       - Document Types
+  /document-verification-headers:
+    get:
+      consumes:
+      - application/json
+      description: Find all document verification header with pagination
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all document verification header with pagination
+      tags:
+      - Document Verification Header
+    post:
+      consumes:
+      - application/json
+      description: Create document verification header
+      parameters:
+      - description: Create Document Verification Header
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateDocumentVerificationHeaderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationHeaderResponse'
+      summary: Create document verification header
+      tags:
+      - Document Verification Header
+  /document-verification-headers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete document verification header by id
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete document verification header by id
+      tags:
+      - Document Verification Header
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationHeaderResponse'
+      security:
+      - BearerAuth: []
+  /document-verification-headers/update:
+    put:
+      consumes:
+      - application/json
+      description: Update document verification header
+      parameters:
+      - description: Update Document Verification Header
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDocumentVerificationHeaderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationHeaderResponse'
+      summary: Update document verification header
+      tags:
+      - Document Verification Header
   /document-verifications:
     get:
       consumes:

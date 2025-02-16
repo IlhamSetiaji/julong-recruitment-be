@@ -12,7 +12,7 @@ type DocumentVerificationHeaderResponse struct {
 	ProjectRecruitmentLineID uuid.UUID                               `json:"project_recruitment_line_id"`
 	ApplicantID              uuid.UUID                               `json:"applicant_id"`
 	JobPostingID             uuid.UUID                               `json:"job_posting_id"`
-	VerifiedBy               uuid.UUID                               `json:"verified_by"`
+	VerifiedBy               *uuid.UUID                              `json:"verified_by"`
 	Status                   entity.DocumentVerificationHeaderStatus `json:"status"`
 	CreatedAt                time.Time                               `json:"created_at"`
 	UpdatedAt                time.Time                               `json:"updated_at"`

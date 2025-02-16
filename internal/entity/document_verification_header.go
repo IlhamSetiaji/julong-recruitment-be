@@ -21,7 +21,7 @@ type DocumentVerificationHeader struct {
 	ProjectRecruitmentLineID uuid.UUID                        `json:"project_recruitment_line_id" gorm:"type:char(36);not null"`
 	ApplicantID              uuid.UUID                        `json:"applicant_id" gorm:"type:char(36);not null"`
 	JobPostingID             uuid.UUID                        `json:"job_posting_id" gorm:"type:char(36);not null"`
-	VerifiedBy               uuid.UUID                        `json:"verified_by" gorm:"type:char(36);defaut:null"`
+	VerifiedBy               *uuid.UUID                       `json:"verified_by" gorm:"type:char(36);defaut:null"`
 	Status                   DocumentVerificationHeaderStatus `json:"status" gorm:"type:varchar(255);default:'PENDING'"`
 
 	ProjectRecruitmentLine    *ProjectRecruitmentLine    `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

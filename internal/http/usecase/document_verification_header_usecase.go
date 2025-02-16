@@ -176,12 +176,25 @@ func (uc *DocumentVerificationHeaderUseCase) UpdateDocumentVerificationHeader(re
 		return nil, errors.New("Job Posting not found")
 	}
 
+	var verifiedBy *uuid.UUID
+	uc.Log.Info("Verified by ", req.VerifiedBy)
+	if req.VerifiedBy != nil {
+		parsedVerifiedBy, err := uuid.Parse(*req.VerifiedBy)
+		verifiedBy = &parsedVerifiedBy
+		if err != nil {
+			uc.Log.Error("[DocumentVerificationHeaderUseCase.UpdateDocumentVerificationHeader verified by] " + err.Error())
+			return nil, err
+		}
+	} else {
+		verifiedBy = nil
+	}
+
 	updatedData, err := uc.Repository.UpdateDocumentVerificationHeader(&entity.DocumentVerificationHeader{
 		ID:                       uuid.MustParse(req.ID),
 		ProjectRecruitmentLineID: parsedPrlID,
 		ApplicantID:              parseApplicantID,
 		JobPostingID:             parseJobPostingID,
-		VerifiedBy:               uuid.MustParse(req.VerifiedBy),
+		VerifiedBy:               verifiedBy,
 		Status:                   entity.DocumentVerificationHeaderStatus(req.Status),
 	})
 	if err != nil {

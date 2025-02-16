@@ -5,6 +5,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -69,10 +70,16 @@ func (dto *DocumentVerificationHeaderDTO) ConvertEntityToResponse(ent *entity.Do
 		ProjectRecruitmentLineID: ent.ProjectRecruitmentLineID,
 		ApplicantID:              ent.ApplicantID,
 		JobPostingID:             ent.JobPostingID,
-		VerifiedBy:               ent.VerifiedBy,
-		Status:                   ent.Status,
-		CreatedAt:                ent.CreatedAt,
-		UpdatedAt:                ent.UpdatedAt,
+		VerifiedBy: func() *uuid.UUID {
+			if ent.VerifiedBy != nil {
+				return ent.VerifiedBy
+			} else {
+				return nil
+			}
+		}(),
+		Status:    ent.Status,
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
 		ProjectRecruitmentLine: func() *response.ProjectRecruitmentLineResponse {
 			if ent.ProjectRecruitmentLine != nil {
 				return dto.ProjectRecruitmentLineDTO.ConvertEntityToResponse(ent.ProjectRecruitmentLine)

@@ -48,6 +48,7 @@ type RouteConfig struct {
 	DocumentSendingHandler            handler.IDocumentSendingHandler
 	DocumentAgreementHandler          handler.IDocumentAgreementHandler
 	DocumentVerificationHeaderHandler handler.IDocumentVerificationHeaderHandler
+	DocumentVerificationLineHandler   handler.IDocumentVerificationLineHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -369,6 +370,13 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentVerificationHeaderRoute.PUT("/update", c.DocumentVerificationHeaderHandler.UpdateDocumentVerificationHeader)
 				documentVerificationHeaderRoute.DELETE("/:id", c.DocumentVerificationHeaderHandler.DeleteDocumentVerificationHeader)
 			}
+			// document verification lines
+			documentVerificationLineRoute := apiRoute.Group("/document-verification-lines")
+			{
+				documentVerificationLineRoute.GET("/document-verification-header/:document_verification_header_id", c.DocumentVerificationLineHandler.FindAllByDocumentVerificationHeaderID)
+				documentVerificationLineRoute.GET("/:id", c.DocumentVerificationLineHandler.FindByID)
+				documentVerificationLineRoute.POST("", c.DocumentVerificationLineHandler.CreateOrUpdateDocumentVerificationLine)
+			}
 		}
 	}
 }
@@ -407,6 +415,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	documentSendingHandler := handler.DocumentSendingHandlerFactory(log, viper)
 	documentAgreementHandler := handler.DocumentAgreementHandlerFactory(log, viper)
 	documentVerificationHeaderHandler := handler.DocumentVerificationHeaderHandlerFactory(log, viper)
+	documentVerificationLineHandler := handler.DocumentVerificationLineHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                               app,
 		Log:                               log,
@@ -445,5 +454,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		DocumentSendingHandler:            documentSendingHandler,
 		DocumentAgreementHandler:          documentAgreementHandler,
 		DocumentVerificationHeaderHandler: documentVerificationHeaderHandler,
+		DocumentVerificationLineHandler:   documentVerificationLineHandler,
 	}
 }

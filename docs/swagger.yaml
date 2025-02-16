@@ -1635,6 +1635,29 @@ definitions:
     - administrative_results
     - administrative_selection_id
     type: object
+  request.CreateOrUpdateDocumentVerificationLine:
+    properties:
+      deleted_document_verification_line_ids:
+        items:
+          type: string
+        type: array
+      document_verification_header_id:
+        type: string
+      document_verification_lines:
+        items:
+          properties:
+            document_verification_id:
+              type: string
+            id:
+              type: string
+          required:
+          - document_verification_id
+          type: object
+        type: array
+    required:
+    - document_verification_header_id
+    - document_verification_lines
+    type: object
   request.CreateOrUpdateFgdApplicantsRequest:
     properties:
       deleted_fgd_applicant_ids:
@@ -7048,6 +7071,80 @@ paths:
       summary: Update document verification header
       tags:
       - Document Verification Header
+  /document-verification-lines:
+    post:
+      consumes:
+      - application/json
+      description: Create or update document verification line
+      parameters:
+      - description: Create or update document verification line
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrUpdateDocumentVerificationLine'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Create or update document verification line
+      tags:
+      - Document Verification Lines
+  /document-verification-lines/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find document verification line by id
+      parameters:
+      - description: Document Verification Line ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationLineResponse'
+      security:
+      - BearerAuth: []
+      summary: Find document verification line by id
+      tags:
+      - Document Verification Lines
+  /document-verification-lines/document-verification-header/{document_verification_header_id}:
+    get:
+      consumes:
+      - application/json
+      description: Find all document verification lines by document verification header
+        id
+      parameters:
+      - description: Document Verification Header ID
+        in: path
+        name: document_verification_header_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.DocumentVerificationLineResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Find all document verification lines by document verification header
+        id
+      tags:
+      - Document Verification Lines
   /document-verifications:
     get:
       consumes:

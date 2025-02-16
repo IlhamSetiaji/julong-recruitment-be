@@ -4783,6 +4783,122 @@
                 }
             }
         },
+        "/document-verification-lines": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update document verification line",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Lines"
+                ],
+                "summary": "Create or update document verification line",
+                "parameters": [
+                    {
+                        "description": "Create or update document verification line",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrUpdateDocumentVerificationLine"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentVerificationHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/document-verification-lines/document-verification-header/{document_verification_header_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all document verification lines by document verification header id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Lines"
+                ],
+                "summary": "Find all document verification lines by document verification header id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document Verification Header ID",
+                        "name": "document_verification_header_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.DocumentVerificationLineResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/document-verification-lines/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find document verification line by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Lines"
+                ],
+                "summary": "Find document verification line by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document Verification Line ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentVerificationLineResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/document-verifications": {
             "get": {
                 "security": [
@@ -9516,6 +9632,41 @@
                     "type": "array",
                     "items": {
                         "type": "string"
+                    }
+                }
+            }
+        },
+        "request.CreateOrUpdateDocumentVerificationLine": {
+            "type": "object",
+            "required": [
+                "document_verification_header_id",
+                "document_verification_lines"
+            ],
+            "properties": {
+                "deleted_document_verification_line_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "document_verification_header_id": {
+                    "type": "string"
+                },
+                "document_verification_lines": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "document_verification_id"
+                        ],
+                        "properties": {
+                            "document_verification_id": {
+                                "type": "string"
+                            },
+                            "id": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }

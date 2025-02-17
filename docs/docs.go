@@ -7765,11 +7765,13 @@ const docTemplate = `{
         "entity.DocumentVerificationHeaderStatus": {
             "type": "string",
             "enum": [
+                "DRAFT",
                 "PENDING",
                 "ACCEPTED",
                 "REJECTED"
             ],
             "x-enum-varnames": [
+                "DOCUMENT_VERIFICATION_HEADER_STATUS_DRAFT",
                 "DOCUMENT_VERIFICATION_HEADER_STATUS_PENDING",
                 "DOCUMENT_VERIFICATION_HEADER_STATUS_VERIFIED",
                 "DOCUMENT_VERIFICATION_HEADER_STATUS_REJECTED"
@@ -11383,6 +11385,9 @@ const docTemplate = `{
                     "$ref": "#/definitions/response.JobPostingResponse"
                 },
                 "job_posting_id": {
+                    "type": "string"
+                },
+                "joined_date": {
                     "type": "string"
                 },
                 "meal_allowance": {

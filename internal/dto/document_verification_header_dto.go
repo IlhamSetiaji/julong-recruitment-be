@@ -55,14 +55,16 @@ func DocumentVerificationHeaderDTOFactory(log *logrus.Logger, viper *viper.Viper
 
 func (dto *DocumentVerificationHeaderDTO) ConvertEntityToResponse(ent *entity.DocumentVerificationHeader) *response.DocumentVerificationHeaderResponse {
 	var employeeName string
-	employee, err := dto.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
-		ID: ent.VerifiedBy.String(),
-	})
-	if err != nil {
-		dto.Log.Errorf("[ProjectPicDTO.ConvertEntityToResponse] " + err.Error())
-		employeeName = ""
-	} else {
-		employeeName = employee.Name
+	if ent.VerifiedBy != nil {
+		employee, err := dto.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
+			ID: ent.VerifiedBy.String(),
+		})
+		if err != nil {
+			dto.Log.Errorf("[ProjectPicDTO.ConvertEntityToResponse] " + err.Error())
+			employeeName = ""
+		} else {
+			employeeName = employee.Name
+		}
 	}
 
 	return &response.DocumentVerificationHeaderResponse{

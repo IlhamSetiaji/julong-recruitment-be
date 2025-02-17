@@ -39,8 +39,14 @@ func (dto *DocumentVerificationLineDTO) ConvertEntityToResponse(ent *entity.Docu
 		ID:                           ent.ID,
 		DocumentVerificationHeaderID: ent.DocumentVerificationHeaderID,
 		DocumentVerificationID:       ent.DocumentVerificationID,
-		CreatedAt:                    ent.CreatedAt,
-		UpdatedAt:                    ent.UpdatedAt,
+		Path: func() string {
+			if ent.Path != "" {
+				return dto.Viper.GetString("app.url") + ent.Path
+			}
+			return ""
+		}(),
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
 		DocumentVerification: func() *response.DocumentVerificationResponse {
 			if ent.DocumentVerification != nil {
 				return dto.DocumentVerificationDTO.ConvertEntityToResponse(ent.DocumentVerification)

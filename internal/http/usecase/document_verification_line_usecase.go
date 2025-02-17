@@ -199,6 +199,11 @@ func (uc *DocumentVerificationLineUsecase) UploadDocumentVerificationLine(req *r
 		return nil, err
 	}
 
-	res := uc.DTO.ConvertEntityToResponse(documentVerificationLine)
+	ent, err := uc.Repository.FindByID(parsedID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := uc.DTO.ConvertEntityToResponse(ent)
 	return res, nil
 }

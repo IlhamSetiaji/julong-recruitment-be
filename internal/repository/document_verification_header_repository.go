@@ -160,7 +160,7 @@ func (r *DocumentVerificationHeaderRepository) DeleteDocumentVerificationHeader(
 
 func (r *DocumentVerificationHeaderRepository) FindByKeys(keys map[string]interface{}) (*entity.DocumentVerificationHeader, error) {
 	var ent entity.DocumentVerificationHeader
-	if err := r.DB.Where(keys).First(&ent).Error; err != nil {
+	if err := r.DB.Preload("DocumentVerificationLines").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting").Where(keys).First(&ent).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

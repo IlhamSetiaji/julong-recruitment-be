@@ -110,6 +110,7 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		ProjectRecruitmentLineID: ent.ProjectRecruitmentLineID,
 		ApplicantID:              ent.ApplicantID,
 		DocumentSetupID:          ent.DocumentSetupID,
+		OrganizationLocationID:   ent.OrganizationLocationID,
 		DocumentDate:             ent.DocumentDate,
 		DocumentNumber:           ent.DocumentNumber,
 		Status:                   ent.Status,

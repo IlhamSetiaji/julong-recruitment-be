@@ -62,7 +62,7 @@ func (r *DocumentSendingRepository) CreateDocumentSending(ent *entity.DocumentSe
 		return nil, err
 	}
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(ent, ent.ID).Error; err != nil {
 		tx.Rollback()
 		r.Log.Error("[DocumentSendingRepository.CreateDocumentSending] " + err.Error())
 		return nil, err
@@ -90,7 +90,7 @@ func (r *DocumentSendingRepository) UpdateDocumentSending(ent *entity.DocumentSe
 		return nil, err
 	}
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(ent, ent.ID).Error; err != nil {
 		tx.Rollback()
 		r.Log.Error("[DocumentSendingRepository.UpdateDocumentSending] " + err.Error())
 		return nil, err
@@ -103,7 +103,7 @@ func (r *DocumentSendingRepository) FindAllPaginatedByDocumentSetupIDs(documentS
 	var documentSendings []entity.DocumentSending
 	var total int64
 
-	query := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id IN (?)", documentSetupIDs).
+	query := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").Where("document_setup_id IN (?)", documentSetupIDs).
 		Where("document_setup_id IN (?)", documentSetupIDs)
 
 	if search != "" {
@@ -129,7 +129,7 @@ func (r *DocumentSendingRepository) FindAllPaginatedByDocumentSetupIDs(documentS
 func (r *DocumentSendingRepository) FindByID(id uuid.UUID) (*entity.DocumentSending, error) {
 	var documentSending entity.DocumentSending
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting").First(&documentSending, id).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(&documentSending, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -172,7 +172,7 @@ func (r *DocumentSendingRepository) DeleteDocumentSending(id uuid.UUID) error {
 func (r *DocumentSendingRepository) FindAllByDocumentSetupID(documentSetupID uuid.UUID) (*[]entity.DocumentSending, error) {
 	var documentSendings []entity.DocumentSending
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id = ?", documentSetupID).Find(&documentSendings).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").Where("document_setup_id = ?", documentSetupID).Find(&documentSendings).Error; err != nil {
 		r.Log.Error("[DocumentSendingRepository.FindAllByDocumentSetupID] " + err.Error())
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func (r *DocumentSendingRepository) GetHighestDocumentNumberByDate(date string) 
 func (r *DocumentSendingRepository) FindByDocumentSetupIDsAndApplicantID(documentSetupIDs []uuid.UUID, applicantID uuid.UUID) (*entity.DocumentSending, error) {
 	var documentSending entity.DocumentSending
 
-	if err := r.DB.Preload("DocumentSetup.DocumentType").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id IN (?)", documentSetupIDs).Where("applicant_id = ?", applicantID).First(&documentSending).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup.DocumentType").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").Where("document_setup_id IN (?)", documentSetupIDs).Where("applicant_id = ?", applicantID).First(&documentSending).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -210,7 +210,7 @@ func (r *DocumentSendingRepository) FindByDocumentSetupIDsAndApplicantID(documen
 
 func (r *DocumentSendingRepository) FindByKeys(keys map[string]interface{}) (*entity.DocumentSending, error) {
 	var ent entity.DocumentSending
-	if err := r.DB.Where(keys).Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").First(&ent).Error; err != nil {
+	if err := r.DB.Where(keys).Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(&ent).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -224,7 +224,7 @@ func (r *DocumentSendingRepository) FindByKeys(keys map[string]interface{}) (*en
 func (r *DocumentSendingRepository) FindAllByDocumentSetupIDs(documentSetupIDs []uuid.UUID) (*[]entity.DocumentSending, error) {
 	var documentSendings []entity.DocumentSending
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting").Where("document_setup_id IN (?)", documentSetupIDs).Find(&documentSendings).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").Where("document_setup_id IN (?)", documentSetupIDs).Find(&documentSendings).Error; err != nil {
 		r.Log.Error("[DocumentSendingRepository.FindAllByDocumentSetupIDs] " + err.Error())
 		return nil, err
 	}

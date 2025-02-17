@@ -11391,6 +11391,9 @@ const docTemplate = `{
                 "operational_allowance": {
                     "type": "number"
                 },
+                "organization_location_id": {
+                    "type": "string"
+                },
                 "organization_location_name": {
                     "type": "string"
                 },

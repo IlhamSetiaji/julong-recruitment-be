@@ -13,6 +13,7 @@ type DocumentSendingResponse struct {
 	ApplicantID              uuid.UUID                     `json:"applicant_id"`
 	DocumentSetupID          uuid.UUID                     `json:"document_setup_id"`
 	DocumentDate             time.Time                     `json:"document_date"`
+	JoinedDate               *time.Time                    `json:"joined_date"`
 	DocumentNumber           string                        `json:"document_number"`
 	Status                   entity.DocumentSendingStatus  `json:"status"`
 	RecruitmentType          entity.ProjectRecruitmentType `json:"recruitment_type"`

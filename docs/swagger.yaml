@@ -7049,6 +7049,34 @@ paths:
             $ref: '#/definitions/response.DocumentVerificationHeaderResponse'
       security:
       - BearerAuth: []
+  /document-verification-headers/find:
+    get:
+      consumes:
+      - application/json
+      description: Find document verification header by job posting and applicant
+      parameters:
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        required: true
+        type: string
+      - description: Applicant ID
+        in: query
+        name: applicant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationHeaderResponse'
+      security:
+      - BearerAuth: []
+      summary: Find document verification header by job posting and applicant
+      tags:
+      - Document Verification Header
   /document-verification-headers/update:
     put:
       consumes:
@@ -7143,6 +7171,34 @@ paths:
       - BearerAuth: []
       summary: Find all document verification lines by document verification header
         id
+      tags:
+      - Document Verification Lines
+  /document-verification-lines/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload document verification line
+      parameters:
+      - description: Document Verification Line ID
+        in: formData
+        name: id
+        required: true
+        type: string
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DocumentVerificationLineResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload document verification line
       tags:
       - Document Verification Lines
   /document-verifications:

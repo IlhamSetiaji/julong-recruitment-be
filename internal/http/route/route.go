@@ -365,6 +365,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			documentVerificationHeaderRoute := apiRoute.Group("/document-verification-headers")
 			{
 				documentVerificationHeaderRoute.GET("", c.DocumentVerificationHeaderHandler.FindAllPaginated)
+				documentVerificationHeaderRoute.GET("/find", c.DocumentVerificationHeaderHandler.FindByJobPostingAndApplicant)
 				documentVerificationHeaderRoute.GET("/:id", c.DocumentVerificationHeaderHandler.FindByID)
 				documentVerificationHeaderRoute.POST("", c.DocumentVerificationHeaderHandler.CreateDocumentVerificationHeader)
 				documentVerificationHeaderRoute.PUT("/update", c.DocumentVerificationHeaderHandler.UpdateDocumentVerificationHeader)
@@ -376,6 +377,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentVerificationLineRoute.GET("/document-verification-header/:document_verification_header_id", c.DocumentVerificationLineHandler.FindAllByDocumentVerificationHeaderID)
 				documentVerificationLineRoute.GET("/:id", c.DocumentVerificationLineHandler.FindByID)
 				documentVerificationLineRoute.POST("", c.DocumentVerificationLineHandler.CreateOrUpdateDocumentVerificationLine)
+				documentVerificationLineRoute.POST("/upload", c.DocumentVerificationLineHandler.UploadDocumentVerificationLine)
 			}
 		}
 	}

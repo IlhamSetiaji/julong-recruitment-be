@@ -16,6 +16,7 @@ type IDocumentVerificationHeaderRepository interface {
 	UpdateDocumentVerificationHeader(ent *entity.DocumentVerificationHeader) (*entity.DocumentVerificationHeader, error)
 	FindByID(id uuid.UUID) (*entity.DocumentVerificationHeader, error)
 	DeleteDocumentVerificationHeader(id uuid.UUID) error
+	FindByKeys(keys map[string]interface{}) (*entity.DocumentVerificationHeader, error)
 }
 
 type DocumentVerificationHeaderRepository struct {
@@ -155,4 +156,18 @@ func (r *DocumentVerificationHeaderRepository) DeleteDocumentVerificationHeader(
 	}
 
 	return nil
+}
+
+func (r *DocumentVerificationHeaderRepository) FindByKeys(keys map[string]interface{}) (*entity.DocumentVerificationHeader, error) {
+	var ent entity.DocumentVerificationHeader
+	if err := r.DB.Where(keys).First(&ent).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			r.Log.Error("[DocumentVerificationHeaderRepository.FindByKeys] " + err.Error())
+			return nil, err
+		}
+	}
+
+	return &ent, nil
 }

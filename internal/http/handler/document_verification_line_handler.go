@@ -2,6 +2,8 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -17,6 +19,7 @@ type IDocumentVerificationLineHandler interface {
 	CreateOrUpdateDocumentVerificationLine(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	FindAllByDocumentVerificationHeaderID(ctx *gin.Context)
+	UploadDocumentVerificationLine(ctx *gin.Context)
 }
 
 type DocumentVerificationLineHandler struct {
@@ -128,6 +131,59 @@ func (h *DocumentVerificationLineHandler) FindAllByDocumentVerificationHeaderID(
 	documentVerificationHeaderID := ctx.Param("document_verification_header_id")
 
 	res, err := h.UseCase.FindAllByDocumentVerificationHeaderID(documentVerificationHeaderID)
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Internal Server Error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Success", res)
+}
+
+// UploadDocumentVerificationLine upload document verification line
+//
+// @Summary Upload document verification line
+// @Description Upload document verification line
+// @Tags Document Verification Lines
+// @Accept multipart/form-data
+// @Produce json
+// @Param id formData string true "Document Verification Line ID"
+// @Param file formData file true "File"
+// @Success 200 {object} response.DocumentVerificationLineResponse
+// @Security BearerAuth
+// @Router /document-verification-lines/upload [post]
+func (h *DocumentVerificationLineHandler) UploadDocumentVerificationLine(ctx *gin.Context) {
+	if err := ctx.Request.ParseMultipartForm(10 << 20); err != nil { // 10MB limit
+		h.Log.Error("Failed to parse form-data: ", err)
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	id := ctx.PostForm("id")
+	if id == "" {
+		utils.BadRequestResponse(ctx, "bad request", "id is required")
+		return
+	}
+
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		h.Log.Error("Failed to get file: ", err)
+		utils.BadRequestResponse(ctx, "bad request", err.Error())
+		return
+	}
+
+	timestamp := time.Now().UnixNano()
+	filePath := "storage/document_verification_lines/" + strconv.FormatInt(timestamp, 10) + "_" + file.Filename
+	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
+		h.Log.Error("Failed to save file: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Internal Server Error", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.UploadDocumentVerificationLine(&request.UploadDocumentVerificationLine{
+		ID:   id,
+		Path: filePath,
+	})
 	if err != nil {
 		h.Log.Error(err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Internal Server Error", err.Error())

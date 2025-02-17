@@ -21,6 +21,7 @@ type IDocumentVerificationHeaderHandler interface {
 	FindByID(ctx *gin.Context)
 	FindAllPaginated(ctx *gin.Context)
 	DeleteDocumentVerificationHeader(ctx *gin.Context)
+	FindByJobPostingAndApplicant(ctx *gin.Context)
 }
 
 type DocumentVerificationHeaderHandler struct {
@@ -221,4 +222,44 @@ func (h *DocumentVerificationHeaderHandler) DeleteDocumentVerificationHeader(ctx
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Document verification header deleted", nil)
+}
+
+// FindByJobPostingAndApplicant find document verification header by job posting and applicant
+//
+//		@Summary		Find document verification header by job posting and applicant
+//		@Description	Find document verification header by job posting and applicant
+//		@Tags			Document Verification Header
+//		@Accept			json
+//		@Produce		json
+//		@Param			job_posting_id query string true "Job Posting ID"
+//		@Param			applicant_id query string true "Applicant ID"
+//		@Success		200	{object} response.DocumentVerificationHeaderResponse
+//		@Security BearerAuth
+//	 @Router			/document-verification-headers/find [get]
+func (h *DocumentVerificationHeaderHandler) FindByJobPostingAndApplicant(ctx *gin.Context) {
+	jobPostingID := ctx.Query("job_posting_id")
+	applicantID := ctx.Query("applicant_id")
+
+	parsedJpID, err := uuid.Parse(jobPostingID)
+	if err != nil {
+		h.Log.Errorf("[DocumentVerificationHeaderHandler.FindByJobPostingAndApplicant] error when parsing job posting id: %v", err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Error when parsing job posting id", err.Error())
+		return
+	}
+
+	parsedAppId, err := uuid.Parse(applicantID)
+	if err != nil {
+		h.Log.Errorf("[DocumentVerificationHeaderHandler.FindByJobPostingAndApplicant] error when parsing applicant id: %v", err)
+		utils.ErrorResponse(ctx, http.StatusBadRequest, "Error when parsing applicant id", err.Error())
+		return
+	}
+
+	res, err := h.UseCase.FindByJobPostingAndApplicant(parsedJpID, parsedAppId)
+	if err != nil {
+		h.Log.Errorf("[DocumentVerificationHeaderHandler.FindByJobPostingAndApplicant] error when finding document verification header by job posting and applicant: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when finding document verification header by job posting and applicant", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Success get document verification header by job posting and applicant", res)
 }

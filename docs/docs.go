@@ -4703,6 +4703,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/document-verification-headers/find": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find document verification header by job posting and applicant",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Header"
+                ],
+                "summary": "Find document verification header by job posting and applicant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Applicant ID",
+                        "name": "applicant_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentVerificationHeaderResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/document-verification-headers/update": {
             "put": {
                 "description": "Update document verification header",
@@ -4863,6 +4907,50 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/response.DocumentVerificationLineResponse"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/document-verification-lines/upload": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload document verification line",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Lines"
+                ],
+                "summary": "Upload document verification line",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document Verification Line ID",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "File",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentVerificationLineResponse"
                         }
                     }
                 }

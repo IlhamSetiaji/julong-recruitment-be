@@ -8,3 +8,8 @@ type CreateOrUpdateDocumentVerificationLine struct {
 	} `json:"document_verification_lines" validate:"required,dive"`
 	DeletedDocumentVerificationLineIDs []string `json:"deleted_document_verification_line_ids" validate:"omitempty,dive,uuid"`
 }
+
+type UploadDocumentVerificationLine struct {
+	ID   string `form:"id" validate:"required,uuid"`
+	Path string `form:"path" validate:"omitempty"`
+}

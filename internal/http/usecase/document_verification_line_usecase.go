@@ -17,6 +17,7 @@ type IDocumentVerificationLineUsecase interface {
 	CreateOrUpdateDocumentVerificationLine(req *request.CreateOrUpdateDocumentVerificationLine) (*response.DocumentVerificationHeaderResponse, error)
 	FindByID(id string) (*response.DocumentVerificationLineResponse, error)
 	FindAllByDocumentVerificationHeaderID(documentVerificationHeaderID string) (*[]response.DocumentVerificationLineResponse, error)
+	UploadDocumentVerificationLine(req *request.UploadDocumentVerificationLine) (*response.DocumentVerificationLineResponse, error)
 }
 
 type DocumentVerificationLineUsecase struct {
@@ -174,4 +175,30 @@ func (uc *DocumentVerificationLineUsecase) FindAllByDocumentVerificationHeaderID
 	}
 
 	return &response, nil
+}
+
+func (uc *DocumentVerificationLineUsecase) UploadDocumentVerificationLine(req *request.UploadDocumentVerificationLine) (*response.DocumentVerificationLineResponse, error) {
+	parsedID, err := uuid.Parse(req.ID)
+	if err != nil {
+		return nil, err
+	}
+	documentVerificationLine, err := uc.Repository.FindByID(parsedID)
+	if err != nil {
+		return nil, err
+	}
+	if documentVerificationLine == nil {
+		return nil, errors.New("Document Verification Line not found")
+	}
+
+	// update document verification line
+	_, err = uc.Repository.UpdateDocumentVerificationLine(&entity.DocumentVerificationLine{
+		ID:   parsedID,
+		Path: req.Path,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res := uc.DTO.ConvertEntityToResponse(documentVerificationLine)
+	return res, nil
 }

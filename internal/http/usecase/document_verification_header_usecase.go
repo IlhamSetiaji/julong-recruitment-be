@@ -19,6 +19,7 @@ type IDocumentVerificationHeaderUseCase interface {
 	FindByID(id string) (*response.DocumentVerificationHeaderResponse, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.DocumentVerificationHeaderResponse, int64, error)
 	DeleteDocumentVerificationHeader(id string) error
+	FindByJobPostingAndApplicant(jobPostingID, applicantID uuid.UUID) (*response.DocumentVerificationHeaderResponse, error)
 }
 
 type DocumentVerificationHeaderUseCase struct {
@@ -232,4 +233,41 @@ func (uc *DocumentVerificationHeaderUseCase) FindAllPaginated(page, pageSize int
 
 func (uc *DocumentVerificationHeaderUseCase) DeleteDocumentVerificationHeader(id string) error {
 	return uc.Repository.DeleteDocumentVerificationHeader(uuid.MustParse(id))
+}
+
+func (uc *DocumentVerificationHeaderUseCase) FindByJobPostingAndApplicant(jobPostingID, applicantID uuid.UUID) (*response.DocumentVerificationHeaderResponse, error) {
+	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[DocumentVerificationHeaderUseCase.FindByJobPostingAndApplicant] " + err.Error())
+		return nil, err
+	}
+	if jobPosting == nil {
+		uc.Log.Error("[DocumentVerificationHeaderUseCase.FindByJobPostingAndApplicant] " + "Job Posting not found")
+		return nil, errors.New("Job Posting not found")
+	}
+
+	applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{"id": applicantID})
+	if err != nil {
+		uc.Log.Error("[DocumentVerificationHeaderUseCase.FindByJobPostingAndApplicant] " + err.Error())
+		return nil, err
+	}
+	if applicant == nil {
+		uc.Log.Error("[DocumentVerificationHeaderUseCase.FindByJobPostingAndApplicant] " + "Applicant not found")
+		return nil, errors.New("Applicant not found")
+	}
+
+	ent, err := uc.Repository.FindByKeys(map[string]interface{}{
+		"job_posting_id": jobPostingID,
+		"applicant_id":   applicantID,
+	})
+	if err != nil {
+		uc.Log.Error("[DocumentVerificationHeaderUseCase.FindByJobPostingAndApplicant] " + err.Error())
+		return nil, err
+	}
+	if ent == nil {
+		uc.Log.Error("[DocumentVerificationHeaderUseCase.FindByJobPostingAndApplicant] " + "Document Verification Header not found")
+		return nil, errors.New("Document Verification Header not found")
+	}
+
+	return uc.DTO.ConvertEntityToResponse(ent), nil
 }

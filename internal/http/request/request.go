@@ -399,6 +399,7 @@ func DocumentVerificationHeaderStatusValidation(fl validator.FieldLevel) bool {
 	}
 	switch entity.DocumentVerificationHeaderStatus(status) {
 	case entity.DOCUMENT_VERIFICATION_HEADER_STATUS_PENDING,
+		entity.DOCUMENT_VERIFICATION_HEADER_STATUS_DRAFT,
 		entity.DOCUMENT_VERIFICATION_HEADER_STATUS_VERIFIED,
 		entity.DOCUMENT_VERIFICATION_HEADER_STATUS_REJECTED:
 		return true

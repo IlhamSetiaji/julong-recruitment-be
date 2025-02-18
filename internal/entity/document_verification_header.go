@@ -14,6 +14,7 @@ const (
 	DOCUMENT_VERIFICATION_HEADER_STATUS_PENDING  DocumentVerificationHeaderStatus = "PENDING"
 	DOCUMENT_VERIFICATION_HEADER_STATUS_VERIFIED DocumentVerificationHeaderStatus = "ACCEPTED"
 	DOCUMENT_VERIFICATION_HEADER_STATUS_REJECTED DocumentVerificationHeaderStatus = "REJECTED"
+	DOCUMENT_VERIFICATION_HEADER_STATUS_SUBMITTED DocumentVerificationHeaderStatus = "SUBMITTED"
 )
 
 type DocumentVerificationHeader struct {

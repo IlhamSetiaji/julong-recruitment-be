@@ -97,7 +97,7 @@ func (r *DocumentVerificationHeaderRepository) UpdateDocumentVerificationHeader(
 
 func (r *DocumentVerificationHeaderRepository) FindByID(id uuid.UUID) (*entity.DocumentVerificationHeader, error) {
 	var ent entity.DocumentVerificationHeader
-	if err := r.DB.Preload("DocumentVerificationLines").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting").Preload("DocumentVerificationLines").Where("id = ?", id).First(&ent).Error; err != nil {
+	if err := r.DB.Preload("DocumentVerificationLines").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").Preload("DocumentVerificationLines").Where("id = ?", id).First(&ent).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {
@@ -113,7 +113,7 @@ func (r *DocumentVerificationHeaderRepository) FindAllPaginated(page, pageSize i
 	var documentVerificationHeaders []entity.DocumentVerificationHeader
 	var total int64
 
-	query := r.DB.Preload("DocumentVerificationLines").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting")
+	query := r.DB.Preload("DocumentVerificationLines").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader")
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")

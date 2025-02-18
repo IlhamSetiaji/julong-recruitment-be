@@ -18,6 +18,7 @@ func FormTypeValidation(fl validator.FieldLevel) bool {
 		entity.TQ_FORM_TYPE_FINAL_INTERVIEW,
 		entity.TQ_FORM_TYPE_OFFERING_LETTER,
 		entity.TQ_FORM_TYPE_CONTRACT_DOCUMENT,
+		entity.TQ_FORM_TYPE_FINAL_RESULT,
 		entity.TQ_FORM_TYPE_DOCUMENT_CHECKING:
 		return true
 	default:

@@ -113,7 +113,7 @@ func (r *DocumentVerificationHeaderRepository) FindAllPaginated(page, pageSize i
 	var documentVerificationHeaders []entity.DocumentVerificationHeader
 	var total int64
 
-	query := r.DB.Preload("DocumentVerificationLines").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader")
+	query := r.DB.Preload("DocumentVerificationLines.DocumentVerification").Preload("ProjectRecruitmentLine.ProjectRecruitmentHeader").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader")
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")

@@ -7666,7 +7666,8 @@ const docTemplate = `{
                 "FAILED",
                 "REVISED",
                 "REJECTED",
-                "APPROVED"
+                "APPROVED",
+                "COMPLETED"
             ],
             "x-enum-varnames": [
                 "DOCUMENT_SENDING_STATUS_DRAFT",
@@ -7675,7 +7676,8 @@ const docTemplate = `{
                 "DOCUMENT_SENDING_STATUS_FAILED",
                 "DOCUMENT_SENDING_STATUS_REVISED",
                 "DOCUMENT_SENDING_STATUS_REJECTED",
-                "DOCUMENT_SENDING_STATUS_APPROVED"
+                "DOCUMENT_SENDING_STATUS_APPROVED",
+                "DOCUMENT_SENDING_STATUS_COMPLETED"
             ]
         },
         "entity.DocumentSetup": {
@@ -7768,13 +7770,17 @@ const docTemplate = `{
                 "DRAFT",
                 "PENDING",
                 "ACCEPTED",
-                "REJECTED"
+                "REJECTED",
+                "SUBMITTED",
+                "COMPLETED"
             ],
             "x-enum-varnames": [
                 "DOCUMENT_VERIFICATION_HEADER_STATUS_DRAFT",
                 "DOCUMENT_VERIFICATION_HEADER_STATUS_PENDING",
                 "DOCUMENT_VERIFICATION_HEADER_STATUS_VERIFIED",
-                "DOCUMENT_VERIFICATION_HEADER_STATUS_REJECTED"
+                "DOCUMENT_VERIFICATION_HEADER_STATUS_REJECTED",
+                "DOCUMENT_VERIFICATION_HEADER_STATUS_SUBMITTED",
+                "DOCUMENT_VERIFICATION_HEADER_STATUS_COMPLETED"
             ]
         },
         "entity.Education": {
@@ -8929,6 +8935,7 @@ const docTemplate = `{
                 "CONTRACT_DOCUMENT",
                 "DOCUMENT_CHECKING",
                 "SURAT_IZIN_ORANG_TUA",
+                "FINAL_RESULT",
                 "KARYAWAN_TETAP",
                 "PKWT",
                 "PKWTT"
@@ -8943,6 +8950,7 @@ const docTemplate = `{
                 "TQ_FORM_TYPE_CONTRACT_DOCUMENT",
                 "TQ_FORM_TYPE_DOCUMENT_CHECKING",
                 "TQ_FORM_TYPE_SURAT_IZIN_ORTU",
+                "TQ_FORM_TYPE_FINAL_RESULT",
                 "TQ_FORM_TYPE_KARYAWAN_TETAP",
                 "TQ_FORM_TYPE_PKWT",
                 "TQ_FORM_TYPE_PKWTT"

@@ -93,6 +93,7 @@ func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *respo
 		IsSaved:                    ent.IsSaved,
 		AppliedDate:                ent.AppliedDate,
 		ApplicantStatus:            ent.ApplicantStatus,
+		ApplicantProcessStatus:     ent.ApplicantProcessStatus,
 		ContentDescription:         ent.ContentDescription,
 		MinimumWorkExperience:      ent.MinimumWorkExperience,
 		OrganizationLogo: func() *string {

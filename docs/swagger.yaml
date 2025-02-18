@@ -92,6 +92,8 @@ definitions:
         type: string
       order:
         type: integer
+      process_status:
+        $ref: '#/definitions/entity.ApplicantProcessStatus'
       status:
         $ref: '#/definitions/entity.ApplicantStatus'
       template_question:
@@ -107,6 +109,14 @@ definitions:
       user_profile_id:
         type: string
     type: object
+  entity.ApplicantProcessStatus:
+    enum:
+    - IN_PROGRESS
+    - COMPLETED
+    type: string
+    x-enum-varnames:
+    - APPLICANT_PROCESS_STATUS_IN_PROGRESS
+    - APPLICANT_PROCESS_STATUS_COMPLETED
   entity.ApplicantStatus:
     enum:
     - APPLIED
@@ -642,6 +652,8 @@ definitions:
         type: array
       applied_date:
         type: string
+      apply_process_status:
+        $ref: '#/definitions/entity.ApplicantProcessStatus'
       apply_status:
         $ref: '#/definitions/entity.ApplicantStatus'
       content_description:
@@ -2709,6 +2721,8 @@ definitions:
         type: string
       order:
         type: integer
+      process_status:
+        $ref: '#/definitions/entity.ApplicantProcessStatus'
       status:
         $ref: '#/definitions/entity.ApplicantStatus'
       template_question:
@@ -3393,6 +3407,8 @@ definitions:
     properties:
       applied_date:
         type: string
+      apply_process_status:
+        $ref: '#/definitions/entity.ApplicantProcessStatus'
       apply_status:
         $ref: '#/definitions/entity.ApplicantStatus'
       content_description:
@@ -7653,6 +7669,23 @@ paths:
       consumes:
       - application/json
       description: Find all applied job posting by user id
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Created At
+        in: query
+        name: created_at
+        type: string
       produces:
       - application/json
       responses:

@@ -519,6 +519,10 @@ func (h *JobPostingHandler) GenerateDocumentNumber(ctx *gin.Context) {
 //		@Tags			Job Postings
 //		@Accept			json
 //		@Produce		json
+//		@Param page query int false "Page"
+//		@Param page_size query int false "Page Size"
+//		@Param search query string false "Search"
+//		@Param created_at query string false "Created At"
 //		@Success		200	{object} response.JobPostingResponse
 //	 @Security BearerAuth
 //		@Router			/job-postings/applied [get]
@@ -541,14 +545,41 @@ func (h *JobPostingHandler) FindAllAppliedJobPostingByUserID(ctx *gin.Context) {
 		return
 	}
 
-	res, err := h.UseCase.FindAllAppliedJobPostingByUserID(userUUID)
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	res, total, err := h.UseCase.FindAllAppliedJobPostingByUserID(userUUID, page, pageSize, search, sort)
 	if err != nil {
 		h.Log.Error("failed to find all applied job posting by user id: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all applied job posting by user id", err.Error())
 		return
 	}
 
-	utils.SuccessResponse(ctx, http.StatusOK, "success", res)
+	utils.SuccessResponse(ctx, http.StatusOK, "success", gin.H{
+		"job_postings": res,
+		"total":        total,
+	})
 }
 
 // InsertSavedJob insert saved job

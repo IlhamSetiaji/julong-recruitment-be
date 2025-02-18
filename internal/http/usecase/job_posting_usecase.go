@@ -24,7 +24,7 @@ type IJobPostingUseCase interface {
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
 	UpdateJobPostingOrganizationLogoToNull(id uuid.UUID) error
 	UpdateJobPostingPosterToNull(id uuid.UUID) error
-	FindAllAppliedJobPostingByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error)
+	FindAllAppliedJobPostingByUserID(userID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	InsertSavedJob(userID, jobPostingID uuid.UUID) error
 	FindAllSavedJobsByUserID(userID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	DeleteSavedJob(userID, jobPostingID uuid.UUID) error
@@ -455,16 +455,16 @@ func (uc *JobPostingUseCase) UpdateJobPostingPosterToNull(id uuid.UUID) error {
 	return uc.Repository.UpdateJobPostingPosterToNull(id)
 }
 
-func (uc *JobPostingUseCase) FindAllAppliedJobPostingByUserID(userID uuid.UUID) (*[]response.JobPostingResponse, error) {
+func (uc *JobPostingUseCase) FindAllAppliedJobPostingByUserID(userID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}) (*[]response.JobPostingResponse, int64, error) {
 	userProfile, err := uc.UserProfileRepository.FindByUserID(userID)
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + err.Error())
-		return nil, err
+		return nil, 0, err
 	}
 
 	if userProfile == nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + "User Profile not found")
-		return nil, err
+		return nil, 0, err
 	}
 
 	applicants, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
@@ -472,7 +472,7 @@ func (uc *JobPostingUseCase) FindAllAppliedJobPostingByUserID(userID uuid.UUID) 
 	})
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + err.Error())
-		return nil, err
+		return nil, 0, err
 	}
 
 	jobPostingResponses := make([]response.JobPostingResponse, 0)
@@ -480,21 +480,36 @@ func (uc *JobPostingUseCase) FindAllAppliedJobPostingByUserID(userID uuid.UUID) 
 		jobPosting, err := uc.Repository.FindByID(applicant.JobPostingID)
 		if err != nil {
 			uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + err.Error())
-			return nil, err
+			return nil, 0, err
 		}
 
 		if jobPosting == nil {
 			uc.Log.Error("[JobPostingUseCase.FindAllAppliedJobPostingByUserID] " + "Job Posting not found")
-			return nil, err
+			return nil, 0, err
 		}
 
 		jobPosting.AppliedDate = applicant.AppliedDate
 		jobPosting.ApplicantStatus = applicant.Status
+		jobPosting.ApplicantProcessStatus = applicant.ProcessStatus
 
 		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(jobPosting))
 	}
 
-	return &jobPostingResponses, nil
+	// Implement pagination
+	total := int64(len(jobPostingResponses))
+	start := (page - 1) * pageSize
+	end := start + pageSize
+
+	if start > int(total) {
+		start = int(total)
+	}
+	if end > int(total) {
+		end = int(total)
+	}
+
+	paginatedResponses := jobPostingResponses[start:end]
+
+	return &paginatedResponses, total, nil
 }
 
 func (uc *JobPostingUseCase) InsertSavedJob(userID, jobPostingID uuid.UUID) error {

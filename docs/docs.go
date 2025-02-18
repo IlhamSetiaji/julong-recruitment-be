@@ -5617,6 +5617,32 @@ const docTemplate = `{
                     "Job Postings"
                 ],
                 "summary": "Find all applied job posting by user id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Created At",
+                        "name": "created_at",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -7496,6 +7522,9 @@ const docTemplate = `{
                 "order": {
                     "type": "integer"
                 },
+                "process_status": {
+                    "$ref": "#/definitions/entity.ApplicantProcessStatus"
+                },
                 "status": {
                     "$ref": "#/definitions/entity.ApplicantStatus"
                 },
@@ -7518,6 +7547,17 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "entity.ApplicantProcessStatus": {
+            "type": "string",
+            "enum": [
+                "IN_PROGRESS",
+                "COMPLETED"
+            ],
+            "x-enum-varnames": [
+                "APPLICANT_PROCESS_STATUS_IN_PROGRESS",
+                "APPLICANT_PROCESS_STATUS_COMPLETED"
+            ]
         },
         "entity.ApplicantStatus": {
             "type": "string",
@@ -8288,6 +8328,9 @@ const docTemplate = `{
                 },
                 "applied_date": {
                     "type": "string"
+                },
+                "apply_process_status": {
+                    "$ref": "#/definitions/entity.ApplicantProcessStatus"
                 },
                 "apply_status": {
                     "$ref": "#/definitions/entity.ApplicantStatus"
@@ -11275,6 +11318,9 @@ const docTemplate = `{
                 "order": {
                     "type": "integer"
                 },
+                "process_status": {
+                    "$ref": "#/definitions/entity.ApplicantProcessStatus"
+                },
                 "status": {
                     "$ref": "#/definitions/entity.ApplicantStatus"
                 },
@@ -12310,6 +12356,9 @@ const docTemplate = `{
             "properties": {
                 "applied_date": {
                     "type": "string"
+                },
+                "apply_process_status": {
+                    "$ref": "#/definitions/entity.ApplicantProcessStatus"
                 },
                 "apply_status": {
                     "$ref": "#/definitions/entity.ApplicantStatus"

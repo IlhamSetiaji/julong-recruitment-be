@@ -16,15 +16,23 @@ const (
 	APPLICANT_STATUS_HIRED     ApplicantStatus = "HIRED"
 )
 
+type ApplicantProcessStatus string
+
+const (
+	APPLICANT_PROCESS_STATUS_IN_PROGRESS ApplicantProcessStatus = "IN_PROGRESS"
+	APPLICANT_PROCESS_STATUS_COMPLETED   ApplicantProcessStatus = "COMPLETED"
+)
+
 type Applicant struct {
 	gorm.Model         `json:"-"`
-	ID                 uuid.UUID       `json:"id" gorm:"type:char(36);primaryKey;"`
-	UserProfileID      uuid.UUID       `json:"user_profile_id" gorm:"type:char(36);not null"`
-	JobPostingID       uuid.UUID       `json:"job_posting_id" gorm:"type:char(36);not null"`
-	TemplateQuestionID uuid.UUID       `json:"template_question_id" gorm:"type:char(36);default:null"`
-	Order              int             `json:"order" gorm:"type:int;not null;default:1"`
-	AppliedDate        time.Time       `json:"applied_date" gorm:"type:date;not null"`
-	Status             ApplicantStatus `json:"status" gorm:"not null"`
+	ID                 uuid.UUID              `json:"id" gorm:"type:char(36);primaryKey;"`
+	UserProfileID      uuid.UUID              `json:"user_profile_id" gorm:"type:char(36);not null"`
+	JobPostingID       uuid.UUID              `json:"job_posting_id" gorm:"type:char(36);not null"`
+	TemplateQuestionID uuid.UUID              `json:"template_question_id" gorm:"type:char(36);default:null"`
+	Order              int                    `json:"order" gorm:"type:int;not null;default:1"`
+	AppliedDate        time.Time              `json:"applied_date" gorm:"type:date;not null"`
+	Status             ApplicantStatus        `json:"status" gorm:"not null"`
+	ProcessStatus      ApplicantProcessStatus `json:"process_status" gorm:"not null;default:'IN_PROGRESS'"`
 
 	DocumentSendings []DocumentSending `json:"document_sendings" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	UserProfile      *UserProfile      `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

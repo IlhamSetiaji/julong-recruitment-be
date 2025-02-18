@@ -17,6 +17,7 @@ const (
 	DOCUMENT_SENDING_STATUS_REVISED  DocumentSendingStatus = "REVISED"
 	DOCUMENT_SENDING_STATUS_REJECTED DocumentSendingStatus = "REJECTED"
 	DOCUMENT_SENDING_STATUS_APPROVED DocumentSendingStatus = "APPROVED"
+	DOCUMENT_SENDING_STATUS_COMPLETED DocumentSendingStatus = "COMPLETED"
 )
 
 type DocumentSending struct {

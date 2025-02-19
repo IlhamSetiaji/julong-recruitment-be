@@ -7593,13 +7593,15 @@ const docTemplate = `{
                 "SUBMITTED",
                 "APPROVED",
                 "REJECTED",
-                "REVISED"
+                "REVISED",
+                "COMPLETED"
             ],
             "x-enum-varnames": [
                 "DOCUMENT_AGREEMENT_STATUS_SUBMITTED",
                 "DOCUMENT_AGREEMENT_STATUS_APPROVED",
                 "DOCUMENT_AGREEMENT_STATUS_REJECTED",
-                "DOCUMENT_AGREEMENT_STATUS_REVISED"
+                "DOCUMENT_AGREEMENT_STATUS_REVISED",
+                "DOCUMENT_AGREEMENT_STATUS_COMPLETED"
             ]
         },
         "entity.DocumentSending": {

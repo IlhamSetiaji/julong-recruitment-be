@@ -92,7 +92,7 @@ func (r *DocumentAgreementRepository) UpdateDocumentAgreement(ent *entity.Docume
 
 func (r *DocumentAgreementRepository) FindByKeys(keys map[string]interface{}) (*entity.DocumentAgreement, error) {
 	var ent entity.DocumentAgreement
-	if err := r.DB.Where(keys).Preload("DocumentSending").Preload("Applicant.UserProfile").First(&ent).Error; err != nil {
+	if err := r.DB.Where(keys).Preload("DocumentSending").Preload("Applicant.UserProfile").Preload("DocumentSending.ProjectRecruitmentLine").Preload("DocumentSending.JobPosting.ProjectRecruitmentHeader").First(&ent).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

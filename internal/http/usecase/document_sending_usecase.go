@@ -480,7 +480,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		return nil, err
 	}
 
-	if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_APPROVED || entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_COMPLETED {
+	if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_APPROVED {
 		applicantOrder := applicant.Order
 		var TemplateQuestionID *uuid.UUID
 		for i := range jobPosting.ProjectRecruitmentHeader.ProjectRecruitmentLines {
@@ -515,6 +515,43 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 			_, err = uc.DocumentAgreementRepository.UpdateDocumentAgreement(&entity.DocumentAgreement{
 				ID:     documentAgreement.ID,
 				Status: entity.DOCUMENT_AGREEMENT_STATUS_APPROVED,
+			})
+		}
+	} else if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_COMPLETED {
+		applicantOrder := applicant.Order
+		var TemplateQuestionID *uuid.UUID
+		for i := range jobPosting.ProjectRecruitmentHeader.ProjectRecruitmentLines {
+			if jobPosting.ProjectRecruitmentHeader.ProjectRecruitmentLines[i].Order == applicantOrder+1 {
+				projectRecruitmentLine := &jobPosting.ProjectRecruitmentHeader.ProjectRecruitmentLines[i]
+				TemplateQuestionID = &projectRecruitmentLine.TemplateActivityLine.QuestionTemplateID
+				break
+			} else {
+				TemplateQuestionID = &applicant.TemplateQuestionID
+			}
+		}
+		_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+			ID:                 applicant.ID,
+			Order:              applicant.Order + 1,
+			TemplateQuestionID: *TemplateQuestionID,
+		})
+		if err != nil {
+			uc.Log.Error("[InterviewApplicantUseCase.UpdateFinalResultStatusInterviewApplicant] " + err.Error())
+			return nil, err
+		}
+
+		documentAgreement, err := uc.DocumentAgreementRepository.FindByKeys(map[string]interface{}{
+			"document_sending_id": documentSending.ID,
+			"applicant_id":        documentSending.ApplicantID,
+			"status":              entity.DOCUMENT_AGREEMENT_STATUS_SUBMITTED,
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		if documentAgreement != nil {
+			_, err = uc.DocumentAgreementRepository.UpdateDocumentAgreement(&entity.DocumentAgreement{
+				ID:     documentAgreement.ID,
+				Status: entity.DOCUMENT_AGREEMENT_STATUS_COMPLETED,
 			})
 		}
 	} else if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_REJECTED {

@@ -387,6 +387,7 @@ func DocumentAgreementStatusValidation(fl validator.FieldLevel) bool {
 	case entity.DOCUMENT_AGREEMENT_STATUS_SUBMITTED,
 		entity.DOCUMENT_AGREEMENT_STATUS_APPROVED,
 		entity.DOCUMENT_AGREEMENT_STATUS_REVISED,
+		entity.DOCUMENT_AGREEMENT_STATUS_COMPLETED,
 		entity.DOCUMENT_AGREEMENT_STATUS_REJECTED:
 		return true
 	default:

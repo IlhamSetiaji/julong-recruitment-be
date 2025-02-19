@@ -370,7 +370,8 @@ func DocumentSendingStatusValidation(fl validator.FieldLevel) bool {
 		entity.DOCUMENT_SENDING_STATUS_REVISED,
 		entity.DOCUMENT_SENDING_STATUS_APPROVED,
 		entity.DOCUMENT_SENDING_STATUS_REJECTED,
-		entity.DOCUMENT_SENDING_STATUS_FAILED:
+		entity.DOCUMENT_SENDING_STATUS_FAILED,
+		entity.DOCUMENT_SENDING_STATUS_COMPLETED:
 		return true
 	default:
 		return false

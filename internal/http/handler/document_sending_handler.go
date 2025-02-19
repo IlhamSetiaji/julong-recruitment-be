@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-pdf/fpdf"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -25,6 +27,8 @@ type IDocumentSendingHandler interface {
 	GenerateDocumentNumber(ctx *gin.Context)
 	FindAllByDocumentSetupID(ctx *gin.Context)
 	FindByDocumentTypeIDAndApplicantID(ctx *gin.Context)
+	TestGeneratePDF(ctx *gin.Context)
+	TestSendEmail(ctx *gin.Context)
 }
 
 type DocumentSendingHandler struct {
@@ -340,4 +344,66 @@ func (h *DocumentSendingHandler) FindByDocumentTypeIDAndApplicantID(ctx *gin.Con
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Document sending found", res)
+}
+
+// TestGeneratePDF  test generate pdf
+//
+// @Summary test generate pdf
+// @Description test generate pdf
+// @Tags Document Sendings
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "Success"
+// @Security BearerAuth
+// @Router /document-sending/test-generate-pdf [get]
+func (h *DocumentSendingHandler) TestGeneratePDF(ctx *gin.Context) {
+	// Create a new PDF document
+	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 16)
+	pdf.Cell(40, 10, "Hello, world")
+
+	// Define the file path
+	filePath := "storage/hello.pdf"
+
+	// Ensure the directory exists
+	err := os.MkdirAll("storage", os.ModePerm)
+	if err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.TestGeneratePDF] error when creating directory: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to create directory", err.Error())
+		return
+	}
+
+	// Save the PDF to the file
+	err = pdf.OutputFileAndClose(filePath)
+	if err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.TestGeneratePDF] error when generating pdf: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to generate pdf", err.Error())
+		return
+	}
+
+	// Return the generated PDF file as a response
+	ctx.File(filePath)
+}
+
+// TestSendEmail  test send email
+//
+// @Summary test send email
+// @Description test send email
+// @Tags Document Sendings
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "Success"
+// @Security BearerAuth
+// @Router /document-sending/test-send-email [get]
+func (h *DocumentSendingHandler) TestSendEmail(ctx *gin.Context) {
+	// Send an email
+	err := h.UseCase.TestSendEmail()
+	if err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.TestSendEmail] error when sending email: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to send email", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Email sent", nil)
 }

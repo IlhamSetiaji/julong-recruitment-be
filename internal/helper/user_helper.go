@@ -14,6 +14,7 @@ type IUserHelper interface {
 	GetOrganizationID(user map[string]interface{}) (uuid.UUID, error)
 	GetUserId(user map[string]interface{}) (uuid.UUID, error)
 	GetUserName(user map[string]interface{}) (string, error)
+	GetUserEmail(user map[string]interface{}) (string, error)
 }
 
 type UserHelper struct {
@@ -231,4 +232,23 @@ func (h *UserHelper) GetUserName(user map[string]interface{}) (string, error) {
 
 	h.Log.Infof("User Name: %s", userName)
 	return userName, nil
+}
+
+func (h *UserHelper) GetUserEmail(user map[string]interface{}) (string, error) {
+	// Check if the "user" key exists and is a map
+	userData, ok := user["user"].(map[string]interface{})
+	if !ok {
+		h.Log.Errorf("User information is missing or invalid")
+		return "", errors.New("User information is missing or invalid")
+	}
+
+	// Check if the "email" key exists and is a string
+	userEmail, ok := userData["email"].(string)
+	if !ok {
+		h.Log.Errorf("User email is missing or invalid")
+		return "", errors.New("User email is missing or invalid")
+	}
+
+	h.Log.Infof("User Email: %s", userEmail)
+	return userEmail, nil
 }

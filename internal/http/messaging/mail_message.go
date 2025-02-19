@@ -36,13 +36,14 @@ func (m *MailMessage) SendMail(req *request.MailRequest) (string, error) {
 		"body":    req.Body,
 		"from":    req.From,
 		"email":   req.Email,
+		"attach":  req.Attach,
 	}
 
 	docMsg := &request.RabbitMQRequest{
 		ID:          uuid.New().String(),
 		MessageType: "send_mail",
 		MessageData: payload,
-		ReplyTo:     "gift-redeem-be",
+		ReplyTo:     "julong_recruitment",
 	}
 
 	log.Printf("INFO: document message: %v", docMsg)
@@ -52,7 +53,7 @@ func (m *MailMessage) SendMail(req *request.MailRequest) (string, error) {
 
 	// publish rabbit message
 	msg := utils.RabbitMsgPublisher{
-		QueueName: "gift-redeem-be",
+		QueueName: "julong_recruitment",
 		Message:   *docMsg,
 	}
 	utils.Pchan <- msg
@@ -66,7 +67,7 @@ func (m *MailMessage) SendMail(req *request.MailRequest) (string, error) {
 	log.Printf("INFO: response from mail message: %v", resp)
 
 	if errMsg, ok := resp.MessageData["error"].(string); ok && errMsg != "" {
-		return "", errors.New("[SendFindOrganizationByIDMessage] " + errMsg)
+		return "", errors.New("[MailMessage.SendMail] " + errMsg)
 	}
 
 	return "Success	", nil

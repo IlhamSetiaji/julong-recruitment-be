@@ -6,4 +6,5 @@ type MailRequest struct {
 	To      string `json:"to" validate:"required,email"`
 	Subject string `json:"subject" validate:"required"`
 	Body    string `json:"body" validate:"required"`
+	Attach  string `json:"attach" validate:"omitempty"`
 }

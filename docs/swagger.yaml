@@ -6801,6 +6801,40 @@ paths:
       summary: find all by document setup id
       tags:
       - Document Sendings
+  /document-sending/test-generate-pdf:
+    get:
+      consumes:
+      - application/json
+      description: test generate pdf
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: test generate pdf
+      tags:
+      - Document Sendings
+  /document-sending/test-send-email:
+    get:
+      consumes:
+      - application/json
+      description: test send email
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: test send email
+      tags:
+      - Document Sendings
   /document-sending/update:
     put:
       consumes:

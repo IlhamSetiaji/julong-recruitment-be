@@ -3,16 +3,26 @@ package usecase
 import (
 	"errors"
 	"fmt"
+	"html"
+	"io"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
+	"github.com/go-pdf/fpdf"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 )
 
 type IDocumentSendingUseCase interface {
@@ -24,6 +34,8 @@ type IDocumentSendingUseCase interface {
 	DeleteDocumentSending(id string) error
 	FindAllByDocumentSetupID(documentSetupID string) (*[]response.DocumentSendingResponse, error)
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
+	TestSendEmail() error
+	TestSendEmailWithAttachment(path string) error
 }
 
 type DocumentSendingUseCase struct {
@@ -37,6 +49,9 @@ type DocumentSendingUseCase struct {
 	Viper                            *viper.Viper
 	DocumentTypeRepository           repository.IDocumentTypeRepository
 	DocumentAgreementRepository      repository.IDocumentAgreementRepository
+	MailMessage                      messaging.IMailMessage
+	UserHelper                       helper.IUserHelper
+	UserMessage                      messaging.IUserMessage
 }
 
 func NewDocumentSendingUseCase(
@@ -50,6 +65,9 @@ func NewDocumentSendingUseCase(
 	viper *viper.Viper,
 	documentTypeRepository repository.IDocumentTypeRepository,
 	documentAgreementRepository repository.IDocumentAgreementRepository,
+	mailMessage messaging.IMailMessage,
+	userHelper helper.IUserHelper,
+	userMessage messaging.IUserMessage,
 ) IDocumentSendingUseCase {
 	return &DocumentSendingUseCase{
 		Log:                              log,
@@ -62,6 +80,9 @@ func NewDocumentSendingUseCase(
 		Viper:                            viper,
 		DocumentTypeRepository:           documentTypeRepository,
 		DocumentAgreementRepository:      repository.DocumentAgreementRepositoryFactory(log),
+		MailMessage:                      mailMessage,
+		UserHelper:                       userHelper,
+		UserMessage:                      userMessage,
 	}
 }
 
@@ -74,7 +95,24 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 	documentSetupRepository := repository.DocumentSetupRepositoryFactory(log)
 	documentTypeRepository := repository.DocumentTypeRepositoryFactory(log)
 	documentAgreementRepository := repository.DocumentAgreementRepositoryFactory(log)
-	return NewDocumentSendingUseCase(log, repo, dto, jobPostingRepository, applicantRepository, projectRecruitmentLineRepository, documentSetupRepository, viper, documentTypeRepository, documentAgreementRepository)
+	mailMessage := messaging.MailMessageFactory(log)
+	userHelper := helper.UserHelperFactory(log)
+	userMessage := messaging.UserMessageFactory(log)
+	return NewDocumentSendingUseCase(
+		log,
+		repo,
+		dto,
+		jobPostingRepository,
+		applicantRepository,
+		projectRecruitmentLineRepository,
+		documentSetupRepository,
+		viper,
+		documentTypeRepository,
+		documentAgreementRepository,
+		mailMessage,
+		userHelper,
+		userMessage,
+	)
 }
 
 func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocumentSendingRequest) (*response.DocumentSendingResponse, error) {
@@ -326,6 +364,15 @@ func (uc *DocumentSendingUseCase) FindByID(id string) (*response.DocumentSending
 	return uc.DTO.ConvertEntityToResponse(documentSending), nil
 }
 
+func convertToUTF8(text string) string {
+	reader := transform.NewReader(strings.NewReader(text), charmap.Windows1252.NewDecoder())
+	utf8Text, err := io.ReadAll(reader)
+	if err != nil {
+		return text // Return original text if conversion fails
+	}
+	return string(utf8Text)
+}
+
 func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocumentSendingRequest) (*response.DocumentSendingResponse, error) {
 	parsedID, err := uuid.Parse(req.ID)
 	if err != nil {
@@ -480,6 +527,73 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		return nil, err
 	}
 
+	if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_PENDING {
+		userID := documentSending.Applicant.UserProfile.UserID
+		userMessageResponse, err := uc.UserMessage.SendGetUserMe(request.SendFindUserByIDMessageRequest{
+			ID: userID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		if userMessageResponse.User == nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] user not found")
+			return nil, errors.New("user not found")
+		}
+
+		userEmail, err := uc.UserHelper.GetUserEmail(userMessageResponse.User)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+
+		decodedContent := html.UnescapeString(convertToUTF8(documentSending.DetailContent))
+
+		pdf := fpdf.New("P", "mm", "A4", "")
+		pdf.AddPage()
+		pdf.SetFont("Arial", "", 12)
+
+		// Use HTML parser
+		html := pdf.HTMLBasicNew()
+		html.Write(10, decodedContent)
+
+		// Define the file path
+		timestamp := time.Now().UnixNano()
+		filePath := fmt.Sprintf("storage/generated_pdf/%s", strconv.FormatInt(timestamp, 10)+"_document.pdf")
+
+		// Ensure the directory exists
+		err = os.MkdirAll("storage/generated_pdf", os.ModePerm)
+		if err != nil {
+			uc.Log.Errorf("[DocumentSendingUseCase.UpdateDocumentSending] error when creating directory: %v", err)
+			return nil, err
+		}
+
+		// Save the PDF to the file
+		err = pdf.OutputFileAndClose(filePath)
+		if err != nil {
+			uc.Log.Errorf("[DocumentSendingUseCase.UpdateDocumentSending] error when generating pdf: %v", err)
+			return nil, err
+		}
+
+		emailBody := fmt.Sprintf(`
+				<p>Hello,</p>
+				<p>Please find the attached document below:</p>
+				<p><strong>File Path:</strong> %s</p>
+				<p>Best regards,<br>Your Company</p>
+		`, uc.Viper.GetString("app.url")+filePath)
+
+		if _, err := uc.MailMessage.SendMail(&request.MailRequest{
+			Email:   userEmail,
+			Subject: "Document Sending",
+			Body:    emailBody,
+			From:    "ilham.signals99@gmail.com",
+			To:      userEmail,
+		}); err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+	}
+
 	if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_APPROVED {
 		applicantOrder := applicant.Order
 		var TemplateQuestionID *uuid.UUID
@@ -595,7 +709,9 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		}
 	}
 
-	return uc.DTO.ConvertEntityToResponse(documentSending), nil
+	resp := uc.DTO.ConvertEntityToResponse(documentSending)
+
+	return resp, nil
 }
 
 func (uc *DocumentSendingUseCase) DeleteDocumentSending(id string) error {
@@ -650,4 +766,39 @@ func (uc *DocumentSendingUseCase) GenerateDocumentNumber(dateNow time.Time) (str
 	newNumber := highestNumber + 1
 	documentNumber := fmt.Sprintf("DS/%s/%03d", dateNow.Format("20060102"), newNumber)
 	return documentNumber, nil
+}
+
+func (uc *DocumentSendingUseCase) TestSendEmail() error {
+	if _, err := uc.MailMessage.SendMail(&request.MailRequest{
+		Email:   "ilham.ahmadz18@gmail.com",
+		Subject: "Email Verification",
+		Body:    "Halo brother",
+		From:    "ilham.signals99@gmail.com",
+		To:      "ilham.ahmadz18@gmail.com",
+	}); err != nil {
+		uc.Log.Error("[UserUseCase.Register] " + err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (uc *DocumentSendingUseCase) TestSendEmailWithAttachment(attachmentPath string) error {
+	// Create the mail request with the attachment
+	mailRequest := &request.MailRequest{
+		Email:   "ilham.ahmadz18@gmail.com",
+		Subject: "Email Verification",
+		Body:    "Halo brother",
+		From:    "ilham.signals99@gmail.com",
+		To:      "ilham.ahmadz18@gmail.com",
+		Attach:  attachmentPath,
+	}
+
+	// Send the email
+	if _, err := uc.MailMessage.SendMail(mailRequest); err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.TestSendEmailWithAttachment] " + err.Error())
+		return err
+	}
+
+	return nil
 }

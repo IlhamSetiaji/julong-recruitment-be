@@ -480,7 +480,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		return nil, err
 	}
 
-	if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_APPROVED {
+	if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_APPROVED || entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_COMPLETED {
 		applicantOrder := applicant.Order
 		var TemplateQuestionID *uuid.UUID
 		for i := range jobPosting.ProjectRecruitmentHeader.ProjectRecruitmentLines {

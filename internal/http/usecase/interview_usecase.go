@@ -661,15 +661,6 @@ func (uc *InterviewUseCase) FindScheduleForApplicant(applicantID, projectRecruit
 		return nil, errors.New("job posting not found")
 	}
 
-	// find interview assessor id
-	interviewAssessor, err := uc.InterviewAssessorRepository.FindByKeys(map[string]interface{}{
-		"employee_id": employeeID,
-	})
-	if err != nil {
-		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
-		return nil, err
-	}
-
 	// find interview
 	interviews, err := uc.Repository.FindAllByKeys(map[string]interface{}{
 		"job_posting_id":              jobPostingID,
@@ -695,7 +686,17 @@ func (uc *InterviewUseCase) FindScheduleForApplicant(applicantID, projectRecruit
 		return nil, errors.New("interview applicant not found")
 	}
 
-	resp, err := uc.Repository.FindByIDForMyselfAndAssessor(interviewApplicant.InterviewID, interviewApplicant.UserProfileID, interviewAssessor.ID)
+	// find interview assessor id
+	interviewAssessor, err := uc.InterviewAssessorRepository.FindByKeys(map[string]interface{}{
+		"employee_id":  employeeID,
+		"interview_id": interviewApplicant.InterviewID,
+	})
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
+		return nil, err
+	}
+
+	resp, err := uc.Repository.FindByIDForMyselfAndAssessorFix(interviewApplicant.InterviewID, interviewApplicant.UserProfileID, interviewAssessor.ID)
 	if err != nil {
 		uc.Log.Error("[InterviewUseCase.FindMySchedule] " + err.Error())
 		return nil, err

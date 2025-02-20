@@ -223,7 +223,7 @@ func (r *ProjectRecruitmentLineRepository) FindAllByTemplateActivityLineIDs(temp
 
 func (r *ProjectRecruitmentLineRepository) FindAllByIds(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLines []entity.ProjectRecruitmentLine
-	if err := r.DB.Where("id IN ?", ids).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
+	if err := r.DB.Where("id IN ?", ids).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine.TemplateQuestion").Find(&projectRecruitmentLines).Error; err != nil {
 		return nil, err
 	}
 

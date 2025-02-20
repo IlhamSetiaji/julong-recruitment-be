@@ -192,7 +192,7 @@ func (r *ProjectRecruitmentLineRepository) FindByIDForAnswerFgd(id, jobPostingID
 
 func (r *ProjectRecruitmentLineRepository) GetAllByKeys(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLines []entity.ProjectRecruitmentLine
-	if err := r.DB.Where(keys).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Order("order ASC").Error; err != nil {
+	if err := r.DB.Where(keys).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine.TemplateQuestion").Find(&projectRecruitmentLines).Order("order ASC").Error; err != nil {
 		return nil, err
 	}
 

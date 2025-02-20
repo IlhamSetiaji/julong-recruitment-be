@@ -232,7 +232,7 @@ func (r *ProjectRecruitmentLineRepository) FindAllByIds(ids []uuid.UUID) (*[]ent
 
 func (r *ProjectRecruitmentLineRepository) FindAllByProjectRecruitmentHeaderIdAndIds(projectRecruitmentHeaderId uuid.UUID, ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLines []entity.ProjectRecruitmentLine
-	if err := r.DB.Where("project_recruitment_header_id = ? AND id IN ?", projectRecruitmentHeaderId, ids).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine").Find(&projectRecruitmentLines).Error; err != nil {
+	if err := r.DB.Where("project_recruitment_header_id = ? AND id IN ?", projectRecruitmentHeaderId, ids).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine.TemplateQuestion").Find(&projectRecruitmentLines).Error; err != nil {
 		return nil, err
 	}
 

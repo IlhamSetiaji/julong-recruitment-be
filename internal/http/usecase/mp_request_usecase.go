@@ -73,6 +73,7 @@ func (uc *MPRequestUseCase) FindAllPaginated(page int, pageSize int, search stri
 		if err != nil {
 			uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when send find by id message: %v", err)
 			// return nil, err
+			total--
 			continue
 		}
 

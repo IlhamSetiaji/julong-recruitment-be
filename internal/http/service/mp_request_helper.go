@@ -181,18 +181,21 @@ func (h *MPRequestService) CheckPortalData(req *response.MPRequestHeaderResponse
 
 	// check if ceo is exist
 	var ceoExist *response.EmployeeResponse
+	h.Log.Infof("[MPRequestService] check portal data %v", req.CEO)
 	if req.CEO != nil {
 		ceoExist, err = h.EmpMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
 			ID: req.CEO.String(),
 		})
 		if err != nil {
-			h.Log.Errorf("[MPRequestService] error when send find user by id message: %v", err)
-			return nil, err
+			h.Log.Errorf("[MPRequestService] error when send find ceo by id message: %v", err)
+			ceoExist = &response.EmployeeResponse{}
+			// return nil, err
 		}
 
 		if ceoExist == nil {
 			h.Log.Errorf("[MPRequestService] ceo with id %s is not exist", req.CEO.String())
-			return nil, errors.New("ceo is not exist")
+			ceoExist = &response.EmployeeResponse{}
+			// return nil, errors.New("ceo is not exist")
 		}
 	} else {
 		ceoExist = &response.EmployeeResponse{}

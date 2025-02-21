@@ -222,10 +222,11 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		return nil, errors.New("VP GM Director is missing or invalid")
 	}
 
-	ceo, ok := mprData["ceo"].(string)
-	if !ok {
-		d.Log.Errorf("CEO is missing or invalid")
-		return nil, errors.New("CEO is missing or invalid")
+	var ceo *string
+	if ceoVal, ok := mprData["ceo"].(string); ok {
+		ceo = &ceoVal
+	} else {
+		d.Log.Warn("CEO is missing or invalid")
 	}
 
 	hrdHoUnit, ok := mprData["hrd_ho_unit"].(string)
@@ -434,7 +435,10 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 	parsedRequestorID := uuid.MustParse(requestorID)
 	parsedDepartmentHead := uuid.MustParse(departmentHead)
 	parsedVpGmDirector := uuid.MustParse(vpGmDirector)
-	parsedCeo := uuid.MustParse(ceo)
+	var ceoUUID uuid.UUID
+	if ceo != nil {
+		ceoUUID = uuid.MustParse(*ceo)
+	}
 	parsedHrdHoUnit := uuid.MustParse(hrdHoUnit)
 	parsedMPPlanningHeaderID := uuid.MustParse(mpPlanningHeaderID)
 	parsedMppPeriodID := uuid.MustParse(mppPeriodID)
@@ -494,7 +498,7 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		RequestorID:                &parsedRequestorID,
 		DepartmentHead:             &parsedDepartmentHead,
 		VpGmDirector:               &parsedVpGmDirector,
-		CEO:                        &parsedCeo,
+		CEO:                        &ceoUUID,
 		HrdHoUnit:                  &parsedHrdHoUnit,
 		MPPlanningHeaderID:         &parsedMPPlanningHeaderID,
 		Status:                     status,

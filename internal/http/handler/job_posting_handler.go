@@ -380,13 +380,13 @@ func (h *JobPostingHandler) UpdateJobPosting(ctx *gin.Context) {
 	var req request.UpdateJobPostingRequest
 	if err := ctx.ShouldBind(&req); err != nil {
 		h.Log.Error("failed to bind request: ", err)
-		utils.BadRequestResponse(ctx, "invalid request payload", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
 	if err := h.Validate.Struct(&req); err != nil {
 		h.Log.Error("validation error: ", err)
-		utils.BadRequestResponse(ctx, "invalid request payload", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 

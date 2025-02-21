@@ -98,13 +98,13 @@ func (h *JobPostingHandler) CreateJobPosting(ctx *gin.Context) {
 	var req request.CreateJobPostingRequest
 	if err := ctx.ShouldBind(&req); err != nil {
 		h.Log.Error("failed to bind request: ", err)
-		utils.BadRequestResponse(ctx, "invalid requeest payload", err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
 	if err := h.Validate.Struct(&req); err != nil {
 		h.Log.Error("validation error: ", err)
-		utils.BadRequestResponse(ctx, "invalid request payload", err.Error())
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 

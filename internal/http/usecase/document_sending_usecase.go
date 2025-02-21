@@ -16,6 +16,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
 	"github.com/go-pdf/fpdf"
 	"github.com/google/uuid"
@@ -52,6 +53,10 @@ type DocumentSendingUseCase struct {
 	MailMessage                      messaging.IMailMessage
 	UserHelper                       helper.IUserHelper
 	UserMessage                      messaging.IUserMessage
+	EmployeeMessage                  messaging.IEmployeeMessage
+	TemplateQuestionRepository       repository.ITemplateQuestionRepository
+	MPRequestMessage                 messaging.IMPRequestMessage
+	MPRequestService                 service.IMPRequestService
 }
 
 func NewDocumentSendingUseCase(
@@ -68,6 +73,10 @@ func NewDocumentSendingUseCase(
 	mailMessage messaging.IMailMessage,
 	userHelper helper.IUserHelper,
 	userMessage messaging.IUserMessage,
+	employeeMessage messaging.IEmployeeMessage,
+	templateQuestionRepository repository.ITemplateQuestionRepository,
+	mpRequestMessage messaging.IMPRequestMessage,
+	mpRequestService service.IMPRequestService,
 ) IDocumentSendingUseCase {
 	return &DocumentSendingUseCase{
 		Log:                              log,
@@ -83,6 +92,10 @@ func NewDocumentSendingUseCase(
 		MailMessage:                      mailMessage,
 		UserHelper:                       userHelper,
 		UserMessage:                      userMessage,
+		EmployeeMessage:                  employeeMessage,
+		TemplateQuestionRepository:       templateQuestionRepository,
+		MPRequestMessage:                 mpRequestMessage,
+		MPRequestService:                 mpRequestService,
 	}
 }
 
@@ -98,6 +111,10 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 	mailMessage := messaging.MailMessageFactory(log)
 	userHelper := helper.UserHelperFactory(log)
 	userMessage := messaging.UserMessageFactory(log)
+	employeeMessage := messaging.EmployeeMessageFactory(log)
+	templateQuestionRepository := repository.TemplateQuestionRepositoryFactory(log)
+	mpRequestMessage := messaging.MPRequestMessageFactory(log)
+	mpRequestService := service.MPRequestServiceFactory(log)
 	return NewDocumentSendingUseCase(
 		log,
 		repo,
@@ -112,6 +129,10 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 		mailMessage,
 		userHelper,
 		userMessage,
+		employeeMessage,
+		templateQuestionRepository,
+		mpRequestMessage,
+		mpRequestService,
 	)
 }
 
@@ -668,6 +689,12 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 				Status: entity.DOCUMENT_AGREEMENT_STATUS_COMPLETED,
 			})
 		}
+
+		err = uc.employeeHired(*applicant, *TemplateQuestionID, *jobPosting)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
 	} else if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_REJECTED {
 		_, err = uc.ApplicantRepository.UpdateApplicantWhenRejected(&entity.Applicant{
 			ID: applicant.ID,
@@ -712,6 +739,67 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 	resp := uc.DTO.ConvertEntityToResponse(documentSending)
 
 	return resp, nil
+}
+
+func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, templateQuestionID uuid.UUID, jobPosting entity.JobPosting) error {
+	tq, err := uc.TemplateQuestionRepository.FindByID(templateQuestionID)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.EmployeeHired] " + err.Error())
+		return err
+	}
+	if tq == nil {
+		uc.Log.Error("[DocumentSendingUseCase.EmployeeHired] template question not found")
+		return errors.New("template question not found")
+	}
+
+	if tq.FormType == string(entity.TQ_FORM_TYPE_CONTRACT_DOCUMENT) {
+		// send message to create employee
+		userID := applicant.UserProfile.UserID
+		userMessageResponse, err := uc.UserMessage.SendGetUserMe(request.SendFindUserByIDMessageRequest{
+			ID: userID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+		if userMessageResponse.User == nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] user not found")
+			return errors.New("user not found")
+		}
+
+		userEmail, err := uc.UserHelper.GetUserEmail(userMessageResponse.User)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+
+		resp, err := uc.MPRequestMessage.SendFindByIdMessage(jobPosting.MPRequest.MPRCloneID.String())
+		if err != nil {
+			uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when send find by id message: %v", err)
+			return err
+		}
+
+		convertedData, err := uc.MPRequestService.CheckPortalData(resp)
+		if err != nil {
+			uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when check portal data: %v", err)
+			return err
+		}
+
+		_, err = uc.EmployeeMessage.SendCreateEmployeeMessage(request.SendCreateEmployeeMessageRequest{
+			UserID:                 applicant.UserProfile.UserID.String(),
+			Name:                   applicant.UserProfile.Name,
+			Email:                  userEmail,
+			JobID:                  jobPosting.JobID.String(),
+			OrganizationID:         convertedData.OrganizationID.String(),
+			OrganizationLocationID: convertedData.OrganizationLocationID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (uc *DocumentSendingUseCase) DeleteDocumentSending(id string) error {

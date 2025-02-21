@@ -98,7 +98,7 @@ func (r *JobPostingRepository) FindAllPaginated(page, pageSize int, search strin
 func (r *JobPostingRepository) FindByID(id uuid.UUID) (*entity.JobPosting, error) {
 	var ent entity.JobPosting
 
-	if err := r.DB.Preload("ProjectRecruitmentHeader.ProjectRecruitmentLines.TemplateActivityLine").First(&ent, id).Error; err != nil {
+	if err := r.DB.Preload("ProjectRecruitmentHeader.ProjectRecruitmentLines.TemplateActivityLine.TemplateQuestion").Preload("MPRequest").First(&ent, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			r.Log.Warn("[JobPostingRepository.FindByID] data not found")
 			return nil, nil

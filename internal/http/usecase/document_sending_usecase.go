@@ -690,7 +690,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 			})
 		}
 
-		err = uc.employeeHired(*applicant, *TemplateQuestionID, *jobPosting)
+		err = uc.employeeHired(*applicant, *TemplateQuestionID, *jobPosting, *documentSending)
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return nil, err
@@ -741,7 +741,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 	return resp, nil
 }
 
-func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, templateQuestionID uuid.UUID, jobPosting entity.JobPosting) error {
+func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, templateQuestionID uuid.UUID, jobPosting entity.JobPosting, documentSending entity.DocumentSending) error {
 	tq, err := uc.TemplateQuestionRepository.FindByID(templateQuestionID)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.EmployeeHired] " + err.Error())
@@ -792,6 +792,32 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			JobID:                  jobPosting.JobID.String(),
 			OrganizationID:         convertedData.OrganizationID.String(),
 			OrganizationLocationID: convertedData.OrganizationLocationID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+
+		umResponse, err := uc.UserMessage.SendGetUserMe(request.SendFindUserByIDMessageRequest{
+			ID: userID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+		if umResponse.User == nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] user not found")
+			return errors.New("user not found")
+		}
+		employeeID, err := uc.UserHelper.GetEmployeeId(umResponse.User)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+
+		_, err = uc.EmployeeMessage.SendCreateEmployeeTaskMessage(request.SendCreateEmployeeTaskMessageRequest{
+			EmployeeID: employeeID.String(),
+			JoinedDate: documentSending.JoinedDate.String(),
 		})
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())

@@ -15,6 +15,7 @@ import (
 type IEmployeeMessage interface {
 	SendFindEmployeeByIDMessage(req request.SendFindEmployeeByIDMessageRequest) (*response.EmployeeResponse, error)
 	SendCreateEmployeeMessage(req request.SendCreateEmployeeMessageRequest) (*response.EmployeeResponse, error)
+	SendCreateEmployeeTaskMessage(req request.SendCreateEmployeeTaskMessageRequest) (*string, error)
 }
 
 type EmployeeMessage struct {
@@ -143,4 +144,51 @@ func (m *EmployeeMessage) SendCreateEmployeeMessage(req request.SendCreateEmploy
 	employee := convertInterfaceToEmployeeResponse(employeeData)
 
 	return employee, nil
+}
+
+func (m *EmployeeMessage) SendCreateEmployeeTaskMessage(req request.SendCreateEmployeeTaskMessageRequest) (*string, error) {
+	payload := map[string]interface{}{
+		"employee_id": req.EmployeeID,
+		"joined_date": req.JoinedDate,
+	}
+
+	docMsg := &request.RabbitMQRequest{
+		ID:          uuid.New().String(),
+		MessageType: "create_employee_task",
+		MessageData: payload,
+		ReplyTo:     "julong_recruitment",
+	}
+
+	log.Printf("INFO: document message: %v", docMsg)
+
+	// create channel and add to rchans with uid
+	rchan := make(chan response.RabbitMQResponse)
+	utils.Rchans[docMsg.ID] = rchan
+
+	// publish rabbit message
+	msg := utils.RabbitMsgPublisher{
+		QueueName: "julong_sso",
+		Message:   *docMsg,
+	}
+	utils.Pchan <- msg
+
+	// wait for reply
+	resp, err := waitReply(docMsg.ID, rchan)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("INFO: response: %v", resp)
+
+	if errMsg, ok := resp.MessageData["error"]; ok {
+		return nil, errors.New("[EmployeeMessage.SendCreateEmployeeTaskMessage] " + errMsg.(string))
+	}
+
+	employeeTaskData, ok := resp.MessageData["message"].(string)
+	if !ok {
+		return nil, errors.New("[EmployeeMessage.SendCreateEmployeeTaskMessage] " + "Failed to create employee task")
+	}
+	employeeTask := employeeTaskData
+
+	return &employeeTask, nil
 }

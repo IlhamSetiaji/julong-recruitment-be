@@ -8480,6 +8480,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/entity.TestScheduleHeader"
                     }
                 },
+                "total_applicant": {
+                    "type": "integer"
+                },
                 "user_profiles": {
                     "type": "array",
                     "items": {
@@ -12498,6 +12501,9 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/entity.JobPostingStatus"
+                },
+                "total_applicant": {
+                    "type": "integer"
                 }
             }
         },

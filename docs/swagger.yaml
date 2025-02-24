@@ -716,6 +716,8 @@ definitions:
         items:
           $ref: '#/definitions/entity.TestScheduleHeader'
         type: array
+      total_applicant:
+        type: integer
       user_profiles:
         items:
           $ref: '#/definitions/entity.UserProfile'
@@ -3465,6 +3467,8 @@ definitions:
         type: string
       status:
         $ref: '#/definitions/entity.JobPostingStatus'
+      total_applicant:
+        type: integer
     type: object
   response.MPRequestHeaderResponse:
     properties:

@@ -68,7 +68,7 @@ func (r *JobPostingRepository) FindAllPaginated(page, pageSize int, search strin
 	var entities []entity.JobPosting
 	var total int64
 
-	query := r.DB.Preload("ProjectRecruitmentHeader")
+	query := r.DB.Preload("ProjectRecruitmentHeader").Preload("Applicants")
 
 	if search != "" {
 		query = query.Where("document_number ILIKE ?", "%"+search+"%")

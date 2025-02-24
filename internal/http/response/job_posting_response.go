@@ -36,6 +36,7 @@ type JobPostingResponse struct {
 	ForOrganizationName     string `json:"for_organization_name"`
 	ForOrganizationLocation string `json:"for_organization_location"`
 	JobName                 string `json:"job_name"`
+	TotalApplicant          int    `json:"total_applicant"`
 
 	ProjectRecruitmentHeader *ProjectRecruitmentHeaderResponse `json:"project_recruitment_header"`
 	MPRequest                *MPRequestHeaderResponse          `json:"mp_request"`

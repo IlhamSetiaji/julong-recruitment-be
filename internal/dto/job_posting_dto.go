@@ -115,6 +115,7 @@ func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *respo
 		ForOrganizationName:     organizationName,
 		ForOrganizationLocation: organizationLocationName,
 		JobName:                 jobName,
+		TotalApplicant:          ent.TotalApplicant,
 
 		ProjectRecruitmentHeader: func() *response.ProjectRecruitmentHeaderResponse {
 			if ent.ProjectRecruitmentHeader == nil {

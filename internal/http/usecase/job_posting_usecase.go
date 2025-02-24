@@ -211,6 +211,8 @@ func (uc *JobPostingUseCase) FindAllPaginatedWithoutUserID(page, pageSize int, s
 
 	jobPostingResponses := make([]response.JobPostingResponse, 0)
 	for _, jobPosting := range *jobPostings {
+		totalApplicant := len(jobPosting.Applicants)
+		jobPosting.TotalApplicant = totalApplicant
 		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 	}
 
@@ -264,8 +266,11 @@ func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string,
 
 		uc.Log.Info("IsSaved: ", isSaved)
 
+		totalApplicant := len(jobPosting.Applicants)
+
 		jobPosting.IsApplied = isApplied
 		jobPosting.IsSaved = isSaved
+		jobPosting.TotalApplicant = totalApplicant
 
 		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 	}

@@ -8474,6 +8474,9 @@
                         "$ref": "#/definitions/entity.TestScheduleHeader"
                     }
                 },
+                "total_applicant": {
+                    "type": "integer"
+                },
                 "user_profiles": {
                     "type": "array",
                     "items": {
@@ -12492,6 +12495,9 @@
                 },
                 "status": {
                     "$ref": "#/definitions/entity.JobPostingStatus"
+                },
+                "total_applicant": {
+                    "type": "integer"
                 }
             }
         },

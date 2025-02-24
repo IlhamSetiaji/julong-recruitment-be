@@ -57,6 +57,7 @@ type JobPosting struct {
 	AppliedDate              time.Time              `json:"applied_date" gorm:"-"`
 	ApplicantStatus          ApplicantStatus        `json:"apply_status" gorm:"-"`
 	ApplicantProcessStatus   ApplicantProcessStatus `json:"apply_process_status" gorm:"-"`
+	TotalApplicant           int                    `json:"total_applicant" gorm:"-"`
 }
 
 func (jp *JobPosting) BeforeCreate(tx *gorm.DB) (err error) {

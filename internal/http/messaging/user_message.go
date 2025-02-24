@@ -10,6 +10,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type IUserMessage interface {
@@ -125,21 +126,62 @@ func (m *UserMessage) FindUserProfileByUserIDMessage(userId string) (*response.U
 	if err != nil {
 		return nil, err
 	}
-	userProfile, err := m.UserProfileRepository.FindByUserID(parsedUserID)
+	ent, err := m.UserProfileRepository.FindByUserID(parsedUserID)
 	if err != nil {
 		return nil, err
 	}
 
-	if userProfile == nil {
+	if ent == nil {
 		return nil, nil
 	}
 
-	m.Log.Printf("INFO: user profile: %v", userProfile)
+	m.Log.Printf("INFO: user profile: %v", ent)
+
+	configData := viper.New()
+
+	configData.SetConfigName("config")
+	configData.SetConfigType("json")
+	configData.AddConfigPath("./")
+	err = configData.ReadInConfig()
+	if err != nil {
+		return nil, err
+	}
 
 	return &response.UserProfileResponse{
-		ID:     userProfile.ID,
-		UserID: userProfile.UserID,
-		Name:   userProfile.Name,
-		Status: userProfile.Status,
+		ID:            ent.ID,
+		UserID:        ent.UserID,
+		Name:          ent.Name,
+		MaritalStatus: ent.MaritalStatus,
+		Gender:        ent.Gender,
+		PhoneNumber:   ent.PhoneNumber,
+		Age:           ent.Age,
+		BirthDate:     ent.BirthDate,
+		BirthPlace:    ent.BirthPlace,
+		Address:       ent.Address,
+		Bilingual:     ent.Bilingual,
+		Avatar: func() *string {
+			if ent.Avatar != "" {
+				avatarURL := configData.GetString("app.url") + ent.Avatar
+				return &avatarURL
+			}
+			return nil
+		}(),
+		Ktp: func() *string {
+			if ent.Ktp != "" {
+				ktpURL := configData.GetString("app.url") + ent.Ktp
+				return &ktpURL
+			}
+			return nil
+		}(),
+		CurriculumVitae: func() *string {
+			if ent.CurriculumVitae != "" {
+				cvURL := configData.GetString("app.url") + ent.CurriculumVitae
+				return &cvURL
+			}
+			return nil
+		}(),
+		Status:    ent.Status,
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
 	}, nil
 }

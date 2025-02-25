@@ -103,7 +103,7 @@ func (r *AdministrativeSelectionRepository) FindAllPaginated(page, pageSize int,
 
 func (r *AdministrativeSelectionRepository) FindByID(id uuid.UUID) (*entity.AdministrativeSelection, error) {
 	var ent entity.AdministrativeSelection
-	if err := r.DB.Preload("JobPosting").Preload("ProjectPIC").Preload("AdministrativeResults").First(&ent, id).Error; err != nil {
+	if err := r.DB.Preload("JobPosting.ProjectRecruitmentHeader").Preload("ProjectPIC").Preload("AdministrativeResults").First(&ent, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

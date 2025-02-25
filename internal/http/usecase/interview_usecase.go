@@ -865,7 +865,7 @@ func (uc *InterviewUseCase) getApplicantIDsByJobPostingID(jobPostingID uuid.UUID
 				for _, applicant := range applicants {
 					var found bool
 					for _, testApplicant := range testApplicants {
-						if applicant.ID == testApplicant.ApplicantID {
+						if applicant.ID == testApplicant.ApplicantID && applicant.Order == projectRecruitmentLine.Order {
 							found = true
 							break
 						}

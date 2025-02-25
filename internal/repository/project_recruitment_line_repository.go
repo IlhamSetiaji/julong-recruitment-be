@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
@@ -25,6 +26,8 @@ type IProjectRecruitmentLineRepository interface {
 	FindByIDForAnswerFgd(id, jobPostingID, userProfileID, fgdAssessorID uuid.UUID) (*entity.ProjectRecruitmentLine, error)
 	FindByIDs(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 	FindByIDsAndHeaderID(ids []uuid.UUID, headerID uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
+	FindAllBetweenDates(startDate, endDate time.Time, projectPicId uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
+	FindAllByStartDate(startDate time.Time, employeeID uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 }
 
 type ProjectRecruitmentLineRepository struct {
@@ -233,6 +236,34 @@ func (r *ProjectRecruitmentLineRepository) FindAllByIds(ids []uuid.UUID) (*[]ent
 func (r *ProjectRecruitmentLineRepository) FindAllByProjectRecruitmentHeaderIdAndIds(projectRecruitmentHeaderId uuid.UUID, ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLines []entity.ProjectRecruitmentLine
 	if err := r.DB.Where("project_recruitment_header_id = ? AND id IN ?", projectRecruitmentHeaderId, ids).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine.TemplateQuestion").Find(&projectRecruitmentLines).Error; err != nil {
+		return nil, err
+	}
+
+	return &projectRecruitmentLines, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) FindAllBetweenDates(startDate, endDate time.Time, projectPicId uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLines []entity.ProjectRecruitmentLine
+	if err := r.DB.Joins("JOIN project_pics ON project_pics.project_recruitment_line_id = project_recruitment_lines.id").
+		Where("project_recruitment_lines.start_date >= ? AND project_recruitment_lines.end_date <= ? AND project_pics.project_pic_id = ?", startDate, endDate, projectPicId).
+		Preload("ProjectPics").
+		Preload("DocumentSendings").
+		Preload("TemplateActivityLine.TemplateQuestion").
+		Find(&projectRecruitmentLines).Error; err != nil {
+		return nil, err
+	}
+
+	return &projectRecruitmentLines, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) FindAllByStartDate(startDate time.Time, employeeID uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLines []entity.ProjectRecruitmentLine
+	if err := r.DB.Joins("JOIN project_pics ON project_pics.project_recruitment_line_id = project_recruitment_lines.id").
+		Where("project_recruitment_lines.start_date = ? AND project_pics.employee_id = ?", startDate, employeeID).
+		Preload("ProjectPics").
+		Preload("DocumentSendings").
+		Preload("TemplateActivityLine.TemplateQuestion").
+		Find(&projectRecruitmentLines).Error; err != nil {
 		return nil, err
 	}
 

@@ -6438,6 +6438,53 @@
                 }
             }
         },
+        "/project-recruitment-lines/calendar": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all project recruitment lines by month and year",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project Recruitment Lines"
+                ],
+                "summary": "Find all project recruitment lines by month and year",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "month",
+                        "name": "month",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "year",
+                        "name": "year",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ProjectRecruitmentLineResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/project-recruitment-lines/form-type/{form_type}": {
             "get": {
                 "security": [

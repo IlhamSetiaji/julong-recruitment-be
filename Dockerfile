@@ -44,6 +44,8 @@ COPY init-config.sh /app/init-config.sh
 # Copy the views directory
 # COPY views /app/views
 
+COPY storage /app/storage
+
 # Copy the static directory
 # COPY public /app/public
 

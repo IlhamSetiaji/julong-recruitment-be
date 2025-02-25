@@ -24,6 +24,7 @@ type IProjectRecruitmentLineUseCase interface {
 	FindByIDForAnswerFgd(id, jobPostingID, userProfileID, fgdAssessorID uuid.UUID) (*response.ProjectRecruitmentLineResponse, error)
 	FindAllByHeaderID(headerID uuid.UUID) (*[]response.ProjectRecruitmentLineResponse, error)
 	FindAllByHeaderIDAndFormType(headerID uuid.UUID, formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error)
+	FindAllByMonthAndYear(month, year int, employeeID uuid.UUID) ([]*response.ProjectRecruitmentLineResponse, error)
 }
 
 type ProjectRecruitmentLineUseCase struct {
@@ -439,6 +440,36 @@ func (uc *ProjectRecruitmentLineUseCase) FindAllByHeaderIDAndFormType(headerID u
 		if prl.ProjectRecruitmentHeaderID == headerID {
 			responses = append(responses, uc.DTO.ConvertEntityToResponse(prl))
 		}
+	}
+
+	return responses, nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) fetchDataForDay(date time.Time, employeeID uuid.UUID) ([]*response.ProjectRecruitmentLineResponse, error) {
+	projectRecruitmentLines, err := uc.Repository.FindAllByStartDate(date, employeeID)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.fetchDataForDay] error when finding project recruitment lines by start date: %s", err.Error())
+		return nil, err
+	}
+	var responses []*response.ProjectRecruitmentLineResponse
+	for _, prl := range *projectRecruitmentLines {
+		responses = append(responses, uc.DTO.ConvertEntityToResponse(&prl))
+	}
+	return responses, nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) FindAllByMonthAndYear(month, year int, employeeID uuid.UUID) ([]*response.ProjectRecruitmentLineResponse, error) {
+	firstDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	lastDate := firstDate.AddDate(0, 1, -1)
+	var responses []*response.ProjectRecruitmentLineResponse
+
+	for current := firstDate; !current.After(lastDate); current = current.AddDate(0, 0, 1) {
+		resp, err := uc.fetchDataForDay(current, employeeID)
+		if err != nil {
+			uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindAllByMonthAndYear] error when fetching data for day: %s", err.Error())
+			return nil, err
+		}
+		responses = append(responses, resp...)
 	}
 
 	return responses, nil

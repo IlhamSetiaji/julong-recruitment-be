@@ -259,8 +259,7 @@ func (r *ProjectRecruitmentLineRepository) FindAllBetweenDates(startDate, endDat
 func (r *ProjectRecruitmentLineRepository) FindAllByStartDate(startDate time.Time, employeeID uuid.UUID) (*[]entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLines []entity.ProjectRecruitmentLine
 	if err := r.DB.Joins("JOIN project_pics ON project_pics.project_recruitment_line_id = project_recruitment_lines.id").
-		Where("project_recruitment_lines.start_date = ? AND project_pics.employee_id = ?", startDate, employeeID).
-		Preload("ProjectPics").
+		Where("project_recruitment_lines.start_date <= ? AND project_recruitment_lines.end_date >= ? AND project_pics.employee_id = ?", startDate, startDate, employeeID).
 		Preload("DocumentSendings").
 		Preload("TemplateActivityLine.TemplateQuestion").
 		Find(&projectRecruitmentLines).Error; err != nil {

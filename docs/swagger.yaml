@@ -1631,7 +1631,6 @@ definitions:
         type: string
     required:
     - body
-    - form_type
     - name
     - subject
     type: object

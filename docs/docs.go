@@ -9783,7 +9783,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "body",
-                "form_type",
                 "name",
                 "subject"
             ],

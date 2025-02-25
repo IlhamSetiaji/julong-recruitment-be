@@ -50,10 +50,18 @@ func (uc *MailTemplateUseCase) CreateMailTemplate(req *request.CreateMailTemplat
 		return nil, err
 	}
 
+	var formType entity.TemplateQuestionFormType
+	if req.FormType != "" {
+		parsedFormType := entity.TemplateQuestionFormType(req.FormType)
+		formType = parsedFormType
+	} else {
+		formType = ""
+	}
+
 	mt, err := uc.Repository.CreateMailTemplate(&entity.MailTemplate{
 		Name:           req.Name,
 		DocumentTypeID: parsedDocumentTypeID,
-		FormType:       entity.TemplateQuestionFormType(req.FormType),
+		FormType:       formType,
 		Subject:        req.Subject,
 		Body:           req.Body,
 	})
@@ -103,11 +111,19 @@ func (uc *MailTemplateUseCase) UpdateMailTemplate(req *request.UpdateMailTemplat
 		return nil, err
 	}
 
+	var formType entity.TemplateQuestionFormType
+	if req.FormType != "" {
+		parsedFormType := entity.TemplateQuestionFormType(req.FormType)
+		formType = parsedFormType
+	} else {
+		formType = ""
+	}
+
 	mt, err := uc.Repository.UpdateMailTemplate(&entity.MailTemplate{
 		ID:             parsedID,
 		Name:           req.Name,
 		DocumentTypeID: parsedDocumentTypeID,
-		FormType:       entity.TemplateQuestionFormType(req.FormType),
+		FormType:       formType,
 		Subject:        req.Subject,
 		Body:           req.Body,
 	})

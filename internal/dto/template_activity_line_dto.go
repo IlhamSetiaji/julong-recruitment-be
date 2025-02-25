@@ -13,21 +13,25 @@ type ITemplateActivityLineDTO interface {
 type TemplateActivityLineDTO struct {
 	Log                 *logrus.Logger
 	TemplateQuestionDTO ITemplateQuestionDTO
+	TemplateActivityDTO ITemplateActivityDTO
 }
 
 func NewTemplateActivityLineDTO(
 	log *logrus.Logger,
 	templateQuestionDTO ITemplateQuestionDTO,
+	TemplateActivityDTO ITemplateActivityDTO,
 ) ITemplateActivityLineDTO {
 	return &TemplateActivityLineDTO{
 		Log:                 log,
 		TemplateQuestionDTO: templateQuestionDTO,
+		TemplateActivityDTO: TemplateActivityDTO,
 	}
 }
 
 func TemplateActivityLineDTOFactory(log *logrus.Logger) ITemplateActivityLineDTO {
 	templateQuestionDTO := TemplateQuestionDTOFactory(log)
-	return NewTemplateActivityLineDTO(log, templateQuestionDTO)
+	TemplateActivityDTO := TemplateActivityDTOFactory(log)
+	return NewTemplateActivityLineDTO(log, templateQuestionDTO, TemplateActivityDTO)
 }
 
 func (dto *TemplateActivityLineDTO) ConvertEntityToResponse(ent *entity.TemplateActivityLine) *response.TemplateActivityLineResponse {
@@ -41,6 +45,12 @@ func (dto *TemplateActivityLineDTO) ConvertEntityToResponse(ent *entity.Template
 		ColorHexCode:       ent.ColorHexCode,
 		CreatedAt:          ent.CreatedAt,
 		UpdatedAt:          ent.UpdatedAt,
+		TemplateActivity: func() *response.TemplateActivityResponse {
+			if ent.TemplateActivity == nil {
+				return nil
+			}
+			return dto.TemplateActivityDTO.ConvertEntityToResponse(ent.TemplateActivity)
+		}(),
 		TemplateQuestion: func() *response.TemplateQuestionResponse {
 			if ent.TemplateQuestion == nil {
 				return nil

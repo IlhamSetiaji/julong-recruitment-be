@@ -49,12 +49,17 @@ func MPRequestServiceFactory(log *logrus.Logger) IMPRequestService {
 
 func (h *MPRequestService) CheckPortalData(req *response.MPRequestHeaderResponse) (*response.MPRequestHeaderResponse, error) {
 	// check if organization is exist
-	orgExist, err := h.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
-		ID: req.OrganizationID.String(),
-	})
-	if err != nil {
-		h.Log.Errorf("[MPRequestService] error when send find organization by id message: %v", err)
-		return nil, err
+	var orgExist *response.SendFindOrganizationByIDMessageResponse
+	if req.OrganizationID != uuid.Nil {
+		orgExistData, err := h.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
+			ID: req.OrganizationID.String(),
+		})
+		if err != nil {
+			h.Log.Errorf("[MPRequestService] error when send find organization by id message: %v", err)
+			orgExist = nil
+		} else {
+			orgExist = orgExistData
+		}
 	}
 
 	if orgExist == nil {

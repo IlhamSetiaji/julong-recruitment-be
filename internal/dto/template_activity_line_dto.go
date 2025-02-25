@@ -12,26 +12,26 @@ type ITemplateActivityLineDTO interface {
 
 type TemplateActivityLineDTO struct {
 	Log                 *logrus.Logger
-	TemplateQuestionDTO ITemplateQuestionDTO
 	TemplateActivityDTO ITemplateActivityDTO
+	TemplateQuestionDTO ITemplateQuestionDTO
 }
 
 func NewTemplateActivityLineDTO(
 	log *logrus.Logger,
-	templateQuestionDTO ITemplateQuestionDTO,
 	TemplateActivityDTO ITemplateActivityDTO,
+	templateQuestionDTO ITemplateQuestionDTO,
 ) ITemplateActivityLineDTO {
 	return &TemplateActivityLineDTO{
 		Log:                 log,
-		TemplateQuestionDTO: templateQuestionDTO,
 		TemplateActivityDTO: TemplateActivityDTO,
+		TemplateQuestionDTO: templateQuestionDTO,
 	}
 }
 
 func TemplateActivityLineDTOFactory(log *logrus.Logger) ITemplateActivityLineDTO {
-	templateQuestionDTO := TemplateQuestionDTOFactory(log)
 	TemplateActivityDTO := TemplateActivityDTOFactory(log)
-	return NewTemplateActivityLineDTO(log, templateQuestionDTO, TemplateActivityDTO)
+	templateQuestionDTO := TemplateQuestionDTOFactory(log)
+	return NewTemplateActivityLineDTO(log, TemplateActivityDTO, templateQuestionDTO)
 }
 
 func (dto *TemplateActivityLineDTO) ConvertEntityToResponse(ent *entity.TemplateActivityLine) *response.TemplateActivityLineResponse {

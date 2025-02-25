@@ -71,13 +71,13 @@ func (h *MailTemplateHandler) CreateMailTemplate(ctx *gin.Context) {
 	var payload request.CreateMailTemplateRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		h.Log.Errorf("[MailTemplateHandler.CreateMailTemplate] error when binding request: %v", err)
-		utils.BadRequestResponse(ctx, "Bad request", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
 	if err := h.Validate.Struct(payload); err != nil {
 		h.Log.Errorf("[MailTemplateHandler.CreateMailTemplate] error when validating request: %v", err)
-		utils.BadRequestResponse(ctx, "Bad request", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
@@ -184,13 +184,13 @@ func (h *MailTemplateHandler) UpdateMailTemplate(ctx *gin.Context) {
 	var payload request.UpdateMailTemplateRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		h.Log.Errorf("[MailTemplateHandler.UpdateMailTemplate] error when binding request: %v", err)
-		utils.BadRequestResponse(ctx, "Bad request", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 
 	if err := h.Validate.Struct(payload); err != nil {
 		h.Log.Errorf("[MailTemplateHandler.UpdateMailTemplate] error when validating request: %v", err)
-		utils.BadRequestResponse(ctx, "Bad request", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
 		return
 	}
 

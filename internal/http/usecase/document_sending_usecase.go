@@ -653,7 +653,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 			})
 		}
 
-		err = uc.employeeHired(*applicant, *TemplateQuestionID, *jobPosting, *documentSending)
+		err = uc.employeeHired(*applicant, *&docSending.ProjectRecruitmentLine.TemplateActivityLine.QuestionTemplateID, *jobPosting, *documentSending)
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return nil, err
@@ -748,7 +748,6 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 }
 
 func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, templateQuestionID uuid.UUID, jobPosting entity.JobPosting, documentSending entity.DocumentSending) error {
-	uc.Log.Info("[DocumentSendingUseCase.EmployeeHired] sending message to create employee")
 	tq, err := uc.TemplateQuestionRepository.FindByID(templateQuestionID)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.EmployeeHired] " + err.Error())
@@ -758,8 +757,9 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 		uc.Log.Error("[DocumentSendingUseCase.EmployeeHired] template question not found")
 		return errors.New("template question not found")
 	}
-
+	uc.Log.Info("Masuk sini cok ane", tq.FormType)
 	if tq.FormType == string(entity.TQ_FORM_TYPE_CONTRACT_DOCUMENT) {
+		uc.Log.Info("[DocumentSendingUseCase.EmployeeHired] sending message to create employee")
 		// send message to create employee
 		userID := applicant.UserProfile.UserID
 		userMessageResponse, err := uc.UserMessage.SendGetUserMe(request.SendFindUserByIDMessageRequest{

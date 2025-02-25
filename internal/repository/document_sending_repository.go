@@ -129,7 +129,7 @@ func (r *DocumentSendingRepository) FindAllPaginatedByDocumentSetupIDs(documentS
 func (r *DocumentSendingRepository) FindByID(id uuid.UUID) (*entity.DocumentSending, error) {
 	var documentSending entity.DocumentSending
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(&documentSending, id).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine.TemplateActivityLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(&documentSending, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}

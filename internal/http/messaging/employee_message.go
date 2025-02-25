@@ -14,7 +14,7 @@ import (
 
 type IEmployeeMessage interface {
 	SendFindEmployeeByIDMessage(req request.SendFindEmployeeByIDMessageRequest) (*response.EmployeeResponse, error)
-	SendCreateEmployeeMessage(req request.SendCreateEmployeeMessageRequest) (*response.EmployeeResponse, error)
+	SendCreateEmployeeMessage(req request.SendCreateEmployeeMessageRequest) (*string, error)
 	SendCreateEmployeeTaskMessage(req request.SendCreateEmployeeTaskMessageRequest) (*string, error)
 }
 
@@ -98,7 +98,7 @@ func EmployeeMessageFactory(log *logrus.Logger) IEmployeeMessage {
 	return NewEmployeeMessage(log)
 }
 
-func (m *EmployeeMessage) SendCreateEmployeeMessage(req request.SendCreateEmployeeMessageRequest) (*response.EmployeeResponse, error) {
+func (m *EmployeeMessage) SendCreateEmployeeMessage(req request.SendCreateEmployeeMessageRequest) (*string, error) {
 	payload := map[string]interface{}{
 		"user_id":                  req.UserID,
 		"name":                     req.Name,
@@ -140,10 +140,13 @@ func (m *EmployeeMessage) SendCreateEmployeeMessage(req request.SendCreateEmploy
 		return nil, errors.New("[EmployeeMessage.SendCreateEmployeeMessage] " + errMsg.(string))
 	}
 
-	employeeData := resp.MessageData["employee"].(map[string]interface{})
-	employee := convertInterfaceToEmployeeResponse(employeeData)
+	employeeData, ok := resp.MessageData["employee_id"].(string)
+	if !ok {
+		return nil, errors.New("[EmployeeMessage.SendCreateEmployeeMessage] " + "Failed to create employee")
+	}
+	employee := employeeData
 
-	return employee, nil
+	return &employee, nil
 }
 
 func (m *EmployeeMessage) SendCreateEmployeeTaskMessage(req request.SendCreateEmployeeTaskMessageRequest) (*string, error) {
@@ -154,7 +157,7 @@ func (m *EmployeeMessage) SendCreateEmployeeTaskMessage(req request.SendCreateEm
 
 	docMsg := &request.RabbitMQRequest{
 		ID:          uuid.New().String(),
-		MessageType: "create_employee_task",
+		MessageType: "create_employee_tasks",
 		MessageData: payload,
 		ReplyTo:     "julong_recruitment",
 	}
@@ -167,7 +170,7 @@ func (m *EmployeeMessage) SendCreateEmployeeTaskMessage(req request.SendCreateEm
 
 	// publish rabbit message
 	msg := utils.RabbitMsgPublisher{
-		QueueName: "julong_sso",
+		QueueName: "julong_onboarding",
 		Message:   *docMsg,
 	}
 	utils.Pchan <- msg

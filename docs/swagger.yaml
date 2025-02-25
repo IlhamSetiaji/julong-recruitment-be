@@ -1631,7 +1631,6 @@ definitions:
         type: string
     required:
     - body
-    - form_type
     - name
     - subject
     type: object
@@ -8160,6 +8159,36 @@ paths:
       security:
       - BearerAuth: []
       summary: Create or update project recruitment lines
+      tags:
+      - Project Recruitment Lines
+  /project-recruitment-lines/calendar:
+    get:
+      consumes:
+      - application/json
+      description: Find all project recruitment lines by month and year
+      parameters:
+      - description: month
+        in: query
+        name: month
+        required: true
+        type: string
+      - description: year
+        in: query
+        name: year
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.ProjectRecruitmentLineResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Find all project recruitment lines by month and year
       tags:
       - Project Recruitment Lines
   /project-recruitment-lines/form-type/{form_type}:

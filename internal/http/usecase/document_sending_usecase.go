@@ -652,6 +652,12 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 				Status: entity.DOCUMENT_AGREEMENT_STATUS_APPROVED,
 			})
 		}
+
+		err = uc.employeeHired(*applicant, *TemplateQuestionID, *jobPosting, *documentSending)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
 	} else if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_COMPLETED {
 		applicantOrder := applicant.Order
 		var TemplateQuestionID *uuid.UUID
@@ -742,6 +748,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 }
 
 func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, templateQuestionID uuid.UUID, jobPosting entity.JobPosting, documentSending entity.DocumentSending) error {
+	uc.Log.Info("[DocumentSendingUseCase.EmployeeHired] sending message to create employee")
 	tq, err := uc.TemplateQuestionRepository.FindByID(templateQuestionID)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.EmployeeHired] " + err.Error())

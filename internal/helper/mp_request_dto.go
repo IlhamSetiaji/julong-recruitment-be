@@ -210,16 +210,22 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		return nil, errors.New("Requestor ID is missing or invalid")
 	}
 
-	departmentHead, ok := mprData["department_head"].(string)
+	var departmentHead *string
+	departmentHeadVal, ok := mprData["department_head"].(string)
 	if !ok {
 		d.Log.Errorf("Department Head is missing or invalid")
-		return nil, errors.New("Department Head is missing or invalid")
+		// return nil, errors.New("Department Head is missing or invalid")
+	} else {
+		departmentHead = &departmentHeadVal
 	}
 
-	vpGmDirector, ok := mprData["vp_gm_director"].(string)
+	var vpGmDirector *string
+	vpGmDirectorVal, ok := mprData["vp_gm_director"].(string)
 	if !ok {
 		d.Log.Errorf("VP GM Director is missing or invalid")
-		return nil, errors.New("VP GM Director is missing or invalid")
+		// return nil, errors.New("VP GM Director is missing or invalid")
+	} else {
+		vpGmDirector = &vpGmDirectorVal
 	}
 
 	var ceo *string
@@ -229,10 +235,13 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		d.Log.Warn("CEO is missing or invalid")
 	}
 
-	hrdHoUnit, ok := mprData["hrd_ho_unit"].(string)
+	var hrdHoUnit *string
+	hrdHoUnitVal, ok := mprData["hrd_ho_unit"].(string)
 	if !ok {
 		d.Log.Errorf("HRD HO Unit is missing or invalid")
-		return nil, errors.New("HRD HO Unit is missing or invalid")
+		// return nil, errors.New("HRD HO Unit is missing or invalid")
+	} else {
+		hrdHoUnit = &hrdHoUnitVal
 	}
 
 	mpPlanningHeaderID, ok := mprData["mp_planning_header_id"].(string)
@@ -433,13 +442,34 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 
 	mprCloneID := uuid.MustParse(mprID)
 	parsedRequestorID := uuid.MustParse(requestorID)
-	parsedDepartmentHead := uuid.MustParse(departmentHead)
-	parsedVpGmDirector := uuid.MustParse(vpGmDirector)
-	var ceoUUID uuid.UUID
-	if ceo != nil {
-		ceoUUID = uuid.MustParse(*ceo)
+	var departmentHeadUUID *uuid.UUID
+	if departmentHead != nil {
+		uuidVal := uuid.MustParse(*departmentHead)
+		departmentHeadUUID = &uuidVal
+	} else {
+		departmentHeadUUID = nil
 	}
-	parsedHrdHoUnit := uuid.MustParse(hrdHoUnit)
+	var vpGmDirectorUUID *uuid.UUID
+	if vpGmDirector != nil {
+		uuidVal := uuid.MustParse(*vpGmDirector)
+		vpGmDirectorUUID = &uuidVal
+	} else {
+		vpGmDirectorUUID = nil
+	}
+	var ceoUUID *uuid.UUID
+	if ceo != nil {
+		uuidVal := uuid.MustParse(*ceo)
+		ceoUUID = &uuidVal
+	} else {
+		ceoUUID = nil
+	}
+	var hrdHoUnitUUID *uuid.UUID
+	if hrdHoUnit != nil {
+		uuidVal := uuid.MustParse(*hrdHoUnit)
+		hrdHoUnitUUID = &uuidVal
+	} else {
+		hrdHoUnitUUID = nil
+	}
 	parsedMPPlanningHeaderID := uuid.MustParse(mpPlanningHeaderID)
 	parsedMppPeriodID := uuid.MustParse(mppPeriodID)
 	parsedEmpOrganizationID := uuid.MustParse(empOrganizationID)
@@ -496,10 +526,10 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		SalaryMin:                  salaryMin,
 		SalaryMax:                  salaryMax,
 		RequestorID:                &parsedRequestorID,
-		DepartmentHead:             &parsedDepartmentHead,
-		VpGmDirector:               &parsedVpGmDirector,
-		CEO:                        &ceoUUID,
-		HrdHoUnit:                  &parsedHrdHoUnit,
+		DepartmentHead:             departmentHeadUUID,
+		VpGmDirector:               vpGmDirectorUUID,
+		CEO:                        ceoUUID,
+		HrdHoUnit:                  hrdHoUnitUUID,
 		MPPlanningHeaderID:         &parsedMPPlanningHeaderID,
 		Status:                     status,
 		MPRequestType:              mpRequestType,

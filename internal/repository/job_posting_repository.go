@@ -82,12 +82,12 @@ func (r *JobPostingRepository) FindAllPaginated(page, pageSize int, search strin
 		query = query.Order(key + " " + value.(string))
 	}
 
-	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&entities).Error; err != nil {
+	if err := query.Model(&entity.JobPosting{}).Count(&total).Error; err != nil {
 		r.Log.Error("[JobPostingRepository.FindAllPaginated] " + err.Error())
 		return nil, 0, errors.New("[JobPostingRepository.FindAllPaginated] " + err.Error())
 	}
 
-	if err := r.DB.Model(&entity.JobPosting{}).Count(&total).Error; err != nil {
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&entities).Error; err != nil {
 		r.Log.Error("[JobPostingRepository.FindAllPaginated] " + err.Error())
 		return nil, 0, errors.New("[JobPostingRepository.FindAllPaginated] " + err.Error())
 	}

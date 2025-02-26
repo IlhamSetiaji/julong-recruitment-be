@@ -86,7 +86,6 @@ func main() {
 	}()
 
 	app := gin.Default()
-	app.Static("/storage", "./storage")
 	app.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("App-Name", viper.GetString("app.name"))
 	})
@@ -107,6 +106,7 @@ func main() {
 		MaxAge: 12 * time.Hour,
 	}))
 
+	app.Static("/storage", "./storage")
 	// setup custom csrf middleware
 	app.Use(func(c *gin.Context) {
 		if !shouldExcludeFromCSRF(c.Request.URL.Path) {

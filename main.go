@@ -101,7 +101,10 @@ func main() {
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
+		AllowOriginFunc: func(origin string) bool {
+			return true // Allow all origins
+		},
+		MaxAge: 12 * time.Hour,
 	}))
 
 	// setup custom csrf middleware

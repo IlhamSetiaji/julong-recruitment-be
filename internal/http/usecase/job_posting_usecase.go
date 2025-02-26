@@ -6,8 +6,10 @@ import (
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -45,6 +47,8 @@ type JobPostingUseCase struct {
 	AdministrativeSelectionRepository  repository.IAdministrativeSelectionRepository
 	AdministrativeResultRepository     repository.IAdministrativeResultRepository
 	ProjectPicRepository               repository.IProjectPicRepository
+	MPRequestMessage                   messaging.IMPRequestMessage
+	MPRequestService                   service.IMPRequestService
 }
 
 func NewJobPostingUseCase(
@@ -60,6 +64,8 @@ func NewJobPostingUseCase(
 	asRepo repository.IAdministrativeSelectionRepository,
 	arRepo repository.IAdministrativeResultRepository,
 	projectPicRepo repository.IProjectPicRepository,
+	mpRequestMessage messaging.IMPRequestMessage,
+	mpRequestService service.IMPRequestService,
 ) IJobPostingUseCase {
 	return &JobPostingUseCase{
 		Log:                                log,
@@ -74,6 +80,8 @@ func NewJobPostingUseCase(
 		AdministrativeSelectionRepository:  asRepo,
 		AdministrativeResultRepository:     arRepo,
 		ProjectPicRepository:               projectPicRepo,
+		MPRequestMessage:                   mpRequestMessage,
+		MPRequestService:                   mpRequestService,
 	}
 }
 
@@ -88,6 +96,8 @@ func JobPostingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IJobPostin
 	asRepo := repository.AdministrativeSelectionRepositoryFactory(log)
 	arRepo := repository.AdministrativeResultRepositoryFactory(log)
 	projectPicRepo := repository.ProjectPicRepositoryFactory(log)
+	mpRequestMessage := messaging.MPRequestMessageFactory(log)
+	mpRequestService := service.MPRequestServiceFactory(log)
 	return NewJobPostingUseCase(
 		log,
 		repo,
@@ -101,6 +111,8 @@ func JobPostingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IJobPostin
 		asRepo,
 		arRepo,
 		projectPicRepo,
+		mpRequestMessage,
+		mpRequestService,
 	)
 }
 
@@ -313,7 +325,23 @@ func (uc *JobPostingUseCase) FindByID(id uuid.UUID, userID uuid.UUID) (*response
 
 	jobPosting.IsApplied = isApplied
 
-	return uc.DTO.ConvertEntityToResponse(jobPosting), nil
+	jobResp := uc.DTO.ConvertEntityToResponse(jobPosting)
+	resp, err := uc.MPRequestMessage.SendFindByIdMessage(jobPosting.MPRequest.MPRCloneID.String())
+	if err != nil {
+		uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when send find by id message: %v", err)
+		jobResp.MPRequest = nil
+	} else {
+		convertedData, err := uc.MPRequestService.CheckPortalData(resp)
+		if err != nil {
+			uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when check portal data: %v", err)
+			return nil, err
+		}
+		convertedData.Status = string(jobPosting.MPRequest.Status)
+		convertedData.ID = jobPosting.MPRequest.ID
+		jobResp.MPRequest = convertedData
+	}
+
+	return jobResp, nil
 }
 
 func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error) {

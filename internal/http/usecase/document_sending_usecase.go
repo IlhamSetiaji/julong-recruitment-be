@@ -39,6 +39,7 @@ type IDocumentSendingUseCase interface {
 	GenerateDocumentNumber(dateNow time.Time) (string, error)
 	TestSendEmail() error
 	TestSendEmailWithAttachment(path string) error
+	TestGenerateHTMLPDF(docSendingID uuid.UUID) (*string, error)
 }
 
 type DocumentSendingUseCase struct {
@@ -396,6 +397,178 @@ func convertToUTF8(text string) string {
 	return string(utf8Text)
 }
 
+func (uc *DocumentSendingUseCase) generatePdf(text string) (*string, error) {
+	ctx, cancel := chromedp.NewContext(context.Background())
+	defer cancel()
+
+	ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	// Define the CSS styles
+	cssStyles := `
+<style>
+.tiptap h1 {
+  font-size: 1.4rem;
+}
+
+.tiptap h2 {
+  font-size: 1.2rem;
+}
+
+.tiptap h3 {
+  font-size: 1.1rem;
+}
+
+.tiptap {
+  ul,
+  ol {
+    padding: 0 1rem;
+    margin: 1.25rem 1rem 1.25rem 0.4rem;
+  }
+  li p {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+  }
+  code {
+    background-color: var(--purple-light);
+    border-radius: 0.4rem;
+    color: var(--black);
+    font-size: 0.85rem;
+    padding: 0.25em 0.3em;
+  }
+
+  pre {
+    background: var(--black);
+    border-radius: 0.5rem;
+    color: var(--white);
+    font-family: "JetBrainsMono", monospace;
+    margin: 1.5rem 0;
+    padding: 0.75rem 1rem;
+
+    code {
+      background: none;
+      color: inherit;
+      font-size: 0.8rem;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    border-left: 3px solid var(--gray-3);
+    margin: 1.5rem 0;
+    padding-left: 1rem;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--gray-2);
+    margin: 2rem 0;
+  }
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  margin: 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.tiptap td,
+.tiptap th {
+  border: 1px solid var(--primary);
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 6px 8px;
+  position: relative;
+  vertical-align: top;
+}
+
+.tiptap th {
+  background-color: var(--second);
+  font-weight: normal !important;
+  text-align: left;
+}
+
+.tiptap .selectedCell:after {
+  background: var(--selectGray);
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.tiptap .column-resize-handle {
+  background-color: var(--gray);
+  bottom: -2px;
+  pointer-events: none;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 1px;
+}
+
+.tiptap .tableWrapper {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.tiptap.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+.tiptap-border-none {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.tiptap-border-none th {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.tiptap-border-none td {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+</style>
+`
+
+	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
+	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div class="tiptap">` + text + `</div></body></html>`
+	dataURL := "data:text/html," + url.PathEscape(htmlContent)
+
+	var pdfBuffer []byte
+
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(dataURL),
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			var err error
+			pdfBuffer, _, err = page.PrintToPDF().WithPrintBackground(true).Do(ctx)
+			return err
+		}),
+	)
+	if err != nil {
+		uc.Log.Errorf("Gagal membuat PDF: %v", err)
+		return nil, err
+	}
+
+	timestamp := time.Now().UnixNano()
+	filePath := fmt.Sprintf("storage/generated_pdf/%s", strconv.FormatInt(timestamp, 10)+"_document.pdf")
+	err = ioutil.WriteFile(filePath, pdfBuffer, 0644)
+	if err != nil {
+		uc.Log.Errorf("Gagal membuat PDF: %v", err)
+		return nil, err
+	}
+
+	return &filePath, nil
+}
+
 func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocumentSendingRequest) (*response.DocumentSendingResponse, error) {
 	parsedID, err := uuid.Parse(req.ID)
 	if err != nil {
@@ -570,49 +743,47 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 			return nil, err
 		}
 
-		ctx, cancel := chromedp.NewContext(context.Background())
-		defer cancel()
-
-		ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
-		defer cancel()
-
-		// Wrap the HTML content with proper HTML structure and UTF-8 meta tag
-		htmlContent := `<html><head><meta charset="UTF-8"></head><body>` + documentSending.DetailContent + `</body></html>`
-		dataURL := "data:text/html," + url.PathEscape(htmlContent)
-
-		var pdfBuffer []byte
-
-		err = chromedp.Run(ctx,
-			chromedp.Navigate(dataURL),
-			chromedp.ActionFunc(func(ctx context.Context) error {
-				var err error
-				pdfBuffer, _, err = page.PrintToPDF().WithPrintBackground(true).Do(ctx)
-				return err
-			}),
-		)
+		filePath, err := uc.generatePdf(docSending.DetailContent)
 		if err != nil {
 			uc.Log.Errorf("Gagal membuat PDF: %v", err)
 			return nil, err
 		}
 
-		timestamp := time.Now().UnixNano()
-		filePath := fmt.Sprintf("storage/generated_pdf/%s", strconv.FormatInt(timestamp, 10)+"_document.pdf")
-		err = ioutil.WriteFile(filePath, pdfBuffer, 0644)
-		if err != nil {
-			uc.Log.Errorf("Gagal membuat PDF: %v", err)
-			return nil, err
-		}
+		// Construct the full URL to the document
+		documentURL := uc.Viper.GetString("app.url") + *filePath
 
+		// Update the email body with a proper message and a button
 		emailBody := fmt.Sprintf(`
-        <p>Hello,</p>
-        <p>Please find the attached document below:</p>
-        <p><strong>File Path:</strong> %s</p>
-        <p>Best regards,<br>Your Company</p>
-`, uc.Viper.GetString("app.url")+filePath)
+    <html>
+    <head>
+        <style>
+            .button {
+                display: inline-block;
+                padding: 10px 20px;
+                font-size: 16px;
+                color: #ffffff;
+                background-color: #007BFF;
+                text-decoration: none;
+                border-radius: 5px;
+                text-align: center;
+            }
+            .button:hover {
+                background-color: #0056b3;
+            }
+        </style>
+    </head>
+    <body>
+        <p>Halo,</p>
+        <p>Berikut merupakan dokumen Anda, silahkan klik tombol di bawah ini untuk membuka dokumen Anda:</p>
+        <p><a href="%s" class="button">Buka Dokumen</a></p>
+        <p>Terima kasih,<br>Tim Kami</p>
+    </body>
+    </html>
+`, documentURL)
 
 		if _, err := uc.MailMessage.SendMail(&request.MailRequest{
 			Email:   userEmail,
-			Subject: "Document Sending",
+			Subject: "Pengiriman Dokumen",
 			Body:    emailBody,
 			From:    "ilham.signals99@gmail.com",
 			To:      userEmail,
@@ -929,4 +1100,20 @@ func (uc *DocumentSendingUseCase) TestSendEmailWithAttachment(attachmentPath str
 	}
 
 	return nil
+}
+
+func (uc *DocumentSendingUseCase) TestGenerateHTMLPDF(docSendingID uuid.UUID) (*string, error) {
+	docSending, err := uc.Repository.FindByID(docSendingID)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.TestGenerateHTMLPDF] " + err.Error())
+		return nil, err
+	}
+	// Generate the PDF
+	filePath, err := uc.generatePdf(docSending.DetailContent)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.TestGenerateHTMLPDF] " + err.Error())
+		return nil, err
+	}
+
+	return filePath, nil
 }

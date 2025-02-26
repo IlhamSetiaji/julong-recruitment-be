@@ -29,6 +29,7 @@ type IDocumentSendingHandler interface {
 	FindByDocumentTypeIDAndApplicantID(ctx *gin.Context)
 	TestGeneratePDF(ctx *gin.Context)
 	TestSendEmail(ctx *gin.Context)
+	TestGenerateHTMLPDF(ctx *gin.Context)
 }
 
 type DocumentSendingHandler struct {
@@ -406,4 +407,27 @@ func (h *DocumentSendingHandler) TestSendEmail(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Email sent", nil)
+}
+
+func (h *DocumentSendingHandler) TestGenerateHTMLPDF(ctx *gin.Context) {
+	docSendingID := ctx.Query("doc_sending_id")
+	if docSendingID == "" {
+		utils.BadRequestResponse(ctx, "Document sending id is required", nil)
+		return
+	}
+
+	parsedDocSendingID, err := uuid.Parse(docSendingID)
+	if err != nil {
+		utils.BadRequestResponse(ctx, "Invalid document sending id", err)
+		return
+	}
+
+	filepath, err := h.UseCase.TestGenerateHTMLPDF(parsedDocSendingID)
+	if err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.TestGenerateHTMLPDF] error when generating html pdf: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to generate html pdf", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "HTML PDF generated", filepath)
 }

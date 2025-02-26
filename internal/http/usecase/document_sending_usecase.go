@@ -389,7 +389,7 @@ func convertToUTF8(text string) string {
 	reader := transform.NewReader(strings.NewReader(text), charmap.Windows1252.NewDecoder())
 	utf8Text, err := io.ReadAll(reader)
 	if err != nil {
-		return text // Return original text if conversion fails
+		return text
 	}
 	return string(utf8Text)
 }

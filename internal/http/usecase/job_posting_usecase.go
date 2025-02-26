@@ -188,6 +188,7 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 	// get project recruitment lines
 	prls, err := uc.ProjectRecruitmentLineRepository.GetAllByKeys(map[string]interface{}{
 		"project_recruitment_header_id": prhID,
+		"order":                         1,
 	})
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + err.Error())

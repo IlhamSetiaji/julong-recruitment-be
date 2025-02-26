@@ -1,11 +1,12 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"html"
 	"io"
-	"os"
+	"io/ioutil"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -18,7 +19,8 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
-	"github.com/go-pdf/fpdf"
+	"github.com/chromedp/cdproto/page"
+	"github.com/chromedp/chromedp"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -568,40 +570,45 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 			return nil, err
 		}
 
-		decodedContent := html.UnescapeString(convertToUTF8(documentSending.DetailContent))
+		ctx, cancel := chromedp.NewContext(context.Background())
+		defer cancel()
 
-		pdf := fpdf.New("P", "mm", "A4", "")
-		pdf.AddPage()
-		pdf.SetFont("Arial", "", 12)
+		ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
+		defer cancel()
 
-		// Use HTML parser
-		html := pdf.HTMLBasicNew()
-		html.Write(10, decodedContent)
+		// Wrap the HTML content with proper HTML structure and UTF-8 meta tag
+		htmlContent := `<html><head><meta charset="UTF-8"></head><body>` + documentSending.DetailContent + `</body></html>`
+		dataURL := "data:text/html," + url.PathEscape(htmlContent)
 
-		// Define the file path
-		timestamp := time.Now().UnixNano()
-		filePath := fmt.Sprintf("storage/generated_pdf/%s", strconv.FormatInt(timestamp, 10)+"_document.pdf")
+		var pdfBuffer []byte
 
-		// Ensure the directory exists
-		err = os.MkdirAll("storage/generated_pdf", os.ModePerm)
+		err = chromedp.Run(ctx,
+			chromedp.Navigate(dataURL),
+			chromedp.ActionFunc(func(ctx context.Context) error {
+				var err error
+				pdfBuffer, _, err = page.PrintToPDF().WithPrintBackground(true).Do(ctx)
+				return err
+			}),
+		)
 		if err != nil {
-			uc.Log.Errorf("[DocumentSendingUseCase.UpdateDocumentSending] error when creating directory: %v", err)
+			uc.Log.Errorf("Gagal membuat PDF: %v", err)
 			return nil, err
 		}
 
-		// Save the PDF to the file
-		err = pdf.OutputFileAndClose(filePath)
+		timestamp := time.Now().UnixNano()
+		filePath := fmt.Sprintf("storage/generated_pdf/%s", strconv.FormatInt(timestamp, 10)+"_document.pdf")
+		err = ioutil.WriteFile(filePath, pdfBuffer, 0644)
 		if err != nil {
-			uc.Log.Errorf("[DocumentSendingUseCase.UpdateDocumentSending] error when generating pdf: %v", err)
+			uc.Log.Errorf("Gagal membuat PDF: %v", err)
 			return nil, err
 		}
 
 		emailBody := fmt.Sprintf(`
-				<p>Hello,</p>
-				<p>Please find the attached document below:</p>
-				<p><strong>File Path:</strong> %s</p>
-				<p>Best regards,<br>Your Company</p>
-		`, uc.Viper.GetString("app.url")+filePath)
+        <p>Hello,</p>
+        <p>Please find the attached document below:</p>
+        <p><strong>File Path:</strong> %s</p>
+        <p>Best regards,<br>Your Company</p>
+`, uc.Viper.GetString("app.url")+filePath)
 
 		if _, err := uc.MailMessage.SendMail(&request.MailRequest{
 			Email:   userEmail,

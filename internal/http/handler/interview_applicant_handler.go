@@ -41,10 +41,11 @@ func NewInterviewApplicantHandler(
 	userHelper helper.IUserHelper,
 ) IInterviewApplicantHandler {
 	return &InterviewApplicantHandler{
-		Log:      log,
-		Viper:    viper,
-		Validate: validate,
-		UseCase:  useCase,
+		Log:        log,
+		Viper:      viper,
+		Validate:   validate,
+		UseCase:    useCase,
+		UserHelper: userHelper,
 	}
 }
 
@@ -235,6 +236,31 @@ func (h *InterviewApplicantHandler) FindAllByInterviewIDPaginated(ctx *gin.Conte
 //	@Router			/api/interview-applicants/interview-assessor [get]
 func (h *InterviewApplicantHandler) FindAllByInterviewIDPaginatedAssessor(ctx *gin.Context) {
 	interviewID := ctx.Param("interview_id")
+
+	if interviewID == "" {
+		h.Log.Errorf("Interview id is required")
+		utils.ErrorResponse(ctx, 400, "error", "Interview id is required")
+		return
+	}
+
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	employeeUUID, err := h.UserHelper.GetEmployeeId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting employee id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
 		page = 1
@@ -265,24 +291,6 @@ func (h *InterviewApplicantHandler) FindAllByInterviewIDPaginatedAssessor(ctx *g
 		if status != "" {
 			filter["status"] = status
 		}
-	}
-
-	user, err := middleware.GetUser(ctx, h.Log)
-	if err != nil {
-		h.Log.Errorf("Error when getting user: %v", err)
-		utils.ErrorResponse(ctx, 500, "error", err.Error())
-		return
-	}
-	if user == nil {
-		h.Log.Errorf("User not found")
-		utils.ErrorResponse(ctx, 404, "error", "User not found")
-		return
-	}
-	employeeUUID, err := h.UserHelper.GetEmployeeId(user)
-	if err != nil {
-		h.Log.Errorf("Error when getting employee id: %v", err)
-		utils.ErrorResponse(ctx, 500, "error", err.Error())
-		return
 	}
 
 	res, total, err := h.UseCase.FindAllByInterviewIDPaginatedAssessor(employeeUUID.String(), interviewID, page, pageSize, search, sort, filter)

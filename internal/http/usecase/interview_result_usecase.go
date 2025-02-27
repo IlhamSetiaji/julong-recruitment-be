@@ -60,13 +60,16 @@ func (uc *InterviewResultUseCase) FillInterviewResult(req *request.FillInterview
 		return nil, err
 	}
 
-	interviewApplicant, err := uc.InterviewApplicantRepository.FindByID(parsedInterviewApplicantID)
+	// interviewApplicant, err := uc.InterviewApplicantRepository.FindByID(parsedInterviewApplicantID)
+	interviewApplicant, err := uc.InterviewApplicantRepository.FindByKeys(map[string]interface{}{
+		"applicant_id": parsedInterviewApplicantID,
+	})
 	if err != nil {
 		uc.Log.Errorf("[InterviewResultUseCase.FillInterviewResult] " + err.Error())
 		return nil, err
 	}
 	if interviewApplicant == nil {
-		return nil, nil
+		return nil, errors.New("Interview applicant not found")
 	}
 
 	parsedInterviewAssessorID, err := uuid.Parse(req.InterviewAssessorID)
@@ -81,7 +84,7 @@ func (uc *InterviewResultUseCase) FillInterviewResult(req *request.FillInterview
 		return nil, err
 	}
 	if interviewAssessor == nil {
-		return nil, nil
+		return nil, errors.New("Interview assessor not found")
 	}
 
 	interviewResult, err := uc.Repository.FindByKeys(map[string]interface{}{
@@ -99,7 +102,7 @@ func (uc *InterviewResultUseCase) FillInterviewResult(req *request.FillInterview
 	}
 
 	createdInterviewResult, err := uc.Repository.CreateInterviewResult(&entity.InterviewResult{
-		InterviewApplicantID: parsedInterviewApplicantID,
+		InterviewApplicantID: interviewApplicant.ID,
 		InterviewAssessorID:  parsedInterviewAssessorID,
 		Status:               entity.InterviewResultStatus(req.Status),
 	})

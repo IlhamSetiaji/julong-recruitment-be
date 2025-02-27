@@ -190,6 +190,15 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 		return nil, err
 	}
 
+	_, err = uc.MPRequestRepository.Update(&entity.MPRequest{
+		ID:     mpRequest.ID,
+		Status: entity.MPR_STATUS_ON_GOING,
+	})
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + err.Error())
+		return nil, err
+	}
+
 	// get project recruitment lines
 	prls, err := uc.ProjectRecruitmentLineRepository.GetAllByKeys(map[string]interface{}{
 		"project_recruitment_header_id": prhID,
@@ -387,6 +396,26 @@ func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingReque
 		return nil, err
 	}
 
+	exist, err := uc.Repository.FindByID(uuid.MustParse(req.ID))
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	if exist == nil {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + "Job Posting not found")
+		return nil, err
+	}
+
+	_, err = uc.MPRequestRepository.Update(&entity.MPRequest{
+		ID:     *exist.MPRequestID,
+		Status: entity.MPR_STATUS_OPEN,
+	})
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + err.Error())
+		return nil, err
+	}
+
 	// Parse data
 	data, err := uc.parseData(req.ForOrganizationID, req.ForOrganizationLocationID, req.JobID, req.DocumentDate, req.StartDate, req.EndDate)
 	if err != nil {
@@ -422,6 +451,15 @@ func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingReque
 	})
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())
+		return nil, err
+	}
+
+	_, err = uc.MPRequestRepository.Update(&entity.MPRequest{
+		ID:     mpRequest.ID,
+		Status: entity.MPR_STATUS_ON_GOING,
+	})
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + err.Error())
 		return nil, err
 	}
 

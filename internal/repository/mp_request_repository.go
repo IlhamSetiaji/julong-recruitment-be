@@ -16,6 +16,7 @@ type IMPRequestRepository interface {
 	FindAllPaginatedWhereDoesntHaveJobPosting(jobPostingID string, page int, pageSize int, search string, filter map[string]interface{}) (*[]entity.MPRequest, int64, error)
 	FindByID(id uuid.UUID) (*entity.MPRequest, error)
 	FindAll() (*[]entity.MPRequest, error)
+	Update(ent *entity.MPRequest) (*entity.MPRequest, error)
 }
 
 type MPRequestRepository struct {
@@ -130,4 +131,22 @@ func (r *MPRequestRepository) FindAllPaginatedWhereDoesntHaveJobPosting(jobPosti
 	}
 
 	return &mpRequests, total, nil
+}
+
+func (r *MPRequestRepository) Update(ent *entity.MPRequest) (*entity.MPRequest, error) {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return nil, errors.New("[MPRequestRepository.Update] failed to begin transaction: " + tx.Error.Error())
+	}
+
+	if err := tx.Where("id = ?", ent.ID).Updates(&ent).Error; err != nil {
+		tx.Rollback()
+		return nil, errors.New("[MPRequestRepository.Update] " + err.Error())
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, errors.New("[MPRequestRepository.Update] failed to commit transaction: " + err.Error())
+	}
+
+	return ent, nil
 }

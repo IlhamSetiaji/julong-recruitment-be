@@ -3832,6 +3832,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/dashboard": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get dashboard data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get dashboard data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DashboardResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/document-agreement": {
             "get": {
                 "security": [
@@ -11544,6 +11572,91 @@ const docTemplate = `{
                 }
             }
         },
+        "response.AvgTimeToHireResponse": {
+            "type": "object",
+            "properties": {
+                "avg_time_to_hire": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.ChartDepartmentResponse": {
+            "type": "object",
+            "properties": {
+                "datasets": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "response.ChartDurationRecruitmentResponse": {
+            "type": "object",
+            "properties": {
+                "datasets": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "response.ChartJobLevelResponse": {
+            "type": "object",
+            "properties": {
+                "datasets": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "response.DashboardResponse": {
+            "type": "object",
+            "properties": {
+                "avg_time_to_hire": {
+                    "$ref": "#/definitions/response.AvgTimeToHireResponse"
+                },
+                "chart_department": {
+                    "$ref": "#/definitions/response.ChartDepartmentResponse"
+                },
+                "chart_duration_recruitment": {
+                    "$ref": "#/definitions/response.ChartDurationRecruitmentResponse"
+                },
+                "chart_job_level": {
+                    "$ref": "#/definitions/response.ChartJobLevelResponse"
+                },
+                "total_bilingual": {
+                    "$ref": "#/definitions/response.TotalBilingualResponse"
+                },
+                "total_recruitment_realization": {
+                    "$ref": "#/definitions/response.TotalRecruitmentRealizationResponse"
+                },
+                "total_recruitment_target": {
+                    "$ref": "#/definitions/response.TotalRecruitmentTargetResponse"
+                }
+            }
+        },
         "response.DocumentAgreementResponse": {
             "type": "object",
             "properties": {
@@ -13470,6 +13583,36 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "response.TotalBilingualResponse": {
+            "type": "object",
+            "properties": {
+                "total_bilingual": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.TotalRecruitmentRealizationResponse": {
+            "type": "object",
+            "properties": {
+                "percentage": {
+                    "type": "integer"
+                },
+                "total_recruitment_realization": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.TotalRecruitmentTargetResponse": {
+            "type": "object",
+            "properties": {
+                "percentage": {
+                    "type": "integer"
+                },
+                "total_recruitment_target": {
+                    "type": "integer"
                 }
             }
         },

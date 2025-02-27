@@ -4,6 +4,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
@@ -29,6 +30,7 @@ type DashboardUseCase struct {
 	UserHelper                         helper.IUserHelper
 	MPRequestHelper                    helper.IMPRequestHelper
 	EmployeeMessage                    messaging.IEmployeeMessage
+	JobPlafonMessage                   messaging.IJobPlafonMessage
 }
 
 func NewDashboardUseCase(
@@ -45,6 +47,7 @@ func NewDashboardUseCase(
 	userHelper helper.IUserHelper,
 	MPRequestHelper helper.IMPRequestHelper,
 	employeeMessage messaging.IEmployeeMessage,
+	jobPlafonMessage messaging.IJobPlafonMessage,
 ) IDashboardUseCase {
 	return &DashboardUseCase{
 		Log:                                log,
@@ -60,6 +63,7 @@ func NewDashboardUseCase(
 		UserHelper:                         userHelper,
 		MPRequestHelper:                    MPRequestHelper,
 		EmployeeMessage:                    employeeMessage,
+		JobPlafonMessage:                   jobPlafonMessage,
 	}
 }
 
@@ -78,6 +82,7 @@ func DashboardUseCaseFactory(
 	userHelper := helper.UserHelperFactory(log)
 	MPRequestHelper := helper.MPRequestHelperFactory(log)
 	employeeMessage := messaging.EmployeeMessageFactory(log)
+	jobPlafonMessage := messaging.JobPlafonMessageFactory(log)
 	return NewDashboardUseCase(
 		log,
 		viper,
@@ -92,6 +97,7 @@ func DashboardUseCaseFactory(
 		userHelper,
 		MPRequestHelper,
 		employeeMessage,
+		jobPlafonMessage,
 	)
 }
 
@@ -117,10 +123,42 @@ func (uc *DashboardUseCase) GetDashboard() (*response.DashboardResponse, error) 
 		return nil, err
 	}
 
+	// get chart duration recruitment
+	chartDurationRecruitment, err := uc.getChartDurationRecruitment()
+	if err != nil {
+		uc.Log.WithError(err).Error("[DashboardUseCase.GetDashboard] failed to get chart duration recruitment")
+		return nil, err
+	}
+
+	// get chart job level
+	chartJobLevel, err := uc.getChartJobLevel()
+	if err != nil {
+		uc.Log.WithError(err).Error("[DashboardUseCase.GetDashboard] failed to get chart job level")
+		return nil, err
+	}
+
+	// get chart department
+	chartDepartment, err := uc.getChartDepartment()
+	if err != nil {
+		uc.Log.WithError(err).Error("[DashboardUseCase.GetDashboard] failed to get chart department")
+		return nil, err
+	}
+
+	// get avg time to hire
+	avgTimeToHire, err := uc.getAvgTimeToHire()
+	if err != nil {
+		uc.Log.WithError(err).Error("[DashboardUseCase.GetDashboard] failed to get avg time to hire")
+		return nil, err
+	}
+
 	return &response.DashboardResponse{
 		TotalRecruitmentTargetResponse:      *totalRecruitmentTarget,
 		TotalRecruitmentRealizationResponse: *totalRecruitmentRealization,
 		TotalBilingualResponse:              *totalBilingual,
+		ChartDurationRecruitmentResponse:    *chartDurationRecruitment,
+		ChartJobLevelResponse:               *chartJobLevel,
+		ChartDepartmentResponse:             *chartDepartment,
+		AvgTimeToHireResponse:               *avgTimeToHire,
 	}, nil
 }
 
@@ -207,5 +245,88 @@ func (uc *DashboardUseCase) getTotalBilingual() (*response.TotalBilingualRespons
 
 	return &response.TotalBilingualResponse{
 		TotalBilingual: totalBilingual,
+	}, nil
+}
+
+func (uc *DashboardUseCase) getChartDurationRecruitment() (*response.ChartDurationRecruitmentResponse, error) {
+	labels := []string{
+		"> 30 Hari",
+		"21 - 30 Hari",
+		"11 - 20 Hari",
+		"1 - 10 Hari",
+	}
+	datasets := make([]int, 0)
+	for _, label := range labels {
+		count, err := uc.ProjectRecruitmentHeaderRepository.CountDaysToHireByTotalDays(label)
+		if err != nil {
+			uc.Log.WithError(err).Error("[DashboardUseCase.getChartDurationRecruitment] failed to count days to hire by total days")
+			return nil, err
+		}
+		datasets = append(datasets, count)
+	}
+
+	return &response.ChartDurationRecruitmentResponse{
+		Labels:   labels,
+		Datasets: datasets,
+	}, nil
+}
+
+func (uc *DashboardUseCase) getChartJobLevel() (*response.ChartJobLevelResponse, error) {
+	jobLevelIDs, err := uc.DocumentSendingRepository.GetJobLevelIdDistinct()
+	if err != nil {
+		uc.Log.WithError(err).Error("[DashboardUseCase.getChartJobLevel] failed to get job level id distinct")
+		return nil, err
+	}
+
+	var labels []string
+	var datasets []int
+
+	for _, jobLevelID := range jobLevelIDs {
+		jobLevelResp, err := uc.JobPlafonMessage.SendFindJobLevelByIDMessage(request.SendFindJobLevelByIDMessageRequest{
+			ID: jobLevelID.String(),
+		})
+		if err != nil {
+			uc.Log.Errorf("[MPPlanningUseCase.FindAllLinesByHeaderIdPaginated Message] " + err.Error())
+			// return nil, err
+			continue
+		} else {
+
+			labels = append(labels, jobLevelResp.Name)
+
+			count, err := uc.DocumentSendingRepository.CountByJobLevelID(jobLevelID)
+			if err != nil {
+				uc.Log.WithError(err).Error("[DashboardUseCase.getChartJobLevel] failed to count by job level id")
+				return nil, err
+			}
+
+			datasets = append(datasets, count)
+		}
+	}
+
+	return &response.ChartJobLevelResponse{
+		Labels:   labels,
+		Datasets: datasets,
+	}, nil
+}
+
+func (uc *DashboardUseCase) getChartDepartment() (*response.ChartDepartmentResponse, error) {
+	chartResp, err := uc.EmployeeMessage.SendGetChartEmployeeOrganizationStructureMessage()
+	if err != nil {
+		uc.Log.WithError(err).Error("[DashboardUseCase.getChartDepartment] failed to get chart employee organization structure message")
+		return nil, err
+	}
+
+	return chartResp, nil
+}
+
+func (uc *DashboardUseCase) getAvgTimeToHire() (*response.AvgTimeToHireResponse, error) {
+	avg, err := uc.ProjectRecruitmentHeaderRepository.CountAverageDaysToHireAll()
+	if err != nil {
+		uc.Log.WithError(err).Error("[DashboardUseCase.getAvgTimeToHire] failed to count average days to hire all")
+		return nil, err
+	}
+
+	return &response.AvgTimeToHireResponse{
+		AvgTimeToHire: int(avg),
 	}, nil
 }

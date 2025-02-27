@@ -18,6 +18,8 @@ type IProjectRecruitmentHeaderRepository interface {
 	DeleteProjectRecruitmentHeader(id uuid.UUID) error
 	GetHighestDocumentNumberByDate(date string) (int, error)
 	FindAllByIDs(ids []uuid.UUID, status string) (*[]entity.ProjectRecruitmentHeader, error)
+	CountDaysToHireByTotalDays(daysRange string) (int, error)
+	CountAverageDaysToHireAll() (float64, error)
 }
 
 type ProjectRecruitmentHeaderRepository struct {
@@ -204,4 +206,60 @@ func (r *ProjectRecruitmentHeaderRepository) FindAllByIDs(ids []uuid.UUID, statu
 	}
 
 	return &projectRecruitmentHeaders, nil
+}
+
+func (r *ProjectRecruitmentHeaderRepository) CountDaysToHireByTotalDays(daysRange string) (int, error) {
+	var count int
+	var query string
+
+	switch daysRange {
+	case "> 30 Hari":
+		query = `
+			SELECT COUNT(*)
+			FROM project_recruitment_headers
+			WHERE AGE(end_date, start_date) > INTERVAL '30 days'
+		`
+	case "21 - 30 Hari":
+		query = `
+			SELECT COUNT(*)
+			FROM project_recruitment_headers
+			WHERE AGE(end_date, start_date) BETWEEN INTERVAL '21 days' AND INTERVAL '30 days'
+		`
+	case "11 - 20 Hari":
+		query = `
+			SELECT COUNT(*)
+			FROM project_recruitment_headers
+			WHERE AGE(end_date, start_date) BETWEEN INTERVAL '11 days' AND INTERVAL '20 days'
+		`
+	case "1 - 10 Hari":
+		query = `
+			SELECT COUNT(*)
+			FROM project_recruitment_headers
+			WHERE AGE(end_date, start_date) BETWEEN INTERVAL '1 day' AND INTERVAL '10 days'
+		`
+	default:
+		r.Log.Errorf("[ProjectRecruitmentHeaderRepository.CountDaysToHireByTotalDays] invalid days range: %v", daysRange)
+		return 0, errors.New("invalid days range")
+	}
+
+	err := r.DB.Raw(query).Scan(&count).Error
+	if err != nil {
+		r.Log.Errorf("[ProjectRecruitmentHeaderRepository.CountDaysToHireByTotalDays] error when querying count days to hire by total days: %v", err)
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (r *ProjectRecruitmentHeaderRepository) CountAverageDaysToHireAll() (float64, error) {
+	var avg float64
+	err := r.DB.Raw(`
+		SELECT AVG(DATE_PART('day', AGE(end_date, start_date)))
+		FROM project_recruitment_headers
+	`).Scan(&avg).Error
+	if err != nil {
+		r.Log.Errorf("[ProjectRecruitmentHeaderRepository.CountAverageDaysToHireAll] error when querying average days to hire all: %v", err)
+		return 0, err
+	}
+	return avg, nil
 }

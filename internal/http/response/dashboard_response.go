@@ -25,18 +25,25 @@ type TotalBilingualResponse struct {
 }
 
 type ChartDurationRecruitmentResponse struct {
-	Label    string `json:"label"`
-	Datasets []int  `json:"datasets"`
+	Labels   []string `json:"labels"`
+	Datasets []int    `json:"datasets"`
 }
 
 type ChartJobLevelResponse struct {
-	Label    string `json:"label"`
-	Datasets []int  `json:"datasets"`
+	Labels   []string `json:"labels"`
+	Datasets []int    `json:"datasets"`
 }
 
 type ChartDepartmentResponse struct {
-	Label    string `json:"label"`
-	Datasets []int  `json:"datasets"`
+	Labels   []string `json:"labels"`
+	Datasets []int    `json:"datasets"`
+}
+
+type ChartDepartmentMessageResponse struct {
+	Chart struct {
+		Labels   []string `json:"labels"`
+		Datasets []int    `json:"datasets"`
+	} `json:"chart"`
 }
 
 type AvgTimeToHireResponse struct {

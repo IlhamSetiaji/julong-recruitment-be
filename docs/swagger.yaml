@@ -2737,6 +2737,61 @@ definitions:
       user_profile_id:
         type: string
     type: object
+  response.AvgTimeToHireResponse:
+    properties:
+      avg_time_to_hire:
+        type: integer
+    type: object
+  response.ChartDepartmentResponse:
+    properties:
+      datasets:
+        items:
+          type: integer
+        type: array
+      labels:
+        items:
+          type: string
+        type: array
+    type: object
+  response.ChartDurationRecruitmentResponse:
+    properties:
+      datasets:
+        items:
+          type: integer
+        type: array
+      labels:
+        items:
+          type: string
+        type: array
+    type: object
+  response.ChartJobLevelResponse:
+    properties:
+      datasets:
+        items:
+          type: integer
+        type: array
+      labels:
+        items:
+          type: string
+        type: array
+    type: object
+  response.DashboardResponse:
+    properties:
+      avg_time_to_hire:
+        $ref: '#/definitions/response.AvgTimeToHireResponse'
+      chart_department:
+        $ref: '#/definitions/response.ChartDepartmentResponse'
+      chart_duration_recruitment:
+        $ref: '#/definitions/response.ChartDurationRecruitmentResponse'
+      chart_job_level:
+        $ref: '#/definitions/response.ChartJobLevelResponse'
+      total_bilingual:
+        $ref: '#/definitions/response.TotalBilingualResponse'
+      total_recruitment_realization:
+        $ref: '#/definitions/response.TotalRecruitmentRealizationResponse'
+      total_recruitment_target:
+        $ref: '#/definitions/response.TotalRecruitmentTargetResponse'
+    type: object
   response.DocumentAgreementResponse:
     properties:
       applicant:
@@ -4011,6 +4066,25 @@ definitions:
         $ref: '#/definitions/entity.TestTypeStatus'
       updated_at:
         type: string
+    type: object
+  response.TotalBilingualResponse:
+    properties:
+      total_bilingual:
+        type: integer
+    type: object
+  response.TotalRecruitmentRealizationResponse:
+    properties:
+      percentage:
+        type: integer
+      total_recruitment_realization:
+        type: integer
+    type: object
+  response.TotalRecruitmentTargetResponse:
+    properties:
+      percentage:
+        type: integer
+      total_recruitment_target:
+        type: integer
     type: object
   response.UniversityResponse:
     properties:
@@ -6511,6 +6585,23 @@ paths:
       summary: find applicant by job posting ID and user ID
       tags:
       - Applicants
+  /dashboard:
+    get:
+      consumes:
+      - application/json
+      description: Get dashboard data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DashboardResponse'
+      security:
+      - BearerAuth: []
+      summary: Get dashboard data
+      tags:
+      - Dashboard
   /document-agreement:
     get:
       consumes:

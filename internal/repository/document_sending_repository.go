@@ -19,6 +19,8 @@ type IDocumentSendingRepository interface {
 	GetHighestDocumentNumberByDate(date string) (int, error)
 	FindByKeys(keys map[string]interface{}) (*entity.DocumentSending, error)
 	FindAllByDocumentSetupIDs(documentSetupIDs []uuid.UUID) (*[]entity.DocumentSending, error)
+	GetJobLevelIdDistinct() ([]uuid.UUID, error)
+	CountByJobLevelID(jobLevelID uuid.UUID) (int, error)
 }
 
 type DocumentSendingRepository struct {
@@ -230,4 +232,31 @@ func (r *DocumentSendingRepository) FindAllByDocumentSetupIDs(documentSetupIDs [
 	}
 
 	return &documentSendings, nil
+}
+
+func (r *DocumentSendingRepository) GetJobLevelIdDistinct() ([]uuid.UUID, error) {
+	var jobLevelIds []uuid.UUID
+	err := r.DB.Raw(`
+		SELECT DISTINCT job_level_id
+		FROM document_sendings
+	`).Scan(&jobLevelIds).Error
+	if err != nil {
+		r.Log.Errorf("[DocumentSendingRepository.GetJobLevelIdDistinct] error when querying distinct job level id: %v", err)
+		return nil, err
+	}
+	return jobLevelIds, nil
+}
+
+func (r *DocumentSendingRepository) CountByJobLevelID(jobLevelID uuid.UUID) (int, error) {
+	var count int
+	err := r.DB.Raw(`
+		SELECT COUNT(*)
+		FROM document_sendings
+		WHERE job_level_id = ?
+	`, jobLevelID).Scan(&count).Error
+	if err != nil {
+		r.Log.Errorf("[DocumentSendingRepository.CountByJobLevelID] error when querying count by job level id: %v", err)
+		return 0, err
+	}
+	return count, nil
 }

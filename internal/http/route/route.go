@@ -49,6 +49,7 @@ type RouteConfig struct {
 	DocumentAgreementHandler          handler.IDocumentAgreementHandler
 	DocumentVerificationHeaderHandler handler.IDocumentVerificationHeaderHandler
 	DocumentVerificationLineHandler   handler.IDocumentVerificationLineHandler
+	DashboardHandler                  handler.IDashboardHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -384,6 +385,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentVerificationLineRoute.POST("", c.DocumentVerificationLineHandler.CreateOrUpdateDocumentVerificationLine)
 				documentVerificationLineRoute.POST("/upload", c.DocumentVerificationLineHandler.UploadDocumentVerificationLine)
 			}
+			// dashboard
+			dashboardRoute := apiRoute.Group("/dashboard")
+			{
+				dashboardRoute.GET("", c.DashboardHandler.GetDashboard)
+			}
 		}
 	}
 }
@@ -423,6 +429,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	documentAgreementHandler := handler.DocumentAgreementHandlerFactory(log, viper)
 	documentVerificationHeaderHandler := handler.DocumentVerificationHeaderHandlerFactory(log, viper)
 	documentVerificationLineHandler := handler.DocumentVerificationLineHandlerFactory(log, viper)
+	dashboardHandler := handler.DashboardHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                               app,
 		Log:                               log,
@@ -462,5 +469,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		DocumentAgreementHandler:          documentAgreementHandler,
 		DocumentVerificationHeaderHandler: documentVerificationHeaderHandler,
 		DocumentVerificationLineHandler:   documentVerificationLineHandler,
+		DashboardHandler:                  dashboardHandler,
 	}
 }

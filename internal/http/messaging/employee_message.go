@@ -16,6 +16,7 @@ type IEmployeeMessage interface {
 	SendFindEmployeeByIDMessage(req request.SendFindEmployeeByIDMessageRequest) (*response.EmployeeResponse, error)
 	SendCreateEmployeeMessage(req request.SendCreateEmployeeMessageRequest) (*string, error)
 	SendCreateEmployeeTaskMessage(req request.SendCreateEmployeeTaskMessageRequest) (*string, error)
+	SendGetChartEmployeeOrganizationStructureMessage() (*response.ChartDepartmentResponse, error)
 }
 
 type EmployeeMessage struct {
@@ -195,4 +196,84 @@ func (m *EmployeeMessage) SendCreateEmployeeTaskMessage(req request.SendCreateEm
 	employeeTask := employeeTaskData
 
 	return &employeeTask, nil
+}
+
+func (m *EmployeeMessage) SendGetChartEmployeeOrganizationStructureMessage() (*response.ChartDepartmentResponse, error) {
+	payload := map[string]interface{}{}
+
+	docMsg := &request.RabbitMQRequest{
+		ID:          uuid.New().String(),
+		MessageType: "get_chart_employee_organization_structure",
+		MessageData: payload,
+		ReplyTo:     "julong_recruitment",
+	}
+
+	log.Printf("INFO: document message: %v", docMsg)
+
+	// create channel and add to rchans with uid
+	rchan := make(chan response.RabbitMQResponse)
+	utils.Rchans[docMsg.ID] = rchan
+
+	// publish rabbit message
+	msg := utils.RabbitMsgPublisher{
+		QueueName: "julong_sso",
+		Message:   *docMsg,
+	}
+	utils.Pchan <- msg
+
+	// wait for reply
+	resp, err := waitReply(docMsg.ID, rchan)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("INFO: response: %v", resp)
+
+	if errMsg, ok := resp.MessageData["error"]; ok {
+		return nil, errors.New("[EmployeeMessage.SendGetChartEmployeeOrganizationStructureMessage] " + errMsg.(string))
+	}
+
+	chartData, ok := resp.MessageData["chart"].(map[string]interface{})
+	if !ok {
+		return nil, errors.New("[EmployeeMessage.SendGetChartEmployeeOrganizationStructureMessage] " + "Failed to get chart data")
+	}
+
+	// Handle labels (which is likely []interface{})
+	labelsInterface, ok := chartData["labels"].([]interface{})
+	if !ok {
+		return nil, errors.New("[EmployeeMessage.SendGetChartEmployeeOrganizationStructureMessage] " + "Failed to get chart labels")
+	}
+
+	// Convert []interface{} to []string
+	labels := make([]string, len(labelsInterface))
+	for i, v := range labelsInterface {
+		label, ok := v.(string)
+		if !ok {
+			return nil, errors.New("[EmployeeMessage.SendGetChartEmployeeOrganizationStructureMessage] " + "Failed to convert label to string")
+		}
+		labels[i] = label
+	}
+
+	// Handle datasets (which is likely []interface{})
+	datasetsInterface, ok := chartData["datasets"].([]interface{})
+	if !ok {
+		return nil, errors.New("[EmployeeMessage.SendGetChartEmployeeOrganizationStructureMessage] " + "Failed to get chart datasets")
+	}
+
+	// Convert []interface{} to []int
+	datasets := make([]int, len(datasetsInterface))
+	for i, v := range datasetsInterface {
+		dataset, ok := v.(float64) // JSON numbers are unmarshaled as float64
+		if !ok {
+			return nil, errors.New("[EmployeeMessage.SendGetChartEmployeeOrganizationStructureMessage] " + "Failed to convert dataset to int")
+		}
+		datasets[i] = int(dataset)
+	}
+
+	chart := &response.ChartDepartmentResponse{
+		Labels:   labels,
+		Datasets: datasets,
+	}
+
+	return chart, nil
 }

@@ -971,12 +971,13 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 		}
 
 		_, err = uc.EmployeeMessage.SendCreateEmployeeMessage(request.SendCreateEmployeeMessageRequest{
-			UserID:                 applicant.UserProfile.UserID.String(),
-			Name:                   applicant.UserProfile.Name,
-			Email:                  userEmail,
-			JobID:                  jobPosting.JobID.String(),
-			OrganizationID:         convertedData.OrganizationID.String(),
-			OrganizationLocationID: convertedData.OrganizationLocationID.String(),
+			UserID:                  applicant.UserProfile.UserID.String(),
+			Name:                    applicant.UserProfile.Name,
+			Email:                   userEmail,
+			JobID:                   jobPosting.JobID.String(),
+			OrganizationID:          convertedData.OrganizationID.String(),
+			OrganizationLocationID:  convertedData.OrganizationLocationID.String(),
+			OrganizationStructureID: convertedData.ForOrganizationStructureID.String(),
 		})
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
@@ -1008,6 +1009,11 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return err
 		}
+
+		_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
+			ID:     applicant.ID,
+			Status: entity.APPLICANT_STATUS_HIRED,
+		})
 	}
 
 	return nil

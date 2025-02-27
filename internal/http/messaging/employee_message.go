@@ -100,12 +100,13 @@ func EmployeeMessageFactory(log *logrus.Logger) IEmployeeMessage {
 
 func (m *EmployeeMessage) SendCreateEmployeeMessage(req request.SendCreateEmployeeMessageRequest) (*string, error) {
 	payload := map[string]interface{}{
-		"user_id":                  req.UserID,
-		"name":                     req.Name,
-		"email":                    req.Email,
-		"job_id":                   req.JobID,
-		"organization_id":          req.OrganizationID,
-		"organization_location_id": req.OrganizationLocationID,
+		"user_id":                   req.UserID,
+		"name":                      req.Name,
+		"email":                     req.Email,
+		"job_id":                    req.JobID,
+		"organization_id":           req.OrganizationID,
+		"organization_location_id":  req.OrganizationLocationID,
+		"organization_structure_id": req.OrganizationStructureID,
 	}
 
 	docMsg := &request.RabbitMQRequest{

@@ -36,18 +36,13 @@ RUN apt-get update && apt-get install -y gettext-base && rm -rf /var/lib/apt/lis
 # Set the working directory inside the container
 WORKDIR /app
 
+# Create the /storage directory
+RUN mkdir -p /storage
+
 # Copy the built Go application from the builder stage
 COPY --from=builder /app/main .
 COPY config.template.json /app/config.template.json
 COPY init-config.sh /app/init-config.sh
-
-# Copy the views directory
-# COPY views /app/views
-
-# COPY storage /app/storage
-
-# Copy the static directory
-# COPY public /app/public
 
 # Make the initialization script executable
 RUN chmod +x /app/init-config.sh

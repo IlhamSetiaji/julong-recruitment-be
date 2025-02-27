@@ -124,7 +124,6 @@ func (uc *FgdScheduleUseCase) FindAllPaginated(page, pageSize int, search string
 }
 
 func (uc *FgdScheduleUseCase) CreateFgdSchedule(req *request.CreateFgdScheduleRequest) (*response.FgdScheduleResponse, error) {
-	uc.Log.Info("COKKKKK")
 	parsedJobPostingID, err := uuid.Parse(req.JobPostingID)
 	if err != nil {
 		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
@@ -175,10 +174,20 @@ func (uc *FgdScheduleUseCase) CreateFgdSchedule(req *request.CreateFgdScheduleRe
 		return nil, err
 	}
 
+	if parsedStartTime.After(parsedEndTime) {
+		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + "Start time must be before end time")
+		return nil, errors.New("start time must be before end time")
+	}
+
 	parsedScheduleDate, err := time.Parse("2006-01-02", req.ScheduleDate)
 	if err != nil {
 		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
 		return nil, err
+	}
+
+	if parsedScheduleDate.Before(jobPosting.StartDate) || parsedScheduleDate.After(jobPosting.EndDate) {
+		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + "Schedule date must be between job posting start date and end date")
+		return nil, errors.New("schedule date must be between job posting start date and end date")
 	}
 
 	parsedPrhID, err := uuid.Parse(req.ProjectRecruitmentHeaderID)
@@ -358,10 +367,20 @@ func (uc *FgdScheduleUseCase) UpdateFgdSchedule(req *request.UpdateFgdScheduleRe
 		return nil, err
 	}
 
+	if parsedStartTime.After(parsedEndTime) {
+		uc.Log.Error("[FgdScheduleUseCase.UpdateFgdScheduleRequest] " + "Start time must be before end time")
+		return nil, errors.New("start time must be before end time")
+	}
+
 	parsedScheduleDate, err := time.Parse("2006-01-02", req.ScheduleDate)
 	if err != nil {
 		uc.Log.Error("[FgdScheduleUseCase.UpdateFgdScheduleRequest] " + err.Error())
 		return nil, err
+	}
+
+	if parsedScheduleDate.Before(jobPosting.StartDate) || parsedScheduleDate.After(jobPosting.EndDate) {
+		uc.Log.Error("[FgdScheduleUseCase.UpdateFgdScheduleRequest] " + "Schedule date must be between job posting start date and end date")
+		return nil, errors.New("schedule date must be between job posting start date and end date")
 	}
 
 	parsedPrhID, err := uuid.Parse(req.ProjectRecruitmentHeaderID)

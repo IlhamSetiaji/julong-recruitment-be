@@ -395,7 +395,7 @@ func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingReque
 	}
 
 	if data["startDate"].(time.Time).Before(prh.StartDate) || data["endDate"].(time.Time).After(prh.EndDate) {
-		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + "Start Date or End Date is not in the range of Project Recruitment Header")
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + "Start Date or End Date is not in the range of Project Recruitment Header")
 		return nil, fmt.Errorf("Start Date or End Date is not in the range of Project Recruitment Header")
 	}
 

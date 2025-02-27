@@ -190,6 +190,16 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		return nil, err
 	}
 
+	if parsedStartDate.After(parsedEndDate) {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + "Start date is after end date")
+		return nil, errors.New("Start date is after end date")
+	}
+
+	if parsedStartDate.Before(jobPosting.StartDate) || parsedEndDate.After(jobPosting.EndDate) {
+		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + "Start Date or End Date is not in the range of Project Recruitment Header")
+		return nil, errors.New("start Date or End Date is not in the range of Project Recruitment Header")
+	}
+
 	parsedStartTime, err := time.Parse("2006-01-02 15:04:05", req.StartTime)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
@@ -202,10 +212,20 @@ func (uc *TestScheduleHeaderUsecase) CreateTestScheduleHeader(req *request.Creat
 		return nil, err
 	}
 
+	if parsedStartTime.After(parsedEndTime) {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + "Start time is after end time")
+		return nil, errors.New("start time is after end time")
+	}
+
 	parsedScheduleDate, err := time.Parse("2006-01-02", req.ScheduleDate)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + err.Error())
 		return nil, err
+	}
+
+	if parsedScheduleDate.Before(jobPosting.StartDate) || parsedScheduleDate.After(jobPosting.EndDate) {
+		uc.Log.Error("[TestScheduleHeaderUsecase.CreateTestScheduleHeader] " + "Schedule Date is not in the range of Project Recruitment Header")
+		return nil, errors.New("schedule Date is not in the range of Project Recruitment Header")
 	}
 
 	parsedPrhID, err := uuid.Parse(req.ProjectRecruitmentHeaderID)
@@ -421,6 +441,16 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 		return nil, err
 	}
 
+	if parsedStartDate.After(parsedEndDate) {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + "Start date is after end date")
+		return nil, errors.New("start date is after end date")
+	}
+
+	if parsedStartDate.Before(jobPosting.StartDate) || parsedEndDate.After(jobPosting.EndDate) {
+		uc.Log.Error("[JobPostingUseCase.UpdateTestScheduleHeader] " + "Start Date or End Date is not in the range of Project Recruitment Header")
+		return nil, errors.New("start Date or End Date is not in the range of Project Recruitment Header")
+	}
+
 	parsedStartTime, err := time.Parse("2006-01-02 15:04:05", req.StartTime)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
@@ -433,10 +463,20 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 		return nil, err
 	}
 
+	if parsedStartTime.After(parsedEndTime) {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + "Start time is after end time")
+		return nil, errors.New("Start time is after end time")
+	}
+
 	parsedScheduleDate, err := time.Parse("2006-01-02", req.ScheduleDate)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
 		return nil, err
+	}
+
+	if parsedScheduleDate.Before(jobPosting.StartDate) || parsedScheduleDate.After(jobPosting.EndDate) {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + "Schedule Date is not in the range of Project Recruitment Header")
+		return nil, errors.New("schedule Date is not in the range of Project Recruitment Header")
 	}
 
 	testScheduleHeader, err := uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{

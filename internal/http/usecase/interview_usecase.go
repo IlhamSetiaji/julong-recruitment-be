@@ -181,6 +181,11 @@ func (uc *InterviewUseCase) CreateInterview(req *request.CreateInterviewRequest)
 		return nil, err
 	}
 
+	if parsedScheduleDate.Before(jobPosting.StartDate) || parsedScheduleDate.After(jobPosting.EndDate) {
+		uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + "Schedule date is not in range")
+		return nil, errors.New("schedule date is not in job posting range")
+	}
+
 	parsedPrhID, err := uuid.Parse(req.ProjectRecruitmentHeaderID)
 	if err != nil {
 		uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + err.Error())
@@ -377,6 +382,11 @@ func (uc *InterviewUseCase) UpdateInterview(req *request.UpdateInterviewRequest)
 	if err != nil {
 		uc.Log.Error("[InterviewUseCase.UpdateInterviewRequest] " + err.Error())
 		return nil, err
+	}
+
+	if parsedScheduleDate.Before(jobPosting.StartDate) || parsedScheduleDate.After(jobPosting.EndDate) {
+		uc.Log.Error("[InterviewUseCase.UpdateInterviewRequest] " + "Schedule date is not in range")
+		return nil, errors.New("schedule date is not in job posting range")
 	}
 
 	parsedPrhID, err := uuid.Parse(req.ProjectRecruitmentHeaderID)

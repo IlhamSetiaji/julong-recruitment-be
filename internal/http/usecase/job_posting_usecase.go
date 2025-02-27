@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -404,7 +405,7 @@ func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingReque
 
 	if exist == nil {
 		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + "Job Posting not found")
-		return nil, err
+		return nil, errors.New("Job Posting not found")
 	}
 
 	_, err = uc.MPRequestRepository.Update(&entity.MPRequest{

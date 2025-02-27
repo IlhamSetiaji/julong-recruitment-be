@@ -160,6 +160,11 @@ func (uc *JobPostingUseCase) CreateJobPosting(req *request.CreateJobPostingReque
 		return nil, err
 	}
 
+	if data["startDate"].(time.Time).Before(prh.StartDate) || data["endDate"].(time.Time).After(prh.EndDate) {
+		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + "Start Date or End Date is not in the range of Project Recruitment Header")
+		return nil, fmt.Errorf("Start Date or End Date is not in the range of Project Recruitment Header")
+	}
+
 	jobPosting, err := uc.Repository.CreateJobPosting(&entity.JobPosting{
 		ProjectRecruitmentHeaderID: prhID,
 		MPRequestID:                &mpRequestID,
@@ -387,6 +392,11 @@ func (uc *JobPostingUseCase) UpdateJobPosting(req *request.UpdateJobPostingReque
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.UpdateJobPosting] " + err.Error())
 		return nil, err
+	}
+
+	if data["startDate"].(time.Time).Before(prh.StartDate) || data["endDate"].(time.Time).After(prh.EndDate) {
+		uc.Log.Error("[JobPostingUseCase.CreateJobPosting] " + "Start Date or End Date is not in the range of Project Recruitment Header")
+		return nil, fmt.Errorf("Start Date or End Date is not in the range of Project Recruitment Header")
 	}
 
 	jobPosting, err := uc.Repository.UpdateJobPosting(&entity.JobPosting{

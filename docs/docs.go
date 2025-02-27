@@ -1354,6 +1354,45 @@ const docTemplate = `{
             }
         },
         "/api/interview-applicants": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create or update interview applicants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Interview Applicants"
+                ],
+                "summary": "Create or update interview applicants",
+                "parameters": [
+                    {
+                        "description": "Create or update interview applicants",
+                        "name": "interview_applicants",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateOrUpdateInterviewApplicantsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.InterviewResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/interview-applicants/interview": {
             "get": {
                 "security": [
                     {
@@ -1420,14 +1459,16 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
+            }
+        },
+        "/api/interview-applicants/interview-assessor": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create or update interview applicants",
+                "description": "Find all interview applicants by interview id paginated",
                 "consumes": [
                     "application/json"
                 ],
@@ -1437,23 +1478,53 @@ const docTemplate = `{
                 "tags": [
                     "Interview Applicants"
                 ],
-                "summary": "Create or update interview applicants",
+                "summary": "Find all interview applicants by interview id paginated",
                 "parameters": [
                     {
-                        "description": "Create or update interview applicants",
-                        "name": "interview_applicants",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.CreateOrUpdateInterviewApplicantsRequest"
-                        }
+                        "type": "string",
+                        "description": "Interview id",
+                        "name": "interview_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.InterviewResponse"
+                            "$ref": "#/definitions/response.InterviewApplicantResponse"
                         }
                     }
                 }

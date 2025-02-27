@@ -297,6 +297,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			interviewApplicantRoute := apiRoute.Group("/interview-applicants")
 			{
 				interviewApplicantRoute.GET("/interview/:interview_id", c.InterviewApplicantHandler.FindAllByInterviewIDPaginated)
+				interviewApplicantRoute.GET("/interview-assessor/:interview_id", c.InterviewApplicantHandler.FindAllByInterviewIDPaginatedAssessor)
 				interviewApplicantRoute.GET("/me", c.InterviewApplicantHandler.FindByUserProfileIDAndInterviewID)
 				interviewApplicantRoute.POST("", c.InterviewApplicantHandler.CreateOrUpdateInterviewApplicants)
 				interviewApplicantRoute.PUT("/update-status", c.InterviewApplicantHandler.UpdateStatusInterviewApplicants)

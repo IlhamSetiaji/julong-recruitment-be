@@ -21,19 +21,21 @@ type IInterviewApplicantUseCase interface {
 	UpdateFinalResultStatusInterviewApplicant(req *request.UpdateFinalResultInterviewApplicantRequest) error
 	FindByUserProfileIDAndInterviewID(userProfileID, interviewID string) (*response.InterviewApplicantResponse, error)
 	FindAllByInterviewIDPaginated(interviewID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.InterviewApplicantResponse, int64, error)
+	FindAllByInterviewIDPaginatedAssessor(employeeID, interviewID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.InterviewApplicantResponse, int64, error)
 	UpdateFinalResultStatusTestApplicant(ctx context.Context, id uuid.UUID, finalResult entity.FinalResultStatus) (*response.InterviewApplicantResponse, error)
 }
 
 type InterviewApplicantUseCase struct {
-	Log                   *logrus.Logger
-	Repository            repository.IInterviewApplicantRepository
-	DTO                   dto.IInterviewApplicantDTO
-	InterviewRepository   repository.IInterviewRepository
-	InterviewDTO          dto.IInterviewDTO
-	UserProfileRepository repository.IUserProfileRepository
-	Viper                 *viper.Viper
-	ApplicantRepository   repository.IApplicantRepository
-	JobPostingRepository  repository.IJobPostingRepository
+	Log                         *logrus.Logger
+	Repository                  repository.IInterviewApplicantRepository
+	DTO                         dto.IInterviewApplicantDTO
+	InterviewRepository         repository.IInterviewRepository
+	InterviewDTO                dto.IInterviewDTO
+	UserProfileRepository       repository.IUserProfileRepository
+	Viper                       *viper.Viper
+	ApplicantRepository         repository.IApplicantRepository
+	JobPostingRepository        repository.IJobPostingRepository
+	InterviewAssessorRepository repository.IInterviewAssessorRepository
 }
 
 func NewInterviewApplicantUseCase(
@@ -46,17 +48,19 @@ func NewInterviewApplicantUseCase(
 	viper *viper.Viper,
 	applicantRepo repository.IApplicantRepository,
 	jobPostingRepo repository.IJobPostingRepository,
+	interviewAssessorRepo repository.IInterviewAssessorRepository,
 ) IInterviewApplicantUseCase {
 	return &InterviewApplicantUseCase{
-		Log:                   log,
-		Repository:            repository,
-		DTO:                   iaDto,
-		InterviewRepository:   interviewRepository,
-		InterviewDTO:          interviewDTO,
-		UserProfileRepository: userProfileRepository,
-		Viper:                 viper,
-		ApplicantRepository:   applicantRepo,
-		JobPostingRepository:  jobPostingRepo,
+		Log:                         log,
+		Repository:                  repository,
+		DTO:                         iaDto,
+		InterviewRepository:         interviewRepository,
+		InterviewDTO:                interviewDTO,
+		UserProfileRepository:       userProfileRepository,
+		Viper:                       viper,
+		ApplicantRepository:         applicantRepo,
+		JobPostingRepository:        jobPostingRepo,
+		InterviewAssessorRepository: interviewAssessorRepo,
 	}
 }
 
@@ -71,6 +75,7 @@ func InterviewApplicantUseCaseFactory(
 	userProfileRepo := repository.UserProfileRepositoryFactory(log)
 	applicantRepo := repository.ApplicantRepositoryFactory(log)
 	jobPostingRepo := repository.JobPostingRepositoryFactory(log)
+	interviewAssessorRepo := repository.InterviewAssessorRepositoryFactory(log)
 	return NewInterviewApplicantUseCase(
 		log,
 		iaRepo,
@@ -81,6 +86,7 @@ func InterviewApplicantUseCaseFactory(
 		viper,
 		applicantRepo,
 		jobPostingRepo,
+		interviewAssessorRepo,
 	)
 }
 
@@ -479,6 +485,45 @@ func (uc *InterviewApplicantUseCase) FindAllByInterviewIDPaginated(interviewID s
 	}
 
 	exist, count, err := uc.Repository.FindAllByInterviewIDPaginated(parsedInterviewID, page, pageSize, search, sort, filter)
+	if err != nil {
+		uc.Log.Errorf("[InterviewApplicantUseCase.FindAllByInterviewIDPaginated] error finding interview applicants by interview id: %v", err)
+		return nil, 0, err
+	}
+
+	var res []response.InterviewApplicantResponse
+	for _, ia := range exist {
+		resp, err := uc.DTO.ConvertEntityToResponse(&ia)
+		if err != nil {
+			uc.Log.Errorf("[InterviewApplicantUseCase.FindAllByInterviewIDPaginated] error converting interview applicant to response: %v", err)
+			return nil, 0, err
+		}
+		res = append(res, *resp)
+	}
+
+	return res, count, nil
+}
+
+func (uc *InterviewApplicantUseCase) FindAllByInterviewIDPaginatedAssessor(employeeID, interviewID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.InterviewApplicantResponse, int64, error) {
+	parsedInterviewID, err := uuid.Parse(interviewID)
+	if err != nil {
+		uc.Log.Errorf("[InterviewApplicantUseCase.FindAllByInterviewIDPaginated] error parsing interview id: %v", err)
+		return nil, 0, err
+	}
+
+	interviewAssessor, err := uc.InterviewAssessorRepository.FindByKeys(map[string]interface{}{
+		"employee_id":  employeeID,
+		"interview_id": parsedInterviewID,
+	})
+	if err != nil {
+		uc.Log.Error("[InterviewUseCase.FindMyScheduleForAssessor] " + err.Error())
+		return nil, 0, err
+	}
+	if interviewAssessor == nil {
+		uc.Log.Error("[InterviewUseCase.FindMyScheduleForAssessor] " + "Interview Assessor not found")
+		return nil, 0, errors.New("interview assessor not found")
+	}
+
+	exist, count, err := uc.Repository.FindAllByInterviewIDPaginatedAssessor(interviewAssessor.ID, parsedInterviewID, page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Errorf("[InterviewApplicantUseCase.FindAllByInterviewIDPaginated] error finding interview applicants by interview id: %v", err)
 		return nil, 0, err

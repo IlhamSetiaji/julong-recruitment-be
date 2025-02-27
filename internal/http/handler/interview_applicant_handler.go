@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -19,14 +21,16 @@ type IInterviewApplicantHandler interface {
 	UpdateStatusInterviewApplicants(ctx *gin.Context)
 	FindByUserProfileIDAndInterviewID(ctx *gin.Context)
 	FindAllByInterviewIDPaginated(ctx *gin.Context)
+	FindAllByInterviewIDPaginatedAssessor(ctx *gin.Context)
 	UpdateFinalResultStatusInterviewApplicants(ctx *gin.Context)
 }
 
 type InterviewApplicantHandler struct {
-	Log      *logrus.Logger
-	Viper    *viper.Viper
-	Validate *validator.Validate
-	UseCase  usecase.IInterviewApplicantUseCase
+	Log        *logrus.Logger
+	Viper      *viper.Viper
+	Validate   *validator.Validate
+	UseCase    usecase.IInterviewApplicantUseCase
+	UserHelper helper.IUserHelper
 }
 
 func NewInterviewApplicantHandler(
@@ -34,6 +38,7 @@ func NewInterviewApplicantHandler(
 	viper *viper.Viper,
 	validate *validator.Validate,
 	useCase usecase.IInterviewApplicantUseCase,
+	userHelper helper.IUserHelper,
 ) IInterviewApplicantHandler {
 	return &InterviewApplicantHandler{
 		Log:      log,
@@ -49,7 +54,8 @@ func InterviewApplicantHandlerFactory(
 ) IInterviewApplicantHandler {
 	useCase := usecase.InterviewApplicantUseCaseFactory(log, viper)
 	validate := config.NewValidator(viper)
-	return NewInterviewApplicantHandler(log, viper, validate, useCase)
+	userHelper := helper.UserHelperFactory(log)
+	return NewInterviewApplicantHandler(log, viper, validate, useCase, userHelper)
 }
 
 // CreateOrUpdateInterviewApplicants create or update interview applicants
@@ -163,7 +169,7 @@ func (h *InterviewApplicantHandler) FindByUserProfileIDAndInterviewID(ctx *gin.C
 //	@Param			filter	query	string	false	"Filter"
 //	@Success		200			{object}	response.InterviewApplicantResponse
 //	@Security		BearerAuth
-//	@Router			/api/interview-applicants [get]
+//	@Router			/api/interview-applicants/interview [get]
 func (h *InterviewApplicantHandler) FindAllByInterviewIDPaginated(ctx *gin.Context) {
 	interviewID := ctx.Param("interview_id")
 	page, err := strconv.Atoi(ctx.Query("page"))
@@ -199,6 +205,87 @@ func (h *InterviewApplicantHandler) FindAllByInterviewIDPaginated(ctx *gin.Conte
 	}
 
 	res, total, err := h.UseCase.FindAllByInterviewIDPaginated(interviewID, page, pageSize, search, sort, filter)
+	if err != nil {
+		h.Log.Errorf("[InterviewApplicantHandler.FindAllByInterviewIDPaginated] error when finding all interview applicants by interview id paginated: %s", err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success find all interview applicants by interview id paginated", gin.H{
+		"interview_applicants": res,
+		"total":                total,
+	})
+}
+
+// FindAllByInterviewIDPaginatedAssessor find all interview applicants by interview id paginated and assessor
+//
+//	@Summary		Find all interview applicants by interview id paginated
+//	@Description	Find all interview applicants by interview id paginated
+//	@Tags			Interview Applicants
+//	@Accept			json
+//	@Produce		json
+//	@Param			interview_id	path	string	true	"Interview id"
+//	@Param			page	query	int	true	"Page"
+//	@Param			page_size	query	int	true	"Page size"
+//	@Param			search	query	string	false	"Search"
+//	@Param			sort	query	string	false	"Sort"
+//	@Param			filter	query	string	false	"Filter"
+//	@Success		200			{object}	response.InterviewApplicantResponse
+//	@Security		BearerAuth
+//	@Router			/api/interview-applicants/interview-assessor [get]
+func (h *InterviewApplicantHandler) FindAllByInterviewIDPaginatedAssessor(ctx *gin.Context) {
+	interviewID := ctx.Param("interview_id")
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		if status != "" {
+			filter["status"] = status
+		}
+	}
+
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	employeeUUID, err := h.UserHelper.GetEmployeeId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting employee id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, total, err := h.UseCase.FindAllByInterviewIDPaginatedAssessor(employeeUUID.String(), interviewID, page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Errorf("[InterviewApplicantHandler.FindAllByInterviewIDPaginated] error when finding all interview applicants by interview id paginated: %s", err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())

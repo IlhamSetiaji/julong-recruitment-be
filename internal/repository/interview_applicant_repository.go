@@ -18,6 +18,7 @@ type IInterviewApplicantRepository interface {
 	FindAllByApplicantIDs(applicantIDs []uuid.UUID) ([]entity.InterviewApplicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.InterviewApplicant, error)
 	FindAllByInterviewIDPaginated(interviewID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.InterviewApplicant, int64, error)
+	FindAllByInterviewIDPaginatedAssessor(assessorID, interviewID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.InterviewApplicant, int64, error)
 	FindByUserProfileIDAndIDs(userProfileID uuid.UUID, ids []uuid.UUID) (*entity.InterviewApplicant, error)
 	FindByUserProfileIDAndInterviewIDs(userProfileID uuid.UUID, interviewIDs []uuid.UUID) (*entity.InterviewApplicant, error)
 }
@@ -156,6 +157,41 @@ func (r *InterviewApplicantRepository) FindAllByInterviewIDPaginated(interviewID
 	db := r.DB.Model(&entity.InterviewApplicant{}).
 		Joins("LEFT JOIN user_profiles ON user_profiles.id = interview_applicants.user_profile_id").
 		Preload("Interview").Preload("InterviewResults.InterviewAssessor").
+		Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("UserProfile.Skills").
+		Where("interview_id = ?", interviewID)
+
+	if search != "" {
+		db = db.Where("user_profiles.name ILIKE ?", "%"+search+"%")
+	}
+
+	if len(filter) > 0 {
+		db = db.Where(filter)
+	}
+
+	for key, value := range sort {
+		db = db.Order(key + " " + value.(string))
+	}
+
+	if err := db.Offset((page - 1) * pageSize).Limit(pageSize).Find(&interviewApplicants).Error; err != nil {
+		r.Log.Error("[InterviewApplicantRepository.FindAllByInterviewIDPaginated] " + err.Error())
+		return nil, 0, errors.New("[InterviewApplicantRepository.FindAllByInterviewIDPaginated] " + err.Error())
+	}
+
+	if err := r.DB.Model(&entity.TestApplicant{}).Where("test_schedule_header_id = ?", interviewID).Count(&total).Error; err != nil {
+		r.Log.Error("[InterviewApplicantRepository.FindAllByInterviewIDPaginated] " + err.Error())
+		return nil, 0, errors.New("[InterviewApplicantRepository.FindAllByInterviewIDPaginated] " + err.Error())
+	}
+
+	return interviewApplicants, total, nil
+}
+
+func (r *InterviewApplicantRepository) FindAllByInterviewIDPaginatedAssessor(assessorID, interviewID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.InterviewApplicant, int64, error) {
+	var interviewApplicants []entity.InterviewApplicant
+	var total int64
+
+	db := r.DB.Model(&entity.InterviewApplicant{}).
+		Joins("LEFT JOIN user_profiles ON user_profiles.id = interview_applicants.user_profile_id").
+		Preload("Interview").Preload("InterviewResults.InterviewAssessor", "id = ?", assessorID).
 		Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("UserProfile.Skills").
 		Where("interview_id = ?", interviewID)
 

@@ -14,6 +14,7 @@ type IMPRequestRepository interface {
 	Create(ent *entity.MPRequest) (*entity.MPRequest, error)
 	FindAllPaginated(page int, pageSize int, search string, filter map[string]interface{}) (*[]entity.MPRequest, int64, error)
 	FindByID(id uuid.UUID) (*entity.MPRequest, error)
+	FindAll() (*[]entity.MPRequest, error)
 }
 
 type MPRequestRepository struct {
@@ -88,4 +89,15 @@ func (r *MPRequestRepository) FindByID(id uuid.UUID) (*entity.MPRequest, error) 
 	}
 
 	return &mpRequest, nil
+}
+
+func (r *MPRequestRepository) FindAll() (*[]entity.MPRequest, error) {
+	var mpRequests []entity.MPRequest
+
+	if err := r.DB.Find(&mpRequests).Error; err != nil {
+		r.Log.Errorf("[MPRequestRepository.FindAll] error when find all mp request headers: %v", err)
+		return nil, errors.New("[MPRequestRepository.FindAll] error when find all mp request headers " + err.Error())
+	}
+
+	return &mpRequests, nil
 }

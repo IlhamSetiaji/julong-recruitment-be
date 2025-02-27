@@ -13,6 +13,7 @@ import (
 type IMPRequestRepository interface {
 	Create(ent *entity.MPRequest) (*entity.MPRequest, error)
 	FindAllPaginated(page int, pageSize int, search string, filter map[string]interface{}) (*[]entity.MPRequest, int64, error)
+	FindAllPaginatedWhereDoesntHaveJobPosting(jobPostingID string, page int, pageSize int, search string, filter map[string]interface{}) (*[]entity.MPRequest, int64, error)
 	FindByID(id uuid.UUID) (*entity.MPRequest, error)
 	FindAll() (*[]entity.MPRequest, error)
 }
@@ -54,7 +55,7 @@ func (r *MPRequestRepository) FindAllPaginated(page int, pageSize int, search st
 	var total int64
 	var whereStatus string
 
-	query := r.DB.Model(&entity.MPRequest{})
+	query := r.DB.Preload("JobPosting").Model(&entity.MPRequest{})
 
 	if filter != nil {
 		if _, ok := filter["status"]; ok {
@@ -100,4 +101,33 @@ func (r *MPRequestRepository) FindAll() (*[]entity.MPRequest, error) {
 	}
 
 	return &mpRequests, nil
+}
+
+func (r *MPRequestRepository) FindAllPaginatedWhereDoesntHaveJobPosting(jobPostingID string, page int, pageSize int, search string, filter map[string]interface{}) (*[]entity.MPRequest, int64, error) {
+	var mpRequests []entity.MPRequest
+	var total int64
+	var whereStatus string
+
+	query := r.DB.Preload("JobPosting").Model(&entity.MPRequest{}).
+		Joins("LEFT JOIN job_postings ON job_postings.mp_request_id = mp_requests.id").
+		Where("job_postings.mp_request_id IS NULL OR job_postings.id = ?", jobPostingID)
+
+	if filter != nil {
+		if _, ok := filter["status"]; ok {
+			whereStatus = "mp_requests.status = ?"
+			query = query.Where(whereStatus, filter["status"])
+		}
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		r.Log.Errorf("[MPRequestRepository.FindAllPaginatedWhereDoesntHaveJobPosting] error when count mp request headers: %v", err)
+		return nil, 0, errors.New("[MPRequestRepository.FindAllPaginatedWhereDoesntHaveJobPosting] error when count mp request headers " + err.Error())
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&mpRequests).Error; err != nil {
+		r.Log.Errorf("[MPRequestRepository.FindAllPaginatedWhereDoesntHaveJobPosting] error when find mp request headers: %v", err)
+		return nil, 0, errors.New("[MPRequestRepository.FindAllPaginatedWhereDoesntHaveJobPosting] error when find mp request headers " + err.Error())
+	}
+
+	return &mpRequests, total, nil
 }

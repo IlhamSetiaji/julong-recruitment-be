@@ -13,6 +13,8 @@ type MPRequestPaginatedResponse struct {
 
 type MPRequestHeaderResponse struct {
 	ID                         uuid.UUID  `json:"id"`
+	JobPostingID               *uuid.UUID `json:"job_posting_id"`
+	JobPostingDocumentNumber   string     `json:"job_posting_document_number"`
 	MPRCloneID                 *uuid.UUID `json:"mpr_clone_id"`
 	OrganizationID             uuid.UUID  `json:"organization_id"`
 	OrganizationLocationID     uuid.UUID  `json:"organization_location_id"`

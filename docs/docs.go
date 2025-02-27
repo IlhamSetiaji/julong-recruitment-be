@@ -6432,6 +6432,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/mp-requests/job-posting": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all mp requests paginated where doesn't have job posting",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "MP Requests"
+                ],
+                "summary": "Find all mp requests paginated where doesn't have job posting",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.MPRequestPaginatedResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/project-pic/project-recruitment-line/{project_recruitment_line_id}": {
             "get": {
                 "security": [
@@ -12732,6 +12760,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "job_name": {
+                    "type": "string"
+                },
+                "job_posting_document_number": {
+                    "type": "string"
+                },
+                "job_posting_id": {
                     "type": "string"
                 },
                 "jobdesc": {

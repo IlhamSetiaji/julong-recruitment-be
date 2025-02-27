@@ -3543,6 +3543,10 @@ definitions:
         type: string
       job_name:
         type: string
+      job_posting_document_number:
+        type: string
+      job_posting_id:
+        type: string
       jobdesc:
         type: string
       language_skill:
@@ -8153,6 +8157,23 @@ paths:
       security:
       - BearerAuth: []
       summary: Find all mp requests paginated
+      tags:
+      - MP Requests
+  /mp-requests/job-posting:
+    get:
+      consumes:
+      - application/json
+      description: Find all mp requests paginated where doesn't have job posting
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.MPRequestPaginatedResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all mp requests paginated where doesn't have job posting
       tags:
       - MP Requests
   /project-pic/project-recruitment-line/{project_recruitment_line_id}:

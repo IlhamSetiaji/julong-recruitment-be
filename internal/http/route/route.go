@@ -72,6 +72,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			mpRequestRoute := apiRoute.Group("/mp-requests")
 			{
 				mpRequestRoute.GET("", c.MPRequestHandler.FindAllPaginated)
+				mpRequestRoute.GET("/job-posting", c.MPRequestHandler.FindAllPaginatedWhereDoesntHaveJobPosting)
 			}
 			// recruitment types
 			recruitmentTypeRoute := apiRoute.Group("/recruitment-types")

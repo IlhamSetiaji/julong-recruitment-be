@@ -173,7 +173,7 @@ func handleMsg(docMsg *request.RabbitMQRequest, log *logrus.Logger, viper *viper
 			break
 		}
 
-		uc := usecase.MPRequestUseCaseFactory(log)
+		uc := usecase.MPRequestUseCaseFactory(log, viper)
 		_, err := uc.CreateMPRequest(&request.CreateMPRequest{
 			MPRCloneID: mprCloneID,
 		})

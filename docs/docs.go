@@ -7909,6 +7909,9 @@ const docTemplate = `{
                 "organization_location_id": {
                     "type": "string"
                 },
+                "path": {
+                    "type": "string"
+                },
                 "period_agreement": {
                     "type": "string"
                 },
@@ -11773,6 +11776,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "organization_location_name": {
+                    "type": "string"
+                },
+                "path": {
                     "type": "string"
                 },
                 "period_agreement": {

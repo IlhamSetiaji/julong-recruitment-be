@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"strconv"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
@@ -290,8 +292,8 @@ func (uc *DashboardUseCase) getChartJobLevel() (*response.ChartJobLevelResponse,
 			// return nil, err
 			continue
 		} else {
-
-			labels = append(labels, jobLevelResp.Name)
+			name := strconv.Itoa(int(jobLevelResp.Level)) + " - " + jobLevelResp.Name
+			labels = append(labels, name)
 
 			count, err := uc.DocumentSendingRepository.CountByJobLevelID(jobLevelID)
 			if err != nil {

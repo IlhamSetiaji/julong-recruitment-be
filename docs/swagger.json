@@ -7903,6 +7903,9 @@
                 "organization_location_id": {
                     "type": "string"
                 },
+                "path": {
+                    "type": "string"
+                },
                 "period_agreement": {
                     "type": "string"
                 },
@@ -11767,6 +11770,9 @@
                     "type": "string"
                 },
                 "organization_location_name": {
+                    "type": "string"
+                },
+                "path": {
                     "type": "string"
                 },
                 "period_agreement": {

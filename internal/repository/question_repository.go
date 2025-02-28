@@ -50,7 +50,7 @@ func (r *QuestionRepository) CreateQuestion(ent *entity.Question) (*entity.Quest
 	err := tx.Where("name = ? AND template_question_id = ?", ent.Name, ent.TemplateQuestionID).First(&entity.Question{}).Error
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		tx.Rollback()
-		return nil, errors.New("[QuestionRepository.Create] question already exists")
+		return nil, errors.New("[QuestionRepository.Create] question already exists: " + ent.Name)
 	}
 
 	if err := tx.Create(ent).Error; err != nil {

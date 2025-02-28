@@ -408,9 +408,6 @@ func (uc *DocumentSendingUseCase) generatePdf(text string) (*string, error) {
 	// Define the CSS styles
 	cssStyles := `
 <style>
-body {
-  font-family: 'WenQuanYi Zen Hei', sans-serif;
-}
 .tiptap h1 {
   font-size: 1.4rem;
 }

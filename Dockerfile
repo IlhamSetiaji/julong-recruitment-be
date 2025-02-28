@@ -64,7 +64,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Create the /storage directory
-RUN mkdir -p /storage
+RUN mkdir -p /storage && chmod -R 777 /storage
 
 # Copy the built Go application from the builder stage
 COPY --from=builder /app/main .

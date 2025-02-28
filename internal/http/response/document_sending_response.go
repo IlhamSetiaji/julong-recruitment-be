@@ -31,6 +31,7 @@ type DocumentSendingResponse struct {
 	ForOrganizationID        *uuid.UUID                    `json:"for_organization_id"`
 	OrganizationLocationID   *uuid.UUID                    `json:"organization_location_id"`
 	DetailContent            string                        `json:"detail_content"`
+	Path                     string                        `json:"path"`
 	CreatedAt                time.Time                     `json:"created_at"`
 	UpdatedAt                time.Time                     `json:"updated_at"`
 

@@ -45,6 +45,7 @@ type DocumentSending struct {
 	OrganizationLocationID   *uuid.UUID             `json:"organization_location_id" gorm:"type:char(36);default:null"`
 	JobPostingID             uuid.UUID              `json:"job_posting_id" gorm:"type:char(36);default:null"`
 	DetailContent            string                 `json:"detail_content" gorm:"type:text;default:null"`
+	Path                     string                 `json:"path" gorm:"type:text;default:null"`
 
 	ProjectRecruitmentLine *ProjectRecruitmentLine `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Applicant              *Applicant              `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

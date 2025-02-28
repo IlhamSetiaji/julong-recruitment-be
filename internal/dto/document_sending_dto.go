@@ -129,8 +129,14 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		JobPostingID:             ent.JobPostingID,
 		ForOrganizationID:        ent.ForOrganizationID,
 		DetailContent:            ent.DetailContent,
-		CreatedAt:                ent.CreatedAt,
-		UpdatedAt:                ent.UpdatedAt,
+		Path: func() string {
+			if ent.Path != "" {
+				return dto.Viper.GetString("app.url") + ent.Path
+			}
+			return ""
+		}(),
+		CreatedAt: ent.CreatedAt,
+		UpdatedAt: ent.UpdatedAt,
 		ProjectRecruitmentLine: func() *response.ProjectRecruitmentLineResponse {
 			if ent.ProjectRecruitmentLine != nil {
 				return dto.ProjectRecruitmentLineDTO.ConvertEntityToResponse(ent.ProjectRecruitmentLine)

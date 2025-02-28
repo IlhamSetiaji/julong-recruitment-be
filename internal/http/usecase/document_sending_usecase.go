@@ -791,6 +791,16 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return nil, err
 		}
+
+		_, err = uc.Repository.UpdateDocumentSending(&entity.DocumentSending{
+			ID:     documentSending.ID,
+			Status: entity.DOCUMENT_SENDING_STATUS_SENT,
+			Path:   *filePath,
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
 	}
 
 	if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_APPROVED {

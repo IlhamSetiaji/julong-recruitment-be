@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -560,6 +561,11 @@ func (uc *DocumentSendingUseCase) generatePdf(text string) (*string, error) {
 
 	timestamp := time.Now().UnixNano()
 	filePath := fmt.Sprintf("storage/generated_pdf/%s", strconv.FormatInt(timestamp, 10)+"_document.pdf")
+	err = os.MkdirAll("storage/generated_pdf", os.ModePerm)
+	if err != nil {
+		uc.Log.Errorf("Gagal membuat direktori: %v", err)
+		return nil, err
+	}
 	err = ioutil.WriteFile(filePath, pdfBuffer, 0644)
 	if err != nil {
 		uc.Log.Errorf("Gagal membuat PDF: %v", err)

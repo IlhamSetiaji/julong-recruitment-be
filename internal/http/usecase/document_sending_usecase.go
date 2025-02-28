@@ -930,7 +930,18 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		}
 	}
 
-	resp := uc.DTO.ConvertEntityToResponse(documentSending)
+	findDocSending, err := uc.Repository.FindByID(parsedID)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+		return nil, err
+	}
+
+	if findDocSending == nil {
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] document sending not found")
+		return nil, errors.New("document sending not found")
+	}
+
+	resp := uc.DTO.ConvertEntityToResponse(findDocSending)
 
 	return resp, nil
 }

@@ -54,7 +54,7 @@
     "host": "${MAIL_HOST}",
     "port": "${MAIL_PORT}",
     "username": "${MAIL_USERNAME}",
-    "password": "${MAIL_PASSWORD}",
+    "password": "tesy kozl rpqw ujiq",
     "from": "${MAIL_FROM}"
   },
   "auth0": {

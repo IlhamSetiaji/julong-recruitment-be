@@ -12367,6 +12367,9 @@ const docTemplate = `{
                 "interview_id": {
                     "type": "string"
                 },
+                "interview_result_assessor": {
+                    "$ref": "#/definitions/response.InterviewResultResponse"
+                },
                 "interview_results": {
                     "type": "array",
                     "items": {

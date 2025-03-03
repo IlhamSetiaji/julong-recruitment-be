@@ -61,6 +61,19 @@ func (dto *InterviewApplicantDTO) ConvertEntityToResponse(ent *entity.InterviewA
 		FinalResult:      ent.FinalResult,
 		CreatedAt:        ent.CreatedAt,
 		UpdatedAt:        ent.UpdatedAt,
+		InterviewResultAssessor: func() *response.InterviewResultResponse {
+			if len(ent.InterviewResults) == 0 {
+				return nil
+			}
+
+			var results []response.InterviewResultResponse
+			for _, result := range ent.InterviewResults {
+				resp := dto.InterviewResultDTO.ConvertEntityToResponse(&result)
+				results = append(results, *resp)
+			}
+
+			return &results[0]
+		}(),
 		InterviewResults: func() []response.InterviewResultResponse {
 			if len(ent.InterviewResults) == 0 {
 				return nil

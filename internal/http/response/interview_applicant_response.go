@@ -21,7 +21,8 @@ type InterviewApplicantResponse struct {
 	CreatedAt        time.Time                `json:"created_at"`
 	UpdatedAt        time.Time                `json:"updated_at"`
 
-	UserProfile      *UserProfileResponse      `json:"user_profile"`
-	Applicant        *ApplicantResponse        `json:"applicant"`
-	InterviewResults []InterviewResultResponse `json:"interview_results"`
+	UserProfile             *UserProfileResponse      `json:"user_profile"`
+	Applicant               *ApplicantResponse        `json:"applicant"`
+	InterviewResultAssessor *InterviewResultResponse  `json:"interview_result_assessor"`
+	InterviewResults        []InterviewResultResponse `json:"interview_results"`
 }

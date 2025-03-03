@@ -106,12 +106,12 @@ func (uc *ProjectRecruitmentLineUseCase) CreateOrUpdateProjectRecruitmentLines(r
 
 			if parsedStartDate.After(parsedEndDate) {
 				uc.Log.Errorf("[ProjectRecruitmentLineUseCase.CreateOrUpdateProjectRecruitmentLines] start date is after end date")
-				return nil, errors.New("start date is after end date")
+				return nil, errors.New("project recruitment line error: start date is after end date")
 			}
 
 			if parsedStartDate.Before(prh.StartDate) || parsedEndDate.After(prh.EndDate) {
 				uc.Log.Errorf("[ProjectRecruitmentLineUseCase.CreateOrUpdateProjectRecruitmentLines] start date or end date is out of range")
-				return nil, errors.New("start date or end date is out of range of project recruitment header")
+				return nil, errors.New("project recruitment line error: start date or end date is out of range of project recruitment header")
 			}
 
 			if exist == nil {

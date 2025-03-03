@@ -605,11 +605,6 @@ func (uc *TestScheduleHeaderUsecase) getApplicantIDsByJobPostingID(jobPostingID 
 		applicantIDs = append(applicantIDs, applicant.ID)
 	}
 
-	applicantIDs = []uuid.UUID{}
-	for _, applicant := range applicants {
-		applicantIDs = append(applicantIDs, applicant.ID)
-	}
-
 	resultApplicants := &[]entity.Applicant{}
 	*resultApplicants = applicants
 

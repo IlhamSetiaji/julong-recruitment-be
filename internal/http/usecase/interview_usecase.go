@@ -853,11 +853,6 @@ func (uc *InterviewUseCase) getApplicantIDsByJobPostingID(jobPostingID uuid.UUID
 		applicantIDs = append(applicantIDs, applicant.ID)
 	}
 
-	applicantIDs = []uuid.UUID{}
-	for _, applicant := range applicants {
-		applicantIDs = append(applicantIDs, applicant.ID)
-	}
-
 	resultApplicants := &[]entity.Applicant{}
 	*resultApplicants = applicants
 

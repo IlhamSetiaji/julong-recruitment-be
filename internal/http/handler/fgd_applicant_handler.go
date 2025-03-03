@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -23,10 +25,11 @@ type IFgdApplicantHandler interface {
 }
 
 type FgdApplicantHandler struct {
-	Log      *logrus.Logger
-	Viper    *viper.Viper
-	Validate *validator.Validate
-	UseCase  usecase.IFgdApplicantUseCase
+	Log        *logrus.Logger
+	Viper      *viper.Viper
+	Validate   *validator.Validate
+	UseCase    usecase.IFgdApplicantUseCase
+	UserHelper helper.IUserHelper
 }
 
 func NewFgdApplicantHandler(
@@ -34,12 +37,14 @@ func NewFgdApplicantHandler(
 	viper *viper.Viper,
 	validate *validator.Validate,
 	useCase usecase.IFgdApplicantUseCase,
+	userHelper helper.IUserHelper,
 ) IFgdApplicantHandler {
 	return &FgdApplicantHandler{
-		Log:      log,
-		Viper:    viper,
-		Validate: validate,
-		UseCase:  useCase,
+		Log:        log,
+		Viper:      viper,
+		Validate:   validate,
+		UseCase:    useCase,
+		UserHelper: userHelper,
 	}
 }
 
@@ -49,7 +54,8 @@ func FgdApplicantHandlerFactory(
 ) IFgdApplicantHandler {
 	useCase := usecase.FgdApplicantUseCaseFactory(log, viper)
 	validate := config.NewValidator(viper)
-	return NewFgdApplicantHandler(log, viper, validate, useCase)
+	userHelper := helper.UserHelperFactory(log)
+	return NewFgdApplicantHandler(log, viper, validate, useCase, userHelper)
 }
 
 // CreateOrUpdateFgdApplicants create or update Fgd applicants
@@ -198,7 +204,25 @@ func (h *FgdApplicantHandler) FindAllByFgdIDPaginated(ctx *gin.Context) {
 		}
 	}
 
-	res, total, err := h.UseCase.FindAllByFgdIDPaginated(FgdID, page, pageSize, search, sort, filter)
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	employeeUUID, err := h.UserHelper.GetEmployeeId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting employee id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, total, err := h.UseCase.FindAllByFgdIDPaginated(employeeUUID.String(), FgdID, page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Errorf("[FgdApplicantHandler.FindAllByFgdIDPaginated] error when finding all Fgd applicants by Fgd id paginated: %s", err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "internal server error", err.Error())

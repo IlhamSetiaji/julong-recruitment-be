@@ -61,6 +61,19 @@ func (dto *FgdApplicantDTO) ConvertEntityToResponse(ent *entity.FgdApplicant) (*
 		FinalResult:      ent.FinalResult,
 		CreatedAt:        ent.CreatedAt,
 		UpdatedAt:        ent.UpdatedAt,
+		FgdResultAssessor: func() *response.FgdResultResponse {
+			if len(ent.FgdResults) == 0 {
+				return nil
+			}
+
+			var results []response.FgdResultResponse
+			for _, result := range ent.FgdResults {
+				resp := dto.FgdResultDTO.ConvertEntityToResponse(&result)
+				results = append(results, *resp)
+			}
+
+			return &results[0]
+		}(),
 		FgdResults: func() []response.FgdResultResponse {
 			if len(ent.FgdResults) == 0 {
 				return nil

@@ -12011,6 +12011,9 @@ const docTemplate = `{
                 "ended_time": {
                     "type": "string"
                 },
+                "fgd_result_assessor": {
+                    "$ref": "#/definitions/response.FgdResultResponse"
+                },
                 "fgd_results": {
                     "type": "array",
                     "items": {

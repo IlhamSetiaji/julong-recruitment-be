@@ -20,7 +20,7 @@ type IFgdApplicantUseCase interface {
 	UpdateStatusFgdApplicant(req *request.UpdateStatusFgdApplicantRequest) error
 	UpdateFinalResultStatusFgdApplicant(req *request.UpdateFinalResultFgdApplicantRequest) error
 	FindByUserProfileIDAndFgdID(userProfileID, fgdID string) (*response.FgdApplicantResponse, error)
-	FindAllByFgdIDPaginated(fgdID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.FgdApplicantResponse, int64, error)
+	FindAllByFgdIDPaginated(employeeID, fgdID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.FgdApplicantResponse, int64, error)
 	UpdateFinalResultStatusTestApplicant(ctx context.Context, id uuid.UUID, finalResult entity.FinalResultStatus) (*response.FgdApplicantResponse, error)
 }
 
@@ -34,6 +34,7 @@ type FgdApplicantUseCase struct {
 	Viper                 *viper.Viper
 	ApplicantRepository   repository.IApplicantRepository
 	JobPostingRepository  repository.IJobPostingRepository
+	FgdAssessorRepository repository.IFgdAssessorRepository
 }
 
 func NewFgdApplicantUseCase(
@@ -46,6 +47,7 @@ func NewFgdApplicantUseCase(
 	viper *viper.Viper,
 	applicantRepo repository.IApplicantRepository,
 	jobPostingRepo repository.IJobPostingRepository,
+	fgdAssessorRepo repository.IFgdAssessorRepository,
 ) IFgdApplicantUseCase {
 	return &FgdApplicantUseCase{
 		Log:                   log,
@@ -57,6 +59,7 @@ func NewFgdApplicantUseCase(
 		Viper:                 viper,
 		ApplicantRepository:   applicantRepo,
 		JobPostingRepository:  jobPostingRepo,
+		FgdAssessorRepository: fgdAssessorRepo,
 	}
 }
 
@@ -71,6 +74,7 @@ func FgdApplicantUseCaseFactory(
 	userProfileRepo := repository.UserProfileRepositoryFactory(log)
 	applicantRepo := repository.ApplicantRepositoryFactory(log)
 	jobPostingRepo := repository.JobPostingRepositoryFactory(log)
+	fgdAssessorRepo := repository.FgdAssessorRepositoryFactory(log)
 	return NewFgdApplicantUseCase(
 		log,
 		iaRepo,
@@ -81,6 +85,7 @@ func FgdApplicantUseCaseFactory(
 		viper,
 		applicantRepo,
 		jobPostingRepo,
+		fgdAssessorRepo,
 	)
 }
 
@@ -471,14 +476,27 @@ func (uc *FgdApplicantUseCase) FindByUserProfileIDAndFgdID(userProfileID, FgdID 
 	return resp, nil
 }
 
-func (uc *FgdApplicantUseCase) FindAllByFgdIDPaginated(FgdID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.FgdApplicantResponse, int64, error) {
+func (uc *FgdApplicantUseCase) FindAllByFgdIDPaginated(employeeID, FgdID string, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]response.FgdApplicantResponse, int64, error) {
 	parsedFgdID, err := uuid.Parse(FgdID)
 	if err != nil {
 		uc.Log.Errorf("[FgdApplicantUseCase.FindAllByFgdIDPaginated] error parsing Fgd id: %v", err)
 		return nil, 0, err
 	}
 
-	exist, count, err := uc.Repository.FindAllByFgdIDPaginated(parsedFgdID, page, pageSize, search, sort, filter)
+	fgdAssessor, err := uc.FgdAssessorRepository.FindByKeys(map[string]interface{}{
+		"employee_id":     employeeID,
+		"fgd_schedule_id": parsedFgdID,
+	})
+	if err != nil {
+		uc.Log.Errorf("[FgdApplicantUseCase.FindAllByFgdIDPaginated] error finding Fgd assessor by employee id and Fgd id: %v", err)
+		return nil, 0, err
+	}
+	if fgdAssessor == nil {
+		uc.Log.Errorf("[FgdApplicantUseCase.FindAllByFgdIDPaginated] Fgd assessor not found")
+		return nil, 0, errors.New("Fgd assessor not found")
+	}
+
+	exist, count, err := uc.Repository.FindAllByFgdIDPaginated(fgdAssessor.ID, parsedFgdID, page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Errorf("[FgdApplicantUseCase.FindAllByFgdIDPaginated] error finding Fgd applicants by Fgd id: %v", err)
 		return nil, 0, err

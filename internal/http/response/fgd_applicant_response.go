@@ -21,7 +21,8 @@ type FgdApplicantResponse struct {
 	CreatedAt        time.Time                `json:"created_at"`
 	UpdatedAt        time.Time                `json:"updated_at"`
 
-	UserProfile *UserProfileResponse `json:"user_profile"`
-	Applicant   *ApplicantResponse   `json:"applicant"`
-	FgdResults  []FgdResultResponse  `json:"fgd_results"`
+	UserProfile       *UserProfileResponse `json:"user_profile"`
+	Applicant         *ApplicantResponse   `json:"applicant"`
+	FgdResultAssessor *FgdResultResponse   `json:"fgd_result_assessor"`
+	FgdResults        []FgdResultResponse  `json:"fgd_results"`
 }

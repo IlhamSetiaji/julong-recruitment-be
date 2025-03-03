@@ -3026,6 +3026,8 @@ definitions:
         type: string
       ended_time:
         type: string
+      fgd_result_assessor:
+        $ref: '#/definitions/response.FgdResultResponse'
       fgd_results:
         items:
           $ref: '#/definitions/response.FgdResultResponse'

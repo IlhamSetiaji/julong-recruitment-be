@@ -18,7 +18,7 @@ type IFgdApplicantRepository interface {
 	FindByID(id uuid.UUID) (*entity.FgdApplicant, error)
 	FindAllByApplicantIDs(applicantIDs []uuid.UUID) ([]entity.FgdApplicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.FgdApplicant, error)
-	FindAllByFgdIDPaginated(FgdID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.FgdApplicant, int64, error)
+	FindAllByFgdIDPaginated(fgdAssessorID, FgdID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.FgdApplicant, int64, error)
 	FindByUserProfileIDAndIDs(userProfileID uuid.UUID, ids []uuid.UUID) (*entity.FgdApplicant, error)
 	FindByUserProfileIDAndFgdIDs(userProfileID uuid.UUID, fgdIDs []uuid.UUID) (*entity.FgdApplicant, error)
 }
@@ -150,13 +150,13 @@ func (r *FgdApplicantRepository) FindByKeys(keys map[string]interface{}) (*entit
 	return &fgdApplicant, nil
 }
 
-func (r *FgdApplicantRepository) FindAllByFgdIDPaginated(fgdID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.FgdApplicant, int64, error) {
+func (r *FgdApplicantRepository) FindAllByFgdIDPaginated(fgdAssessorID, fgdID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.FgdApplicant, int64, error) {
 	var fgdApplicants []entity.FgdApplicant
 	var total int64
 
 	db := r.DB.Model(&entity.FgdApplicant{}).
 		Joins("LEFT JOIN user_profiles ON user_profiles.id = Fgd_applicants.user_profile_id").
-		Preload("FgdSchedule").Preload("FgdResults.FgdAssessor").
+		Preload("FgdSchedule").Preload("FgdResults.FgdAssessor", "id = ?", fgdAssessorID).
 		Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("UserProfile.Skills").
 		Where("fgd_schedule_id = ?", fgdID)
 

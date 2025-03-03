@@ -8,7 +8,7 @@ services:
     ports:
       - "5503:8000"
     volumes:
-      - storage_data:/storage
+      - ./root/data/julong-recruitment/storage:/storage
     environment:
       - APP_ENV=production
       - APP_URL=https://api-recruitment.avolut.com/
@@ -44,10 +44,3 @@ services:
       - ZITADEL_KEY=5b3b7b7b7b7b7b
       - ZITADEL_CLIENT_ID=5b3b7b7b7b7b7b
       - ZITADEL_REDIRECT_URL=https://julong-portal.avolut.com/auth/zitadel/callback
-volumes:
-  storage_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./root/data/julong-recruitment/storage

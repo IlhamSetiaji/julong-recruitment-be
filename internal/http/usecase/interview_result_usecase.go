@@ -88,8 +88,8 @@ func (uc *InterviewResultUseCase) FillInterviewResult(req *request.FillInterview
 	}
 
 	interviewResult, err := uc.Repository.FindByKeys(map[string]interface{}{
-		"interview_applicant_id": req.InterviewApplicantID,
-		"interview_assessor_id":  req.InterviewAssessorID,
+		"interview_applicant_id": interviewApplicant.ID,
+		"interview_assessor_id":  parsedInterviewAssessorID,
 	})
 
 	if err != nil {

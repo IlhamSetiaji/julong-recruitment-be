@@ -145,6 +145,7 @@ func (r *InterviewRepository) FindByIDForMyselfAndAssessorFix(id uuid.UUID, user
 		Preload("ProjectRecruitmentLine.TemplateActivityLine.TemplateQuestion.Questions.QuestionResponses", "user_profile_id = ? AND interview_assessor_id = ?", userProfile, interviewAssessorID).
 		Preload("InterviewApplicants", "user_profile_id = ?", userProfile).
 		Preload("InterviewApplicants.UserProfile").
+		Preload("InterviewApplicants.InterviewResults").
 		Preload("InterviewAssessors").
 		Where("id = ?", id).First(&interview).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

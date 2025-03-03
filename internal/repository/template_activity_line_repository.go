@@ -126,7 +126,7 @@ func (r *TemplateActivityLineRepository) FindByID(id uuid.UUID) (*entity.Templat
 
 func (r *TemplateActivityLineRepository) FindByTemplateActivityID(templateActivityID uuid.UUID) (*[]entity.TemplateActivityLine, error) {
 	var templateActivityLines []entity.TemplateActivityLine
-	if err := r.DB.Preload("TemplateActivity").Preload("TemplateQuestion.Questions.QuestionOptions").Preload("TemplateQuestion.Questions.AnswerType").Preload("TemplateQuestion.Questions.QuestionResponses").Where("template_activity_id = ?", templateActivityID).Find(&templateActivityLines).Error; err != nil {
+	if err := r.DB.Preload("TemplateActivity").Preload("TemplateQuestion.Questions.QuestionOptions").Preload("TemplateQuestion.Questions.AnswerType").Preload("TemplateQuestion.Questions.QuestionResponses").Where("template_activity_id = ?", templateActivityID).Order("created_at ASC").Find(&templateActivityLines).Error; err != nil {
 		return nil, err
 	}
 

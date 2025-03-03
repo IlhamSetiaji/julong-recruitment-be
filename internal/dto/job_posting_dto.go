@@ -1,6 +1,8 @@
 package dto
 
 import (
+	"strings"
+
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -71,8 +73,13 @@ func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *respo
 	if err != nil {
 		dto.Log.Errorf("[JobPostingDTO.ConvertEntityToResponse] " + err.Error())
 		jobName = ""
+	} else {
+		jobName = job.Name
 	}
-	jobName = job.Name
+
+	if idx := strings.Index(jobName, " - "); idx != -1 {
+		jobName = jobName[:idx]
+	}
 
 	return &response.JobPostingResponse{
 		ID:                         ent.ID,

@@ -11,6 +11,7 @@ import (
 
 type IMPRequestHelper interface {
 	ConvertMapInterfaceToResponse(mprMap map[string]interface{}) (*response.MPRequestHeaderResponse, error)
+	ConvertMapInterfaceToResponseMinimal(mprMap map[string]interface{}) (*response.MPRequestHeaderResponse, error)
 }
 
 type MPRequestHelper struct {
@@ -571,5 +572,299 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		ApprovedByVpGmDirector:     approvedByVpGmDirector,
 		ApprovedByCEO:              approvedByCEO,
 		ApprovedByHrdHoUnit:        approvedByHrdHoUnit,
+	}, nil
+}
+
+func (d *MPRequestHelper) ConvertMapInterfaceToResponseMinimal(mprMap map[string]interface{}) (*response.MPRequestHeaderResponse, error) {
+	mprData, ok := mprMap["mp_request_header"].(map[string]interface{})
+	if !ok {
+		d.Log.Errorf("MPRequestHeader information is missing or invalid")
+		return nil, errors.New("MPRequestHeader information is missing or invalid")
+	}
+
+	mprID, ok := mprData["id"].(string)
+	if !ok {
+		d.Log.Errorf("MPRequestHeader ID is missing or invalid")
+		return nil, errors.New("MPRequestHeader ID is missing or invalid")
+	}
+
+	organizationID, ok := mprData["organization_id"].(string)
+	if !ok {
+		d.Log.Errorf("Organization ID is missing or invalid")
+		return nil, errors.New("Organization ID is missing or invalid")
+	}
+
+	organizationLocationID, ok := mprData["organization_location_id"].(string)
+	if !ok {
+		d.Log.Errorf("Organization Location ID is missing or invalid")
+		return nil, errors.New("Organization Location ID is missing or invalid")
+	}
+	forOrganizationID, ok := mprData["for_organization_id"].(string)
+	if !ok {
+		d.Log.Errorf("For Organization ID is missing or invalid")
+		return nil, errors.New("For Organization ID is missing or invalid")
+	}
+
+	forOrganizationLocationID, ok := mprData["for_organization_location_id"].(string)
+	if !ok {
+		d.Log.Errorf("For Organization Location ID is missing or invalid")
+		return nil, errors.New("For Organization Location ID is missing or invalid")
+	}
+
+	forOrganizationStructureID, ok := mprData["for_organization_structure_id"].(string)
+	if !ok {
+		d.Log.Errorf("For Organization Structure ID is missing or invalid")
+		return nil, errors.New("For Organization Structure ID is missing or invalid")
+	}
+
+	jobID, ok := mprData["job_id"].(string)
+	if !ok {
+		d.Log.Errorf("Job ID is missing or invalid")
+		return nil, errors.New("Job ID is missing or invalid")
+	}
+
+	requestCategoryID, ok := mprData["request_category_id"].(string)
+	if !ok {
+		d.Log.Errorf("Request Category ID is missing or invalid")
+		return nil, errors.New("Request Category ID is missing or invalid")
+	}
+
+	expectedDate, ok := mprData["expected_date"].(string)
+	if !ok {
+		d.Log.Errorf("Expected Date is missing or invalid")
+		return nil, errors.New("Expected Date is missing or invalid")
+	}
+
+	experiences, ok := mprData["experiences"].(string)
+	if !ok {
+		d.Log.Errorf("Experiences is missing or invalid")
+		return nil, errors.New("Experiences is missing or invalid")
+	}
+
+	documentNumber, ok := mprData["document_number"].(string)
+	if !ok {
+		d.Log.Errorf("Document Number is missing or invalid")
+		return nil, errors.New("Document Number is missing or invalid")
+	}
+
+	documentDate, ok := mprData["document_date"].(string)
+	if !ok {
+		d.Log.Errorf("Document Date is missing or invalid")
+		return nil, errors.New("Document Date is missing or invalid")
+	}
+
+	maleNeedsFloat, ok := mprData["male_needs"].(float64)
+	if !ok {
+		d.Log.Errorf("Male needs is missing or invalid")
+		return nil, errors.New("Male needs is missing or invalid")
+	}
+	maleNeeds := int(maleNeedsFloat)
+
+	femaleNeedsFloat, ok := mprData["female_needs"].(float64)
+	if !ok {
+		d.Log.Errorf("female needs is missing or invalid")
+		return nil, errors.New("female needs is missing or invalid")
+	}
+	femaleNeeds := int(femaleNeedsFloat)
+
+	minimumAgeFloat, ok := mprData["minimum_age"].(float64)
+	if !ok {
+		d.Log.Errorf("Minimum Age is missing or invalid")
+		return nil, errors.New("Minimum Age is missing or invalid")
+	}
+	minimumAge := int(minimumAgeFloat)
+
+	maximumAgeFloat, ok := mprData["maximum_age"].(float64)
+	if !ok {
+		d.Log.Errorf("Maximum Age is missing or invalid")
+		return nil, errors.New("Maximum Age is missing or invalid")
+	}
+	maximumAge := int(maximumAgeFloat)
+
+	minimumExperienceFloat, ok := mprData["minimum_experience"].(float64)
+	if !ok {
+		d.Log.Errorf("Minimum Experience is missing or invalid")
+		return nil, errors.New("Minimum Experience is missing or invalid")
+	}
+	minimumExperienceInt := int(minimumExperienceFloat)
+
+	maritalStatus, ok := mprData["marital_status"].(string)
+	if !ok {
+		d.Log.Errorf("Marital Status is missing or invalid")
+		return nil, errors.New("Marital Status is missing or invalid")
+	}
+
+	minimumEducation, ok := mprData["minimum_education"].(string)
+	if !ok {
+		d.Log.Errorf("Minimum Education is missing or invalid")
+		return nil, errors.New("Minimum Education is missing or invalid")
+	}
+
+	requiredQualification, ok := mprData["required_qualification"].(string)
+	if !ok {
+		d.Log.Errorf("Required Qualification is missing or invalid")
+		return nil, errors.New("Required Qualification is missing or invalid")
+	}
+
+	certificate, ok := mprData["certificate"].(string)
+	if !ok {
+		d.Log.Errorf("Certificate is missing or invalid")
+		return nil, errors.New("Certificate is missing or invalid")
+	}
+
+	computerSkill, ok := mprData["computer_skill"].(string)
+	if !ok {
+		d.Log.Errorf("Computer Skill is missing or invalid")
+		return nil, errors.New("Computer Skill is missing or invalid")
+	}
+
+	languageSkill, ok := mprData["language_skill"].(string)
+	if !ok {
+		d.Log.Errorf("Language Skill is missing or invalid")
+		return nil, errors.New("Language Skill is missing or invalid")
+	}
+
+	otherSkill, ok := mprData["other_skill"].(string)
+	if !ok {
+		d.Log.Errorf("Other Skill is missing or invalid")
+		return nil, errors.New("Other Skill is missing or invalid")
+	}
+
+	jobdesc, ok := mprData["jobdesc"].(string)
+	if !ok {
+		d.Log.Errorf("Jobdesc is missing or invalid")
+		return nil, errors.New("Jobdesc is missing or invalid")
+	}
+
+	salaryMin, ok := mprData["salary_min"].(string)
+	if !ok {
+		d.Log.Errorf("Salary Min is missing or invalid")
+		return nil, errors.New("Salary Min is missing or invalid")
+	}
+
+	salaryMax, ok := mprData["salary_max"].(string)
+	if !ok {
+		d.Log.Errorf("Salary Max is missing or invalid")
+		return nil, errors.New("Salary Max is missing or invalid")
+	}
+
+	status, ok := mprData["status"].(string)
+	if !ok {
+		d.Log.Errorf("Status is missing or invalid")
+		return nil, errors.New("Status is missing or invalid")
+	}
+
+	mpRequestType, ok := mprData["mp_request_type"].(string)
+	if !ok {
+		d.Log.Errorf("MP Request Type is missing or invalid")
+		return nil, errors.New("MP Request Type is missing or invalid")
+	}
+
+	recruitmentType, ok := mprData["recruitment_type"].(string)
+	if !ok {
+		d.Log.Errorf("Recruitment Type is missing or invalid")
+		return nil, errors.New("Recruitment Type is missing or invalid")
+	}
+
+	mppPeriodID, ok := mprData["mpp_period_id"].(string)
+	if !ok {
+		d.Log.Errorf("MPP Period ID is missing or invalid")
+		return nil, errors.New("MPP Period ID is missing or invalid")
+	}
+
+	empOrganizationID, ok := mprData["emp_organization_id"].(string)
+	if !ok {
+		d.Log.Errorf("Emp Organization ID is missing or invalid")
+		return nil, errors.New("Emp Organization ID is missing or invalid")
+	}
+
+	jobLevelID, ok := mprData["job_level_id"].(string)
+	if !ok {
+		d.Log.Errorf("Job Level ID is missing or invalid")
+		return nil, errors.New("Job Level ID is missing or invalid")
+	}
+
+	isReplacement, ok := mprData["is_replacement"].(bool)
+	if !ok {
+		d.Log.Errorf("Is Replacement is missing or invalid")
+		return nil, errors.New("Is Replacement is missing or invalid")
+	}
+
+	createdAt, ok := mprData["created_at"].(string)
+	if !ok {
+		d.Log.Errorf("Created At is missing or invalid")
+		return nil, errors.New("Created At is missing or invalid")
+	}
+
+	updatedAt, ok := mprData["updated_at"].(string)
+	if !ok {
+		d.Log.Errorf("Updated At is missing or invalid")
+		return nil, errors.New("Updated At is missing or invalid")
+	}
+
+	mprCloneID := uuid.MustParse(mprID)
+	parsedMppPeriodID := uuid.MustParse(mppPeriodID)
+	parsedEmpOrganizationID := uuid.MustParse(empOrganizationID)
+	parsedJobLevelID := uuid.MustParse(jobLevelID)
+
+	parsedExpectedDate, err := time.Parse("2006-01-02T15:04:05Z07:00", expectedDate)
+	if err != nil {
+		d.Log.Errorf("Invalid expected date format: %v", err)
+		return nil, errors.New("Invalid expected date format")
+	}
+	parsedDocumentDate, err := time.Parse("2006-01-02T15:04:05Z07:00", documentDate)
+	if err != nil {
+		d.Log.Errorf("Invalid document date format: %v", err)
+		return nil, errors.New("Invalid document date format")
+	}
+	parsedCreatedAt, err := time.Parse("2006-01-02T15:04:05Z07:00", createdAt)
+	if err != nil {
+		d.Log.Errorf("Invalid created at format: %v", err)
+		return nil, errors.New("Invalid created at format")
+	}
+	parsedUpdatedAt, err := time.Parse("2006-01-02T15:04:05Z07:00", updatedAt)
+	if err != nil {
+		d.Log.Errorf("Invalid updated at format: %v", err)
+		return nil, errors.New("Invalid updated at format")
+	}
+
+	return &response.MPRequestHeaderResponse{
+		ID:                         uuid.MustParse(mprID),
+		MPRCloneID:                 &mprCloneID,
+		OrganizationID:             uuid.MustParse(organizationID),
+		OrganizationLocationID:     uuid.MustParse(organizationLocationID),
+		ForOrganizationID:          uuid.MustParse(forOrganizationID),
+		ForOrganizationLocationID:  uuid.MustParse(forOrganizationLocationID),
+		ForOrganizationStructureID: uuid.MustParse(forOrganizationStructureID),
+		JobID:                      uuid.MustParse(jobID),
+		RequestCategoryID:          uuid.MustParse(requestCategoryID),
+		ExpectedDate:               parsedExpectedDate,
+		Experiences:                experiences,
+		DocumentNumber:             documentNumber,
+		DocumentDate:               parsedDocumentDate,
+		MaleNeeds:                  maleNeeds,
+		FemaleNeeds:                femaleNeeds,
+		MinimumAge:                 minimumAge,
+		MaximumAge:                 maximumAge,
+		MinimumExperience:          minimumExperienceInt,
+		MaritalStatus:              maritalStatus,
+		MinimumEducation:           minimumEducation,
+		RequiredQualification:      requiredQualification,
+		Certificate:                certificate,
+		ComputerSkill:              computerSkill,
+		LanguageSkill:              languageSkill,
+		OtherSkill:                 otherSkill,
+		Jobdesc:                    jobdesc,
+		SalaryMin:                  salaryMin,
+		SalaryMax:                  salaryMax,
+		Status:                     status,
+		MPRequestType:              mpRequestType,
+		RecruitmentType:            recruitmentType,
+		MPPPeriodID:                &parsedMppPeriodID,
+		EmpOrganizationID:          &parsedEmpOrganizationID,
+		JobLevelID:                 &parsedJobLevelID,
+		IsReplacement:              isReplacement,
+		CreatedAt:                  parsedCreatedAt,
+		UpdatedAt:                  parsedUpdatedAt,
 	}, nil
 }

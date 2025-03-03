@@ -79,7 +79,7 @@ func (uc *MPRequestUseCase) FindAllPaginated(page int, pageSize int, search stri
 
 	// loop and send message to julong_manpower
 	for _, mpRequest := range *mpRequests {
-		resp, err := uc.Message.SendFindByIdMessage(mpRequest.MPRCloneID.String())
+		resp, err := uc.Message.SendFindByIdTidakLengkapMessage(mpRequest.MPRCloneID.String())
 		if err != nil {
 			uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when send find by id message: %v", err)
 			// return nil, err
@@ -87,7 +87,7 @@ func (uc *MPRequestUseCase) FindAllPaginated(page int, pageSize int, search stri
 			continue
 		}
 
-		convertedData, err := uc.Service.CheckPortalData(resp)
+		convertedData, err := uc.Service.CheckPortalDataMinimal(resp)
 		if err != nil {
 			uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when check portal data: %v", err)
 			return nil, err

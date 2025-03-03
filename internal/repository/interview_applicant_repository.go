@@ -21,6 +21,7 @@ type IInterviewApplicantRepository interface {
 	FindAllByInterviewIDPaginatedAssessor(assessorID, interviewID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.InterviewApplicant, int64, error)
 	FindByUserProfileIDAndIDs(userProfileID uuid.UUID, ids []uuid.UUID) (*entity.InterviewApplicant, error)
 	FindByUserProfileIDAndInterviewIDs(userProfileID uuid.UUID, interviewIDs []uuid.UUID) (*entity.InterviewApplicant, error)
+	DeleteByInterviewID(interviewID uuid.UUID) error
 }
 
 type InterviewApplicantRepository struct {
@@ -246,4 +247,22 @@ func (r *InterviewApplicantRepository) FindByUserProfileIDAndInterviewIDs(userPr
 		}
 	}
 	return &interviewApplicant, nil
+}
+
+func (r *InterviewApplicantRepository) DeleteByInterviewID(interviewID uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Where("interview_id = ?", interviewID).Delete(&entity.InterviewApplicant{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

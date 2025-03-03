@@ -446,6 +446,60 @@ func (uc *FgdScheduleUseCase) UpdateFgdSchedule(req *request.UpdateFgdScheduleRe
 		}
 	}
 
+	if req.Status == string(entity.FGD_SCHEDULE_STATUS_DRAFT) {
+		// delete FgdSchedule applicants
+		err = uc.FgdApplicantRepository.DeleteByFgdScheduleID(parsedID)
+		if err != nil {
+			uc.Log.Error("[FgdScheduleUseCase.UpdateFgdScheduleRequest] " + err.Error())
+			return nil, err
+		}
+		// get applicants
+		applicantsPayload, err := uc.getApplicantIDsByJobPostingID(parsedJobPostingID, parsedPrlID, 1, req.TotalCandidate)
+		if err != nil {
+			uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
+			return nil, err
+		}
+
+		if applicantsPayload.Total == 0 {
+			err := uc.Repository.DeleteFgdSchedule(fgdSchedule.ID)
+			if err != nil {
+				uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
+				return nil, err
+			}
+
+			uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + "No applicants found")
+			return nil, errors.New("no applicants found")
+		}
+
+		// insert FgdSchedule applicants
+		for i, applicantID := range applicantsPayload.ApplicantIDs {
+			_, err = uc.FgdApplicantRepository.CreateFgdApplicant(&entity.FgdApplicant{
+				FgdScheduleID:    fgdSchedule.ID,
+				ApplicantID:      applicantID,
+				UserProfileID:    applicantsPayload.UserProfileIDs[i],
+				StartTime:        parsedStartTime,
+				EndTime:          parsedEndTime,
+				AssessmentStatus: entity.ASSESSMENT_STATUS_DRAFT,
+				FinalResult:      entity.FINAL_RESULT_STATUS_DRAFT,
+			})
+			if err != nil {
+				uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
+				return nil, err
+			}
+		}
+
+		if applicantsPayload.Total < req.TotalCandidate {
+			_, err = uc.Repository.UpdateFgdSchedule(&entity.FgdSchedule{
+				ID:             fgdSchedule.ID,
+				TotalCandidate: applicantsPayload.Total,
+			})
+			if err != nil {
+				uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
+				return nil, err
+			}
+		}
+	}
+
 	findByID, err := uc.Repository.FindByID(fgdSchedule.ID)
 	if err != nil {
 		uc.Log.Error("[FgdScheduleUseCase.UpdateFgdScheduleRequest] " + err.Error())

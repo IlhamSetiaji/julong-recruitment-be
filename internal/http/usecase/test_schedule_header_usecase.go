@@ -507,11 +507,83 @@ func (uc *TestScheduleHeaderUsecase) UpdateTestScheduleHeader(req *request.Updat
 		return nil, err
 	}
 
-	resp, err := uc.DTO.ConvertEntityToResponse(testScheduleHeader)
+	if req.Status == string(entity.TEST_SCHEDULE_STATUS_DRAFT) {
+		// delete test applicants
+		err := uc.TestApplicantRepository.DeleteByTestScheduleHeaderID(parsedID)
+		if err != nil {
+			uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+			return nil, err
+		}
+		// get applicants
+		applicantsPayload, err := uc.getApplicantIDsByJobPostingID(parsedJobPostingID, parsedPrlID, 1, req.TotalCandidate)
+		if err != nil {
+			uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+			return nil, err
+		}
+
+		// create test applicants
+		for i, applicantID := range applicantsPayload.ApplicantIDs {
+			_, err := uc.TestApplicantRepository.CreateTestApplicant(&entity.TestApplicant{
+				TestScheduleHeaderID: testScheduleHeader.ID,
+				ApplicantID:          applicantID,
+				UserProfileID:        applicantsPayload.UserProfileIDs[i],
+				StartTime:            parsedStartTime,
+				EndTime:              parsedEndTime,
+				FinalResult:          entity.FINAL_RESULT_STATUS_DRAFT,
+				AssessmentStatus:     entity.ASSESSMENT_STATUS_DRAFT,
+			})
+
+			if err != nil {
+				uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+				return nil, err
+			}
+		}
+
+		if applicantsPayload.Total < req.TotalCandidate {
+			zero, err := strconv.Atoi("0")
+			if err != nil {
+				uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+				return nil, err
+			}
+			uc.Log.Warn("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + "Total candidate is less than requested")
+			if applicantsPayload.Total == zero {
+				_, err = uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
+					ID:             testScheduleHeader.ID,
+					TotalCandidate: zero,
+				})
+				if err != nil {
+					uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+					return nil, err
+				}
+			} else {
+				_, err = uc.Repository.UpdateTestScheduleHeader(&entity.TestScheduleHeader{
+					ID:             testScheduleHeader.ID,
+					TotalCandidate: applicantsPayload.Total,
+				})
+				if err != nil {
+					uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+					return nil, err
+				}
+			}
+		}
+	}
+
+	findByID, err := uc.Repository.FindByID(testScheduleHeader.ID)
 	if err != nil {
 		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
 		return nil, err
 	}
+	if findByID == nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + "Test Schedule Header not found")
+		return nil, errors.New("Test Schedule Header not found")
+	}
+
+	resp, err := uc.DTO.ConvertEntityToResponse(findByID)
+	if err != nil {
+		uc.Log.Error("[TestScheduleHeaderUsecase.UpdateTestScheduleHeader] " + err.Error())
+		return nil, err
+	}
+
 	return resp, nil
 }
 

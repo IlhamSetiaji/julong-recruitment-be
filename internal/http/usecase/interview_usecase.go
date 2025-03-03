@@ -436,13 +436,84 @@ func (uc *InterviewUseCase) UpdateInterview(req *request.UpdateInterviewRequest)
 			for _, assessor := range req.InterviewAssessors {
 				parsedEmployeeID, err := uuid.Parse(assessor.EmployeeID)
 				if err != nil {
-					uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + err.Error())
+					uc.Log.Error("[InterviewUseCase.UpdateInterviewRequest] " + err.Error())
 					return nil, err
 				}
 
 				_, err = uc.InterviewAssessorRepository.CreateInterviewAssessor(&entity.InterviewAssessor{
 					InterviewID: interview.ID,
 					EmployeeID:  &parsedEmployeeID,
+				})
+				if err != nil {
+					uc.Log.Error("[InterviewUseCase.UpdateInterviewRequest] " + err.Error())
+					return nil, err
+				}
+			}
+		}
+	}
+
+	if req.Status == string(entity.INTERVIEW_STATUS_DRAFT) {
+		// delete interview applicant
+		err = uc.InterviewApplicantRepository.DeleteByInterviewID(parsedID)
+		if err != nil {
+			uc.Log.Error("[InterviewUseCase.UpdateInterviewRequest] " + err.Error())
+			return nil, err
+		}
+		// get applicants
+		applicantsPayload, err := uc.getApplicantIDsByJobPostingID(parsedJobPostingID, parsedPrlID, 1, req.TotalCandidate)
+		if err != nil {
+			uc.Log.Error("[InterviewUseCase.UpdateInterviewRequest] " + err.Error())
+			return nil, err
+		}
+
+		if applicantsPayload.Total == 0 {
+			err := uc.Repository.DeleteInterview(interview.ID)
+			if err != nil {
+				uc.Log.Error("[InterviewUseCase.UpdateInterviewRequest] " + err.Error())
+				return nil, err
+			}
+
+			uc.Log.Error("[InterviewUseCase.UpdateInterviewRequest] " + "No applicants found")
+			return nil, errors.New("no applicants found")
+		}
+
+		// insert interview applicants
+		for i, applicantID := range applicantsPayload.ApplicantIDs {
+			_, err = uc.InterviewApplicantRepository.CreateInterviewApplicant(&entity.InterviewApplicant{
+				InterviewID:      interview.ID,
+				ApplicantID:      applicantID,
+				UserProfileID:    applicantsPayload.UserProfileIDs[i],
+				StartTime:        parsedStartTime,
+				EndTime:          parsedEndTime,
+				AssessmentStatus: entity.ASSESSMENT_STATUS_DRAFT,
+				FinalResult:      entity.FINAL_RESULT_STATUS_DRAFT,
+			})
+			if err != nil {
+				uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + err.Error())
+				return nil, err
+			}
+		}
+
+		if applicantsPayload.Total < req.TotalCandidate {
+			zero, err := strconv.Atoi("0")
+			if err != nil {
+				uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + err.Error())
+				return nil, err
+			}
+			uc.Log.Warn("[InterviewUseCase.CreateInterviewRequest] " + "Total candidate is less than requested")
+			if applicantsPayload.Total == zero {
+				_, err = uc.Repository.UpdateInterview(&entity.Interview{
+					ID:             interview.ID,
+					TotalCandidate: zero,
+				})
+				if err != nil {
+					uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + err.Error())
+					return nil, err
+				}
+			} else {
+				_, err = uc.Repository.UpdateInterview(&entity.Interview{
+					ID:             interview.ID,
+					TotalCandidate: applicantsPayload.Total,
 				})
 				if err != nil {
 					uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + err.Error())

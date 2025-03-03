@@ -14,6 +14,7 @@ type ITestApplicantRepository interface {
 	CreateTestApplicant(ent *entity.TestApplicant) (*entity.TestApplicant, error)
 	UpdateTestApplicant(ent *entity.TestApplicant) (*entity.TestApplicant, error)
 	DeleteTestApplicant(id uuid.UUID) error
+	DeleteByTestScheduleHeaderID(testScheduleHeaderID uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.TestApplicant, error)
 	FindAllByApplicantIDs(applicantIDs []uuid.UUID) ([]entity.TestApplicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.TestApplicant, error)
@@ -210,4 +211,22 @@ func (r *TestApplicantRepository) FindByUserProfileIDAndTestScheduleHeaderIDs(us
 	}
 
 	return &testApplicant, nil
+}
+
+func (r *TestApplicantRepository) DeleteByTestScheduleHeaderID(testScheduleHeaderID uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Where("test_schedule_header_id = ?", testScheduleHeaderID).Delete(&entity.TestApplicant{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

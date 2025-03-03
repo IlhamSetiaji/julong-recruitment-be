@@ -14,6 +14,7 @@ type IFgdApplicantRepository interface {
 	CreateFgdApplicant(ent *entity.FgdApplicant) (*entity.FgdApplicant, error)
 	UpdateFgdApplicant(ent *entity.FgdApplicant) (*entity.FgdApplicant, error)
 	DeleteFgdApplicant(id uuid.UUID) error
+	DeleteByFgdScheduleID(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.FgdApplicant, error)
 	FindAllByApplicantIDs(applicantIDs []uuid.UUID) ([]entity.FgdApplicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.FgdApplicant, error)
@@ -210,4 +211,22 @@ func (r *FgdApplicantRepository) FindByUserProfileIDAndFgdIDs(userProfileID uuid
 		}
 	}
 	return &fgdApplicant, nil
+}
+
+func (r *FgdApplicantRepository) DeleteByFgdScheduleID(id uuid.UUID) error {
+	tx := r.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	if err := tx.Where("fgd_schedule_id = ?", id).Delete(&entity.FgdApplicant{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

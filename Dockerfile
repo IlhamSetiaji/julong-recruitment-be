@@ -67,7 +67,7 @@ WORKDIR /app
 RUN mkdir -p /storage && chmod -R 777 /storage
 
 # Copy the storage directory
-COPY public /app/storage
+COPY storage /app/storage
 
 # Copy the built Go application from the builder stage
 COPY --from=builder /app/main .

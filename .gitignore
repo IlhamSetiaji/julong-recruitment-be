@@ -1,5 +1,6 @@
 config.json
 julong-recruitment-be.exe
 julong-recruitment-be
-storage/
+storage/*
+!storage/hello.pdf
 main.exe

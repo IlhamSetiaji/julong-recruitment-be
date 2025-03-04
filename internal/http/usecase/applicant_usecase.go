@@ -16,6 +16,7 @@ import (
 type IApplicantUseCase interface {
 	ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error)
 	GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order string, total int, page, pageSize int, search string, sort map[string]interface{}) (*[]response.ApplicantResponse, int64, error)
+	GetApplicantsByJobPostingIDForExport(jobPostingID uuid.UUID) (*[]response.ApplicantResponse, error)
 	FindApplicantByJobPostingIDAndUserID(jobPostingID, userID uuid.UUID) (*response.ApplicantResponse, error)
 	FindByID(id uuid.UUID) (*entity.Applicant, error)
 }
@@ -393,4 +394,38 @@ func (uc *ApplicantUseCase) FindByID(id uuid.UUID) (*entity.Applicant, error) {
 	}
 
 	return applicant, nil
+}
+
+func (uc *ApplicantUseCase) GetApplicantsByJobPostingIDForExport(jobPostingID uuid.UUID) (*[]response.ApplicantResponse, error) {
+	// find job posting
+	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingIDForExport] " + err.Error())
+		return nil, err
+	}
+	if jobPosting == nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingIDForExport] " + "Job Posting not found")
+		return nil, errors.New("job posting not found")
+	}
+
+	applicants, err := uc.Repository.GetAllByKeys(map[string]interface{}{
+		"job_posting_id": jobPostingID,
+	})
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingIDForExport] " + err.Error())
+		return nil, err
+	}
+
+	applicantResponses := []response.ApplicantResponse{}
+	for _, applicant := range applicants {
+		applicantResponse, err := uc.DTO.ConvertEntityToResponse(&applicant)
+		if err != nil {
+			uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingIDForExport] " + err.Error())
+			return nil, err
+		}
+
+		applicantResponses = append(applicantResponses, *applicantResponse)
+	}
+
+	return &applicantResponses, nil
 }

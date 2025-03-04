@@ -6614,6 +6614,25 @@ paths:
       summary: get applicants by job posting ID
       tags:
       - Applicants
+  /applicants/job-posting/{job_posting_id}/export:
+    get:
+      consumes:
+      - application/json
+      description: export applicants by job posting
+      parameters:
+      - description: Job Posting ID
+        in: path
+        name: job_posting_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: export applicants by job posting
+      tags:
+      - Applicants
   /applicants/me:
     get:
       consumes:

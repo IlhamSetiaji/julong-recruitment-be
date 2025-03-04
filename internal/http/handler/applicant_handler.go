@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/xuri/excelize/v2"
 )
 
 type IApplicantHandler interface {
@@ -22,6 +24,7 @@ type IApplicantHandler interface {
 	GetApplicantsByJobPostingID(ctx *gin.Context)
 	FindApplicantByJobPostingIDAndUserID(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	ExportApplicantsByJobPosting(ctx *gin.Context)
 }
 
 type ApplicantHandler struct {
@@ -288,4 +291,110 @@ func (h *ApplicantHandler) FindByID(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Successfully find applicant", applicant)
+}
+
+// ExportApplicantsByJobPosting export applicants by job posting
+//
+// @Summary export applicants by job posting
+// @Description export applicants by job posting
+// @Tags Applicants
+// @Accept json
+// @Produce application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+// @Param job_posting_id path string true "Job Posting ID"
+// @Security BearerAuth
+// @Router /applicants/job-posting/{job_posting_id}/export [get]
+func (h *ApplicantHandler) ExportApplicantsByJobPosting(ctx *gin.Context) {
+	jobPostingID, err := uuid.Parse(ctx.Param("job_posting_id"))
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.ExportApplicantsByJobPosting] error when parsing job_posting_id: %v", err)
+		utils.BadRequestResponse(ctx, "job_posting_id is not a valid UUID", err)
+		return
+	}
+
+	applicants, err := h.UseCase.GetApplicantsByJobPostingIDForExport(jobPostingID)
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.ExportApplicantsByJobPosting] error when exporting applicants: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export applicants", err.Error())
+		return
+	}
+
+	f := excelize.NewFile()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println(err)
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export applicants", err.Error())
+			return
+		}
+	}()
+
+	f.SetSheetName("Sheet1", "Applicants")
+	f.SetCellValue("Applicants", "A1", "Applicant Name")
+	f.SetCellValue("Applicants", "B1", "Job Name")
+	f.SetCellValue("Applicants", "C1", "Work Experience")
+	f.SetCellValue("Applicants", "D1", "Applied Date")
+	f.SetCellValue("Applicants", "E1", "Phone Number")
+
+	// Create a style for the header
+	headerStyle, err := f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "left", Color: "000000", Style: 1},
+			{Type: "top", Color: "000000", Style: 1},
+			{Type: "bottom", Color: "000000", Style: 1},
+			{Type: "right", Color: "000000", Style: 1},
+		},
+		Fill: excelize.Fill{
+			Type:    "pattern",
+			Color:   []string{"#00FF00"},
+			Pattern: 1,
+		},
+		Font: &excelize.Font{
+			Bold: true,
+		},
+		Alignment: &excelize.Alignment{
+			Horizontal: "center",
+			Vertical:   "center",
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export applicants", err.Error())
+		return
+	}
+
+	// Set the style to the header
+	f.SetCellStyle("Applicants", "A1", "A1", headerStyle)
+	f.SetCellStyle("Applicants", "B1", "B1", headerStyle)
+	f.SetCellStyle("Applicants", "C1", "C1", headerStyle)
+	f.SetCellStyle("Applicants", "D1", "D1", headerStyle)
+	f.SetCellStyle("Applicants", "E1", "E1", headerStyle)
+
+	for i, applicant := range *applicants {
+		f.SetCellValue("Applicants", fmt.Sprintf("A%d", i+2), applicant.UserProfile.Name)
+		f.SetCellValue("Applicants", fmt.Sprintf("B%d", i+2), applicant.JobPosting.JobName)
+		if applicant.UserProfile.WorkExperiences != nil {
+			var concatenatedValue string
+			for _, we := range *applicant.UserProfile.WorkExperiences {
+				cellValue := we.Name
+
+				if concatenatedValue != "" {
+					concatenatedValue += ", "
+				}
+				concatenatedValue += cellValue
+			}
+
+			f.SetCellValue("Applicants", fmt.Sprintf("C%d", i+2), concatenatedValue)
+		}
+		f.SetCellValue("Applicants", fmt.Sprintf("D%d", i+2), applicant.AppliedDate)
+		f.SetCellValue("Applicants", fmt.Sprintf("E%d", i+2), applicant.UserProfile.PhoneNumber)
+	}
+
+	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	ctx.Header("Content-Disposition", "attachment; filename=applicants_exported.xlsx")
+	ctx.Header("Content-Transfer-Encoding", "binary")
+
+	if err := f.Write(ctx.Writer); err != nil {
+		fmt.Println(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export applicants", err.Error())
+		return
+	}
 }

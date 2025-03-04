@@ -863,11 +863,12 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 				return nil, err
 			}
 		}
-
-		err = uc.employeeHired(*applicant, *&docSending.ProjectRecruitmentLine.TemplateActivityLine.QuestionTemplateID, *jobPosting, *documentSending)
-		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
-			return nil, err
+		if req.SyncMidsuit == "YES" {
+			err = uc.employeeHired(*applicant, *&docSending.ProjectRecruitmentLine.TemplateActivityLine.QuestionTemplateID, *jobPosting, *documentSending)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
 		}
 	} else if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_COMPLETED {
 		applicantOrder := applicant.Order
@@ -911,10 +912,12 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 			}
 		}
 
-		err = uc.employeeHired(*applicant, *&docSending.ProjectRecruitmentLine.TemplateActivityLine.QuestionTemplateID, *jobPosting, *documentSending)
-		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
-			return nil, err
+		if req.SyncMidsuit == "YES" {
+			err = uc.employeeHired(*applicant, *&docSending.ProjectRecruitmentLine.TemplateActivityLine.QuestionTemplateID, *jobPosting, *documentSending)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
 		}
 	} else if entity.DocumentSendingStatus(req.Status) == entity.DOCUMENT_SENDING_STATUS_REJECTED {
 		_, err = uc.ApplicantRepository.UpdateApplicantWhenRejected(&entity.Applicant{

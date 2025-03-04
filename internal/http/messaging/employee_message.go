@@ -153,8 +153,9 @@ func (m *EmployeeMessage) SendCreateEmployeeMessage(req request.SendCreateEmploy
 
 func (m *EmployeeMessage) SendCreateEmployeeTaskMessage(req request.SendCreateEmployeeTaskMessageRequest) (*string, error) {
 	payload := map[string]interface{}{
-		"employee_id": req.EmployeeID,
-		"joined_date": req.JoinedDate,
+		"employee_id":       req.EmployeeID,
+		"joined_date":       req.JoinedDate,
+		"organization_type": req.OrganizationType,
 	}
 
 	docMsg := &request.RabbitMQRequest{

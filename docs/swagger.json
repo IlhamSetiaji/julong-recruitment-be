@@ -9497,6 +9497,9 @@
                         "$ref": "#/definitions/entity.Education"
                     }
                 },
+                "expected_salary": {
+                    "type": "integer"
+                },
                 "gender": {
                     "$ref": "#/definitions/entity.UserGender"
                 },
@@ -10402,6 +10405,7 @@
                 "document_number",
                 "end_date",
                 "name",
+                "project_pic_id",
                 "recruitment_type",
                 "start_date",
                 "status",
@@ -10421,6 +10425,9 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "project_pic_id": {
                     "type": "string"
                 },
                 "recruitment_type": {
@@ -11183,6 +11190,7 @@
                 "end_date",
                 "id",
                 "name",
+                "project_pic_id",
                 "recruitment_type",
                 "start_date",
                 "status",
@@ -11205,6 +11213,9 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "project_pic_id": {
                     "type": "string"
                 },
                 "recruitment_type": {
@@ -13723,6 +13734,9 @@
                     "items": {
                         "$ref": "#/definitions/response.EducationResponse"
                     }
+                },
+                "expected_salary": {
+                    "type": "integer"
                 },
                 "gender": {
                     "$ref": "#/definitions/entity.UserGender"

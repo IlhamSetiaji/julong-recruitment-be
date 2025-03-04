@@ -9503,6 +9503,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/entity.Education"
                     }
                 },
+                "expected_salary": {
+                    "type": "integer"
+                },
                 "gender": {
                     "$ref": "#/definitions/entity.UserGender"
                 },
@@ -10408,6 +10411,7 @@ const docTemplate = `{
                 "document_number",
                 "end_date",
                 "name",
+                "project_pic_id",
                 "recruitment_type",
                 "start_date",
                 "status",
@@ -10427,6 +10431,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "project_pic_id": {
                     "type": "string"
                 },
                 "recruitment_type": {
@@ -11189,6 +11196,7 @@ const docTemplate = `{
                 "end_date",
                 "id",
                 "name",
+                "project_pic_id",
                 "recruitment_type",
                 "start_date",
                 "status",
@@ -11211,6 +11219,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "project_pic_id": {
                     "type": "string"
                 },
                 "recruitment_type": {
@@ -13729,6 +13740,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/response.EducationResponse"
                     }
+                },
+                "expected_salary": {
+                    "type": "integer"
                 },
                 "gender": {
                     "$ref": "#/definitions/entity.UserGender"

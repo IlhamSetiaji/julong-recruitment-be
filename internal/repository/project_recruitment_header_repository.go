@@ -215,27 +215,43 @@ func (r *ProjectRecruitmentHeaderRepository) CountDaysToHireByTotalDays(daysRang
 	switch daysRange {
 	case "> 30 Hari":
 		query = `
-			SELECT COUNT(*)
-			FROM project_recruitment_headers
-			WHERE AGE(end_date, start_date) > INTERVAL '30 days'
+		SELECT 
+    COUNT(*)
+FROM document_sendings ds 
+LEFT JOIN job_postings jp ON ds.job_posting_id = jp.id 
+LEFT JOIN mp_requests mr ON mr.id = jp.mp_request_id 
+WHERE ds.joined_date IS NOT NULL 
+  AND (ds.joined_date - mr.created_at) > INTERVAL '30 days'
 		`
 	case "21 - 30 Hari":
 		query = `
-			SELECT COUNT(*)
-			FROM project_recruitment_headers
-			WHERE AGE(end_date, start_date) BETWEEN INTERVAL '21 days' AND INTERVAL '30 days'
+			SELECT 
+    COUNT(*) AS total_days
+FROM document_sendings ds 
+LEFT JOIN job_postings jp ON ds.job_posting_id = jp.id 
+LEFT JOIN mp_requests mr ON mr.id = jp.mp_request_id 
+WHERE ds.joined_date IS NOT NULL 
+  AND (ds.joined_date - mr.created_at) BETWEEN INTERVAL '21 days' AND INTERVAL '30 days'
 		`
 	case "11 - 20 Hari":
 		query = `
-			SELECT COUNT(*)
-			FROM project_recruitment_headers
-			WHERE AGE(end_date, start_date) BETWEEN INTERVAL '11 days' AND INTERVAL '20 days'
+			SELECT 
+    COUNT(*) AS total_days
+FROM document_sendings ds 
+LEFT JOIN job_postings jp ON ds.job_posting_id = jp.id 
+LEFT JOIN mp_requests mr ON mr.id = jp.mp_request_id 
+WHERE ds.joined_date IS NOT NULL 
+  AND (ds.joined_date - mr.created_at) BETWEEN INTERVAL '11 days' AND INTERVAL '10 days'
 		`
 	case "1 - 10 Hari":
 		query = `
-			SELECT COUNT(*)
-			FROM project_recruitment_headers
-			WHERE AGE(end_date, start_date) BETWEEN INTERVAL '1 day' AND INTERVAL '10 days'
+			SELECT 
+    COUNT(*) AS total_days
+FROM document_sendings ds 
+LEFT JOIN job_postings jp ON ds.job_posting_id = jp.id 
+LEFT JOIN mp_requests mr ON mr.id = jp.mp_request_id 
+WHERE ds.joined_date IS NOT NULL 
+  AND (ds.joined_date - mr.created_at) BETWEEN INTERVAL '1 day' AND INTERVAL '30 days'
 		`
 	default:
 		r.Log.Errorf("[ProjectRecruitmentHeaderRepository.CountDaysToHireByTotalDays] invalid days range: %v", daysRange)
@@ -254,8 +270,12 @@ func (r *ProjectRecruitmentHeaderRepository) CountDaysToHireByTotalDays(daysRang
 func (r *ProjectRecruitmentHeaderRepository) CountAverageDaysToHireAll() (float64, error) {
 	var avg float64
 	err := r.DB.Raw(`
-		SELECT AVG(DATE_PART('day', AGE(end_date, start_date)))
-		FROM project_recruitment_headers
+		SELECT 
+    AVG(EXTRACT(EPOCH FROM (ds.joined_date - mr.created_at)) / 86400)
+FROM document_sendings ds 
+LEFT JOIN job_postings jp ON ds.job_posting_id = jp.id 
+LEFT JOIN mp_requests mr ON mr.id = jp.mp_request_id 
+WHERE ds.joined_date IS NOT NULL
 	`).Scan(&avg).Error
 	if err != nil {
 		r.Log.Errorf("[ProjectRecruitmentHeaderRepository.CountAverageDaysToHireAll] error when querying average days to hire all: %v", err)

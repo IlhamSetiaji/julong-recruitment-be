@@ -1305,6 +1305,8 @@ definitions:
         items:
           $ref: '#/definitions/entity.Education'
         type: array
+      expected_salary:
+        type: integer
       gender:
         $ref: '#/definitions/entity.UserGender'
       id:
@@ -1932,6 +1934,8 @@ definitions:
         type: string
       name:
         type: string
+      project_pic_id:
+        type: string
       recruitment_type:
         type: string
       start_date:
@@ -1945,6 +1949,7 @@ definitions:
     - document_number
     - end_date
     - name
+    - project_pic_id
     - recruitment_type
     - start_date
     - status
@@ -2481,6 +2486,8 @@ definitions:
         type: string
       name:
         type: string
+      project_pic_id:
+        type: string
       recruitment_type:
         type: string
       start_date:
@@ -2495,6 +2502,7 @@ definitions:
     - end_date
     - id
     - name
+    - project_pic_id
     - recruitment_type
     - start_date
     - status
@@ -4163,6 +4171,8 @@ definitions:
         items:
           $ref: '#/definitions/response.EducationResponse'
         type: array
+      expected_salary:
+        type: integer
       gender:
         $ref: '#/definitions/entity.UserGender'
       id:

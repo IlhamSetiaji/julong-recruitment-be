@@ -61,6 +61,7 @@ type DocumentSendingUseCase struct {
 	TemplateQuestionRepository       repository.ITemplateQuestionRepository
 	MPRequestMessage                 messaging.IMPRequestMessage
 	MPRequestService                 service.IMPRequestService
+	OrganizationMessage              messaging.IOrganizationMessage
 }
 
 func NewDocumentSendingUseCase(
@@ -81,6 +82,7 @@ func NewDocumentSendingUseCase(
 	templateQuestionRepository repository.ITemplateQuestionRepository,
 	mpRequestMessage messaging.IMPRequestMessage,
 	mpRequestService service.IMPRequestService,
+	organizationMessage messaging.IOrganizationMessage,
 ) IDocumentSendingUseCase {
 	return &DocumentSendingUseCase{
 		Log:                              log,
@@ -100,6 +102,7 @@ func NewDocumentSendingUseCase(
 		TemplateQuestionRepository:       templateQuestionRepository,
 		MPRequestMessage:                 mpRequestMessage,
 		MPRequestService:                 mpRequestService,
+		OrganizationMessage:              organizationMessage,
 	}
 }
 
@@ -119,6 +122,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 	templateQuestionRepository := repository.TemplateQuestionRepositoryFactory(log)
 	mpRequestMessage := messaging.MPRequestMessageFactory(log)
 	mpRequestService := service.MPRequestServiceFactory(log)
+	organizationMessage := messaging.OrganizationMessageFactory(log)
 	return NewDocumentSendingUseCase(
 		log,
 		repo,
@@ -137,6 +141,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 		templateQuestionRepository,
 		mpRequestMessage,
 		mpRequestService,
+		organizationMessage,
 	)
 }
 
@@ -1052,9 +1057,24 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			return err
 		}
 
+		organizationID, err := uc.UserHelper.GetOrganizationID(umResponse.User)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+
+		organizationResp, err := uc.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
+			ID: organizationID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+
 		_, err = uc.EmployeeMessage.SendCreateEmployeeTaskMessage(request.SendCreateEmployeeTaskMessageRequest{
-			EmployeeID: employeeID.String(),
-			JoinedDate: documentSending.JoinedDate.String(),
+			EmployeeID:       employeeID.String(),
+			JoinedDate:       documentSending.JoinedDate.String(),
+			OrganizationType: organizationResp.OrganizationType,
 		})
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
@@ -1079,7 +1099,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 func (uc *DocumentSendingUseCase) DeleteDocumentSending(id string) error {
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.DeleteDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.DeleteDocumentSending] or" + err.Error())
 		return err
 	}
 

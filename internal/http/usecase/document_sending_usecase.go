@@ -1057,6 +1057,10 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			ID:     applicant.ID,
 			Status: entity.APPLICANT_STATUS_HIRED,
 		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
 	}
 
 	return nil

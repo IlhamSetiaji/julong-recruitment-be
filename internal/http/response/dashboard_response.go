@@ -21,7 +21,8 @@ type TotalRecruitmentRealizationResponse struct {
 }
 
 type TotalBilingualResponse struct {
-	TotalBilingual int `json:"total_bilingual"`
+	TotalBilingual    int `json:"total_bilingual"`
+	TotalNonBilingual int `json:"total_non_bilingual"`
 }
 
 type ChartDurationRecruitmentResponse struct {

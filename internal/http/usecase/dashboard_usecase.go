@@ -233,11 +233,19 @@ func (uc *DashboardUseCase) getTotalBilingual() (*response.TotalBilingualRespons
 		uc.Log.WithError(err).Error("[DashboardUseCase.getTotalBilingual] failed to get all applicants")
 		return nil, err
 	}
-
-	totalBilingual := len(applicants)
+	var totalBilingual int
+	var TotalNonBilingual int
+	for _, applicant := range applicants {
+		if applicant.UserProfile.Bilingual == "yes" {
+			totalBilingual++
+		} else {
+			TotalNonBilingual++
+		}
+	}
 
 	return &response.TotalBilingualResponse{
-		TotalBilingual: totalBilingual,
+		TotalBilingual:    totalBilingual,
+		TotalNonBilingual: TotalNonBilingual,
 	}, nil
 }
 

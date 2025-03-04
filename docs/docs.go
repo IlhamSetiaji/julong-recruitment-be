@@ -13660,6 +13660,9 @@ const docTemplate = `{
             "properties": {
                 "total_bilingual": {
                     "type": "integer"
+                },
+                "total_non_bilingual": {
+                    "type": "integer"
                 }
             }
         },

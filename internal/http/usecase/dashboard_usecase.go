@@ -165,45 +165,36 @@ func (uc *DashboardUseCase) GetDashboard() (*response.DashboardResponse, error) 
 }
 
 func (uc *DashboardUseCase) getTotalRecruitmentTarget() (*response.TotalRecruitmentTargetResponse, error) {
-	mprResponses := make([]response.MPRequestHeaderResponse, 0)
+	countMpr := 0
 	mpRequests, err := uc.MPRequestRepository.FindAll()
 	if err != nil {
 		uc.Log.WithError(err).Error("[DashboardUseCase.getTotalRecruitmentTarget] failed to get all MP requests")
 		return nil, err
 	}
 	for _, mpRequest := range *mpRequests {
-		resp, err := uc.MPRequestMessage.SendFindByIdMessage(mpRequest.MPRCloneID.String())
+		_, err := uc.MPRequestMessage.SendFindByIdMessage(mpRequest.MPRCloneID.String())
 		if err != nil {
 			uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when send find by id message: %v", err)
 			continue
 		}
-
-		convertedData, err := uc.MPRequestService.CheckPortalData(resp)
-		if err != nil {
-			uc.Log.Errorf("[MPRequestUseCase.FindAllPaginated] error when check portal data: %v", err)
-			return nil, err
-		}
-		convertedData.Status = string(mpRequest.Status)
-		convertedData.ID = mpRequest.ID
-
-		mprResponses = append(mprResponses, *convertedData)
+		countMpr++
 	}
-	applicants, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
+	applicantsHired, err := uc.ApplicantRepository.GetAllByKeys(map[string]interface{}{
 		"status": entity.APPLICANT_STATUS_HIRED,
 	})
 	if err != nil {
 		uc.Log.WithError(err).Error("[DashboardUseCase.getTotalRecruitmentTarget] failed to get all hired applicants")
 		return nil, err
 	}
-	totalRecruitmentTarget := len(mprResponses)
-	var percentage int
-	if len(applicants) > 0 {
-		percentage = len(applicants) / totalRecruitmentTarget * 100
+	totalRecruitmentTarget := countMpr
+	var percentage float64
+	if totalRecruitmentTarget > 0 {
+		percentage = (float64(len(applicantsHired)) / float64(totalRecruitmentTarget)) * 100
 	}
 
 	return &response.TotalRecruitmentTargetResponse{
 		TotalRecruitmentTarget: totalRecruitmentTarget,
-		Percentage:             percentage,
+		Percentage:             int(percentage),
 	}, nil
 }
 
@@ -223,14 +214,14 @@ func (uc *DashboardUseCase) getTotalRecruitmentRealization() (*response.TotalRec
 	}
 
 	totalRecruitmentRealization := len(applicantsHired)
-	var percentage int
+	var percentage float64
 	if len(applicants) > 0 {
-		percentage = len(applicantsHired) / len(applicants) * 100
+		percentage = (float64(len(applicantsHired)) / float64(len(applicants))) * 100
 	}
 
 	return &response.TotalRecruitmentRealizationResponse{
 		TotalRecruitmentRealization: totalRecruitmentRealization,
-		Percentage:                  percentage,
+		Percentage:                  int(percentage),
 	}, nil
 }
 

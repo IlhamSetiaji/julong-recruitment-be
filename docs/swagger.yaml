@@ -696,6 +696,8 @@ definitions:
         $ref: '#/definitions/entity.MPRequest'
       mp_request_id:
         type: string
+      name:
+        type: string
       organization_logo:
         type: string
       poster:
@@ -3510,6 +3512,8 @@ definitions:
       mp_request:
         $ref: '#/definitions/response.MPRequestHeaderResponse'
       mp_request_id:
+        type: string
+      name:
         type: string
       organization_logo:
         type: string

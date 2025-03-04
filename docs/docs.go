@@ -8624,6 +8624,9 @@ const docTemplate = `{
                 "mp_request_id": {
                     "type": "string"
                 },
+                "name": {
+                    "type": "string"
+                },
                 "organization_logo": {
                     "type": "string"
                 },
@@ -12743,6 +12746,9 @@ const docTemplate = `{
                     "$ref": "#/definitions/response.MPRequestHeaderResponse"
                 },
                 "mp_request_id": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 },
                 "organization_logo": {

@@ -550,7 +550,13 @@ func (uc *DocumentSendingUseCase) generatePdf(text string) (*string, error) {
 		chromedp.Navigate(dataURL),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			var err error
-			pdfBuffer, _, err = page.PrintToPDF().WithPrintBackground(true).Do(ctx)
+			pdfBuffer, _, err = page.PrintToPDF().
+				WithPrintBackground(true).
+				WithMarginTop(1.0).
+				WithMarginRight(1.0).
+				WithMarginBottom(1.0).
+				WithMarginLeft(1.0).
+				Do(ctx)
 			return err
 		}),
 	)

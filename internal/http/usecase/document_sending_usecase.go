@@ -285,6 +285,7 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		DocumentNumber:           req.DocumentNumber,
 		Status:                   entity.DocumentSendingStatus(req.Status),
 		DetailContent:            req.DetailContent,
+		SyncMidsuit:              entity.SyncMidsuitEnum(req.SyncMidsuit),
 	})
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
@@ -599,63 +600,63 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 
 	parsedProjectRecruitmentLineID, err := uuid.Parse(req.ProjectRecruitmentLineID)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 		return nil, err
 	}
 	projectRecruitmentLine, err := uc.ProjectRecruitmentLineRepository.FindByID(parsedProjectRecruitmentLineID)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 		return nil, err
 	}
 	if projectRecruitmentLine == nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] project recruitment line not found")
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] project recruitment line not found")
 		return nil, errors.New("project recruitment line not found")
 	}
 
 	parsedApplicantID, err := uuid.Parse(req.ApplicantID)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 		return nil, err
 	}
 	applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
 		"id": parsedApplicantID,
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 		return nil, err
 	}
 	if applicant == nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] applicant not found")
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] applicant not found")
 		return nil, errors.New("applicant not found")
 	}
 
 	parsedDocumentSetupID, err := uuid.Parse(req.DocumentSetupID)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 		return nil, err
 	}
 	documentSetup, err := uc.DocumentSetupRepository.FindByID(parsedDocumentSetupID)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 		return nil, err
 	}
 	if documentSetup == nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] document setup not found")
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] document setup not found")
 		return nil, errors.New("document setup not found")
 	}
 
 	parsedJobPostingID, err := uuid.Parse(req.JobPostingID)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 		return nil, err
 	}
 	jobPosting, err := uc.JobPostingRepository.FindByID(parsedJobPostingID)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 		return nil, err
 	}
 	if jobPosting == nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] job posting not found")
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] job posting not found")
 		return nil, errors.New("job posting not found")
 	}
 
@@ -663,7 +664,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 	if req.JobLevelID != "" {
 		parsedJobLevelUUID, err := uuid.Parse(req.JobLevelID)
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return nil, err
 		}
 		parsedJobLevelID = &parsedJobLevelUUID
@@ -673,7 +674,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 	if req.ForOrganizationID != "" {
 		parsedForOrganizationUUID, err := uuid.Parse(req.ForOrganizationID)
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return nil, err
 		}
 
@@ -682,7 +683,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 
 	parsedDocumentDate, err := time.Parse("2006-01-02", req.DocumentDate)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 		return nil, err
 	}
 
@@ -690,7 +691,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 	if req.JoinedDate != "" {
 		parsedJoinDate, err := time.Parse("2006-01-02", req.JoinedDate)
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return nil, err
 		}
 		parsedJoinedDate = &parsedJoinDate
@@ -700,7 +701,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 	if req.OrganizationLocationID != "" {
 		parsedOrganizationLocationUUID, err := uuid.Parse(req.OrganizationLocationID)
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return nil, err
 		}
 		parsedOrganizationLocationID = &parsedOrganizationLocationUUID
@@ -729,6 +730,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		DocumentNumber:           req.DocumentNumber,
 		Status:                   entity.DocumentSendingStatus(req.Status),
 		DetailContent:            req.DetailContent,
+		SyncMidsuit:              entity.SyncMidsuitEnum(req.SyncMidsuit),
 	})
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
@@ -1068,6 +1070,8 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			return err
 		}
 	}
+
+	// if req.SyncMidsuit == entity.SYNC_MIDSUIT_YES
 
 	return nil
 }

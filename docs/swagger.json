@@ -7923,6 +7923,9 @@
                 },
                 "status": {
                     "$ref": "#/definitions/entity.DocumentSendingStatus"
+                },
+                "sync_midsuit": {
+                    "$ref": "#/definitions/entity.SyncMidsuitEnum"
                 }
             }
         },
@@ -8822,6 +8825,9 @@
                 "name": {
                     "type": "string"
                 },
+                "project_pic_id": {
+                    "type": "string"
+                },
                 "project_recruitment_lines": {
                     "type": "array",
                     "items": {
@@ -9061,6 +9067,17 @@
                     "type": "string"
                 }
             }
+        },
+        "entity.SyncMidsuitEnum": {
+            "type": "string",
+            "enum": [
+                "YES",
+                "NO"
+            ],
+            "x-enum-varnames": [
+                "SYNC_MIDSUIT_YES",
+                "SYNC_MIDSUIT_NO"
+            ]
         },
         "entity.TemplateActivity": {
             "type": "object",
@@ -9723,6 +9740,13 @@
                 },
                 "status": {
                     "type": "string"
+                },
+                "sync_midsuit": {
+                    "type": "string",
+                    "enum": [
+                        "YES",
+                        "NO"
+                    ]
                 }
             }
         },
@@ -10861,6 +10885,13 @@
                 },
                 "status": {
                     "type": "string"
+                },
+                "sync_midsuit": {
+                    "type": "string",
+                    "enum": [
+                        "YES",
+                        "NO"
+                    ]
                 }
             }
         },
@@ -11795,6 +11826,9 @@
                 },
                 "status": {
                     "$ref": "#/definitions/entity.DocumentSendingStatus"
+                },
+                "sync_midsuit": {
+                    "$ref": "#/definitions/entity.SyncMidsuitEnum"
                 },
                 "updated_at": {
                     "type": "string"
@@ -13092,6 +13126,12 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_pic_name": {
                     "type": "string"
                 },
                 "project_recruitment_lines": {

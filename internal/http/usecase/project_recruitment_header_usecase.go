@@ -83,6 +83,12 @@ func (uc *ProjectRecruitmentHeaderUseCase) CreateProjectRecruitmentHeader(req *r
 		return nil, err
 	}
 
+	parsedProjectPicID, err := uuid.Parse(req.ProjectPicID)
+	if err != nil {
+		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.CreateProjectRecruitmentHeader] " + err.Error())
+		return nil, err
+	}
+
 	projectRecruitmentHeader, err := uc.Repository.CreateProjectRecruitmentHeader(&entity.ProjectRecruitmentHeader{
 		TemplateActivityID: *templateActivityID,
 		Name:               req.Name,
@@ -93,6 +99,7 @@ func (uc *ProjectRecruitmentHeaderUseCase) CreateProjectRecruitmentHeader(req *r
 		StartDate:          parsedStartDate,
 		EndDate:            parsedEndDate,
 		Status:             entity.ProjectRecruitmentHeaderStatus(req.Status),
+		ProjectPicID:       &parsedProjectPicID,
 	})
 	if err != nil {
 		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.CreateProjectRecruitmentHeader] " + err.Error())
@@ -181,6 +188,12 @@ func (uc *ProjectRecruitmentHeaderUseCase) UpdateProjectRecruitmentHeader(req *r
 		return nil, err
 	}
 
+	parsedProjectPicID, err := uuid.Parse(req.ProjectPicID)
+	if err != nil {
+		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.CreateProjectRecruitmentHeader] " + err.Error())
+		return nil, err
+	}
+
 	projectRecruitmentHeader, err := uc.Repository.UpdateProjectRecruitmentHeader(&entity.ProjectRecruitmentHeader{
 		ID:                 parsedID,
 		TemplateActivityID: *templateActivityID,
@@ -192,6 +205,7 @@ func (uc *ProjectRecruitmentHeaderUseCase) UpdateProjectRecruitmentHeader(req *r
 		StartDate:          parsedStartDate,
 		EndDate:            parsedEndDate,
 		Status:             entity.ProjectRecruitmentHeaderStatus(req.Status),
+		ProjectPicID:       &parsedProjectPicID,
 	})
 	if err != nil {
 		uc.Log.Error("[ProjectRecruitmentHeaderUseCase.UpdateProjectRecruitmentHeader] " + err.Error())

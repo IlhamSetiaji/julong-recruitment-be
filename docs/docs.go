@@ -7929,6 +7929,9 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/entity.DocumentSendingStatus"
+                },
+                "sync_midsuit": {
+                    "$ref": "#/definitions/entity.SyncMidsuitEnum"
                 }
             }
         },
@@ -8828,6 +8831,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "project_pic_id": {
+                    "type": "string"
+                },
                 "project_recruitment_lines": {
                     "type": "array",
                     "items": {
@@ -9067,6 +9073,17 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "entity.SyncMidsuitEnum": {
+            "type": "string",
+            "enum": [
+                "YES",
+                "NO"
+            ],
+            "x-enum-varnames": [
+                "SYNC_MIDSUIT_YES",
+                "SYNC_MIDSUIT_NO"
+            ]
         },
         "entity.TemplateActivity": {
             "type": "object",
@@ -9729,6 +9746,13 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                },
+                "sync_midsuit": {
+                    "type": "string",
+                    "enum": [
+                        "YES",
+                        "NO"
+                    ]
                 }
             }
         },
@@ -10867,6 +10891,13 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                },
+                "sync_midsuit": {
+                    "type": "string",
+                    "enum": [
+                        "YES",
+                        "NO"
+                    ]
                 }
             }
         },
@@ -11801,6 +11832,9 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/entity.DocumentSendingStatus"
+                },
+                "sync_midsuit": {
+                    "$ref": "#/definitions/entity.SyncMidsuitEnum"
                 },
                 "updated_at": {
                     "type": "string"
@@ -13098,6 +13132,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "project_pic_id": {
+                    "type": "string"
+                },
+                "project_pic_name": {
                     "type": "string"
                 },
                 "project_recruitment_lines": {

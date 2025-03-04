@@ -135,8 +135,9 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 			}
 			return ""
 		}(),
-		CreatedAt: ent.CreatedAt,
-		UpdatedAt: ent.UpdatedAt,
+		SyncMidsuit: ent.SyncMidsuit,
+		CreatedAt:   ent.CreatedAt,
+		UpdatedAt:   ent.UpdatedAt,
 		ProjectRecruitmentLine: func() *response.ProjectRecruitmentLineResponse {
 			if ent.ProjectRecruitmentLine != nil {
 				return dto.ProjectRecruitmentLineDTO.ConvertEntityToResponse(ent.ProjectRecruitmentLine)

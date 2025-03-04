@@ -20,6 +20,13 @@ const (
 	DOCUMENT_SENDING_STATUS_COMPLETED DocumentSendingStatus = "COMPLETED"
 )
 
+type SyncMidsuitEnum string
+
+const (
+	SYNC_MIDSUIT_YES SyncMidsuitEnum = "YES"
+	SYNC_MIDSUIT_NO  SyncMidsuitEnum = "NO"
+)
+
 type DocumentSending struct {
 	gorm.Model               `json:"-"`
 	ID                       uuid.UUID              `json:"id" gorm:"type:char(36);primaryKey;"`
@@ -46,6 +53,7 @@ type DocumentSending struct {
 	JobPostingID             uuid.UUID              `json:"job_posting_id" gorm:"type:char(36);default:null"`
 	DetailContent            string                 `json:"detail_content" gorm:"type:text;default:null"`
 	Path                     string                 `json:"path" gorm:"type:text;default:null"`
+	SyncMidsuit              SyncMidsuitEnum        `json:"sync_midsuit" gorm:"type:text;default:null"`
 
 	ProjectRecruitmentLine *ProjectRecruitmentLine `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Applicant              *Applicant              `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

@@ -10,6 +10,7 @@ type CreateProjectRecruitmentHeader struct {
 	StartDate          string `json:"start_date" validate:"required,datetime=2006-01-02"`
 	EndDate            string `json:"end_date" validate:"required,datetime=2006-01-02"`
 	Status             string `json:"status" validate:"required,project_recruitment_header_status_validation"`
+	ProjectPicID       string `json:"project_pic_id" validate:"required,uuid"`
 }
 
 type UpdateProjectRecruitmentHeader struct {
@@ -23,4 +24,5 @@ type UpdateProjectRecruitmentHeader struct {
 	StartDate          string `json:"start_date" validate:"required,datetime=2006-01-02"`
 	EndDate            string `json:"end_date" validate:"required,datetime=2006-01-02"`
 	Status             string `json:"status" validate:"required,project_recruitment_header_status_validation"`
+	ProjectPicID       string `json:"project_pic_id" validate:"required,uuid"`
 }

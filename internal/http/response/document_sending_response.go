@@ -32,6 +32,7 @@ type DocumentSendingResponse struct {
 	OrganizationLocationID   *uuid.UUID                    `json:"organization_location_id"`
 	DetailContent            string                        `json:"detail_content"`
 	Path                     string                        `json:"path"`
+	SyncMidsuit              entity.SyncMidsuitEnum        `json:"sync_midsuit"`
 	CreatedAt                time.Time                     `json:"created_at"`
 	UpdatedAt                time.Time                     `json:"updated_at"`
 

@@ -23,6 +23,7 @@ type CreateDocumentSendingRequest struct {
 	OrganizationLocationID string `json:"organization_location_id" validate:"omitempty"`
 	DetailContent          string `json:"detail_content" validate:"required"`
 	RecruitmentType        string `json:"recruitment_type" validate:"required,recruitment_type_validation"`
+	SyncMidsuit            string `json:"sync_midsuit" validate:"omitempty,oneof=YES NO"`
 }
 
 type UpdateDocumentSendingRequest struct {
@@ -49,4 +50,5 @@ type UpdateDocumentSendingRequest struct {
 	OrganizationLocationID string `json:"organization_location_id" validate:"omitempty"`
 	DetailContent          string `json:"detail_content" validate:"required"`
 	RecruitmentType        string `json:"recruitment_type" validate:"required,recruitment_type_validation"`
+	SyncMidsuit            string `json:"sync_midsuit" validate:"omitempty,oneof=YES NO"`
 }

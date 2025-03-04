@@ -18,7 +18,9 @@ type ProjectRecruitmentHeaderResponse struct {
 	StartDate          time.Time                             `json:"start_date"`
 	EndDate            time.Time                             `json:"end_date"`
 	Status             entity.ProjectRecruitmentHeaderStatus `json:"status"`
+	ProjectPicID       *uuid.UUID                            `json:"project_pic_id"`
 
+	ProjectPicName          string                           `json:"project_pic_name"`
 	TemplateActivity        *TemplateActivityResponse        `json:"template_activity"`
 	ProjectRecruitmentLines []ProjectRecruitmentLineResponse `json:"project_recruitment_lines"`
 }

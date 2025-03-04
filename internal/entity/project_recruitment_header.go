@@ -39,6 +39,7 @@ type ProjectRecruitmentHeader struct {
 	StartDate          time.Time                      `json:"start_date" gorm:"type:date;not null"`
 	EndDate            time.Time                      `json:"end_date" gorm:"type:date;not null"`
 	Status             ProjectRecruitmentHeaderStatus `json:"status" gorm:"default:'DRAFT'"`
+	ProjectPicID       *uuid.UUID                     `json:"project_pic_id" gorm:"type:char(36);not null"`
 
 	JobPostings             []JobPosting             `json:"job_postings" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectRecruitmentLines []ProjectRecruitmentLine `json:"project_recruitment_lines" gorm:"foreignKey:ProjectRecruitmentHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"math"
 	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
@@ -328,6 +329,6 @@ func (uc *DashboardUseCase) getAvgTimeToHire() (*response.AvgTimeToHireResponse,
 	}
 
 	return &response.AvgTimeToHireResponse{
-		AvgTimeToHire: int(avg),
+		AvgTimeToHire: int(math.Round(avg)),
 	}, nil
 }

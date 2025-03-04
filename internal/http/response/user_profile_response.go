@@ -19,6 +19,7 @@ type UserProfileResponse struct {
 	BirthDate       time.Time                 `json:"birth_date"`
 	BirthPlace      string                    `json:"birth_place"`
 	Bilingual       string                    `json:"bilingual"`
+	ExpectedSalary  int                       `json:"expected_salary"`
 	Ktp             *string                   `json:"ktp"`
 	Avatar          *string                   `json:"avatar"`
 	CurriculumVitae *string                   `json:"curriculum_vitae"`

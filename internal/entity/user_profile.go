@@ -48,6 +48,7 @@ type UserProfile struct {
 	CurriculumVitae string            `json:"curriculum_vitae" gorm:"type:text;default:null"`
 	Avatar          string            `json:"avatar" gorm:"type:text;default:null"`
 	Bilingual       string            `json:"bilingual" gorm:"type:varchar(255);default:null"`
+	ExpectedSalary  int               `json:"expected_salary" gorm:"type:int;default:null"`
 
 	Applicants            []Applicant            `json:"applicants" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	WorkExperiences       []WorkExperience       `json:"work_experiences" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

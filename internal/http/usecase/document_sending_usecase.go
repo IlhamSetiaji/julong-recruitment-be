@@ -845,6 +845,10 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 				ID:     documentAgreement.ID,
 				Status: entity.DOCUMENT_AGREEMENT_STATUS_APPROVED,
 			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
 		}
 
 		err = uc.employeeHired(*applicant, *&docSending.ProjectRecruitmentLine.TemplateActivityLine.QuestionTemplateID, *jobPosting, *documentSending)
@@ -888,9 +892,13 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 				ID:     documentAgreement.ID,
 				Status: entity.DOCUMENT_AGREEMENT_STATUS_COMPLETED,
 			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
 		}
 
-		err = uc.employeeHired(*applicant, *TemplateQuestionID, *jobPosting, *documentSending)
+		err = uc.employeeHired(*applicant, *&docSending.ProjectRecruitmentLine.TemplateActivityLine.QuestionTemplateID, *jobPosting, *documentSending)
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return nil, err
@@ -917,6 +925,10 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 				ID:     documentAgreement.ID,
 				Status: entity.DOCUMENT_AGREEMENT_STATUS_REJECTED,
 			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
 		}
 	} else {
 		documentAgreement, err := uc.DocumentAgreementRepository.FindByKeys(map[string]interface{}{
@@ -933,6 +945,10 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 				ID:     documentAgreement.ID,
 				Status: entity.DOCUMENT_AGREEMENT_STATUS_REVISED,
 			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
 		}
 	}
 

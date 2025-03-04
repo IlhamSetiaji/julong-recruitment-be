@@ -71,7 +71,7 @@ func (r *JobPostingRepository) FindAllPaginated(page, pageSize int, search strin
 	query := r.DB.Preload("ProjectRecruitmentHeader").Preload("Applicants")
 
 	if search != "" {
-		query = query.Where("document_number ILIKE ?", "%"+search+"%")
+		query = query.Where("document_number ILIKE ? OR name ILIKE ?", "%"+search+"%", "%"+search+"%")
 	}
 
 	if filter["status"] != nil {
@@ -251,7 +251,7 @@ func (r *JobPostingRepository) FindAllSavedJobsByUserProfileID(userProfileID uui
 		Where("saved_jobs.user_profile_id = ?", userProfileID)
 
 	if search != "" {
-		query = query.Where("document_number ILIKE ?", "%"+search+"%")
+		query = query.Where("document_number ILIKE ? OR name ILIKE ?", "%"+search+"%", "%"+search+"%")
 	}
 
 	if filter["status"] != nil {

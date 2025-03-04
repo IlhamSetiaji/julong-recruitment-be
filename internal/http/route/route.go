@@ -50,6 +50,7 @@ type RouteConfig struct {
 	DocumentVerificationHeaderHandler handler.IDocumentVerificationHeaderHandler
 	DocumentVerificationLineHandler   handler.IDocumentVerificationLineHandler
 	DashboardHandler                  handler.IDashboardHandler
+	UploadHandler                     handler.IUploadHandler
 }
 
 func (c *RouteConfig) SetupRoutes() {
@@ -390,6 +391,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			{
 				dashboardRoute.GET("", c.DashboardHandler.GetDashboard)
 			}
+			// uploads
+			uploadRoute := apiRoute.Group("/uploads")
+			{
+				uploadRoute.POST("file", c.UploadHandler.UploadFile)
+			}
 		}
 	}
 }
@@ -430,6 +436,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 	documentVerificationHeaderHandler := handler.DocumentVerificationHeaderHandlerFactory(log, viper)
 	documentVerificationLineHandler := handler.DocumentVerificationLineHandlerFactory(log, viper)
 	dashboardHandler := handler.DashboardHandlerFactory(log, viper)
+	uploadHandler := handler.UploadHandlerFactory(log, viper)
 	return &RouteConfig{
 		App:                               app,
 		Log:                               log,
@@ -470,5 +477,6 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		DocumentVerificationHeaderHandler: documentVerificationHeaderHandler,
 		DocumentVerificationLineHandler:   documentVerificationLineHandler,
 		DashboardHandler:                  dashboardHandler,
+		UploadHandler:                     uploadHandler,
 	}
 }

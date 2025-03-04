@@ -700,7 +700,7 @@ func (h *TestScheduleHeaderHandler) ExportResultTemplate(ctx *gin.Context) {
 	// Set value of a cell.
 	f.SetCellValue("Applicants", "A1", "Test Applicant ID")
 	f.SetCellValue("Applicants", "B1", "Applicant Name")
-	f.SetCellValue("Applicants", "C1", "Final Result")
+	f.SetCellValue("Applicants", "C1", "Final Result (ACCEPTED/REJECTED)")
 
 	// Create a style for the header
 	headerStyle, err := f.NewStyle(&excelize.Style{

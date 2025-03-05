@@ -413,6 +413,7 @@ func (uc *AdministrativeResultUseCase) UpdateStatusAdministrativeResult(id uuid.
 				JobPostingID:       exist.AdministrativeSelection.JobPostingID,
 				TemplateQuestionID: uuid.Nil,
 				Status:             entity.APPLICANT_STATUS_REJECTED,
+				ProcessStatus:      entity.APPLICANT_PROCESS_STATUS_REJECTED,
 			})
 			if err != nil {
 				uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + err.Error())

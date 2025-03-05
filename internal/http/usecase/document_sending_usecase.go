@@ -1107,8 +1107,9 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 		}
 
 		_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
-			ID:     applicant.ID,
-			Status: entity.APPLICANT_STATUS_HIRED,
+			ID:            applicant.ID,
+			Status:        entity.APPLICANT_STATUS_HIRED,
+			ProcessStatus: entity.APPLICANT_PROCESS_STATUS_COMPLETED,
 		})
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())

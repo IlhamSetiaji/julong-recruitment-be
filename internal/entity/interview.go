@@ -32,6 +32,7 @@ type Interview struct {
 	RangeDuration              *int            `json:"range_duration" gorm:"type:int;default:0"`
 	TotalCandidate             int             `json:"total_candidate" gorm:"type:int;default:0"`
 	Status                     InterviewStatus `json:"status" gorm:"type:varchar(255);default:'DRAFT'"`
+	MeetingLink                string          `json:"meeting_link" gorm:"type:text;default:null"`
 
 	JobPosting               *JobPosting               `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ProjectPic               *ProjectPic               `json:"project_pic" gorm:"foreignKey:ProjectPicID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

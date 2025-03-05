@@ -73,6 +73,7 @@ func (dto *InterviewDTO) ConvertEntityToResponse(ent *entity.Interview) (*respon
 		RangeDuration:              ent.RangeDuration,
 		TotalCandidate:             ent.TotalCandidate,
 		Status:                     ent.Status,
+		MeetingLink:                ent.MeetingLink,
 		CreatedAt:                  ent.CreatedAt,
 		UpdatedAt:                  ent.UpdatedAt,
 		JobPosting: func() *response.JobPostingResponse {
@@ -145,6 +146,7 @@ func (dto *InterviewDTO) ConvertEntityToMyselfResponse(ent *entity.Interview) (*
 		RangeDuration:              ent.RangeDuration,
 		TotalCandidate:             ent.TotalCandidate,
 		Status:                     ent.Status,
+		MeetingLink:                ent.MeetingLink,
 		CreatedAt:                  ent.CreatedAt,
 		UpdatedAt:                  ent.UpdatedAt,
 		JobPosting: func() *response.JobPostingResponse {
@@ -202,6 +204,7 @@ func (dto *InterviewDTO) ConvertEntityToMyselfAssessorResponse(ent *entity.Inter
 		RangeDuration:              ent.RangeDuration,
 		TotalCandidate:             ent.TotalCandidate,
 		Status:                     ent.Status,
+		MeetingLink:                ent.MeetingLink,
 		CreatedAt:                  ent.CreatedAt,
 		UpdatedAt:                  ent.UpdatedAt,
 		JobPosting: func() *response.JobPostingResponse {

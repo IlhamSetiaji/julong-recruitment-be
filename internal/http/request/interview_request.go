@@ -14,6 +14,7 @@ type CreateInterviewRequest struct {
 	Description                string `json:"description" validate:"omitempty"`
 	RangeDuration              *int   `json:"range_duration" validate:"omitempty"`
 	TotalCandidate             int    `json:"total_candidate" validate:"required"`
+	MeetingLink                string `json:"meeting_link" validate:"omitempty"`
 	Status                     string `json:"status" validate:"required,interview_status_validation"`
 	InterviewAssessors         []struct {
 		EmployeeID string `json:"employee_id" validate:"required,uuid"`
@@ -35,6 +36,7 @@ type UpdateInterviewRequest struct {
 	Description                string `json:"description" validate:"omitempty"`
 	RangeDuration              *int   `json:"range_duration" validate:"omitempty"`
 	TotalCandidate             int    `json:"total_candidate" validate:"required"`
+	MeetingLink                string `json:"meeting_link" validate:"omitempty"`
 	Status                     string `json:"status" validate:"required,interview_status_validation"`
 	InterviewAssessors         []struct {
 		EmployeeID string `json:"employee_id" validate:"required,uuid"`

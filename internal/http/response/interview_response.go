@@ -23,6 +23,7 @@ type InterviewResponse struct {
 	RangeDuration              *int                   `json:"range_duration"`
 	TotalCandidate             int                    `json:"total_candidate"`
 	Status                     entity.InterviewStatus `json:"status"`
+	MeetingLink                string                 `json:"meeting_link"`
 	CreatedAt                  time.Time              `json:"created_at"`
 	UpdatedAt                  time.Time              `json:"updated_at"`
 
@@ -50,6 +51,7 @@ type InterviewMyselfResponse struct {
 	RangeDuration              *int                   `json:"range_duration"`
 	TotalCandidate             int                    `json:"total_candidate"`
 	Status                     entity.InterviewStatus `json:"status"`
+	MeetingLink                string                 `json:"meeting_link"`
 	CreatedAt                  time.Time              `json:"created_at"`
 	UpdatedAt                  time.Time              `json:"updated_at"`
 
@@ -77,6 +79,7 @@ type InterviewMyselfForAssessorResponse struct {
 	RangeDuration              *int                   `json:"range_duration"`
 	TotalCandidate             int                    `json:"total_candidate"`
 	Status                     entity.InterviewStatus `json:"status"`
+	MeetingLink                string                 `json:"meeting_link"`
 	CreatedAt                  time.Time              `json:"created_at"`
 	UpdatedAt                  time.Time              `json:"updated_at"`
 

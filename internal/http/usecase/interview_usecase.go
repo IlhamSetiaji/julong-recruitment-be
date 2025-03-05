@@ -213,6 +213,7 @@ func (uc *InterviewUseCase) CreateInterview(req *request.CreateInterviewRequest)
 		RangeDuration:              req.RangeDuration,
 		TotalCandidate:             req.TotalCandidate,
 		Status:                     entity.InterviewStatus(req.Status),
+		MeetingLink:                req.MeetingLink,
 	})
 	if err != nil {
 		uc.Log.Error("[InterviewUseCase.CreateInterviewRequest] " + err.Error())
@@ -416,6 +417,7 @@ func (uc *InterviewUseCase) UpdateInterview(req *request.UpdateInterviewRequest)
 		Description:                req.Description,
 		RangeDuration:              req.RangeDuration,
 		Status:                     entity.InterviewStatus(req.Status),
+		MeetingLink:                req.MeetingLink,
 	})
 
 	if err != nil {

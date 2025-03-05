@@ -15,6 +15,7 @@ type RouteConfig struct {
 	Log                               *logrus.Logger
 	Viper                             *viper.Viper
 	AuthMiddleware                    gin.HandlerFunc
+	UserProfileVerifiedMiddleware     gin.HandlerFunc
 	MPRequestHandler                  handler.IMPRequestHandler
 	RecruitmentTypeHandler            handler.IRecruitmentTypeHandler
 	TemplateQuestionHandler           handler.ITemplateQuestionHandler
@@ -210,11 +211,14 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			// applicants
 			applicantRoute := apiRoute.Group("/applicants")
 			{
-				applicantRoute.GET("/apply", c.ApplicantHandler.ApplyJobPosting)
-				applicantRoute.GET("/me/:job_posting_id", c.ApplicantHandler.FindApplicantByJobPostingIDAndUserID)
-				applicantRoute.GET("/:id", c.ApplicantHandler.FindByID)
-				applicantRoute.GET("/job-posting/:job_posting_id/export", c.ApplicantHandler.ExportApplicantsByJobPosting)
-				applicantRoute.GET("/job-posting/:job_posting_id", c.ApplicantHandler.GetApplicantsByJobPostingID)
+				applicantRoute.Use(c.UserProfileVerifiedMiddleware)
+				{
+					applicantRoute.GET("/apply", c.ApplicantHandler.ApplyJobPosting)
+					applicantRoute.GET("/me/:job_posting_id", c.ApplicantHandler.FindApplicantByJobPostingIDAndUserID)
+					applicantRoute.GET("/:id", c.ApplicantHandler.FindByID)
+					applicantRoute.GET("/job-posting/:job_posting_id/export", c.ApplicantHandler.ExportApplicantsByJobPosting)
+					applicantRoute.GET("/job-posting/:job_posting_id", c.ApplicantHandler.GetApplicantsByJobPostingID)
+				}
 			}
 			// test types
 			testTypeRoute := apiRoute.Group("/test-types")
@@ -404,6 +408,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 
 func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *RouteConfig {
 	authMiddleware := middleware.NewAuth(viper)
+	userProfileVerifiedMiddleware := middleware.UserProfileVerifiedMiddleware(log, viper)
 	mpRequestHandler := handler.MPRequestHandlerFactory(log, viper)
 	recruitmentTypeHandler := handler.RecruitmentTypeHandlerFactory(log, viper)
 	templateQuestionHandler := handler.TemplateQuestionHandlerFactory(log, viper)
@@ -444,6 +449,7 @@ func NewRouteConfig(app *gin.Engine, viper *viper.Viper, log *logrus.Logger) *Ro
 		Log:                               log,
 		Viper:                             viper,
 		AuthMiddleware:                    authMiddleware,
+		UserProfileVerifiedMiddleware:     userProfileVerifiedMiddleware,
 		MPRequestHandler:                  mpRequestHandler,
 		RecruitmentTypeHandler:            recruitmentTypeHandler,
 		TemplateQuestionHandler:           templateQuestionHandler,

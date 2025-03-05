@@ -771,6 +771,20 @@ func (uc *UserProfileUseCase) FillUserProfileMessage(req *request.FillUserProfil
 		return "Failed", errors.New("[UserProfileUseCase.FillUserProfile] user profile not found")
 	}
 
+	err = uc.checkMandatoryData(profile)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when checking mandatory data: %s", err.Error())
+	} else {
+		_, err := uc.Repository.UpdateUserProfile(&entity.UserProfile{
+			ID:     profile.ID,
+			Status: entity.USER_ACTIVE,
+		})
+		if err != nil {
+			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when updating user profile: %s", err.Error())
+			return "Failed", errors.New("[UserProfileUseCase.FillUserProfile] error when updating user profile: " + err.Error())
+		}
+	}
+
 	return "Success", nil
 }
 
@@ -887,4 +901,44 @@ func (uc *UserProfileUseCase) UpdateAvatar(id uuid.UUID, avatarPath string) (*re
 	}
 
 	return uc.DTO.ConvertEntityToResponse(updatedProfile)
+}
+
+func (uc *UserProfileUseCase) checkMandatoryData(userProfile *entity.UserProfile) error {
+	if userProfile.Name == "" {
+		return errors.New("Name is mandatory")
+	}
+	if userProfile.BirthDate.IsZero() {
+		return errors.New("Birth date is mandatory")
+	}
+	if userProfile.BirthPlace == "" {
+		return errors.New("Birth place is mandatory")
+	}
+	if userProfile.PhoneNumber == "" {
+		return errors.New("Phone number is mandatory")
+	}
+	if userProfile.Address == "" {
+		return errors.New("Address is mandatory")
+	}
+	if userProfile.CurriculumVitae == "" {
+		return errors.New("Curriculum vitae is mandatory")
+	}
+	if userProfile.Gender == "" {
+		return errors.New("Gender is mandatory")
+	}
+	if userProfile.MaritalStatus == "" {
+		return errors.New("Marital status is mandatory")
+	}
+	if userProfile.Age == 0 {
+		return errors.New("Age is mandatory")
+	}
+	if userProfile.Avatar == "" {
+		return errors.New("Avatar is mandatory")
+	}
+	if userProfile.ExpectedSalary == 0 {
+		return errors.New("Expected salary is mandatory")
+	}
+	if len(userProfile.Educations) == 0 {
+		return errors.New("Education is mandatory")
+	}
+	return nil
 }

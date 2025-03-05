@@ -8475,6 +8475,9 @@ const docTemplate = `{
                 "location_link": {
                     "type": "string"
                 },
+                "meeting_link": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -10049,6 +10052,9 @@ const docTemplate = `{
                 "location_link": {
                     "type": "string"
                 },
+                "meeting_link": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string",
                     "maxLength": 255
@@ -11249,6 +11255,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "location_link": {
+                    "type": "string"
+                },
+                "meeting_link": {
                     "type": "string"
                 },
                 "name": {
@@ -12596,6 +12605,9 @@ const docTemplate = `{
                 "location_link": {
                     "type": "string"
                 },
+                "meeting_link": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -12671,6 +12683,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "location_link": {
+                    "type": "string"
+                },
+                "meeting_link": {
                     "type": "string"
                 },
                 "name": {
@@ -12751,6 +12766,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "location_link": {
+                    "type": "string"
+                },
+                "meeting_link": {
                     "type": "string"
                 },
                 "name": {

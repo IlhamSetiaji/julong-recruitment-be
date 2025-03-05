@@ -536,6 +536,8 @@ definitions:
         type: string
       location_link:
         type: string
+      meeting_link:
+        type: string
       name:
         type: string
       project_pic:
@@ -1609,6 +1611,8 @@ definitions:
         type: string
       location_link:
         type: string
+      meeting_link:
+        type: string
       name:
         maxLength: 255
         type: string
@@ -2439,6 +2443,8 @@ definitions:
       job_posting_id:
         type: string
       location_link:
+        type: string
+      meeting_link:
         type: string
       name:
         maxLength: 255
@@ -3355,6 +3361,8 @@ definitions:
         type: string
       location_link:
         type: string
+      meeting_link:
+        type: string
       name:
         type: string
       project_pic:
@@ -3405,6 +3413,8 @@ definitions:
       job_posting_id:
         type: string
       location_link:
+        type: string
+      meeting_link:
         type: string
       name:
         type: string
@@ -3458,6 +3468,8 @@ definitions:
       job_posting_id:
         type: string
       location_link:
+        type: string
+      meeting_link:
         type: string
       name:
         type: string

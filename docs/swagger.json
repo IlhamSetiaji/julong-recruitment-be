@@ -8469,6 +8469,9 @@
                 "location_link": {
                     "type": "string"
                 },
+                "meeting_link": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -10043,6 +10046,9 @@
                 "location_link": {
                     "type": "string"
                 },
+                "meeting_link": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string",
                     "maxLength": 255
@@ -11243,6 +11249,9 @@
                     "type": "string"
                 },
                 "location_link": {
+                    "type": "string"
+                },
+                "meeting_link": {
                     "type": "string"
                 },
                 "name": {
@@ -12590,6 +12599,9 @@
                 "location_link": {
                     "type": "string"
                 },
+                "meeting_link": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -12665,6 +12677,9 @@
                     "type": "string"
                 },
                 "location_link": {
+                    "type": "string"
+                },
+                "meeting_link": {
                     "type": "string"
                 },
                 "name": {
@@ -12745,6 +12760,9 @@
                     "type": "string"
                 },
                 "location_link": {
+                    "type": "string"
+                },
+                "meeting_link": {
                     "type": "string"
                 },
                 "name": {

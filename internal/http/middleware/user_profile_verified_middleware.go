@@ -27,15 +27,15 @@ func UserProfileVerifiedMiddleware(log *logrus.Logger, viper *viper.Viper) gin.H
 			return
 		}
 
+		userHelper := helper.UserHelperFactory(log)
 		userProfileRepository := repository.UserProfileRepositoryFactory(log)
-		userUUID, err := uuid.Parse(user["id"].(string))
+		userUUID, err := userHelper.GetUserId(user)
 		if err != nil {
 			utils.ErrorResponse(ctx, http.StatusUnauthorized, "Unauthorized", err.Error())
 			ctx.Abort()
 			return
 		}
 
-		userHelper := helper.UserHelperFactory(log)
 		employeeUUID, err := userHelper.GetEmployeeId(user)
 		if err != nil {
 			log.Errorf("[UserProfileVerifiedMiddleware] %v", err)

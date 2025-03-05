@@ -416,6 +416,20 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 		return nil, errors.New("[UserProfileUseCase.FillUserProfile] user profile not found")
 	}
 
+	err = uc.checkMandatoryData(profile)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when checking mandatory data: %s", err.Error())
+	} else {
+		_, err := uc.Repository.UpdateUserProfile(&entity.UserProfile{
+			ID:     profile.ID,
+			Status: entity.USER_ACTIVE,
+		})
+		if err != nil {
+			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when updating user profile: %s", err.Error())
+			return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when updating user profile: " + err.Error())
+		}
+	}
+
 	resp, err := uc.DTO.ConvertEntityToResponse(profile)
 	if err != nil {
 		uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when converting entity to response: %s", err.Error())
@@ -770,22 +784,6 @@ func (uc *UserProfileUseCase) FillUserProfileMessage(req *request.FillUserProfil
 		uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] user profile not found")
 		return "Failed", errors.New("[UserProfileUseCase.FillUserProfile] user profile not found")
 	}
-
-	err = uc.checkMandatoryData(profile)
-	if err != nil {
-		uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when checking mandatory data: %s", err.Error())
-		return "Failed", errors.New("[UserProfileUseCase.FillUserProfile] error when checking mandatory data: " + err.Error())
-	} else {
-		_, err := uc.Repository.UpdateUserProfile(&entity.UserProfile{
-			ID:     profile.ID,
-			Status: entity.USER_ACTIVE,
-		})
-		if err != nil {
-			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when updating user profile: %s", err.Error())
-			return "Failed", errors.New("[UserProfileUseCase.FillUserProfile] error when updating user profile: " + err.Error())
-		}
-	}
-
 	return "Success", nil
 }
 

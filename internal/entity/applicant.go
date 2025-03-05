@@ -21,6 +21,7 @@ type ApplicantProcessStatus string
 const (
 	APPLICANT_PROCESS_STATUS_IN_PROGRESS ApplicantProcessStatus = "IN_PROGRESS"
 	APPLICANT_PROCESS_STATUS_COMPLETED   ApplicantProcessStatus = "COMPLETED"
+	APPLICANT_PROCESS_STATUS_REJECTED    ApplicantProcessStatus = "REJECTED"
 )
 
 type Applicant struct {

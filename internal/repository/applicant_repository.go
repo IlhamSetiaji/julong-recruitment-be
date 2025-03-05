@@ -104,6 +104,7 @@ func (r *ApplicantRepository) UpdateApplicantWhenRejected(applicant *entity.Appl
 	if err := r.DB.Model(&entity.Applicant{}).Where("id = ?", applicant.ID).Select("order", "template_question_id").Updates(map[string]interface{}{
 		"order":                0,
 		"template_question_id": nil,
+		"status":               "REJECTED",
 	}).Error; err != nil {
 		// tx.Rollback()
 		r.Log.Error("[ApplicantRepository.UpdateApplicantWhenRejected] " + err.Error())

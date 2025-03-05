@@ -148,6 +148,7 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 	payload.Address = ctx.PostForm("address")
 	payload.Bilingual = ctx.PostForm("bilingual")
 	payload.ExpectedSalary, _ = strconv.Atoi(ctx.PostForm("expected_salary"))
+	payload.CurrentSalary, _ = strconv.Atoi(ctx.PostForm("current_salary"))
 	if files, ok := ctx.Request.MultipartForm.File["ktp"]; ok && len(files) > 0 {
 		payload.Ktp = files[0]
 	} else {

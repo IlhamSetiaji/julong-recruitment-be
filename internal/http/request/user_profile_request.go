@@ -14,6 +14,7 @@ type FillUserProfileRequest struct {
 	Address         string                `form:"address" validate:"omitempty"`
 	Bilingual       string                `form:"bilingual" validate:"omitempty"`
 	ExpectedSalary  int                   `form:"expected_salary" validate:"omitempty"`
+	CurrentSalary   int                   `form:"current_salary" validate:"omitempty"`
 	Ktp             *multipart.FileHeader `form:"ktp" validate:"omitempty"`
 	CurriculumVitae *multipart.FileHeader `form:"curriculum_vitae" validate:"omitempty"`
 	KtpPath         string                `form:"ktp_path" validate:"omitempty"`

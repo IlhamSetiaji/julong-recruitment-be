@@ -333,6 +333,8 @@ func (h *ApplicantHandler) ExportApplicantsByJobPosting(ctx *gin.Context) {
 	f.SetCellValue("Applicants", "C1", "Work Experience")
 	f.SetCellValue("Applicants", "D1", "Applied Date")
 	f.SetCellValue("Applicants", "E1", "Phone Number")
+	f.SetCellValue("Applicants", "F1", "Expected Salary")
+	f.SetCellValue("Applicants", "G1", "Current Salary")
 
 	// Create a style for the header
 	headerStyle, err := f.NewStyle(&excelize.Style{
@@ -367,6 +369,8 @@ func (h *ApplicantHandler) ExportApplicantsByJobPosting(ctx *gin.Context) {
 	f.SetCellStyle("Applicants", "C1", "C1", headerStyle)
 	f.SetCellStyle("Applicants", "D1", "D1", headerStyle)
 	f.SetCellStyle("Applicants", "E1", "E1", headerStyle)
+	f.SetCellStyle("Applicants", "F1", "F1", headerStyle)
+	f.SetCellStyle("Applicants", "G1", "G1", headerStyle)
 
 	for i, applicant := range *applicants {
 		f.SetCellValue("Applicants", fmt.Sprintf("A%d", i+2), applicant.UserProfile.Name)
@@ -386,6 +390,8 @@ func (h *ApplicantHandler) ExportApplicantsByJobPosting(ctx *gin.Context) {
 		}
 		f.SetCellValue("Applicants", fmt.Sprintf("D%d", i+2), applicant.AppliedDate)
 		f.SetCellValue("Applicants", fmt.Sprintf("E%d", i+2), applicant.UserProfile.PhoneNumber)
+		f.SetCellValue("Applicants", fmt.Sprintf("F%d", i+2), applicant.UserProfile.ExpectedSalary)
+		f.SetCellValue("Applicants", fmt.Sprintf("G%d", i+2), applicant.UserProfile.CurrentSalary)
 	}
 
 	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

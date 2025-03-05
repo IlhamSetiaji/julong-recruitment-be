@@ -930,9 +930,9 @@ func (uc *UserProfileUseCase) checkMandatoryData(userProfile *entity.UserProfile
 	if userProfile.Age == 0 {
 		return errors.New("Age is mandatory")
 	}
-	if userProfile.Avatar == "" {
-		return errors.New("Avatar is mandatory")
-	}
+	// if userProfile.Avatar == "" {
+	// 	return errors.New("Avatar is mandatory")
+	// }
 	if userProfile.ExpectedSalary == 0 {
 		return errors.New("Expected salary is mandatory")
 	}

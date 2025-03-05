@@ -774,6 +774,7 @@ func (uc *UserProfileUseCase) FillUserProfileMessage(req *request.FillUserProfil
 	err = uc.checkMandatoryData(profile)
 	if err != nil {
 		uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when checking mandatory data: %s", err.Error())
+		return "Failed", errors.New("[UserProfileUseCase.FillUserProfile] error when checking mandatory data: " + err.Error())
 	} else {
 		_, err := uc.Repository.UpdateUserProfile(&entity.UserProfile{
 			ID:     profile.ID,

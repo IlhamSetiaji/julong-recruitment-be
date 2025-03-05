@@ -407,22 +407,28 @@ func (uc *JobPostingUseCase) FindByID(id uuid.UUID, userID uuid.UUID) (*response
 		return nil, err
 	}
 
-	if userProfile == nil {
-		uc.Log.Error("[JobPostingUseCase.FindByID] " + "User Profile not found")
-		return nil, err
+	if userProfile != nil {
+		if userProfile == nil {
+			uc.Log.Error("[JobPostingUseCase.FindByID] " + "User Profile not found")
+			return nil, err
+		}
+
+		applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+			"job_posting_id":  jobPosting.ID,
+			"user_profile_id": userProfile.ID,
+		})
+		if err != nil {
+			uc.Log.Error("[JobPostingUseCase.FindByID] " + err.Error())
+			return nil, err
+		}
+
+		isApplied := false
+		if applicant != nil {
+			isApplied = true
+		}
+
+		jobPosting.IsApplied = isApplied
 	}
-
-	applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
-		"job_posting_id":  jobPosting.ID,
-		"user_profile_id": userProfile.ID,
-	})
-
-	isApplied := false
-	if applicant != nil {
-		isApplied = true
-	}
-
-	jobPosting.IsApplied = isApplied
 
 	jobResp := uc.DTO.ConvertEntityToResponse(jobPosting)
 	resp, err := uc.MPRequestMessage.SendFindByIdMessage(jobPosting.MPRequest.MPRCloneID.String())

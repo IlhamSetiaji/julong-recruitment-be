@@ -146,6 +146,66 @@ const docTemplate = `{
                 }
             }
         },
+        "/administrative-selections/pic": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find all administrative selection paginated for pic",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Administrative Selection"
+                ],
+                "summary": "Find all administrative selection paginated for pic",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Size",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.AdministrativeSelectionResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/administrative-selections/update": {
             "put": {
                 "security": [
@@ -9524,6 +9584,9 @@ const docTemplate = `{
                 "birth_place": {
                     "type": "string"
                 },
+                "current_salary": {
+                    "type": "integer"
+                },
                 "curriculum_vitae": {
                     "type": "string"
                 },
@@ -13764,6 +13827,9 @@ const docTemplate = `{
                 },
                 "created_at": {
                     "type": "string"
+                },
+                "current_salary": {
+                    "type": "integer"
                 },
                 "curriculum_vitae": {
                     "type": "string"

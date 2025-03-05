@@ -260,6 +260,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			administrativeSelectionRoute := apiRoute.Group("/administrative-selections")
 			{
 				administrativeSelectionRoute.GET("", c.AdministrativeSelectionHandler.FindAllPaginated)
+				administrativeSelectionRoute.GET("/pic", c.AdministrativeSelectionHandler.FindAllPaginatedPic)
 				administrativeSelectionRoute.GET("/document-number", c.AdministrativeSelectionHandler.GenerateDocumentNumber)
 				administrativeSelectionRoute.GET("/verify/:id", c.AdministrativeSelectionHandler.VerifyAdministrativeSelection)
 				administrativeSelectionRoute.GET("/:id", c.AdministrativeSelectionHandler.FindByID)

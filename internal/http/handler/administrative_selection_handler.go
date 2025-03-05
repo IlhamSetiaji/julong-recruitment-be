@@ -20,6 +20,7 @@ import (
 type IAdministrativeSelectionHandler interface {
 	CreateAdministrativeSelection(ctx *gin.Context)
 	FindAllPaginated(ctx *gin.Context)
+	FindAllPaginatedPic(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	UpdateAdministrativeSelection(ctx *gin.Context)
 	DeleteAdministrativeSelection(ctx *gin.Context)
@@ -143,6 +144,83 @@ func (h *AdministrativeSelectionHandler) FindAllPaginated(ctx *gin.Context) {
 	}
 
 	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
+	if err != nil {
+		h.Log.Error("[AdministrativeSelectionHandler.FindAllPaginated] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when finding all administrative selection", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Administrative selection found successfully", gin.H{
+		"administrative_selections": res,
+		"total":                     total,
+	})
+}
+
+// FindAllPaginatedPic find all administrative selection paginated for pic
+//
+//		@Summary		Find all administrative selection paginated for pic
+//		@Description	Find all administrative selection paginated for pic
+//		@Tags			Administrative Selection
+//		@Accept			json
+//		@Produce		json
+//		@Param			page query int false "Page"
+//		@Param			pageSize query int false "Page Size"
+//		@Param			search query string false "Search"
+//		@Param			sort query string false "Sort"
+//	 @Param			status query string false "Status"
+//		@Success		200 {object} response.AdministrativeSelectionResponse
+//		@Security BearerAuth
+//		@Router			/administrative-selections/pic [get]
+func (h *AdministrativeSelectionHandler) FindAllPaginatedPic(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	employeeUUID, err := h.UserHelper.GetEmployeeId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	res, total, err := h.UseCase.FindAllPaginatedPic(employeeUUID, page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("[AdministrativeSelectionHandler.FindAllPaginated] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when finding all administrative selection", err.Error())

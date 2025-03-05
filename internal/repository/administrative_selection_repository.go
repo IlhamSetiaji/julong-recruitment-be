@@ -12,6 +12,7 @@ import (
 
 type IAdministrativeSelectionRepository interface {
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.AdministrativeSelection, int64, error)
+	FindAllPaginatedPic(projectPicIDs []uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.AdministrativeSelection, int64, error)
 	CreateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error)
 	FindByID(id uuid.UUID) (*entity.AdministrativeSelection, error)
 	UpdateAdministrativeSelection(ent *entity.AdministrativeSelection) (*entity.AdministrativeSelection, error)
@@ -75,6 +76,37 @@ func (r *AdministrativeSelectionRepository) FindAllPaginated(page, pageSize int,
 	var total int64
 
 	query := r.DB.Preload("JobPosting").Preload("ProjectPIC")
+
+	if search != "" {
+		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+
+	if filter["status"] != nil {
+		query = query.Where("status = ?", filter["status"])
+	}
+
+	for key, value := range sort {
+		query = query.Order(key + " " + value.(string))
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&entities).Error; err != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		r.Log.Error("[AdministrativeSelectionRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	return &entities, total, nil
+}
+
+func (r *AdministrativeSelectionRepository) FindAllPaginatedPic(projectPicIDs []uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.AdministrativeSelection, int64, error) {
+	var entities []entity.AdministrativeSelection
+	var total int64
+
+	query := r.DB.Preload("JobPosting").Preload("ProjectPIC").Where("project_pic_id IN (?)", projectPicIDs)
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")

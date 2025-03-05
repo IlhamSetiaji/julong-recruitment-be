@@ -17,6 +17,7 @@ import (
 
 type IAdministrativeSelectionUsecase interface {
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.AdministrativeSelectionResponse, int64, error)
+	FindAllPaginatedPic(employeeID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.AdministrativeSelectionResponse, int64, error)
 	CreateAdministrativeSelection(req *request.CreateAdministrativeSelectionRequest) (*response.AdministrativeSelectionResponse, error)
 	FindByID(id string) (*response.AdministrativeSelectionResponse, error)
 	UpdateAdministrativeSelection(req *request.UpdateAdministrativeSelectionRequest) (*response.AdministrativeSelectionResponse, error)
@@ -72,6 +73,42 @@ func (uc *AdministrativeSelectionUsecase) FindAllPaginated(page, pageSize int, s
 		res, err := uc.DTO.ConvertEntityToResponse(&entity)
 		if err != nil {
 			uc.Log.Error("[AdministrativeSelectionUsecase.FindAllPaginated] " + err.Error())
+			return nil, 0, err
+		}
+
+		responses = append(responses, *res)
+	}
+
+	return &responses, total, nil
+}
+
+func (uc *AdministrativeSelectionUsecase) FindAllPaginatedPic(employeeID uuid.UUID, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.AdministrativeSelectionResponse, int64, error) {
+	projectPics, err := uc.ProjectPicRepository.FindAllByEmployeeID(employeeID)
+	if err != nil {
+		uc.Log.Error("[AdministrativeSelectionUsecase.FindAllPaginatedPic] " + err.Error())
+		return nil, 0, err
+	}
+
+	if len(projectPics) == 0 {
+		return &[]response.AdministrativeSelectionResponse{}, 0, nil
+	}
+
+	projectPicIDs := make([]uuid.UUID, 0)
+	for _, projectPic := range projectPics {
+		projectPicIDs = append(projectPicIDs, projectPic.ID)
+	}
+
+	entities, total, err := uc.Repository.FindAllPaginatedPic(projectPicIDs, page, pageSize, search, sort, filter)
+	if err != nil {
+		uc.Log.Error("[AdministrativeSelectionUsecase.FindAllPaginatedPic] " + err.Error())
+		return nil, 0, err
+	}
+
+	responses := make([]response.AdministrativeSelectionResponse, 0)
+	for _, entity := range *entities {
+		res, err := uc.DTO.ConvertEntityToResponse(&entity)
+		if err != nil {
+			uc.Log.Error("[AdministrativeSelectionUsecase.FindAllPaginatedPic] " + err.Error())
 			return nil, 0, err
 		}
 

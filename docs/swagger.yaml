@@ -1299,6 +1299,8 @@ definitions:
         type: string
       birth_place:
         type: string
+      current_salary:
+        type: integer
       curriculum_vitae:
         type: string
       educations:
@@ -4167,6 +4169,8 @@ definitions:
         type: string
       created_at:
         type: string
+      current_salary:
+        type: integer
       curriculum_vitae:
         type: string
       educations:
@@ -4366,6 +4370,44 @@ paths:
       security:
       - BearerAuth: []
       summary: Generate document number
+      tags:
+      - Administrative Selection
+  /administrative-selections/pic:
+    get:
+      consumes:
+      - application/json
+      description: Find all administrative selection paginated for pic
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Page Size
+        in: query
+        name: pageSize
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.AdministrativeSelectionResponse'
+      security:
+      - BearerAuth: []
+      summary: Find all administrative selection paginated for pic
       tags:
       - Administrative Selection
   /administrative-selections/update:

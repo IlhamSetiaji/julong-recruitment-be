@@ -129,7 +129,7 @@ func (h *ProjectRecruitmentLineHandler) FindAllByProjectRecruitmentHeaderID(ctx 
 		return
 	}
 
-	res, err := h.UseCase.GetAllByKeys(map[string]interface{}{
+	res, err := h.UseCase.GetAllByKeysWithoutPic(map[string]interface{}{
 		"project_recruitment_header_id": parsedID,
 	})
 	if err != nil {

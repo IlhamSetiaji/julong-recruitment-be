@@ -61,10 +61,10 @@ func (dto *ProjectRecruitmentLineDTO) ConvertEntityToResponse(ent *entity.Projec
 		CreatedAt:                  ent.CreatedAt,
 		UpdatedAt:                  ent.UpdatedAt,
 		ProjectPics: func() []response.ProjectPicResponse {
-			var projectPicResponses []response.ProjectPicResponse
 			if ent.ProjectPics == nil {
 				return nil
 			}
+			var projectPicResponses []response.ProjectPicResponse
 			for _, projectPic := range ent.ProjectPics {
 				projectPicResponses = append(projectPicResponses, *dto.ProjectPicDTO.ConvertEntityToResponse(&projectPic))
 			}

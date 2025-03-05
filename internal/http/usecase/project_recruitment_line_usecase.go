@@ -17,6 +17,7 @@ import (
 type IProjectRecruitmentLineUseCase interface {
 	CreateOrUpdateProjectRecruitmentLines(req *request.CreateOrUpdateProjectRecruitmentLinesRequest) (*response.ProjectRecruitmentHeaderResponse, error)
 	GetAllByKeys(keys map[string]interface{}) ([]*response.ProjectRecruitmentLineResponse, error)
+	GetAllByKeysWithoutPic(keys map[string]interface{}) ([]*response.ProjectRecruitmentLineResponse, error)
 	FindAllByFormType(formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error)
 	FindAllByProjectRecruitmentHeaderIDAndEmployeeID(projectRecruitmentHeaderID, employeeID uuid.UUID) ([]*response.ProjectRecruitmentLineResponse, error)
 	FindByIDForAnswer(id, jobPostingID, userProfileID uuid.UUID) (*response.ProjectRecruitmentLineResponse, error)
@@ -255,6 +256,21 @@ func (uc *ProjectRecruitmentLineUseCase) CreateOrUpdateProjectRecruitmentLines(r
 
 func (uc *ProjectRecruitmentLineUseCase) GetAllByKeys(keys map[string]interface{}) ([]*response.ProjectRecruitmentLineResponse, error) {
 	data, err := uc.Repository.GetAllByKeys(keys)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.GetAllByKeys] error when getting project recruitment lines: %s", err.Error())
+		return nil, err
+	}
+
+	responses := make([]*response.ProjectRecruitmentLineResponse, 0)
+	for _, d := range data {
+		responses = append(responses, uc.DTO.ConvertEntityToResponse(&d))
+	}
+
+	return responses, nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) GetAllByKeysWithoutPic(keys map[string]interface{}) ([]*response.ProjectRecruitmentLineResponse, error) {
+	data, err := uc.Repository.GetAllByKeysWithoutProjectPic(keys)
 	if err != nil {
 		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.GetAllByKeys] error when getting project recruitment lines: %s", err.Error())
 		return nil, err

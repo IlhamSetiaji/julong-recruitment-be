@@ -17,6 +17,7 @@ type IProjectRecruitmentLineRepository interface {
 	DeleteProjectRecruitmentLine(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.ProjectRecruitmentLine, error)
 	GetAllByKeys(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error)
+	GetAllByKeysWithoutProjectPic(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error)
 	FindByKeys(keys map[string]interface{}) (*entity.ProjectRecruitmentLine, error)
 	FindAllByTemplateActivityLineIDs(templateActivityLineIDs []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
 	FindAllByIds(ids []uuid.UUID) (*[]entity.ProjectRecruitmentLine, error)
@@ -196,6 +197,15 @@ func (r *ProjectRecruitmentLineRepository) FindByIDForAnswerFgd(id, jobPostingID
 func (r *ProjectRecruitmentLineRepository) GetAllByKeys(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error) {
 	var projectRecruitmentLines []entity.ProjectRecruitmentLine
 	if err := r.DB.Where(keys).Preload("ProjectPics").Preload("DocumentSendings").Preload("TemplateActivityLine.TemplateQuestion").Find(&projectRecruitmentLines).Order("order ASC").Error; err != nil {
+		return nil, err
+	}
+
+	return projectRecruitmentLines, nil
+}
+
+func (r *ProjectRecruitmentLineRepository) GetAllByKeysWithoutProjectPic(keys map[string]interface{}) ([]entity.ProjectRecruitmentLine, error) {
+	var projectRecruitmentLines []entity.ProjectRecruitmentLine
+	if err := r.DB.Where(keys).Preload("DocumentSendings").Preload("TemplateActivityLine.TemplateQuestion").Find(&projectRecruitmentLines).Order("order ASC").Error; err != nil {
 		return nil, err
 	}
 

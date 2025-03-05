@@ -134,6 +134,16 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 		return nil, errors.New("no administrative selection found")
 	}
 
+	if selectedAdminSelection.Status == entity.ADMINISTRATIVE_SELECTION_STATUS_COMPLETED {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + "Administrative selection is completed")
+		return nil, errors.New("administrative selection is completed")
+	}
+
+	if selectedAdminSelection.Status == entity.ADMINISTRATIVE_SELECTION_STATUS_DRAFT {
+		uc.Log.Error("[ApplicantUseCase.ApplyJobPosting] " + "Administrative selection is draft")
+		return nil, errors.New("administrative selection is draft")
+	}
+
 	// Increment the total_applicants for the selected project PIC
 	selectedAdminSelection.TotalApplicants++
 

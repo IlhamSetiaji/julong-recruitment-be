@@ -269,59 +269,62 @@ func (uc *JobPostingUseCase) FindAllPaginatedWithoutUserIDShowOnly(page, pageSiz
 }
 
 func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID) (*[]response.JobPostingResponse, int64, error) {
-	userProfile, err := uc.UserProfileRepository.FindByUserID(userID)
-	if err != nil {
-		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
-		return nil, 0, err
-	}
-
-	if userProfile == nil {
-		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + "User Profile not found")
-		return nil, 0, err
-	}
-
 	jobPostings, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
 		return nil, 0, err
 	}
 
+	userProfile, err := uc.UserProfileRepository.FindByUserID(userID)
+	if err != nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
 	jobPostingResponses := make([]response.JobPostingResponse, 0)
-	for _, jobPosting := range *jobPostings {
-		applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
-			"job_posting_id":  jobPosting.ID,
-			"user_profile_id": userProfile.ID,
-		})
-		if err != nil {
-			uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
-			return nil, 0, err
+	if userProfile != nil {
+		for _, jobPosting := range *jobPostings {
+			applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+				"job_posting_id":  jobPosting.ID,
+				"user_profile_id": userProfile.ID,
+			})
+			if err != nil {
+				uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
+				return nil, 0, err
+			}
+
+			isApplied := false
+			if applicant != nil {
+				isApplied = true
+			}
+
+			savedJob, err := uc.Repository.FindSavedJob(userProfile.ID, jobPosting.ID)
+			if err != nil {
+				uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
+				return nil, 0, err
+			}
+
+			isSaved := false
+			if savedJob != nil {
+				isSaved = true
+			}
+
+			uc.Log.Info("IsSaved: ", isSaved)
+
+			totalApplicant := len(jobPosting.Applicants)
+
+			jobPosting.IsApplied = isApplied
+			jobPosting.IsSaved = isSaved
+			jobPosting.TotalApplicant = totalApplicant
+
+			jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 		}
-
-		isApplied := false
-		if applicant != nil {
-			isApplied = true
+	} else {
+		for _, jobPosting := range *jobPostings {
+			totalApplicant := len(jobPosting.Applicants)
+			jobPosting.TotalApplicant = totalApplicant
+			jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 		}
-
-		savedJob, err := uc.Repository.FindSavedJob(userProfile.ID, jobPosting.ID)
-		if err != nil {
-			uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
-			return nil, 0, err
-		}
-
-		isSaved := false
-		if savedJob != nil {
-			isSaved = true
-		}
-
-		uc.Log.Info("IsSaved: ", isSaved)
-
-		totalApplicant := len(jobPosting.Applicants)
-
-		jobPosting.IsApplied = isApplied
-		jobPosting.IsSaved = isSaved
-		jobPosting.TotalApplicant = totalApplicant
-
-		jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 	}
 
 	return &jobPostingResponses, total, nil

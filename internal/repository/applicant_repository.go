@@ -102,7 +102,6 @@ func (r *ApplicantRepository) UpdateApplicant(applicant *entity.Applicant) (*ent
 func (r *ApplicantRepository) UpdateApplicantWhenRejected(applicant *entity.Applicant) (*entity.Applicant, error) {
 	// Use the Select option to explicitly specify the fields to be updated
 	if err := r.DB.Model(&entity.Applicant{}).Where("id = ?", applicant.ID).Select("order", "template_question_id").Updates(map[string]interface{}{
-		"order":                0,
 		"template_question_id": nil,
 		"status":               "REJECTED",
 	}).Error; err != nil {

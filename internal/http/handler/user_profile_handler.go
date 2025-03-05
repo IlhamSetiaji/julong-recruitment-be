@@ -161,8 +161,8 @@ func (h *UserProfileHandler) FillUserProfile(ctx *gin.Context) {
 		payload.CurriculumVitae = files[0]
 	} else {
 		h.Log.Error("Curriculum Vitae file is missing")
-		utils.ErrorResponse(ctx, http.StatusBadRequest, "Curriculum Vitae file is missing", "Curriculum Vitae file is required")
-		return
+		// utils.ErrorResponse(ctx, http.StatusBadRequest, "Curriculum Vitae file is missing", "Curriculum Vitae file is required")
+		// return
 	}
 
 	workExpIDs := ctx.PostFormArray("work_experiences.id")

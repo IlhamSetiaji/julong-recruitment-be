@@ -268,6 +268,16 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		parsedOrganizationLocationID = &parsedOrganizationLocationUUID
 	}
 
+	var parsedJobID *uuid.UUID
+	if req.JobID != "" {
+		parsedJobUUID, err := uuid.Parse(req.JobID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		parsedJobID = &parsedJobUUID
+	}
+
 	documentSending, err := uc.Repository.CreateDocumentSending(&entity.DocumentSending{
 		DocumentSetupID:          parsedDocumentSetupID,
 		ProjectRecruitmentLineID: parsedProjectRecruitmentLineID,
@@ -283,6 +293,7 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		PeriodAgreement:          req.PeriodAgreement,
 		HomeLocation:             req.HomeLocation,
 		JobLevelID:               parsedJobLevelID,
+		JobID:                    parsedJobID,
 		ForOrganizationID:        parsedForOrganizationID,
 		OrganizationLocationID:   parsedOrganizationLocationID,
 		DocumentDate:             parsedDocumentDate,
@@ -712,6 +723,16 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		parsedOrganizationLocationID = &parsedOrganizationLocationUUID
 	}
 
+	var parsedJobID *uuid.UUID
+	if req.JobID != "" {
+		parsedJobUUID, err := uuid.Parse(req.JobID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		parsedJobID = &parsedJobUUID
+	}
+
 	documentSending, err := uc.Repository.UpdateDocumentSending(&entity.DocumentSending{
 		ID:                       parsedID,
 		DocumentSetupID:          parsedDocumentSetupID,
@@ -729,6 +750,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		PeriodAgreement:          req.PeriodAgreement,
 		HomeLocation:             req.HomeLocation,
 		JobLevelID:               parsedJobLevelID,
+		JobID:                    parsedJobID,
 		ForOrganizationID:        parsedForOrganizationID,
 		DocumentDate:             parsedDocumentDate,
 		JoinedDate:               parsedJoinedDate,

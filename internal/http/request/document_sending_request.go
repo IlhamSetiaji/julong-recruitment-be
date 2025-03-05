@@ -16,14 +16,14 @@ type CreateDocumentSendingRequest struct {
 	PeriodAgreement          string  `json:"period_agreement" validate:"omitempty"`
 	HomeLocation             string  `json:"home_location" validate:"omitempty"`
 	JobLevelID               string  `json:"job_level_id" validate:"omitempty"`
-	// JobID                    string  `json:"job_id" validate:"uuid"`
-	JobPostingID           string `json:"job_posting_id" validate:"required,uuid"`
-	JoinedDate             string `json:"joined_date" validate:"omitempty,datetime=2006-01-02"`
-	ForOrganizationID      string `json:"for_organization_id" validate:"omitempty"`
-	OrganizationLocationID string `json:"organization_location_id" validate:"omitempty"`
-	DetailContent          string `json:"detail_content" validate:"required"`
-	RecruitmentType        string `json:"recruitment_type" validate:"required,recruitment_type_validation"`
-	SyncMidsuit            string `json:"sync_midsuit" validate:"omitempty,oneof=YES NO"`
+	JobID                    string  `json:"job_id" validate:"omitempty"`
+	JobPostingID             string  `json:"job_posting_id" validate:"required,uuid"`
+	JoinedDate               string  `json:"joined_date" validate:"omitempty,datetime=2006-01-02"`
+	ForOrganizationID        string  `json:"for_organization_id" validate:"omitempty"`
+	OrganizationLocationID   string  `json:"organization_location_id" validate:"omitempty"`
+	DetailContent            string  `json:"detail_content" validate:"required"`
+	RecruitmentType          string  `json:"recruitment_type" validate:"required,recruitment_type_validation"`
+	SyncMidsuit              string  `json:"sync_midsuit" validate:"omitempty,oneof=YES NO"`
 }
 
 type UpdateDocumentSendingRequest struct {
@@ -43,12 +43,12 @@ type UpdateDocumentSendingRequest struct {
 	PeriodAgreement          string  `json:"period_agreement" validate:"omitempty"`
 	HomeLocation             string  `json:"home_location" validate:"omitempty"`
 	JobLevelID               string  `json:"job_level_id" validate:"omitempty"`
-	// JobID                    string  `json:"job_id" validate:"uuid"`
-	JobPostingID           string `json:"job_posting_id" validate:"required,uuid"`
-	JoinedDate             string `json:"joined_date" validate:"omitempty,datetime=2006-01-02"`
-	ForOrganizationID      string `json:"for_organization_id" validate:"omitempty"`
-	OrganizationLocationID string `json:"organization_location_id" validate:"omitempty"`
-	DetailContent          string `json:"detail_content" validate:"required"`
-	RecruitmentType        string `json:"recruitment_type" validate:"required,recruitment_type_validation"`
-	SyncMidsuit            string `json:"sync_midsuit" validate:"omitempty,oneof=YES NO"`
+	JobID                    string  `json:"job_id" validate:"omitempty"`
+	JobPostingID             string  `json:"job_posting_id" validate:"required,uuid"`
+	JoinedDate               string  `json:"joined_date" validate:"omitempty,datetime=2006-01-02"`
+	ForOrganizationID        string  `json:"for_organization_id" validate:"omitempty"`
+	OrganizationLocationID   string  `json:"organization_location_id" validate:"omitempty"`
+	DetailContent            string  `json:"detail_content" validate:"required"`
+	RecruitmentType          string  `json:"recruitment_type" validate:"required,recruitment_type_validation"`
+	SyncMidsuit              string  `json:"sync_midsuit" validate:"omitempty,oneof=YES NO"`
 }

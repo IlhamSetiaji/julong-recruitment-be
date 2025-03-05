@@ -524,10 +524,10 @@ func (h *UserProfileHandler) FindByUserID(ctx *gin.Context) {
 		return
 	}
 
-	if userProfile == nil {
-		utils.ErrorResponse(ctx, 404, "error", "User profile not found")
-		return
-	}
+	// if userProfile == nil {
+	// 	utils.ErrorResponse(ctx, 404, "error", "User profile not found")
+	// 	return
+	// }
 
 	utils.SuccessResponse(ctx, 200, "success", userProfile)
 }

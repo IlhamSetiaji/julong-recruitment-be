@@ -835,7 +835,8 @@ func (uc *UserProfileUseCase) FindByUserID(userID uuid.UUID) (*response.UserProf
 
 	if profile == nil {
 		uc.Log.Errorf("[UserProfileUseCase.FindByUserID] user profile not found")
-		return nil, errors.New("[UserProfileUseCase.FindByUserID] user profile not found")
+		// return nil, errors.New("[UserProfileUseCase.FindByUserID] user profile not found")
+		return nil, nil
 	}
 
 	return uc.DTO.ConvertEntityToResponse(profile)

@@ -13,6 +13,7 @@ import (
 type IJobPostingRepository interface {
 	CreateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.JobPosting, int64, error)
+	FindAllPaginatedShowOnly(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.JobPosting, int64, error)
 	FindByID(id uuid.UUID) (*entity.JobPosting, error)
 	UpdateJobPosting(ent *entity.JobPosting) (*entity.JobPosting, error)
 	DeleteJobPosting(id uuid.UUID) error
@@ -69,6 +70,37 @@ func (r *JobPostingRepository) FindAllPaginated(page, pageSize int, search strin
 	var total int64
 
 	query := r.DB.Preload("ProjectRecruitmentHeader").Preload("Applicants")
+
+	if search != "" {
+		query = query.Where("document_number ILIKE ? OR name ILIKE ?", "%"+search+"%", "%"+search+"%")
+	}
+
+	if filter["status"] != nil {
+		query = query.Where("status = ?", filter["status"])
+	}
+
+	for key, value := range sort {
+		query = query.Order(key + " " + value.(string))
+	}
+
+	if err := query.Model(&entity.JobPosting{}).Count(&total).Error; err != nil {
+		r.Log.Error("[JobPostingRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, errors.New("[JobPostingRepository.FindAllPaginated] " + err.Error())
+	}
+
+	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&entities).Error; err != nil {
+		r.Log.Error("[JobPostingRepository.FindAllPaginated] " + err.Error())
+		return nil, 0, errors.New("[JobPostingRepository.FindAllPaginated] " + err.Error())
+	}
+
+	return &entities, total, nil
+}
+
+func (r *JobPostingRepository) FindAllPaginatedShowOnly(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.JobPosting, int64, error) {
+	var entities []entity.JobPosting
+	var total int64
+
+	query := r.DB.Preload("ProjectRecruitmentHeader").Preload("Applicants").Where("is_show = ?", "YES")
 
 	if search != "" {
 		query = query.Where("document_number ILIKE ? OR name ILIKE ?", "%"+search+"%", "%"+search+"%")

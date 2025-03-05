@@ -62,7 +62,7 @@ func (c *RouteConfig) SetupRoutes() {
 	})
 
 	c.App.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	c.App.GET("/api/no-auth/job-postings", c.JobPostingHandler.FindAllPaginatedWithoutUserID)
+	c.App.GET("/api/no-auth/job-postings/show-only", c.JobPostingHandler.FindAllPaginatedWithoutUserIDShowOnly)
 	c.SetupAPIRoutes()
 }
 
@@ -171,6 +171,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			jobPostingRoute := apiRoute.Group("/job-postings")
 			{
 				jobPostingRoute.GET("", c.JobPostingHandler.FindAllPaginated)
+				jobPostingRoute.GET("/show-only", c.JobPostingHandler.FindAllPaginatedShowOnly)
 				jobPostingRoute.GET("save", c.JobPostingHandler.InsertSavedJob)
 				jobPostingRoute.GET("saved", c.JobPostingHandler.FindAllSavedJobsByUserID)
 				jobPostingRoute.GET("/document-number", c.JobPostingHandler.GenerateDocumentNumber)

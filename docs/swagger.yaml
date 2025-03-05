@@ -113,10 +113,12 @@ definitions:
     enum:
     - IN_PROGRESS
     - COMPLETED
+    - REJECTED
     type: string
     x-enum-varnames:
     - APPLICANT_PROCESS_STATUS_IN_PROGRESS
     - APPLICANT_PROCESS_STATUS_COMPLETED
+    - APPLICANT_PROCESS_STATUS_REJECTED
   entity.ApplicantStatus:
     enum:
     - APPLIED
@@ -688,6 +690,8 @@ definitions:
         type: boolean
       is_saved:
         type: boolean
+      is_show:
+        type: string
       job_id:
         type: string
       job_name:
@@ -1442,12 +1446,13 @@ definitions:
         type: string
       hometrip_ticket:
         type: string
+      job_id:
+        type: string
       job_level_id:
         type: string
       job_location:
         type: string
       job_posting_id:
-        description: JobID                    string  `json:"job_id" validate:"uuid"`
         type: string
       joined_date:
         type: string
@@ -2238,12 +2243,13 @@ definitions:
         type: string
       id:
         type: string
+      job_id:
+        type: string
       job_level_id:
         type: string
       job_location:
         type: string
       job_posting_id:
-        description: JobID                    string  `json:"job_id" validate:"uuid"`
         type: string
       joined_date:
         type: string
@@ -3547,6 +3553,8 @@ definitions:
         type: boolean
       is_saved:
         type: boolean
+      is_show:
+        type: string
       job_id:
         type: string
       job_name:

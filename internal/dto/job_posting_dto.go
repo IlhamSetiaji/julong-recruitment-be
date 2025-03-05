@@ -104,6 +104,7 @@ func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *respo
 		ContentDescription:         ent.ContentDescription,
 		MinimumWorkExperience:      ent.MinimumWorkExperience,
 		Name:                       ent.Name,
+		IsShow:                     ent.IsShow,
 		OrganizationLogo: func() *string {
 			if ent.OrganizationLogo != "" {
 				dto.Log.Info("Organization Logo: ", ent.OrganizationLogo)

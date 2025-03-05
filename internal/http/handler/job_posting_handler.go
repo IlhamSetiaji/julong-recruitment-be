@@ -21,7 +21,9 @@ import (
 type IJobPostingHandler interface {
 	CreateJobPosting(ctx *gin.Context)
 	FindAllPaginated(ctx *gin.Context)
+	FindAllPaginatedShowOnly(ctx *gin.Context)
 	FindAllPaginatedWithoutUserID(ctx *gin.Context)
+	FindAllPaginatedWithoutUserIDShowOnly(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	UpdateJobPosting(ctx *gin.Context)
 	DeleteJobPosting(ctx *gin.Context)
@@ -221,6 +223,68 @@ func (h *JobPostingHandler) FindAllPaginated(ctx *gin.Context) {
 	})
 }
 
+func (h *JobPostingHandler) FindAllPaginatedShowOnly(ctx *gin.Context) {
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	res, total, err := h.UseCase.FindAllPaginatedShowOnly(page, pageSize, search, sort, filter, userUUID)
+	if err != nil {
+		h.Log.Error("failed to find all paginated job postings: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", gin.H{
+		"job_postings": res,
+		"total":        total,
+	})
+}
+
 // FindAllPaginatedWithoutUserID find all job postings without user id
 //
 //		@Summary		Find all job postings without user id
@@ -270,6 +334,60 @@ func (h *JobPostingHandler) FindAllPaginatedWithoutUserID(ctx *gin.Context) {
 	logged := middleware.CheckLoggedIn(ctx, h.Log)
 
 	res, total, err := h.UseCase.FindAllPaginatedWithoutUserID(page, pageSize, search, sort, filter)
+	if err != nil {
+		h.Log.Error("failed to find all paginated job postings without user id: ", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings without user id", err.Error())
+		return
+	}
+
+	if !logged {
+		h.Log.Info("User not logged in, hiding salary")
+		for i := range *res {
+			(*res)[i].SalaryMin = ""
+			(*res)[i].SalaryMax = ""
+		}
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "success", gin.H{
+		"job_postings": res,
+		"total":        total,
+	})
+}
+
+func (h *JobPostingHandler) FindAllPaginatedWithoutUserIDShowOnly(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	filter := make(map[string]interface{})
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	logged := middleware.CheckLoggedIn(ctx, h.Log)
+
+	res, total, err := h.UseCase.FindAllPaginatedWithoutUserIDShowOnly(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("failed to find all paginated job postings without user id: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings without user id", err.Error())

@@ -33,6 +33,7 @@ type JobPostingResponse struct {
 	ApplicantProcessStatus     entity.ApplicantProcessStatus `json:"apply_process_status"`
 	MinimumWorkExperience      string                        `json:"minimum_work_experience"`
 	Name                       string                        `json:"name"`
+	IsShow                     string                        `json:"is_show"`
 
 	ForOrganizationName     string `json:"for_organization_name"`
 	ForOrganizationLocation string `json:"for_organization_location"`

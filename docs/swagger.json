@@ -7866,11 +7866,13 @@
             "type": "string",
             "enum": [
                 "IN_PROGRESS",
-                "COMPLETED"
+                "COMPLETED",
+                "REJECTED"
             ],
             "x-enum-varnames": [
                 "APPLICANT_PROCESS_STATUS_IN_PROGRESS",
-                "APPLICANT_PROCESS_STATUS_COMPLETED"
+                "APPLICANT_PROCESS_STATUS_COMPLETED",
+                "APPLICANT_PROCESS_STATUS_REJECTED"
             ]
         },
         "entity.ApplicantStatus": {
@@ -8695,6 +8697,9 @@
                 },
                 "is_saved": {
                     "type": "boolean"
+                },
+                "is_show": {
+                    "type": "string"
                 },
                 "job_id": {
                     "type": "string"
@@ -9803,6 +9808,9 @@
                 "hometrip_ticket": {
                     "type": "string"
                 },
+                "job_id": {
+                    "type": "string"
+                },
                 "job_level_id": {
                     "type": "string"
                 },
@@ -9810,7 +9818,6 @@
                     "type": "string"
                 },
                 "job_posting_id": {
-                    "description": "JobID                    string  `json:\"job_id\" validate:\"uuid\"`",
                     "type": "string"
                 },
                 "joined_date": {
@@ -10955,6 +10962,9 @@
                 "id": {
                     "type": "string"
                 },
+                "job_id": {
+                    "type": "string"
+                },
                 "job_level_id": {
                     "type": "string"
                 },
@@ -10962,7 +10972,6 @@
                     "type": "string"
                 },
                 "job_posting_id": {
-                    "description": "JobID                    string  `json:\"job_id\" validate:\"uuid\"`",
                     "type": "string"
                 },
                 "joined_date": {
@@ -12879,6 +12888,9 @@
                 },
                 "is_saved": {
                     "type": "boolean"
+                },
+                "is_show": {
+                    "type": "string"
                 },
                 "job_id": {
                     "type": "string"

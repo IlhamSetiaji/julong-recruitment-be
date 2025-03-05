@@ -7872,11 +7872,13 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "IN_PROGRESS",
-                "COMPLETED"
+                "COMPLETED",
+                "REJECTED"
             ],
             "x-enum-varnames": [
                 "APPLICANT_PROCESS_STATUS_IN_PROGRESS",
-                "APPLICANT_PROCESS_STATUS_COMPLETED"
+                "APPLICANT_PROCESS_STATUS_COMPLETED",
+                "APPLICANT_PROCESS_STATUS_REJECTED"
             ]
         },
         "entity.ApplicantStatus": {
@@ -8701,6 +8703,9 @@ const docTemplate = `{
                 },
                 "is_saved": {
                     "type": "boolean"
+                },
+                "is_show": {
+                    "type": "string"
                 },
                 "job_id": {
                     "type": "string"
@@ -9809,6 +9814,9 @@ const docTemplate = `{
                 "hometrip_ticket": {
                     "type": "string"
                 },
+                "job_id": {
+                    "type": "string"
+                },
                 "job_level_id": {
                     "type": "string"
                 },
@@ -9816,7 +9824,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "job_posting_id": {
-                    "description": "JobID                    string  ` + "`" + `json:\"job_id\" validate:\"uuid\"` + "`" + `",
                     "type": "string"
                 },
                 "joined_date": {
@@ -10961,6 +10968,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "job_id": {
+                    "type": "string"
+                },
                 "job_level_id": {
                     "type": "string"
                 },
@@ -10968,7 +10978,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "job_posting_id": {
-                    "description": "JobID                    string  ` + "`" + `json:\"job_id\" validate:\"uuid\"` + "`" + `",
                     "type": "string"
                 },
                 "joined_date": {
@@ -12885,6 +12894,9 @@ const docTemplate = `{
                 },
                 "is_saved": {
                     "type": "boolean"
+                },
+                "is_show": {
+                    "type": "string"
                 },
                 "job_id": {
                     "type": "string"

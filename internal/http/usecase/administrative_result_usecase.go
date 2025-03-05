@@ -401,17 +401,16 @@ func (uc *AdministrativeResultUseCase) UpdateStatusAdministrativeResult(id uuid.
 			uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
 			return nil, err
 		}
-		zero, err := strconv.Atoi("0")
-		if err != nil {
-			uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
-			return nil, err
-		}
+		// zero, err := strconv.Atoi("0")
+		// if err != nil {
+		// 	uc.Log.Error("[ApplicantUseCase.CreateOrUpdateAdministrativeResults] " + err.Error())
+		// 	return nil, err
+		// }
 		if applicant != nil {
 			_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
 				ID:                 applicant.ID,
 				UserProfileID:      exist.UserProfileID,
 				JobPostingID:       exist.AdministrativeSelection.JobPostingID,
-				Order:              zero,
 				TemplateQuestionID: uuid.Nil,
 				Status:             entity.APPLICANT_STATUS_REJECTED,
 			})

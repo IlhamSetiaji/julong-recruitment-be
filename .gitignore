@@ -3,4 +3,6 @@ julong-recruitment-be.exe
 julong-recruitment-be
 storage/*
 !storage/hello.pdf
+!storage/template_tk_14005857.xlsx
+!storage/template_tk_lanjutan_14005857.xlsx
 main.exe

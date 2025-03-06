@@ -7392,6 +7392,29 @@ paths:
             $ref: '#/definitions/response.DocumentVerificationHeaderResponse'
       security:
       - BearerAuth: []
+  /document-verification-headers/bpjs-tk:
+    get:
+      consumes:
+      - application/json
+      description: Export Excel file for BPJS Tenaga Kerja
+      parameters:
+      - description: Applicant ID
+        in: query
+        name: applicant_id
+        required: true
+        type: string
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      security:
+      - BearerAuth: []
+      summary: Export Excel file for BPJS Tenaga Kerja
+      tags:
+      - Document Verification Header
   /document-verification-headers/find:
     get:
       consumes:

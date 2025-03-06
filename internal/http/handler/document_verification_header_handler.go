@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -22,13 +24,18 @@ type IDocumentVerificationHeaderHandler interface {
 	FindAllPaginated(ctx *gin.Context)
 	DeleteDocumentVerificationHeader(ctx *gin.Context)
 	FindByJobPostingAndApplicant(ctx *gin.Context)
+	// ExportBPJSTenagaKerja(ctx *gin.Context)
 }
 
 type DocumentVerificationHeaderHandler struct {
-	Log      *logrus.Logger
-	Viper    *viper.Viper
-	Validate *validator.Validate
-	UseCase  usecase.IDocumentVerificationHeaderUseCase
+	Log                *logrus.Logger
+	Viper              *viper.Viper
+	Validate           *validator.Validate
+	UseCase            usecase.IDocumentVerificationHeaderUseCase
+	ApplicantUseCase   usecase.IApplicantUseCase
+	UserHelper         helper.IUserHelper
+	EmployeeMessage    messaging.IEmployeeMessage
+	UserProfileUseCase usecase.IUserProfileUseCase
 }
 
 func NewDocumentVerificationHeaderHandler(
@@ -36,12 +43,20 @@ func NewDocumentVerificationHeaderHandler(
 	viper *viper.Viper,
 	validate *validator.Validate,
 	useCase usecase.IDocumentVerificationHeaderUseCase,
+	applicantUseCase usecase.IApplicantUseCase,
+	userHelper helper.IUserHelper,
+	employeeMessage messaging.IEmployeeMessage,
+	userProfileUseCase usecase.IUserProfileUseCase,
 ) IDocumentVerificationHeaderHandler {
 	return &DocumentVerificationHeaderHandler{
-		Log:      log,
-		Viper:    viper,
-		Validate: validate,
-		UseCase:  useCase,
+		Log:                log,
+		Viper:              viper,
+		Validate:           validate,
+		UseCase:            useCase,
+		ApplicantUseCase:   applicantUseCase,
+		UserHelper:         userHelper,
+		EmployeeMessage:    employeeMessage,
+		UserProfileUseCase: userProfileUseCase,
 	}
 }
 
@@ -51,7 +66,20 @@ func DocumentVerificationHeaderHandlerFactory(
 ) IDocumentVerificationHeaderHandler {
 	useCase := usecase.DocumentVerificationHeaderUseCaseFactory(log, viper)
 	validate := config.NewValidator(viper)
-	return NewDocumentVerificationHeaderHandler(log, viper, validate, useCase)
+	applicantUseCase := usecase.ApplicantUseCaseFactory(log, viper)
+	userHelper := helper.UserHelperFactory(log)
+	employeeMessage := messaging.EmployeeMessageFactory(log)
+	userProfileUseCase := usecase.UserProfileUseCaseFactory(log, viper)
+	return NewDocumentVerificationHeaderHandler(
+		log,
+		viper,
+		validate,
+		useCase,
+		applicantUseCase,
+		userHelper,
+		employeeMessage,
+		userProfileUseCase,
+	)
 }
 
 // CreateDocumentVerificationHeader create document verification header
@@ -263,3 +291,101 @@ func (h *DocumentVerificationHeaderHandler) FindByJobPostingAndApplicant(ctx *gi
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Success get document verification header by job posting and applicant", res)
 }
+
+// ExportBPJSTenagaKerja exports Excel file for BPJS Tenaga Kerja
+//
+// @Summary Export Excel file for BPJS Tenaga Kerja
+// @Description Export Excel file for BPJS Tenaga Kerja
+// @Tags Document Verification Header
+// @Accept json
+//
+//	@Produce		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+//	@Success		200					{file}		file
+//	@Security		BearerAuth
+//	@Router			/document-verification-headers/bpjs-tk [get]
+// func (h *DocumentVerificationHeaderHandler) ExportBPJSTenagaKerja(ctx *gin.Context) {
+// 	user, err := middleware.GetUser(ctx, h.Log)
+// 	if err != nil {
+// 		h.Log.Errorf("Error when getting user: %v", err)
+// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
+// 		return
+// 	}
+// 	if user == nil {
+// 		h.Log.Errorf("User not found")
+// 		utils.ErrorResponse(ctx, 404, "error", "User not found")
+// 		return
+// 	}
+// 	userName, err := h.UserHelper.GetUserName(user)
+// 	if err != nil {
+// 		h.Log.Errorf("Error when getting user name: %v", err)
+// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
+// 		return
+// 	}
+
+// 	userId, err := h.UserHelper.GetUserId(user)
+// 	if err != nil {
+// 		h.Log.Errorf("Error when getting user id: %v", err)
+// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
+// 		return
+// 	}
+
+// 	userEmail, err := h.UserHelper.GetUserEmail(user)
+// 	if err != nil {
+// 		h.Log.Errorf("Error when getting user email: %v", err)
+// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
+// 		return
+// 	}
+
+// 	userProfile, err := h.UserProfileUseCase.FindByUserID(userId)
+// 	if err != nil {
+// 		h.Log.Errorf("Error when finding user profile by user id: %v", err)
+// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
+// 		return
+// 	}
+
+// 	employeeId, err := h.UserHelper.GetEmployeeId(user)
+// 	if err != nil {
+// 		h.Log.Errorf("Error when getting employee id: %v", err)
+// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
+// 		return
+// 	}
+
+// 	empResp, err := h.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
+// 		ID: employeeId.String(),
+// 	})
+// 	if err != nil {
+// 		h.Log.Errorf("Error when sending find employee by id message: %v", err)
+// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
+// 		return
+// 	}
+
+// 	f, err := excelize.OpenFile("./storage/template_tk_14005857.xlsx")
+// 	if err != nil {
+// 		h.Log.Errorf("Error when opening file: %v", err)
+// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
+// 		return
+// 	}
+// 	defer func() {
+// 		// Close the spreadsheet.
+// 		if err := f.Close(); err != nil {
+// 			h.Log.Errorf("Error when closing file: %v", err)
+// 			utils.ErrorResponse(ctx, 500, "error", err.Error())
+// 			return
+// 		}
+// 	}()
+
+// 	// Set value to the cell.
+// 	sheetName := "data_tk_baru"
+// 	// Nama Lengkap
+// 	f.SetCellValue(sheetName, "B2", userName)
+// 	// HP
+// 	f.SetCellValue(sheetName, "I2", userProfile.PhoneNumber)
+// 	// Email
+// 	f.SetCellValue(sheetName, "J2", userEmail)
+// 	// Birth Place
+// 	f.SetCellValue(sheetName, "K2", userProfile.BirthPlace)
+// 	// Birth Date
+// 	f.SetCellValue(sheetName, "L2", userProfile.BirthDate.Format("02-01-2006"))
+// 	// Marital Status
+// 	f.SetCellValue(sheetName, "T2", userProfile.MaritalStatus)
+// }

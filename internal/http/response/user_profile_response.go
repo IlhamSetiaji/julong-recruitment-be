@@ -21,6 +21,7 @@ type UserProfileResponse struct {
 	Bilingual       string                    `json:"bilingual"`
 	ExpectedSalary  int                       `json:"expected_salary"`
 	CurrentSalary   int                       `json:"current_salary"`
+	Religion        string                    `json:"religion"`
 	Ktp             *string                   `json:"ktp"`
 	Avatar          *string                   `json:"avatar"`
 	CurriculumVitae *string                   `json:"curriculum_vitae"`

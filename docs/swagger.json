@@ -4942,6 +4942,43 @@
                 }
             }
         },
+        "/document-verification-headers/bpjs-tk": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Export Excel file for BPJS Tenaga Kerja",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                ],
+                "tags": [
+                    "Document Verification Header"
+                ],
+                "summary": "Export Excel file for BPJS Tenaga Kerja",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Applicant ID",
+                        "name": "applicant_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
         "/document-verification-headers/find": {
             "get": {
                 "security": [

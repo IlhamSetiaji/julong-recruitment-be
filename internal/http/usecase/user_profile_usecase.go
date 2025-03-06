@@ -95,6 +95,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 			Bilingual:       req.Bilingual,
 			ExpectedSalary:  req.ExpectedSalary,
 			CurrentSalary:   req.CurrentSalary,
+			Religion:        req.Religion,
 			Status:          entity.USER_INACTIVE,
 		})
 		if err != nil {
@@ -196,6 +197,7 @@ func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileReques
 			Bilingual:       req.Bilingual,
 			ExpectedSalary:  req.ExpectedSalary,
 			CurrentSalary:   req.CurrentSalary,
+			Religion:        req.Religion,
 			Status:          entity.USER_INACTIVE,
 		})
 		if err != nil {

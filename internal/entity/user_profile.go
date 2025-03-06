@@ -50,6 +50,7 @@ type UserProfile struct {
 	Bilingual       string            `json:"bilingual" gorm:"type:varchar(255);default:null"`
 	ExpectedSalary  int               `json:"expected_salary" gorm:"type:int;default:null"`
 	CurrentSalary   int               `json:"current_salary" gorm:"type:int;default:null"`
+	Religion        string            `json:"religion" gorm:"type:varchar(255);default:null"`
 
 	Applicants            []Applicant            `json:"applicants" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	WorkExperiences       []WorkExperience       `json:"work_experiences" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

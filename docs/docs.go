@@ -4966,15 +4966,6 @@ const docTemplate = `{
                     "Document Verification Header"
                 ],
                 "summary": "Export Excel file for BPJS Tenaga Kerja",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Applicant ID",
-                        "name": "applicant_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -9674,6 +9665,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/entity.QuestionResponse"
                     }
                 },
+                "religion": {
+                    "type": "string"
+                },
                 "skills": {
                     "type": "array",
                     "items": {
@@ -13926,6 +13920,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone_number": {
+                    "type": "string"
+                },
+                "religion": {
                     "type": "string"
                 },
                 "skills": {

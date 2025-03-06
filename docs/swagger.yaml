@@ -1335,6 +1335,8 @@ definitions:
         items:
           $ref: '#/definitions/entity.QuestionResponse'
         type: array
+      religion:
+        type: string
       skills:
         items:
           $ref: '#/definitions/entity.Skill'
@@ -4210,6 +4212,8 @@ definitions:
       name:
         type: string
       phone_number:
+        type: string
+      religion:
         type: string
       skills:
         items:
@@ -7397,12 +7401,6 @@ paths:
       consumes:
       - application/json
       description: Export Excel file for BPJS Tenaga Kerja
-      parameters:
-      - description: Applicant ID
-        in: query
-        name: applicant_id
-        required: true
-        type: string
       produces:
       - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
       responses:

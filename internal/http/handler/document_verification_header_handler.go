@@ -7,6 +7,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -15,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/xuri/excelize/v2"
 )
 
 type IDocumentVerificationHeaderHandler interface {
@@ -24,7 +26,7 @@ type IDocumentVerificationHeaderHandler interface {
 	FindAllPaginated(ctx *gin.Context)
 	DeleteDocumentVerificationHeader(ctx *gin.Context)
 	FindByJobPostingAndApplicant(ctx *gin.Context)
-	// ExportBPJSTenagaKerja(ctx *gin.Context)
+	ExportBPJSTenagaKerja(ctx *gin.Context)
 }
 
 type DocumentVerificationHeaderHandler struct {
@@ -303,89 +305,107 @@ func (h *DocumentVerificationHeaderHandler) FindByJobPostingAndApplicant(ctx *gi
 //	@Success		200					{file}		file
 //	@Security		BearerAuth
 //	@Router			/document-verification-headers/bpjs-tk [get]
-// func (h *DocumentVerificationHeaderHandler) ExportBPJSTenagaKerja(ctx *gin.Context) {
-// 	user, err := middleware.GetUser(ctx, h.Log)
-// 	if err != nil {
-// 		h.Log.Errorf("Error when getting user: %v", err)
-// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
-// 		return
-// 	}
-// 	if user == nil {
-// 		h.Log.Errorf("User not found")
-// 		utils.ErrorResponse(ctx, 404, "error", "User not found")
-// 		return
-// 	}
-// 	userName, err := h.UserHelper.GetUserName(user)
-// 	if err != nil {
-// 		h.Log.Errorf("Error when getting user name: %v", err)
-// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
-// 		return
-// 	}
+func (h *DocumentVerificationHeaderHandler) ExportBPJSTenagaKerja(ctx *gin.Context) {
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userName, err := h.UserHelper.GetUserName(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user name: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
 
-// 	userId, err := h.UserHelper.GetUserId(user)
-// 	if err != nil {
-// 		h.Log.Errorf("Error when getting user id: %v", err)
-// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
-// 		return
-// 	}
+	userId, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
 
-// 	userEmail, err := h.UserHelper.GetUserEmail(user)
-// 	if err != nil {
-// 		h.Log.Errorf("Error when getting user email: %v", err)
-// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
-// 		return
-// 	}
+	userEmail, err := h.UserHelper.GetUserEmail(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user email: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
 
-// 	userProfile, err := h.UserProfileUseCase.FindByUserID(userId)
-// 	if err != nil {
-// 		h.Log.Errorf("Error when finding user profile by user id: %v", err)
-// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
-// 		return
-// 	}
+	userProfile, err := h.UserProfileUseCase.FindByUserID(userId)
+	if err != nil {
+		h.Log.Errorf("Error when finding user profile by user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
 
-// 	employeeId, err := h.UserHelper.GetEmployeeId(user)
-// 	if err != nil {
-// 		h.Log.Errorf("Error when getting employee id: %v", err)
-// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
-// 		return
-// 	}
+	employeeId, err := h.UserHelper.GetEmployeeId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting employee id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
 
-// 	empResp, err := h.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
-// 		ID: employeeId.String(),
-// 	})
-// 	if err != nil {
-// 		h.Log.Errorf("Error when sending find employee by id message: %v", err)
-// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
-// 		return
-// 	}
+	_, err = h.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
+		ID: employeeId.String(),
+	})
+	if err != nil {
+		h.Log.Errorf("Error when sending find employee by id message: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
 
-// 	f, err := excelize.OpenFile("./storage/template_tk_14005857.xlsx")
-// 	if err != nil {
-// 		h.Log.Errorf("Error when opening file: %v", err)
-// 		utils.ErrorResponse(ctx, 500, "error", err.Error())
-// 		return
-// 	}
-// 	defer func() {
-// 		// Close the spreadsheet.
-// 		if err := f.Close(); err != nil {
-// 			h.Log.Errorf("Error when closing file: %v", err)
-// 			utils.ErrorResponse(ctx, 500, "error", err.Error())
-// 			return
-// 		}
-// 	}()
+	f, err := excelize.OpenFile("./storage/template_tk_14005857.xlsx")
+	if err != nil {
+		h.Log.Errorf("Error when opening file: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	defer func() {
+		// Close the spreadsheet.
+		if err := f.Close(); err != nil {
+			h.Log.Errorf("Error when closing file: %v", err)
+			utils.ErrorResponse(ctx, 500, "error", err.Error())
+			return
+		}
+	}()
 
-// 	// Set value to the cell.
-// 	sheetName := "data_tk_baru"
-// 	// Nama Lengkap
-// 	f.SetCellValue(sheetName, "B2", userName)
-// 	// HP
-// 	f.SetCellValue(sheetName, "I2", userProfile.PhoneNumber)
-// 	// Email
-// 	f.SetCellValue(sheetName, "J2", userEmail)
-// 	// Birth Place
-// 	f.SetCellValue(sheetName, "K2", userProfile.BirthPlace)
-// 	// Birth Date
-// 	f.SetCellValue(sheetName, "L2", userProfile.BirthDate.Format("02-01-2006"))
-// 	// Marital Status
-// 	f.SetCellValue(sheetName, "T2", userProfile.MaritalStatus)
-// }
+	// Set value to the cell.
+	sheetName := "data_tk_baru"
+	// Nama Lengkap
+	f.SetCellValue(sheetName, "B2", userName)
+	// HP
+	f.SetCellValue(sheetName, "I2", userProfile.PhoneNumber)
+	// Email
+	f.SetCellValue(sheetName, "J2", userEmail)
+	// Birth Place
+	f.SetCellValue(sheetName, "K2", userProfile.BirthPlace)
+	// Birth Date
+	f.SetCellValue(sheetName, "L2", userProfile.BirthDate.Format("02-01-2006"))
+	// Marital Status
+	f.SetCellValue(sheetName, "T2", userProfile.MaritalStatus)
+
+	// Save the spreadsheet by the given path.
+	fileName := "bpjs_tk_" + userId.String() + ".xlsx"
+	if err := f.SaveAs("./storage/bpjs" + fileName); err != nil {
+		h.Log.Errorf("Error when saving file: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	ctx.Header("Content-Disposition", "attachment; filename=template_tk_14005857.xlsx")
+	ctx.Header("Content-Transfer-Encoding", "binary")
+
+	if err := f.Write(ctx.Writer); err != nil {
+		h.Log.Errorf("Error when writing file: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
+		return
+	}
+}

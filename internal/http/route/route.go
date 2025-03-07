@@ -355,6 +355,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 			documentSendingRoute := apiRoute.Group("/document-sending")
 			{
 				documentSendingRoute.GET("", c.DocumentSendingHandler.FindAllPaginatedByDocumentTypeID)
+				documentSendingRoute.POST("/generate-pdf", c.DocumentSendingHandler.GeneratePdfBufferFromHTML)
 				documentSendingRoute.GET("/test-generate-pdf", c.DocumentSendingHandler.TestGenerateHTMLPDF)
 				documentSendingRoute.GET("/test-send-email", c.DocumentSendingHandler.TestSendEmail)
 				documentSendingRoute.GET("/applicant", c.DocumentSendingHandler.FindByDocumentTypeIDAndApplicantID)

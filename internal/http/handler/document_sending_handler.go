@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"context"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -10,6 +12,8 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
+	"github.com/chromedp/cdproto/page"
+	"github.com/chromedp/chromedp"
 	"github.com/gin-gonic/gin"
 	"github.com/go-pdf/fpdf"
 	"github.com/go-playground/validator/v10"
@@ -30,6 +34,7 @@ type IDocumentSendingHandler interface {
 	TestGeneratePDF(ctx *gin.Context)
 	TestSendEmail(ctx *gin.Context)
 	TestGenerateHTMLPDF(ctx *gin.Context)
+	GeneratePdfBufferFromHTML(ctx *gin.Context)
 }
 
 type DocumentSendingHandler struct {
@@ -430,4 +435,196 @@ func (h *DocumentSendingHandler) TestGenerateHTMLPDF(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusOK, "HTML PDF generated", filepath)
+}
+
+func (h *DocumentSendingHandler) GeneratePdfBufferFromHTML(ctx *gin.Context) {
+	var payload request.GeneratePdfBufferFromHTMLRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.GeneratePdfBufferFromHTML] error when binding request: %v", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.GeneratePdfBufferFromHTML] error when validating request: %v", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		return
+	}
+
+	c, cancel := chromedp.NewContext(context.Background())
+	defer cancel()
+
+	c, cancel = context.WithTimeout(c, 30*time.Second)
+	defer cancel()
+
+	cssStyles := `
+<style>
+.tiptap h1 {
+  font-size: 1.4rem;
+}
+
+.tiptap h2 {
+  font-size: 1.2rem;
+}
+
+.tiptap h3 {
+  font-size: 1.1rem;
+}
+
+.tiptap {
+  ul,
+  ol {
+    padding: 0 1rem;
+    margin: 1.25rem 1rem 1.25rem 0.4rem;
+  }
+  li p {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+  }
+  code {
+    background-color: var(--purple-light);
+    border-radius: 0.4rem;
+    color: var(--black);
+    font-size: 0.85rem;
+    padding: 0.25em 0.3em;
+  }
+
+  pre {
+    background: var(--black);
+    border-radius: 0.5rem;
+    color: var(--white);
+    font-family: "JetBrainsMono", monospace;
+    margin: 1.5rem 0;
+    padding: 0.75rem 1rem;
+
+    code {
+      background: none;
+      color: inherit;
+      font-size: 0.8rem;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    border-left: 3px solid var(--gray-3);
+    margin: 1.5rem 0;
+    padding-left: 1rem;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--gray-2);
+    margin: 2rem 0;
+  }
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  margin: 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.tiptap td,
+.tiptap th {
+  border: 1px solid var(--primary);
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 6px 8px;
+  position: relative;
+  vertical-align: top;
+}
+
+.tiptap th {
+  background-color: var(--second);
+  font-weight: normal !important;
+  text-align: left;
+}
+
+.tiptap .selectedCell:after {
+  background: var(--selectGray);
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.tiptap .column-resize-handle {
+  background-color: var(--gray);
+  bottom: -2px;
+  pointer-events: none;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 1px;
+}
+
+.tiptap .tableWrapper {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.tiptap.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+.tiptap-border-none {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.tiptap-border-none th {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.tiptap-border-none td {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+</style>
+`
+
+	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div class="tiptap">` + payload.HTML + `</div></body></html>`
+	dataURL := "data:text/html," + url.PathEscape(htmlContent)
+
+	var pdfBuffer []byte
+
+	err := chromedp.Run(c,
+		chromedp.Navigate(dataURL),
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			var err error
+			pdfBuffer, _, err = page.PrintToPDF().
+				WithPrintBackground(true).
+				WithMarginTop(1.0).
+				WithMarginRight(1.0).
+				WithMarginBottom(1.0).
+				WithMarginLeft(1.0).
+				Do(ctx)
+			return err
+		}),
+	)
+	if err != nil {
+		h.Log.Errorf("Failed to generate PDF: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to generate PDF", err.Error())
+		return
+	}
+
+	ctx.Header("Content-Type", "application/pdf")
+	ctx.Header("Content-Disposition", "attachment; filename=document.pdf")
+	ctx.Header("Content-Length", strconv.Itoa(len(pdfBuffer)))
+
+	// Write the PDF buffer to the response
+	_, err = ctx.Writer.Write(pdfBuffer)
+	if err != nil {
+		h.Log.Errorf("Failed to write PDF to response: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to write PDF to response", err.Error())
+		return
+	}
 }

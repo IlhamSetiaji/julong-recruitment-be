@@ -52,3 +52,7 @@ type UpdateDocumentSendingRequest struct {
 	RecruitmentType          string  `json:"recruitment_type" validate:"required,recruitment_type_validation"`
 	SyncMidsuit              string  `json:"sync_midsuit" validate:"omitempty,oneof=YES NO"`
 }
+
+type GeneratePdfBufferFromHTMLRequest struct {
+	HTML string `json:"html" validate:"required"`
+}

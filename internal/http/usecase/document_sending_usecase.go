@@ -415,7 +415,7 @@ func convertToUTF8(text string) string {
 	return string(utf8Text)
 }
 
-func (uc *DocumentSendingUseCase) generatePdf(text string) (*string, error) {
+func (uc *DocumentSendingUseCase) generatePdf(documentSending *entity.DocumentSending) (*string, error) {
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
@@ -425,6 +425,9 @@ func (uc *DocumentSendingUseCase) generatePdf(text string) (*string, error) {
 	// Define the CSS styles
 	cssStyles := `
 <style>
+body {
+	font-size: 20px;
+}
 .tiptap h1 {
   font-size: 1.4rem;
 }
@@ -557,19 +560,35 @@ func (uc *DocumentSendingUseCase) generatePdf(text string) (*string, error) {
 </style>
 `
 
+	organizationResp, err := uc.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
+		ID: documentSending.ForOrganizationID.String(),
+	})
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+		return nil, err
+	}
+
+	// Use the organization logo URL
+	logoURL := organizationResp.Logo
+
 	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
-	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div class="tiptap">` + text + `</div></body></html>`
+	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;background: red">
+		<div style="text-align: center;">
+			<img src="` + logoURL + `" alt="Kop Surat" style="width: 1000px; height: 200px;">
+		</div>
+		<div style="width: 100%; border-bottom: 3px solid black; "></div>
+		</div><div class="tiptap">` + documentSending.DetailContent + `</div></body></html>`
 	dataURL := "data:text/html," + url.PathEscape(htmlContent)
 
 	var pdfBuffer []byte
 
-	err := chromedp.Run(ctx,
+	err = chromedp.Run(ctx,
 		chromedp.Navigate(dataURL),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			var err error
 			pdfBuffer, _, err = page.PrintToPDF().
 				WithPrintBackground(true).
-				WithMarginTop(1.0).
+				WithMarginTop(0.5).
 				WithMarginRight(1.0).
 				WithMarginBottom(1.0).
 				WithMarginLeft(1.0).
@@ -784,7 +803,9 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 			return nil, err
 		}
 
-		filePath, err := uc.generatePdf(docSending.DetailContent)
+		uc.Log.Printf("Organization ID Cok %v", *docSending.ForOrganizationID)
+
+		filePath, err := uc.generatePdf(docSending)
 		if err != nil {
 			uc.Log.Errorf("Gagal membuat PDF: %v", err)
 			return nil, err
@@ -1218,7 +1239,7 @@ func (uc *DocumentSendingUseCase) TestGenerateHTMLPDF(docSendingID uuid.UUID) (*
 		return nil, err
 	}
 	// Generate the PDF
-	filePath, err := uc.generatePdf(docSending.DetailContent)
+	filePath, err := uc.generatePdf(docSending)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.TestGenerateHTMLPDF] " + err.Error())
 		return nil, err

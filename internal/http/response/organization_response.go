@@ -9,6 +9,7 @@ type SendFindOrganizationByIDMessageResponse struct {
 	Name                 string `json:"name"`
 	OrganizationCategory string `json:"organization_category"`
 	OrganizationType     string `json:"organization_type"`
+	Logo                 string `json:"logo"`
 }
 
 type SendFindOrganizationLocationByIDMessageResponse struct {

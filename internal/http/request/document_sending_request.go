@@ -24,7 +24,7 @@ type CreateDocumentSendingRequest struct {
 	DetailContent            string  `json:"detail_content" validate:"required"`
 	RecruitmentType          string  `json:"recruitment_type" validate:"required,recruitment_type_validation"`
 	SyncMidsuit              string  `json:"sync_midsuit" validate:"omitempty,oneof=YES NO"`
-	HiredStatus              string  `json:"hired_status" validate:"omitempty,hired_status_validation"`
+	HiredStatus              string  `json:"hired_status" validate:"omitempty,document_sending_hired_status_validation"`
 }
 
 type UpdateDocumentSendingRequest struct {
@@ -52,7 +52,7 @@ type UpdateDocumentSendingRequest struct {
 	DetailContent            string  `json:"detail_content" validate:"required"`
 	RecruitmentType          string  `json:"recruitment_type" validate:"required,recruitment_type_validation"`
 	SyncMidsuit              string  `json:"sync_midsuit" validate:"omitempty,oneof=YES NO"`
-	HiredStatus              string  `json:"hired_status" validate:"omitempty,hired_status_validation"`
+	HiredStatus              string  `json:"hired_status" validate:"omitempty,document_sending_hired_status_validation"`
 }
 
 type GeneratePdfBufferFromHTMLRequest struct {

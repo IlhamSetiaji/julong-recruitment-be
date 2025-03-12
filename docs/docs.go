@@ -7910,6 +7910,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/entity.DocumentSending"
                     }
                 },
+                "hired_status": {
+                    "$ref": "#/definitions/entity.HiredStatusEnum"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -11805,6 +11808,9 @@ const docTemplate = `{
                 },
                 "created_at": {
                     "type": "string"
+                },
+                "hired_status": {
+                    "$ref": "#/definitions/entity.HiredStatusEnum"
                 },
                 "id": {
                     "type": "string"

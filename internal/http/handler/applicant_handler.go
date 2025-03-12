@@ -434,14 +434,14 @@ func (h *ApplicantHandler) GetApplicantsForCoverLetter(ctx *gin.Context) {
 		return
 	}
 
-	hiredStatus := ctx.Query("hired_status")
-	if hiredStatus == "" {
-		h.Log.Errorf("[ApplicantHandler.GetApplicantsForCoverLetter] hired_status is required")
-		utils.BadRequestResponse(ctx, "hired_status is required", nil)
-		return
-	}
+	// hiredStatus := ctx.Query("hired_status")
+	// if hiredStatus == "" {
+	// 	h.Log.Errorf("[ApplicantHandler.GetApplicantsForCoverLetter] hired_status is required")
+	// 	utils.BadRequestResponse(ctx, "hired_status is required", nil)
+	// 	return
+	// }
 
-	applicants, err := h.UseCase.GetApplicantsForCoverLetter(jobPostingID, projectRecruitmentLineID, entity.HiredStatusEnum(hiredStatus))
+	applicants, err := h.UseCase.GetApplicantsForCoverLetter(jobPostingID, projectRecruitmentLineID)
 	if err != nil {
 		h.Log.Errorf("[ApplicantHandler.GetApplicantsForCoverLetter] error when getting applicants for cover letter: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get applicants for cover letter", err.Error())

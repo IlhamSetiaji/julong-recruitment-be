@@ -7904,6 +7904,9 @@
                         "$ref": "#/definitions/entity.DocumentSending"
                     }
                 },
+                "hired_status": {
+                    "$ref": "#/definitions/entity.HiredStatusEnum"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -11799,6 +11802,9 @@
                 },
                 "created_at": {
                     "type": "string"
+                },
+                "hired_status": {
+                    "$ref": "#/definitions/entity.HiredStatusEnum"
                 },
                 "id": {
                     "type": "string"

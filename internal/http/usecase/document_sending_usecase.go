@@ -62,6 +62,7 @@ type DocumentSendingUseCase struct {
 	MPRequestMessage                 messaging.IMPRequestMessage
 	MPRequestService                 service.IMPRequestService
 	OrganizationMessage              messaging.IOrganizationMessage
+	DocumentSendingHelper            helper.IDocumentSendingHelper
 }
 
 func NewDocumentSendingUseCase(
@@ -83,6 +84,7 @@ func NewDocumentSendingUseCase(
 	mpRequestMessage messaging.IMPRequestMessage,
 	mpRequestService service.IMPRequestService,
 	organizationMessage messaging.IOrganizationMessage,
+	documentSendingHelper helper.IDocumentSendingHelper,
 ) IDocumentSendingUseCase {
 	return &DocumentSendingUseCase{
 		Log:                              log,
@@ -103,6 +105,7 @@ func NewDocumentSendingUseCase(
 		MPRequestMessage:                 mpRequestMessage,
 		MPRequestService:                 mpRequestService,
 		OrganizationMessage:              organizationMessage,
+		DocumentSendingHelper:            documentSendingHelper,
 	}
 }
 
@@ -123,6 +126,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 	mpRequestMessage := messaging.MPRequestMessageFactory(log)
 	mpRequestService := service.MPRequestServiceFactory(log)
 	organizationMessage := messaging.OrganizationMessageFactory(log)
+	documentSendingHelper := helper.DocumentSendingHelperFactory(log, viper)
 	return NewDocumentSendingUseCase(
 		log,
 		repo,
@@ -142,6 +146,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 		mpRequestMessage,
 		mpRequestService,
 		organizationMessage,
+		documentSendingHelper,
 	)
 }
 
@@ -617,6 +622,17 @@ body {
 
 	return &filePath, nil
 }
+
+// func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.DocumentSending) (*string, error) {
+// 	organizationResp, err := uc.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
+// 		ID: documentSending.ForOrganizationID.String(),
+// 	})
+// 	if err != nil {
+// 		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+// 		return nil, err
+// 	}
+// 	company := organizationResp.Name
+// }
 
 func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocumentSendingRequest) (*response.DocumentSendingResponse, error) {
 	parsedID, err := uuid.Parse(req.ID)

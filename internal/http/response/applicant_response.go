@@ -15,6 +15,7 @@ type ApplicantResponse struct {
 	Order            int                           `json:"order"`
 	Status           entity.ApplicantStatus        `json:"status"`
 	ProcessStatus    entity.ApplicantProcessStatus `json:"process_status"`
+	HiredStatus      entity.HiredStatusEnum        `json:"hired_status"`
 	CreatedAt        time.Time                     `json:"created_at"`
 	UpdatedAt        time.Time                     `json:"updated_at"`
 	TemplateQuestion *TemplateQuestionResponse     `json:"template_question"`

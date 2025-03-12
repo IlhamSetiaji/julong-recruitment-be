@@ -84,6 +84,8 @@ definitions:
         items:
           $ref: '#/definitions/entity.DocumentSending'
         type: array
+      hired_status:
+        $ref: '#/definitions/entity.HiredStatusEnum'
       id:
         type: string
       job_posting:
@@ -2784,6 +2786,8 @@ definitions:
         type: string
       created_at:
         type: string
+      hired_status:
+        $ref: '#/definitions/entity.HiredStatusEnum'
       id:
         type: string
       job_posting:

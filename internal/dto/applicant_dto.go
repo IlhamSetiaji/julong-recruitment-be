@@ -51,6 +51,7 @@ func (dto *ApplicantDTO) ConvertEntityToResponse(ent *entity.Applicant) (*respon
 		Order:         ent.Order,
 		Status:        ent.Status,
 		ProcessStatus: ent.ProcessStatus,
+		HiredStatus:   ent.HiredStatus,
 		CreatedAt:     ent.CreatedAt,
 		UpdatedAt:     ent.UpdatedAt,
 		TemplateQuestion: func() *response.TemplateQuestionResponse {

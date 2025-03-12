@@ -19,7 +19,7 @@ type IApplicantUseCase interface {
 	GetApplicantsByJobPostingIDForExport(jobPostingID uuid.UUID) (*[]response.ApplicantResponse, error)
 	FindApplicantByJobPostingIDAndUserID(jobPostingID, userID uuid.UUID) (*response.ApplicantResponse, error)
 	FindByID(id uuid.UUID) (*entity.Applicant, error)
-	GetApplicantsForCoverLetter(jobPostingID, projectRecruitmentLineID uuid.UUID, hiredStatus entity.HiredStatusEnum) (*[]response.ApplicantResponse, error)
+	GetApplicantsForCoverLetter(jobPostingID, projectRecruitmentLineID uuid.UUID) (*[]response.ApplicantResponse, error)
 }
 
 type ApplicantUseCase struct {
@@ -445,7 +445,7 @@ func (uc *ApplicantUseCase) GetApplicantsByJobPostingIDForExport(jobPostingID uu
 	return &applicantResponses, nil
 }
 
-func (uc *ApplicantUseCase) GetApplicantsForCoverLetter(jobPostingID, projectRecruitmentLineID uuid.UUID, hiredStatus entity.HiredStatusEnum) (*[]response.ApplicantResponse, error) {
+func (uc *ApplicantUseCase) GetApplicantsForCoverLetter(jobPostingID, projectRecruitmentLineID uuid.UUID) (*[]response.ApplicantResponse, error) {
 	// find job posting
 	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
 	if err != nil {
@@ -472,7 +472,7 @@ func (uc *ApplicantUseCase) GetApplicantsForCoverLetter(jobPostingID, projectRec
 	documentSendings, err := uc.DocumentSendingRepository.FindAllByKeys(map[string]interface{}{
 		"job_posting_id":              jobPostingID,
 		"project_recruitment_line_id": projectRecruitmentLineID,
-		"hired_status":                hiredStatus,
+		// "hired_status":                hiredStatus,
 	})
 	if err != nil {
 		uc.Log.Error("[ApplicantUseCase.GetApplicantsForCoverLetter] " + err.Error())

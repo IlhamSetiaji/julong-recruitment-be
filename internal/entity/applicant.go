@@ -34,6 +34,7 @@ type Applicant struct {
 	AppliedDate        time.Time              `json:"applied_date" gorm:"type:date;not null"`
 	Status             ApplicantStatus        `json:"status" gorm:"not null"`
 	ProcessStatus      ApplicantProcessStatus `json:"process_status" gorm:"not null;default:'IN_PROGRESS'"`
+	HiredStatus        HiredStatusEnum        `json:"hired_status" gorm:"type:varchar(255);default:null"`
 
 	DocumentSendings []DocumentSending `json:"document_sendings" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	UserProfile      *UserProfile      `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

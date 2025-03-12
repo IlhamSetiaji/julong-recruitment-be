@@ -30,6 +30,7 @@ type DocumentDataCoverLetter struct {
 	JobLevel       string
 	JoinedDate     string
 	HiredStatus    string
+	MaritalStatus  string
 }
 
 func NewDocumentSendingHelper(

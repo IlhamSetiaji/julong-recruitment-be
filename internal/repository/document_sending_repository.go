@@ -93,7 +93,7 @@ func (r *DocumentSendingRepository) UpdateDocumentSending(ent *entity.DocumentSe
 		return nil, err
 	}
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup.DocumentType").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(ent, ent.ID).Error; err != nil {
 		tx.Rollback()
 		r.Log.Error("[DocumentSendingRepository.UpdateDocumentSending] " + err.Error())
 		return nil, err
@@ -132,7 +132,7 @@ func (r *DocumentSendingRepository) FindAllPaginatedByDocumentSetupIDs(documentS
 func (r *DocumentSendingRepository) FindByID(id uuid.UUID) (*entity.DocumentSending, error) {
 	var documentSending entity.DocumentSending
 
-	if err := r.DB.Preload("DocumentSetup").Preload("ProjectRecruitmentLine.TemplateActivityLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(&documentSending, id).Error; err != nil {
+	if err := r.DB.Preload("DocumentSetup.DocumentType").Preload("ProjectRecruitmentLine.TemplateActivityLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").First(&documentSending, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}

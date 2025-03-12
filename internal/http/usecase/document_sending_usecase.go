@@ -63,6 +63,7 @@ type DocumentSendingUseCase struct {
 	MPRequestService                 service.IMPRequestService
 	OrganizationMessage              messaging.IOrganizationMessage
 	DocumentSendingHelper            helper.IDocumentSendingHelper
+	JobPlafonMessage                 messaging.IJobPlafonMessage
 }
 
 func NewDocumentSendingUseCase(
@@ -85,6 +86,7 @@ func NewDocumentSendingUseCase(
 	mpRequestService service.IMPRequestService,
 	organizationMessage messaging.IOrganizationMessage,
 	documentSendingHelper helper.IDocumentSendingHelper,
+	jobPlafonMessage messaging.IJobPlafonMessage,
 ) IDocumentSendingUseCase {
 	return &DocumentSendingUseCase{
 		Log:                              log,
@@ -106,6 +108,7 @@ func NewDocumentSendingUseCase(
 		MPRequestService:                 mpRequestService,
 		OrganizationMessage:              organizationMessage,
 		DocumentSendingHelper:            documentSendingHelper,
+		JobPlafonMessage:                 jobPlafonMessage,
 	}
 }
 
@@ -127,6 +130,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 	mpRequestService := service.MPRequestServiceFactory(log)
 	organizationMessage := messaging.OrganizationMessageFactory(log)
 	documentSendingHelper := helper.DocumentSendingHelperFactory(log, viper)
+	jobPlafonMesage := messaging.JobPlafonMessageFactory(log)
 	return NewDocumentSendingUseCase(
 		log,
 		repo,
@@ -147,6 +151,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 		mpRequestService,
 		organizationMessage,
 		documentSendingHelper,
+		jobPlafonMesage,
 	)
 }
 
@@ -574,16 +579,28 @@ body {
 		return nil, err
 	}
 
+	var htmlText *string
+	htmlText = &documentSending.DetailContent
+
 	// Use the organization logo URL
 	logoURL := organizationResp.Logo
 
+	// check if document sending is cover letter
+	if documentSending.DocumentSetup.DocumentType.Name == "FINAL_RESULT" {
+		htmlText, err = uc.replaceCoverLetter(*documentSending)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+			return nil, err
+		}
+	}
+
 	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
-	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;background: red">
+	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
 		<div style="text-align: center;">
 			<img src="` + logoURL + `" alt="Kop Surat" style="width: 1000px; height: 200px;">
 		</div>
 		<div style="width: 100%; border-bottom: 3px solid black; "></div>
-		</div><div class="tiptap">` + documentSending.DetailContent + `</div></body></html>`
+		</div><div class="tiptap">` + *htmlText + `</div></body></html>`
 	dataURL := "data:text/html," + url.PathEscape(htmlContent)
 
 	var pdfBuffer []byte
@@ -623,16 +640,105 @@ body {
 	return &filePath, nil
 }
 
-// func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.DocumentSending) (*string, error) {
-// 	organizationResp, err := uc.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
-// 		ID: documentSending.ForOrganizationID.String(),
-// 	})
-// 	if err != nil {
-// 		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
-// 		return nil, err
-// 	}
-// 	company := organizationResp.Name
-// }
+func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.DocumentSending) (*string, error) {
+	organizationResp, err := uc.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
+		ID: documentSending.ForOrganizationID.String(),
+	})
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+		return nil, err
+	}
+	company := organizationResp.Name
+
+	applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{
+		"id": documentSending.ApplicantID,
+	})
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		return nil, err
+	}
+	if applicant == nil {
+		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] applicant not found")
+		return nil, errors.New("applicant not found")
+	}
+
+	userID := applicant.UserProfile.UserID
+	userMessageResponse, err := uc.UserMessage.SendGetUserMe(request.SendFindUserByIDMessageRequest{
+		ID: userID.String(),
+	})
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		return nil, err
+	}
+	if userMessageResponse.User == nil {
+		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] user not found")
+		return nil, errors.New("user not found")
+	}
+
+	name, err := uc.UserHelper.GetUserName(userMessageResponse.User)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		return nil, err
+	}
+
+	gender := applicant.UserProfile.Gender
+	birthPlace := applicant.UserProfile.BirthPlace
+	birthDate := applicant.UserProfile.BirthDate.Format("2006-01-02")
+	maritalStatus := applicant.UserProfile.MaritalStatus
+	educationLevel := applicant.UserProfile.Educations[0]
+	major := educationLevel.Major
+
+	jobPosting, err := uc.JobPostingRepository.FindByID(documentSending.JobPostingID)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		return nil, err
+	}
+	if jobPosting == nil {
+		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] job posting not found")
+		return nil, errors.New("job posting not found")
+	}
+	position := jobPosting.Name
+
+	var jobLevel string
+	if documentSending.JobLevelID != nil {
+		jobLevelResp, err := uc.JobPlafonMessage.SendFindJobLevelByIDMessage(request.SendFindJobLevelByIDMessageRequest{
+			ID: documentSending.JobLevelID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+			return nil, err
+		}
+		jobLevel = jobLevelResp.Name
+	}
+
+	joinedDate := documentSending.JoinedDate.Format("2006-01-02")
+	hiredStatus := documentSending.HiredStatus
+	documentDate := documentSending.DocumentDate.Format("2006-01-02")
+
+	replacedData := helper.DocumentDataCoverLetter{
+		Company:        company,
+		DocumentDate:   documentDate,
+		Name:           name,
+		Gender:         string(gender),
+		BirthPlace:     birthPlace,
+		BirthDate:      birthDate,
+		EducationLevel: string(educationLevel.EducationLevel),
+		Major:          major,
+		Position:       position,
+		JobLevel:       jobLevel,
+		JoinedDate:     joinedDate,
+		HiredStatus:    string(hiredStatus),
+		MaritalStatus:  string(maritalStatus),
+	}
+
+	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersCoverLetter(documentSending.DetailContent, replacedData)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		return nil, err
+	}
+
+	return htmlContent, nil
+}
 
 func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocumentSendingRequest) (*response.DocumentSendingResponse, error) {
 	parsedID, err := uuid.Parse(req.ID)

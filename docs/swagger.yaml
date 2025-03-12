@@ -177,6 +177,8 @@ definitions:
         type: string
       for_organization_name:
         type: string
+      hired_status:
+        $ref: '#/definitions/entity.HiredStatusEnum'
       home_location:
         type: string
       hometrip_ticket:
@@ -514,6 +516,18 @@ definitions:
     - FINAL_RESULT_STATUS_ACCEPTED
     - FINAL_RESULT_STATUS_REJECTED
     - FINAL_RESULT_STATUS_SHORTLISTED
+  entity.HiredStatusEnum:
+    enum:
+    - Karyawan PKWT
+    - Karyawan PKWTT
+    - Karyawan Tetap
+    - Management Trainee
+    type: string
+    x-enum-varnames:
+    - HIRED_STATUS_PKWT
+    - HIRED_STATUS_PKWTT
+    - HIRED_STATUS_TETAP
+    - HIRED_STATUS_MT
   entity.Interview:
     properties:
       description:
@@ -1444,6 +1458,8 @@ definitions:
         type: string
       for_organization_id:
         type: string
+      hired_status:
+        type: string
       home_location:
         type: string
       hometrip_ticket:
@@ -2239,6 +2255,8 @@ definitions:
         type: string
       for_organization_id:
         type: string
+      hired_status:
+        type: string
       home_location:
         type: string
       hometrip_ticket:
@@ -2891,6 +2909,8 @@ definitions:
         type: string
       for_organization_name:
         type: string
+      hired_status:
+        $ref: '#/definitions/entity.HiredStatusEnum'
       home_location:
         type: string
       hometrip_ticket:
@@ -6629,6 +6649,39 @@ paths:
       security:
       - BearerAuth: []
       summary: apply job posting
+      tags:
+      - Applicants
+  /applicants/cover-letter/{job_posting_id}:
+    get:
+      consumes:
+      - application/json
+      description: get applicants for cover letter
+      parameters:
+      - description: Job Posting ID
+        in: query
+        name: job_posting_id
+        required: true
+        type: string
+      - description: Project Recruitment Line ID
+        in: query
+        name: project_recruitment_line_id
+        type: string
+      - description: Hired Status
+        in: query
+        name: hired_status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.ApplicantResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: get applicants for cover letter
       tags:
       - Applicants
   /applicants/job-posting/{job_posting_id}:

@@ -215,10 +215,11 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				applicantRoute.Use(c.UserProfileVerifiedMiddleware)
 				{
 					applicantRoute.GET("/apply", c.ApplicantHandler.ApplyJobPosting)
+					applicantRoute.GET("/cover-letter", c.ApplicantHandler.GetApplicantsForCoverLetter)
 					applicantRoute.GET("/me/:job_posting_id", c.ApplicantHandler.FindApplicantByJobPostingIDAndUserID)
-					applicantRoute.GET("/:id", c.ApplicantHandler.FindByID)
 					applicantRoute.GET("/job-posting/:job_posting_id/export", c.ApplicantHandler.ExportApplicantsByJobPosting)
 					applicantRoute.GET("/job-posting/:job_posting_id", c.ApplicantHandler.GetApplicantsByJobPostingID)
+					applicantRoute.GET("/:id", c.ApplicantHandler.FindByID)
 				}
 			}
 			// test types

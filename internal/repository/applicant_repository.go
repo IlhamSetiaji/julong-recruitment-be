@@ -5,6 +5,7 @@ import (
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -16,6 +17,7 @@ type IApplicantRepository interface {
 	GetAllByKeys(keys map[string]interface{}) ([]entity.Applicant, error)
 	GetAllByKeysPaginated(keys map[string]interface{}, page, pageSize int, search string, sort map[string]interface{}) ([]entity.Applicant, int64, error)
 	UpdateApplicantWhenRejected(applicant *entity.Applicant) (*entity.Applicant, error)
+	FindAllByIDs(ids []uuid.UUID) ([]entity.Applicant, error)
 }
 
 type ApplicantRepository struct {
@@ -143,4 +145,13 @@ func (r *ApplicantRepository) GetAllByKeysPaginated(keys map[string]interface{},
 	}
 
 	return applicants, total, nil
+}
+
+func (r *ApplicantRepository) FindAllByIDs(ids []uuid.UUID) ([]entity.Applicant, error) {
+	var applicants []entity.Applicant
+	if err := r.DB.Where("id IN (?)", ids).Preload("UserProfile.WorkExperiences").Preload("UserProfile.Skills").Preload("UserProfile.Educations").Preload("JobPosting").Find(&applicants).Error; err != nil {
+		return nil, err
+	}
+
+	return applicants, nil
 }

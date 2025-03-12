@@ -19,6 +19,7 @@ type IApplicantUseCase interface {
 	GetApplicantsByJobPostingIDForExport(jobPostingID uuid.UUID) (*[]response.ApplicantResponse, error)
 	FindApplicantByJobPostingIDAndUserID(jobPostingID, userID uuid.UUID) (*response.ApplicantResponse, error)
 	FindByID(id uuid.UUID) (*entity.Applicant, error)
+	GetApplicantsForCoverLetter(jobPostingID, projectRecruitmentLineID uuid.UUID, hiredStatus entity.HiredStatusEnum) (*[]response.ApplicantResponse, error)
 }
 
 type ApplicantUseCase struct {
@@ -33,6 +34,7 @@ type ApplicantUseCase struct {
 	TestApplicantRepository           repository.ITestApplicantRepository
 	ProjectRecruitmentLineRepository  repository.IProjectRecruitmentLineRepository
 	InterviewApplicantRepository      repository.IInterviewApplicantRepository
+	DocumentSendingRepository         repository.IDocumentSendingRepository
 }
 
 func NewApplicantUseCase(
@@ -47,6 +49,7 @@ func NewApplicantUseCase(
 	taRepo repository.ITestApplicantRepository,
 	prlRepo repository.IProjectRecruitmentLineRepository,
 	iaRepo repository.IInterviewApplicantRepository,
+	documentSendingRepo repository.IDocumentSendingRepository,
 ) IApplicantUseCase {
 	return &ApplicantUseCase{
 		Log:                               log,
@@ -60,6 +63,7 @@ func NewApplicantUseCase(
 		TestApplicantRepository:           taRepo,
 		ProjectRecruitmentLineRepository:  prlRepo,
 		InterviewApplicantRepository:      iaRepo,
+		DocumentSendingRepository:         documentSendingRepo,
 	}
 }
 
@@ -73,7 +77,8 @@ func ApplicantUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IApplicantU
 	taRepo := repository.TestApplicantRepositoryFactory(log)
 	prlRepo := repository.ProjectRecruitmentLineRepositoryFactory(log)
 	iaRepo := repository.InterviewApplicantRepositoryFactory(log)
-	return NewApplicantUseCase(log, repo, applicantDTO, viper, jpRepo, upRepo, asRepo, arRepo, taRepo, prlRepo, iaRepo)
+	documentSendingRepo := repository.DocumentSendingRepositoryFactory(log)
+	return NewApplicantUseCase(log, repo, applicantDTO, viper, jpRepo, upRepo, asRepo, arRepo, taRepo, prlRepo, iaRepo, documentSendingRepo)
 }
 
 func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error) {
@@ -431,6 +436,65 @@ func (uc *ApplicantUseCase) GetApplicantsByJobPostingIDForExport(jobPostingID uu
 		applicantResponse, err := uc.DTO.ConvertEntityToResponse(&applicant)
 		if err != nil {
 			uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingIDForExport] " + err.Error())
+			return nil, err
+		}
+
+		applicantResponses = append(applicantResponses, *applicantResponse)
+	}
+
+	return &applicantResponses, nil
+}
+
+func (uc *ApplicantUseCase) GetApplicantsForCoverLetter(jobPostingID, projectRecruitmentLineID uuid.UUID, hiredStatus entity.HiredStatusEnum) (*[]response.ApplicantResponse, error) {
+	// find job posting
+	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsForCoverLetter] " + err.Error())
+		return nil, err
+	}
+	if jobPosting == nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsForCoverLetter] " + "Job Posting not found")
+		return nil, errors.New("job posting not found")
+	}
+
+	// find project recruitment line
+	projectRecruitmentLine, err := uc.ProjectRecruitmentLineRepository.FindByID(projectRecruitmentLineID)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsForCoverLetter] " + err.Error())
+		return nil, err
+	}
+	if projectRecruitmentLine == nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsForCoverLetter] " + "Project Recruitment Line not found")
+		return nil, errors.New("project recruitment line not found")
+	}
+
+	// get document sendings by job posting id and project recruitment line id
+	documentSendings, err := uc.DocumentSendingRepository.FindAllByKeys(map[string]interface{}{
+		"job_posting_id":              jobPostingID,
+		"project_recruitment_line_id": projectRecruitmentLineID,
+		"hired_status":                hiredStatus,
+	})
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsForCoverLetter] " + err.Error())
+		return nil, err
+	}
+
+	applicantIds := []uuid.UUID{}
+	for _, documentSending := range *documentSendings {
+		applicantIds = append(applicantIds, documentSending.ApplicantID)
+	}
+
+	applicants, err := uc.Repository.FindAllByIDs(applicantIds)
+	if err != nil {
+		uc.Log.Error("[ApplicantUseCase.GetApplicantsForCoverLetter] " + err.Error())
+		return nil, err
+	}
+
+	applicantResponses := []response.ApplicantResponse{}
+	for _, applicant := range applicants {
+		applicantResponse, err := uc.DTO.ConvertEntityToResponse(&applicant)
+		if err != nil {
+			uc.Log.Error("[ApplicantUseCase.GetApplicantsForCoverLetter] " + err.Error())
 			return nil, err
 		}
 

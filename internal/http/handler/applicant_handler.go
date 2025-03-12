@@ -25,6 +25,7 @@ type IApplicantHandler interface {
 	FindApplicantByJobPostingIDAndUserID(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	ExportApplicantsByJobPosting(ctx *gin.Context)
+	GetApplicantsForCoverLetter(ctx *gin.Context)
 }
 
 type ApplicantHandler struct {
@@ -403,4 +404,49 @@ func (h *ApplicantHandler) ExportApplicantsByJobPosting(ctx *gin.Context) {
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export applicants", err.Error())
 		return
 	}
+}
+
+// GetApplicantsForCoverLetter get applicants for cover letter
+//
+// @Summary get applicants for cover letter
+// @Description get applicants for cover letter
+// @Tags Applicants
+// @Accept json
+// @Produce json
+// @Param job_posting_id query string true "Job Posting ID"
+// @Param project_recruitment_line_id query string false "Project Recruitment Line ID"
+// @Param hired_status query string false "Hired Status"
+// @Security BearerAuth
+// @Success 200 {array} response.ApplicantResponse
+// @Router /applicants/cover-letter/{job_posting_id} [get]
+func (h *ApplicantHandler) GetApplicantsForCoverLetter(ctx *gin.Context) {
+	jobPostingID, err := uuid.Parse(ctx.Query("job_posting_id"))
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.GetApplicantsForCoverLetter] error when parsing job_posting_id: %v", err)
+		utils.BadRequestResponse(ctx, "job_posting_id is not a valid UUID", err)
+		return
+	}
+
+	projectRecruitmentLineID, err := uuid.Parse(ctx.Query("project_recruitment_line_id"))
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.GetApplicantsForCoverLetter] error when parsing project_recruitment_line_id: %v", err)
+		utils.BadRequestResponse(ctx, "project_recruitment_line_id is not a valid UUID", err)
+		return
+	}
+
+	hiredStatus := ctx.Query("hired_status")
+	if hiredStatus == "" {
+		h.Log.Errorf("[ApplicantHandler.GetApplicantsForCoverLetter] hired_status is required")
+		utils.BadRequestResponse(ctx, "hired_status is required", nil)
+		return
+	}
+
+	applicants, err := h.UseCase.GetApplicantsForCoverLetter(jobPostingID, projectRecruitmentLineID, entity.HiredStatusEnum(hiredStatus))
+	if err != nil {
+		h.Log.Errorf("[ApplicantHandler.GetApplicantsForCoverLetter] error when getting applicants for cover letter: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get applicants for cover letter", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Successfully get applicants for cover letter", applicants)
 }

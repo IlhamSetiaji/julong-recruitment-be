@@ -21,6 +21,7 @@ type IDocumentSendingRepository interface {
 	FindAllByDocumentSetupIDs(documentSetupIDs []uuid.UUID) (*[]entity.DocumentSending, error)
 	GetJobLevelIdDistinct() ([]uuid.UUID, error)
 	CountByJobLevelID(jobLevelID uuid.UUID) (int, error)
+	FindAllByKeys(keys map[string]interface{}) (*[]entity.DocumentSending, error)
 }
 
 type DocumentSendingRepository struct {
@@ -259,4 +260,14 @@ func (r *DocumentSendingRepository) CountByJobLevelID(jobLevelID uuid.UUID) (int
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *DocumentSendingRepository) FindAllByKeys(keys map[string]interface{}) (*[]entity.DocumentSending, error) {
+	var ent []entity.DocumentSending
+	if err := r.DB.Where(keys).Preload("DocumentSetup").Preload("ProjectRecruitmentLine").Preload("Applicant.UserProfile").Preload("JobPosting.ProjectRecruitmentHeader").Find(&ent).Error; err != nil {
+		r.Log.Error("[DocumentSendingRepository.FindAllByKeys] " + err.Error())
+		return nil, err
+	}
+
+	return &ent, nil
 }

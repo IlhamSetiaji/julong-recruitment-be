@@ -3742,6 +3742,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/applicants/cover-letter/{job_posting_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "get applicants for cover letter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Applicants"
+                ],
+                "summary": "get applicants for cover letter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job Posting ID",
+                        "name": "job_posting_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project Recruitment Line ID",
+                        "name": "project_recruitment_line_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Hired Status",
+                        "name": "hired_status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.ApplicantResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/applicants/job-posting/{job_posting_id}": {
             "get": {
                 "security": [
@@ -7987,6 +8039,9 @@ const docTemplate = `{
                 "for_organization_name": {
                     "type": "string"
                 },
+                "hired_status": {
+                    "$ref": "#/definitions/entity.HiredStatusEnum"
+                },
                 "home_location": {
                     "type": "string"
                 },
@@ -8467,6 +8522,21 @@ const docTemplate = `{
                 "FINAL_RESULT_STATUS_ACCEPTED",
                 "FINAL_RESULT_STATUS_REJECTED",
                 "FINAL_RESULT_STATUS_SHORTLISTED"
+            ]
+        },
+        "entity.HiredStatusEnum": {
+            "type": "string",
+            "enum": [
+                "Karyawan PKWT",
+                "Karyawan PKWTT",
+                "Karyawan Tetap",
+                "Management Trainee"
+            ],
+            "x-enum-varnames": [
+                "HIRED_STATUS_PKWT",
+                "HIRED_STATUS_PKWTT",
+                "HIRED_STATUS_TETAP",
+                "HIRED_STATUS_MT"
             ]
         },
         "entity.Interview": {
@@ -9839,6 +9909,9 @@ const docTemplate = `{
                 "for_organization_id": {
                     "type": "string"
                 },
+                "hired_status": {
+                    "type": "string"
+                },
                 "home_location": {
                     "type": "string"
                 },
@@ -10990,6 +11063,9 @@ const docTemplate = `{
                 "for_organization_id": {
                     "type": "string"
                 },
+                "hired_status": {
+                    "type": "string"
+                },
                 "home_location": {
                     "type": "string"
                 },
@@ -11919,6 +11995,9 @@ const docTemplate = `{
                 },
                 "for_organization_name": {
                     "type": "string"
+                },
+                "hired_status": {
+                    "$ref": "#/definitions/entity.HiredStatusEnum"
                 },
                 "home_location": {
                     "type": "string"

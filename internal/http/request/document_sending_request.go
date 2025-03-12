@@ -56,5 +56,6 @@ type UpdateDocumentSendingRequest struct {
 }
 
 type GeneratePdfBufferFromHTMLRequest struct {
-	HTML string `json:"html" validate:"required"`
+	HTML              string `json:"html" validate:"required"`
+	DocumentSendingID string `json:"document_sending_id" validate:"required,uuid"`
 }

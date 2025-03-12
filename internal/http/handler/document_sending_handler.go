@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
@@ -38,10 +40,13 @@ type IDocumentSendingHandler interface {
 }
 
 type DocumentSendingHandler struct {
-	Log      *logrus.Logger
-	Viper    *viper.Viper
-	Validate *validator.Validate
-	UseCase  usecase.IDocumentSendingUseCase
+	Log                 *logrus.Logger
+	Viper               *viper.Viper
+	Validate            *validator.Validate
+	UseCase             usecase.IDocumentSendingUseCase
+	OrganizationMessage messaging.IOrganizationMessage
+	UserMessage         messaging.IUserMessage
+	UserHelper          helper.IUserHelper
 }
 
 func NewDocumentSendingHandler(
@@ -49,12 +54,18 @@ func NewDocumentSendingHandler(
 	viper *viper.Viper,
 	validate *validator.Validate,
 	useCase usecase.IDocumentSendingUseCase,
+	orgMessage messaging.IOrganizationMessage,
+	userMessage messaging.IUserMessage,
+	userHelper helper.IUserHelper,
 ) *DocumentSendingHandler {
 	return &DocumentSendingHandler{
-		Log:      log,
-		Viper:    viper,
-		Validate: validate,
-		UseCase:  useCase,
+		Log:                 log,
+		Viper:               viper,
+		Validate:            validate,
+		UseCase:             useCase,
+		OrganizationMessage: orgMessage,
+		UserMessage:         userMessage,
+		UserHelper:          userHelper,
 	}
 }
 
@@ -64,7 +75,10 @@ func DocumentSendingHandlerFactory(
 ) IDocumentSendingHandler {
 	validate := config.NewValidator(viper)
 	useCase := usecase.DocumentSendingUseCaseFactory(log, viper)
-	return NewDocumentSendingHandler(log, viper, validate, useCase)
+	orgMessage := messaging.OrganizationMessageFactory(log)
+	userMessage := messaging.UserMessageFactory(log)
+	userHelper := helper.UserHelperFactory(log)
+	return NewDocumentSendingHandler(log, viper, validate, useCase, orgMessage, userMessage, userHelper)
 }
 
 // CreateDocumentSending  create document sending
@@ -451,6 +465,22 @@ func (h *DocumentSendingHandler) GeneratePdfBufferFromHTML(ctx *gin.Context) {
 		return
 	}
 
+	documentSending, err := h.UseCase.FindByID(payload.DocumentSendingID)
+	if err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.GeneratePdfBufferFromHTML] error when finding document sending: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find document sending", err.Error())
+		return
+	}
+
+	organizationResp, err := h.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
+		ID: documentSending.ForOrganizationID.String(),
+	})
+	if err != nil {
+		h.Log.Error("[DocumentSendingHandler.GeneratePdfBufferFromHTML] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find organization", err.Error())
+		return
+	}
+
 	c, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
@@ -459,6 +489,9 @@ func (h *DocumentSendingHandler) GeneratePdfBufferFromHTML(ctx *gin.Context) {
 
 	cssStyles := `
 <style>
+body {
+	font-size: 20px;
+}
 .tiptap h1 {
   font-size: 1.4rem;
 }
@@ -591,18 +624,27 @@ func (h *DocumentSendingHandler) GeneratePdfBufferFromHTML(ctx *gin.Context) {
 </style>
 `
 
-	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div class="tiptap">` + payload.HTML + `</div></body></html>`
+	// Use the organization logo URL
+	logoURL := organizationResp.Logo
+
+	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
+	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;background: red">
+		<div style="text-align: center;">
+			<img src="` + logoURL + `" alt="Kop Surat" style="width: 1000px; height: 200px;">
+		</div>
+		<div style="width: 100%; border-bottom: 3px solid black; "></div>
+		</div><div class="tiptap">` + documentSending.DetailContent + `</div></body></html>`
 	dataURL := "data:text/html," + url.PathEscape(htmlContent)
 
 	var pdfBuffer []byte
 
-	err := chromedp.Run(c,
+	err = chromedp.Run(c,
 		chromedp.Navigate(dataURL),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			var err error
 			pdfBuffer, _, err = page.PrintToPDF().
 				WithPrintBackground(true).
-				WithMarginTop(1.0).
+				WithMarginTop(0.5).
 				WithMarginRight(1.0).
 				WithMarginBottom(1.0).
 				WithMarginLeft(1.0).

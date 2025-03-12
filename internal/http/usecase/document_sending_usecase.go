@@ -302,6 +302,7 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		Status:                   entity.DocumentSendingStatus(req.Status),
 		DetailContent:            req.DetailContent,
 		SyncMidsuit:              entity.SyncMidsuitEnum(req.SyncMidsuit),
+		HiredStatus:              entity.HiredStatusEnum(req.HiredStatus),
 	})
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
@@ -777,6 +778,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		Status:                   entity.DocumentSendingStatus(req.Status),
 		DetailContent:            req.DetailContent,
 		SyncMidsuit:              entity.SyncMidsuitEnum(req.SyncMidsuit),
+		HiredStatus:              entity.HiredStatusEnum(req.HiredStatus),
 	})
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())

@@ -128,6 +128,7 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		JobID:                    ent.JobID,
 		JobPostingID:             ent.JobPostingID,
 		ForOrganizationID:        ent.ForOrganizationID,
+		HiredStatus:              ent.HiredStatus,
 		DetailContent:            ent.DetailContent,
 		Path: func() string {
 			if ent.Path != "" {

@@ -27,6 +27,15 @@ const (
 	SYNC_MIDSUIT_NO  SyncMidsuitEnum = "NO"
 )
 
+type HiredStatusEnum string
+
+const (
+	HIRED_STATUS_PKWT  HiredStatusEnum = "Karyawan PKWT"
+	HIRED_STATUS_PKWTT HiredStatusEnum = "Karyawan PKWTT"
+	HIRED_STATUS_TETAP HiredStatusEnum = "Karyawan Tetap"
+	HIRED_STATUS_MT    HiredStatusEnum = "Management Trainee"
+)
+
 type DocumentSending struct {
 	gorm.Model               `json:"-"`
 	ID                       uuid.UUID              `json:"id" gorm:"type:char(36);primaryKey;"`
@@ -54,6 +63,7 @@ type DocumentSending struct {
 	DetailContent            string                 `json:"detail_content" gorm:"type:text;default:null"`
 	Path                     string                 `json:"path" gorm:"type:text;default:null"`
 	SyncMidsuit              SyncMidsuitEnum        `json:"sync_midsuit" gorm:"type:text;default:null"`
+	HiredStatus              HiredStatusEnum        `json:"hired_status" gorm:"type:text;default:null"`
 
 	ProjectRecruitmentLine *ProjectRecruitmentLine `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Applicant              *Applicant              `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

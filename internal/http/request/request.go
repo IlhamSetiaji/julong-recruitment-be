@@ -412,3 +412,19 @@ func DocumentVerificationHeaderStatusValidation(fl validator.FieldLevel) bool {
 		return false
 	}
 }
+
+func DocumentSendingHiredStatusValidation(fl validator.FieldLevel) bool {
+	status := fl.Field().String()
+	if status == "" {
+		return true
+	}
+	switch entity.HiredStatusEnum(status) {
+	case entity.HIRED_STATUS_PKWT,
+		entity.HIRED_STATUS_PKWTT,
+		entity.HIRED_STATUS_TETAP,
+		entity.HIRED_STATUS_MT:
+		return true
+	default:
+		return false
+	}
+}

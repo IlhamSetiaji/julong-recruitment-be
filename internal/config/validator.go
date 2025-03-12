@@ -33,5 +33,6 @@ func NewValidator(viper *viper.Viper) *validator.Validate {
 	validate.RegisterValidation("document_sending_status_validation", request.DocumentSendingStatusValidation)
 	validate.RegisterValidation("document_agreement_status_validation", request.DocumentAgreementStatusValidation)
 	validate.RegisterValidation("document_verification_header_status_validation", request.DocumentVerificationHeaderStatusValidation)
+	validate.RegisterValidation("document_sending_hired_status_validation", request.DocumentSendingHiredStatusValidation)
 	return validate
 }

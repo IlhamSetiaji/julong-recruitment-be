@@ -596,11 +596,9 @@ body {
 
 	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
 	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
-		<div style="text-align: center;">
-			<img src="` + logoURL + `" alt="Kop Surat" style="width: 1000px; height: 200px;">
-		</div>
-		<div style="width: 100%; border-bottom: 3px solid black; "></div>
-		</div><div class="tiptap">` + *htmlText + `</div></body></html>`
+      <img src="` + logoURL + `" alt="Kop Surat" style="width: 100%;">
+      <div style="width: 100%; border-bottom: 3px solid black; "></div>
+      </div><div class="tiptap">` + *htmlText + `</div></body></html>`
 	dataURL := "data:text/html," + url.PathEscape(htmlContent)
 
 	var pdfBuffer []byte

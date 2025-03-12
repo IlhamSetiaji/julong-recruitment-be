@@ -465,22 +465,6 @@ func (h *DocumentSendingHandler) GeneratePdfBufferFromHTML(ctx *gin.Context) {
 		return
 	}
 
-	documentSending, err := h.UseCase.FindByID(payload.DocumentSendingID)
-	if err != nil {
-		h.Log.Errorf("[DocumentSendingHandler.GeneratePdfBufferFromHTML] error when finding document sending: %v", err)
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find document sending", err.Error())
-		return
-	}
-
-	organizationResp, err := h.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
-		ID: documentSending.ForOrganizationID.String(),
-	})
-	if err != nil {
-		h.Log.Error("[DocumentSendingHandler.GeneratePdfBufferFromHTML] " + err.Error())
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find organization", err.Error())
-		return
-	}
-
 	c, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
@@ -624,27 +608,18 @@ body {
 </style>
 `
 
-	// Use the organization logo URL
-	logoURL := organizationResp.Logo
-
-	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
-	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;background: red">
-		<div style="text-align: center;">
-			<img src="` + logoURL + `" alt="Kop Surat" style="width: 1000px; height: 200px;">
-		</div>
-		<div style="width: 100%; border-bottom: 3px solid black; "></div>
-		</div><div class="tiptap">` + documentSending.DetailContent + `</div></body></html>`
+	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div class="tiptap">` + payload.HTML + `</div></body></html>`
 	dataURL := "data:text/html," + url.PathEscape(htmlContent)
 
 	var pdfBuffer []byte
 
-	err = chromedp.Run(c,
+	err := chromedp.Run(c,
 		chromedp.Navigate(dataURL),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			var err error
 			pdfBuffer, _, err = page.PrintToPDF().
 				WithPrintBackground(true).
-				WithMarginTop(0.5).
+				WithMarginTop(1.0).
 				WithMarginRight(1.0).
 				WithMarginBottom(1.0).
 				WithMarginLeft(1.0).

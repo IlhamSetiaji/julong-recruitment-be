@@ -44,7 +44,7 @@ func (r *TestScheduleHeaderRepository) FindAllPaginated(page, pageSize int, sear
 	var testScheduleHeaders []entity.TestScheduleHeader
 	var total int64
 
-	query := r.DB.Preload("JobPosting").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants.UserProfile")
+	query := r.DB.Preload("JobPosting").Preload("ProjectRecruitmentHeader").Preload("TestType").Preload("ProjectPic").Preload("TestApplicants.UserProfile")
 
 	if search != "" {
 		query = query.Where("document_number ILIKE ?", "%"+search+"%")

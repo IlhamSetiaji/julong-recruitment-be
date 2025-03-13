@@ -917,6 +917,7 @@ func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.Docu
 	birthDate := applicant.UserProfile.BirthDate.Format("2006-01-02")
 	maritalStatus := applicant.UserProfile.MaritalStatus
 	educationLevel := applicant.UserProfile.Educations[0]
+	degreeName := strings.TrimSpace(strings.SplitN(string(educationLevel.EducationLevel), "-", 2)[1])
 	major := educationLevel.Major
 
 	jobPosting, err := uc.JobPostingRepository.FindByID(documentSending.JobPostingID)
@@ -953,7 +954,7 @@ func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.Docu
 		Gender:         string(gender),
 		BirthPlace:     birthPlace,
 		BirthDate:      birthDate,
-		EducationLevel: string(educationLevel.EducationLevel),
+		EducationLevel: degreeName,
 		Major:          major,
 		Position:       position,
 		JobLevel:       jobLevel,
@@ -1019,6 +1020,7 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 	religion := applicant.UserProfile.Religion
 	address := applicant.UserProfile.Address
 	educationLevel := applicant.UserProfile.Educations[0]
+	degreeName := strings.TrimSpace(strings.SplitN(string(educationLevel.EducationLevel), "-", 2)[1])
 	major := educationLevel.Major
 
 	var jobLevel string
@@ -1067,7 +1069,7 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 		BirthPlace:           birthPlace,
 		BirthDate:            birthDate,
 		MaritalStatus:        string(maritalStatus),
-		EducationLevel:       string(educationLevel.EducationLevel),
+		EducationLevel:       degreeName,
 		Major:                major,
 		Religion:             string(religion),
 		ApplicantAddress:     address,

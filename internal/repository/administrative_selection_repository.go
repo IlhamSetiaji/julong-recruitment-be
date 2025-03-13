@@ -75,7 +75,7 @@ func (r *AdministrativeSelectionRepository) FindAllPaginated(page, pageSize int,
 	var entities []entity.AdministrativeSelection
 	var total int64
 
-	query := r.DB.Preload("JobPosting").Preload("ProjectPIC")
+	query := r.DB.Preload("JobPosting.ProjectRecruitmentHeader").Preload("ProjectPIC")
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")

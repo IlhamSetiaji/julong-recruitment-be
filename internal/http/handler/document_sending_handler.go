@@ -37,6 +37,7 @@ type IDocumentSendingHandler interface {
 	TestSendEmail(ctx *gin.Context)
 	TestGenerateHTMLPDF(ctx *gin.Context)
 	GeneratePdfBufferFromHTML(ctx *gin.Context)
+	GeneratePdfBufferForDocumentSending(ctx *gin.Context)
 }
 
 type DocumentSendingHandler struct {
@@ -632,6 +633,58 @@ body {
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to generate PDF", err.Error())
 		return
 	}
+
+	ctx.Header("Content-Type", "application/pdf")
+	ctx.Header("Content-Disposition", "attachment; filename=document.pdf")
+	ctx.Header("Content-Length", strconv.Itoa(len(pdfBuffer)))
+
+	// Write the PDF buffer to the response
+	_, err = ctx.Writer.Write(pdfBuffer)
+	if err != nil {
+		h.Log.Errorf("Failed to write PDF to response: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to write PDF to response", err.Error())
+		return
+	}
+}
+
+func (h *DocumentSendingHandler) GeneratePdfBufferForDocumentSending(ctx *gin.Context) {
+	var payload request.GeneratePdfBufferFromHTMLRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.GeneratePdfBufferFromHTML] error when binding request: %v", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.GeneratePdfBufferFromHTML] error when validating request: %v", err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		return
+	}
+
+	if payload.DocumentSendingID == "" {
+		utils.BadRequestResponse(ctx, "Document sending id is required", nil)
+		return
+	}
+
+	parsedDocSendingID, err := uuid.Parse(payload.DocumentSendingID)
+	if err != nil {
+		utils.BadRequestResponse(ctx, "Invalid document sending id", err)
+		return
+	}
+
+	documentSending, err := h.UseCase.FindByID(parsedDocSendingID.String())
+	if err != nil {
+		h.Log.Errorf("[DocumentSendingHandler.GeneratePdfBufferForDocumentSending] error when finding document sending: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find document sending", err.Error())
+		return
+	}
+
+	if documentSending == nil {
+		utils.ErrorResponse(ctx, http.StatusNotFound, "Document sending not found", "Document sending not found")
+		return
+	}
+
+	pdfBuffer, err := h.UseCase.GeneratePdfBuffer(documentSending.ID, payload.HTML)
 
 	ctx.Header("Content-Type", "application/pdf")
 	ctx.Header("Content-Disposition", "attachment; filename=document.pdf")

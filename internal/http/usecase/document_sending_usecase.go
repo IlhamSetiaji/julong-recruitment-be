@@ -41,6 +41,8 @@ type IDocumentSendingUseCase interface {
 	TestSendEmail() error
 	TestSendEmailWithAttachment(path string) error
 	TestGenerateHTMLPDF(docSendingID uuid.UUID) (*string, error)
+	GeneratePdf(documentSending *entity.DocumentSending) (*string, error)
+	GeneratePdfBuffer(documentSendingID uuid.UUID, text string) ([]byte, error)
 }
 
 type DocumentSendingUseCase struct {
@@ -426,7 +428,7 @@ func convertToUTF8(text string) string {
 	return string(utf8Text)
 }
 
-func (uc *DocumentSendingUseCase) generatePdf(documentSending *entity.DocumentSending) (*string, error) {
+func (uc *DocumentSendingUseCase) GeneratePdf(documentSending *entity.DocumentSending) (*string, error) {
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
@@ -437,7 +439,7 @@ func (uc *DocumentSendingUseCase) generatePdf(documentSending *entity.DocumentSe
 	cssStyles := `
 <style>
 body {
-	font-size: 20px;
+	font-size: 17px;
 }
 .tiptap h1 {
   font-size: 1.4rem;
@@ -636,6 +638,216 @@ body {
 	}
 
 	return &filePath, nil
+}
+
+func (uc *DocumentSendingUseCase) GeneratePdfBuffer(documentSendingID uuid.UUID, text string) ([]byte, error) {
+	documentSending, err := uc.Repository.FindByID(documentSendingID)
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.GeneratePdfBuffer] " + err.Error())
+		return nil, err
+	}
+
+	if documentSending == nil {
+		uc.Log.Error("[DocumentSendingUseCase.GeneratePdfBuffer] document sending not found")
+		return nil, errors.New("document sending not found")
+	}
+
+	ctx, cancel := chromedp.NewContext(context.Background())
+	defer cancel()
+
+	ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	// Define the CSS styles
+	cssStyles := `
+<style>
+body {
+	font-size: 17px;
+}
+.tiptap h1 {
+  font-size: 1.4rem;
+}
+
+.tiptap h2 {
+  font-size: 1.2rem;
+}
+
+.tiptap h3 {
+  font-size: 1.1rem;
+}
+
+.tiptap {
+  ul,
+  ol {
+    padding: 0 1rem;
+    margin: 1.25rem 1rem 1.25rem 0.4rem;
+  }
+  li p {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+  }
+  code {
+    background-color: var(--purple-light);
+    border-radius: 0.4rem;
+    color: var(--black);
+    font-size: 0.85rem;
+    padding: 0.25em 0.3em;
+  }
+
+  pre {
+    background: var(--black);
+    border-radius: 0.5rem;
+    color: var(--white);
+    font-family: "JetBrainsMono", monospace;
+    margin: 1.5rem 0;
+    padding: 0.75rem 1rem;
+
+    code {
+      background: none;
+      color: inherit;
+      font-size: 0.8rem;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    border-left: 3px solid var(--gray-3);
+    margin: 1.5rem 0;
+    padding-left: 1rem;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--gray-2);
+    margin: 2rem 0;
+  }
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  margin: 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.tiptap td,
+.tiptap th {
+  border: 1px solid var(--primary);
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 6px 8px;
+  position: relative;
+  vertical-align: top;
+}
+
+.tiptap th {
+  background-color: var(--second);
+  font-weight: normal !important;
+  text-align: left;
+}
+
+.tiptap .selectedCell:after {
+  background: var(--selectGray);
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.tiptap .column-resize-handle {
+  background-color: var(--gray);
+  bottom: -2px;
+  pointer-events: none;
+  position: absolute;
+  right: -2px;
+  top: 0;
+  width: 1px;
+}
+
+.tiptap .tableWrapper {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.tiptap.resize-cursor {
+  cursor: ew-resize;
+  cursor: col-resize;
+}
+
+.tiptap-border-none {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.tiptap-border-none th {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.tiptap-border-none td {
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+</style>
+`
+
+	organizationResp, err := uc.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
+		ID: documentSending.ForOrganizationID.String(),
+	})
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+		return nil, err
+	}
+
+	var htmlText *string
+	htmlText = &text
+
+	// Use the organization logo URL
+	logoURL := organizationResp.Logo
+
+	// check if document sending is cover letter
+	if documentSending.DocumentSetup.DocumentType.Name == "FINAL_RESULT" {
+		htmlText, err = uc.replaceCoverLetter(*documentSending)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+			return nil, err
+		}
+	}
+
+	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
+	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
+      <img src="` + logoURL + `" alt="Kop Surat" style="width: 100%;">
+      <div style="width: 100%; border-bottom: 3px solid black; "></div>
+      </div><div class="tiptap">` + *htmlText + `</div></body></html>`
+	dataURL := "data:text/html," + url.PathEscape(htmlContent)
+
+	var pdfBuffer []byte
+
+	err = chromedp.Run(ctx,
+		chromedp.Navigate(dataURL),
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			var err error
+			pdfBuffer, _, err = page.PrintToPDF().
+				WithPrintBackground(true).
+				WithMarginTop(0.5).
+				WithMarginRight(1.0).
+				WithMarginBottom(1.0).
+				WithMarginLeft(1.0).
+				Do(ctx)
+			return err
+		}),
+	)
+	if err != nil {
+		uc.Log.Errorf("Gagal membuat PDF: %v", err)
+		return nil, err
+	}
+
+	return pdfBuffer, nil
 }
 
 func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.DocumentSending) (*string, error) {
@@ -927,7 +1139,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 
 		uc.Log.Printf("Organization ID Cok %v", *docSending.ForOrganizationID)
 
-		filePath, err := uc.generatePdf(docSending)
+		filePath, err := uc.GeneratePdf(docSending)
 		if err != nil {
 			uc.Log.Errorf("Gagal membuat PDF: %v", err)
 			return nil, err
@@ -1361,7 +1573,7 @@ func (uc *DocumentSendingUseCase) TestGenerateHTMLPDF(docSendingID uuid.UUID) (*
 		return nil, err
 	}
 	// Generate the PDF
-	filePath, err := uc.generatePdf(docSending)
+	filePath, err := uc.GeneratePdf(docSending)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.TestGenerateHTMLPDF] " + err.Error())
 		return nil, err

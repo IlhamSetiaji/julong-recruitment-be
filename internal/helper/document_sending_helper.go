@@ -36,37 +36,37 @@ type DocumentDataCoverLetter struct {
 }
 
 type DocumentDataContract struct {
-	Name                 string  `json:"name"`
-	Gender               string  `json:"gender"`
-	BirthPlace           string  `json:"birth_place"`
-	BirthDate            string  `json:"birth_date"`
-	MaritalStatus        string  `json:"marital_status"`
-	EducationLevel       string  `json:"education_level"`
-	Major                string  `json:"major"`
-	Religion             string  `json:"religion"`
-	ApplicantAddress     string  `json:"applicant_address"`
-	Position             string  `json:"position"`
-	JobLevel             string  `json:"job_level"`
-	Company              string  `json:"company"`
-	Location             string  `json:"location"`
-	BasicWage            float64 `json:"basic_wage"`
-	PositionalAllowance  float64 `json:"positional_allowance"`
-	OperationalAllowance float64 `json:"operational_allowance"`
-	MealAllowance        float64 `json:"meal_allowance"`
-	HomeTripTicket       string  `json:"hometrip_ticket"`
-	JoinedDate           string  `json:"joined_date"`
-	HiredStatus          string  `json:"hired_status"`
-	ApprovalBy           string  `json:"approval_by"`
-	DocumentDate         string  `json:"document_date"`
+	Name                 string `json:"name"`
+	Gender               string `json:"gender"`
+	BirthPlace           string `json:"birth_place"`
+	BirthDate            string `json:"birth_date"`
+	MaritalStatus        string `json:"marital_status"`
+	EducationLevel       string `json:"education_level"`
+	Major                string `json:"major"`
+	Religion             string `json:"religion"`
+	ApplicantAddress     string `json:"applicant_address"`
+	Position             string `json:"position"`
+	JobLevel             string `json:"job_level"`
+	Company              string `json:"company"`
+	Location             string `json:"location"`
+	BasicWage            int    `json:"basic_wage"`
+	PositionalAllowance  int    `json:"positional_allowance"`
+	OperationalAllowance int    `json:"operational_allowance"`
+	MealAllowance        int    `json:"meal_allowance"`
+	HomeTripTicket       string `json:"hometrip_ticket"`
+	JoinedDate           string `json:"joined_date"`
+	HiredStatus          string `json:"hired_status"`
+	ApprovalBy           string `json:"approval_by"`
+	DocumentDate         string `json:"document_date"`
 }
 
 type DocumentDataOfferLetter struct {
-	DocumentDate string  `json:"document_date"`
-	Name         string  `json:"name"`
-	Position     string  `json:"position"`
-	Company      string  `json:"company"`
-	ApprovalBy   string  `json:"approval_by"`
-	BasicWage    float64 `json:"basic_wage"`
+	DocumentDate string `json:"document_date"`
+	Name         string `json:"name"`
+	Position     string `json:"position"`
+	Company      string `json:"company"`
+	ApprovalBy   string `json:"approval_by"`
+	BasicWage    int    `json:"basic_wage"`
 }
 
 func NewDocumentSendingHelper(

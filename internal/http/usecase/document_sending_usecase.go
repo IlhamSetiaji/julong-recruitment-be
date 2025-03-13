@@ -1077,10 +1077,10 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 		JobLevel:             jobLevel,
 		Company:              company,
 		Location:             orgLocationName,
-		BasicWage:            documentSending.BasicWage,
-		PositionalAllowance:  documentSending.PositionalAllowance,
-		OperationalAllowance: documentSending.OperationalAllowance,
-		MealAllowance:        documentSending.MealAllowance,
+		BasicWage:            int(documentSending.BasicWage),
+		PositionalAllowance:  int(documentSending.PositionalAllowance),
+		OperationalAllowance: int(documentSending.OperationalAllowance),
+		MealAllowance:        int(documentSending.MealAllowance),
 		HomeTripTicket:       documentSending.HometripTicket,
 		JoinedDate:           joinedDate,
 		HiredStatus:          string(hiredStatus),
@@ -1157,7 +1157,7 @@ func (uc *DocumentSendingUseCase) replaceOfferLetter(documentSending entity.Docu
 		Name:         name,
 		Position:     position,
 		ApprovalBy:   name,
-		BasicWage:    documentSending.BasicWage,
+		BasicWage:    int(documentSending.BasicWage),
 	}
 
 	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersOfferLetter(documentSending.DetailContent, replacedData)

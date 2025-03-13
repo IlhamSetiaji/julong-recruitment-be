@@ -11,6 +11,7 @@ import (
 type IDocumentSendingHelper interface {
 	ReplacePlaceHoldersCoverLetter(htmlTemplate string, data DocumentDataCoverLetter) (*string, error)
 	ReplacePlaceHoldersContract(htmlTemplate string, data DocumentDataContract) (*string, error)
+	ReplacePlaceHoldersOfferLetter(htmlTemplate string, data DocumentDataOfferLetter) (*string, error)
 }
 
 type DocumentSendingHelper struct {
@@ -59,6 +60,15 @@ type DocumentDataContract struct {
 	DocumentDate         string  `json:"document_date"`
 }
 
+type DocumentDataOfferLetter struct {
+	DocumentDate string  `json:"document_date"`
+	Name         string  `json:"name"`
+	Position     string  `json:"position"`
+	Company      string  `json:"company"`
+	ApprovalBy   string  `json:"approval_by"`
+	BasicWage    float64 `json:"basic_wage"`
+}
+
 func NewDocumentSendingHelper(
 	log *logrus.Logger,
 	viper *viper.Viper,
@@ -89,6 +99,21 @@ func (d *DocumentSendingHelper) ReplacePlaceHoldersCoverLetter(htmlTemplate stri
 }
 
 func (d *DocumentSendingHelper) ReplacePlaceHoldersContract(htmlTemplate string, data DocumentDataContract) (*string, error) {
+	tmpl, err := template.New("document").Parse(htmlTemplate)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		return nil, err
+	}
+
+	result := buf.String()
+	return &result, nil
+}
+
+func (d *DocumentSendingHelper) ReplacePlaceHoldersOfferLetter(htmlTemplate string, data DocumentDataOfferLetter) (*string, error) {
 	tmpl, err := template.New("document").Parse(htmlTemplate)
 	if err != nil {
 		return nil, err

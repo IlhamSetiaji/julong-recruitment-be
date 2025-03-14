@@ -27,6 +27,7 @@ type IDocumentVerificationHeaderHandler interface {
 	DeleteDocumentVerificationHeader(ctx *gin.Context)
 	FindByJobPostingAndApplicant(ctx *gin.Context)
 	ExportBPJSTenagaKerja(ctx *gin.Context)
+	ImportBPJSTenagaKerja(ctx *gin.Context)
 }
 
 type DocumentVerificationHeaderHandler struct {
@@ -408,4 +409,33 @@ func (h *DocumentVerificationHeaderHandler) ExportBPJSTenagaKerja(ctx *gin.Conte
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to export my schedule", err.Error())
 		return
 	}
+}
+
+// ImportBPJSTenagaKerja import Excel file for BPJS Tenaga Kerja
+//
+// @Summary Import Excel file for BPJS Tenaga Kerja
+// @Description Import Excel file for BPJS Tenaga Kerja
+// @Tags Document Verification Header
+// @Accept json
+//
+//	@Produce		json
+//	@Success		200	{string} string
+//	@Security		BearerAuth
+//	@Router			/document-verification-headers/bpjs-tk [post]
+func (h *DocumentVerificationHeaderHandler) ImportBPJSTenagaKerja(ctx *gin.Context) {
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		h.Log.Errorf("Error when getting file: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	err = ctx.SaveUploadedFile(file, "./storage/"+file.Filename)
+	if err != nil {
+		h.Log.Errorf("Error when saving file: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, 200, "Success import file", nil)
 }

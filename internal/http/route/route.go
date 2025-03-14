@@ -384,6 +384,7 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentVerificationHeaderRoute.GET("", c.DocumentVerificationHeaderHandler.FindAllPaginated)
 				documentVerificationHeaderRoute.GET("/find", c.DocumentVerificationHeaderHandler.FindByJobPostingAndApplicant)
 				documentVerificationHeaderRoute.GET("/bpjs-tk", c.DocumentVerificationHeaderHandler.ExportBPJSTenagaKerja)
+				documentVerificationHeaderRoute.POST("/bpjs-tk", c.DocumentVerificationHeaderHandler.ImportBPJSTenagaKerja)
 				documentVerificationHeaderRoute.GET("/:id", c.DocumentVerificationHeaderHandler.FindByID)
 				documentVerificationHeaderRoute.POST("", c.DocumentVerificationHeaderHandler.CreateDocumentVerificationHeader)
 				documentVerificationHeaderRoute.PUT("/update", c.DocumentVerificationHeaderHandler.UpdateDocumentVerificationHeader)

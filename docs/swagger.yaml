@@ -7470,6 +7470,22 @@ paths:
       summary: Export Excel file for BPJS Tenaga Kerja
       tags:
       - Document Verification Header
+    post:
+      consumes:
+      - application/json
+      description: Import Excel file for BPJS Tenaga Kerja
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Import Excel file for BPJS Tenaga Kerja
+      tags:
+      - Document Verification Header
   /document-verification-headers/find:
     get:
       consumes:

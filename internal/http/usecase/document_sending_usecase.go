@@ -205,18 +205,18 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		return nil, errors.New("document setup not found")
 	}
 
-	// exist, err := uc.Repository.FindByKeys(map[string]interface{}{
-	// 	"document_setup_id": parsedDocumentSetupID,
-	// 	"applicant_id":      parsedApplicantID,
-	// })
-	// if err != nil {
-	// 	uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
-	// 	return nil, err
-	// }
-	// if exist != nil {
-	// 	uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] document sending already exist")
-	// 	return nil, errors.New("document sending already exist")
-	// }
+	exist, err := uc.Repository.FindByKeys(map[string]interface{}{
+		"document_setup_id": parsedDocumentSetupID,
+		"applicant_id":      parsedApplicantID,
+	})
+	if err != nil {
+		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+		return nil, err
+	}
+	if exist != nil {
+		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] document sending already exist")
+		return nil, errors.New("document sending already exist")
+	}
 
 	parsedJobPostingID, err := uuid.Parse(req.JobPostingID)
 	if err != nil {

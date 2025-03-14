@@ -102,7 +102,9 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 			dto.Log.Errorf("[DocumentSendingDTO.ConvertEntityToResponse] " + err.Error())
 			organizationLocationName = ""
 		}
-		organizationLocationName = organizationLocationData.Name
+		if organizationLocationData != nil {
+			organizationLocationName = organizationLocationData.Name
+		}
 	}
 
 	return &response.DocumentSendingResponse{

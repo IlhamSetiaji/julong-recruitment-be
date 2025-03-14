@@ -162,8 +162,19 @@ func (uc *FgdScheduleUseCase) CreateFgdSchedule(req *request.CreateFgdScheduleRe
 		return nil, err
 	}
 
-	combinedDateStart := req.ScheduleDate + " " + req.StartTime
-	combinedDateEnd := req.ScheduleDate + " " + req.EndTime
+	startTime, err := time.Parse("2006-01-02 15:04:05", req.StartTime)
+	if err != nil {
+		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
+		return nil, err
+	}
+	endTime, err := time.Parse("2006-01-02 15:04:05", req.EndTime)
+	if err != nil {
+		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
+		return nil, err
+	}
+
+	combinedDateStart := req.ScheduleDate + " " + startTime.Format("15:04:05")
+	combinedDateEnd := req.ScheduleDate + " " + endTime.Format("15:04:05")
 
 	parsedStartTime, err := time.Parse("2006-01-02 15:04:05", combinedDateStart)
 	if err != nil {
@@ -358,15 +369,29 @@ func (uc *FgdScheduleUseCase) UpdateFgdSchedule(req *request.UpdateFgdScheduleRe
 		return nil, err
 	}
 
-	parsedStartTime, err := time.Parse("2006-01-02 15:04:05", req.StartTime)
+	startTime, err := time.Parse("2006-01-02 15:04:05", req.StartTime)
 	if err != nil {
-		uc.Log.Error("[FgdScheduleUseCase.UpdateFgdScheduleRequest] " + err.Error())
+		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
+		return nil, err
+	}
+	endTime, err := time.Parse("2006-01-02 15:04:05", req.EndTime)
+	if err != nil {
+		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
 		return nil, err
 	}
 
-	parsedEndTime, err := time.Parse("2006-01-02 15:04:05", req.EndTime)
+	combinedDateStart := req.ScheduleDate + " " + startTime.Format("15:04:05")
+	combinedDateEnd := req.ScheduleDate + " " + endTime.Format("15:04:05")
+
+	parsedStartTime, err := time.Parse("2006-01-02 15:04:05", combinedDateStart)
 	if err != nil {
-		uc.Log.Error("[FgdScheduleUseCase.UpdateFgdScheduleRequest] " + err.Error())
+		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
+		return nil, err
+	}
+
+	parsedEndTime, err := time.Parse("2006-01-02 15:04:05", combinedDateEnd)
+	if err != nil {
+		uc.Log.Error("[FgdScheduleUseCase.CreateFgdScheduleRequest] " + err.Error())
 		return nil, err
 	}
 

@@ -257,6 +257,85 @@ func handleMsg(docMsg *request.RabbitMQRequest, log *logrus.Logger, viper *viper
 		msgData = map[string]interface{}{
 			"message": "success",
 		}
+	case "sync_user_profile":
+		userID, ok := docMsg.MessageData["user_id"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'user_id'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'user_id'").Error(),
+			}
+			break
+		}
+		name, ok := docMsg.MessageData["name"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'name'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'name'").Error(),
+			}
+			break
+		}
+		maritalStatus, ok := docMsg.MessageData["marital_status"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'marital_status'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'marital_status'").Error(),
+			}
+			break
+		}
+		phoneNumber, ok := docMsg.MessageData["phone_number"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'phone_number'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'phone_number'").Error(),
+			}
+			break
+		}
+		age, ok := docMsg.MessageData["age"].(int)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'age'")
+			age = 1
+			// msgData = map[string]interface{}{
+			// 	"error": errors.New("missing 'age'").Error(),
+			// }
+			// break
+		}
+		birthDate, ok := docMsg.MessageData["birth_date"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'birth_date'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'birth_date'").Error(),
+			}
+			break
+		}
+		birthPlace, ok := docMsg.MessageData["birth_place"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'birth_place'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'birth_place'").Error(),
+			}
+			break
+		}
+
+		upUseCaseFactory := usecase.UserProfileUseCaseFactory(log, viper)
+		_, err := upUseCaseFactory.CreateOrUpdateUserProfile(&request.CreateOrUpdateUserProfileRequest{
+			UserID:        userID,
+			Name:          name,
+			MaritalStatus: maritalStatus,
+			Age:           age,
+			PhoneNumber:   phoneNumber,
+			BirthDate:     birthDate,
+			BirthPlace:    birthPlace,
+		})
+		if err != nil {
+			log.Errorf("ERROR: fail create or update user profile: %s", err.Error())
+			msgData = map[string]interface{}{
+				"error": err.Error(),
+			}
+			break
+		}
+		msgData = map[string]interface{}{
+			"message": "success",
+		}
 	default:
 		log.Printf("Unknown message type, please recheck your type: %s", docMsg.MessageType)
 

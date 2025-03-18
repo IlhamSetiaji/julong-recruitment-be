@@ -29,3 +29,13 @@ type UpdateStatusUserProfileRequest struct {
 	ID     string `json:"id" validate:"required,uuid"`
 	Status string `json:"status" validate:"required,user_status_validation"`
 }
+
+type CreateOrUpdateUserProfileRequest struct {
+	UserID        string `json:"user_id" validate:"required,uuid"`
+	Name          string `json:"name" validate:"required"`
+	MaritalStatus string `json:"marital_status" validate:"required,marital_status_validation"`
+	Age           int    `json:"age" validate:"omitempty"`
+	PhoneNumber   string `json:"phone_number" validate:"omitempty"`
+	BirthDate     string `json:"birth_date" validate:"required,datetime=2006-01-02"`
+	BirthPlace    string `json:"birth_place" validate:"required"`
+}

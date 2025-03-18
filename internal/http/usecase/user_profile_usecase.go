@@ -23,6 +23,7 @@ type IUserProfileUseCase interface {
 	UpdateStatusUserProfile(req *request.UpdateStatusUserProfileRequest) (*response.UserProfileResponse, error)
 	DeleteUserProfile(id uuid.UUID) error
 	UpdateAvatar(id uuid.UUID, avatarPath string) (*response.UserProfileResponse, error)
+	CreateOrUpdateUserProfile(req *request.CreateOrUpdateUserProfileRequest) (*response.UserProfileResponse, error)
 }
 
 type UserProfileUseCase struct {
@@ -67,8 +68,11 @@ func UserProfileUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IUserProf
 func (uc *UserProfileUseCase) FillUserProfile(req *request.FillUserProfileRequest, userID uuid.UUID) (*response.UserProfileResponse, error) {
 	parsedBirthDate, err := time.Parse("2006-01-02", req.BirthDate)
 	if err != nil {
-		uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing birth date: %s", err.Error())
-		return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing birth date: " + err.Error())
+		parsedBirthDate, err = time.Parse("2006-01-02 15:04:05 -0700 MST", req.BirthDate)
+		if err != nil {
+			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing birth date: %s", err.Error())
+			return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing birth date: " + err.Error())
+		}
 	}
 	if req.ID == "" || req.ID == uuid.Nil.String() {
 		exist, err := uc.Repository.FindByUserID(userID)
@@ -943,4 +947,62 @@ func (uc *UserProfileUseCase) checkMandatoryData(userProfile *entity.UserProfile
 		return errors.New("Education is mandatory")
 	}
 	return nil
+}
+
+func (uc *UserProfileUseCase) CreateOrUpdateUserProfile(req *request.CreateOrUpdateUserProfileRequest) (*response.UserProfileResponse, error) {
+	parsedUserID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.CreateOrUpdateUserProfile] error when parsing user ID: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.CreateOrUpdateUserProfile] error when parsing user ID: " + err.Error())
+	}
+
+	exist, err := uc.Repository.FindByUserID(parsedUserID)
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.CreateOrUpdateUserProfile] error when finding user profile by user ID: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.CreateOrUpdateUserProfile] error when finding user profile by user ID: " + err.Error())
+	}
+
+	parsedBirthDate, err := time.Parse("2006-01-02", req.BirthDate)
+	if err != nil {
+		parsedBirthDate, err = time.Parse("2006-01-02 15:04:05 -0700 MST", req.BirthDate)
+		if err != nil {
+			uc.Log.Errorf("[UserProfileUseCase.FillUserProfile] error when parsing birth date: %s", err.Error())
+			return nil, errors.New("[UserProfileUseCase.FillUserProfile] error when parsing birth date: " + err.Error())
+		}
+	}
+
+	if exist == nil {
+		createdProfile, err := uc.Repository.CreateUserProfile(&entity.UserProfile{
+			UserID:        &parsedUserID,
+			Name:          req.Name,
+			MaritalStatus: entity.MaritalStatusEnum(req.MaritalStatus),
+			BirthDate:     parsedBirthDate,
+			BirthPlace:    req.BirthPlace,
+			PhoneNumber:   req.PhoneNumber,
+			Age:           req.Age,
+		})
+		if err != nil {
+			uc.Log.Errorf("[UserProfileUseCase.CreateOrUpdateUserProfile] error when creating user profile: %s", err.Error())
+			return nil, errors.New("[UserProfileUseCase.CreateOrUpdateUserProfile] error when creating user profile: " + err.Error())
+		}
+
+		return uc.DTO.ConvertEntityToResponseWithoutUser(createdProfile)
+	}
+
+	updatedProfile, err := uc.Repository.UpdateUserProfile(&entity.UserProfile{
+		ID:            exist.ID,
+		UserID:        &parsedUserID,
+		Name:          req.Name,
+		MaritalStatus: entity.MaritalStatusEnum(req.MaritalStatus),
+		BirthDate:     parsedBirthDate,
+		BirthPlace:    req.BirthPlace,
+		PhoneNumber:   req.PhoneNumber,
+		Age:           req.Age,
+	})
+	if err != nil {
+		uc.Log.Errorf("[UserProfileUseCase.CreateOrUpdateUserProfile] error when updating user profile: %s", err.Error())
+		return nil, errors.New("[UserProfileUseCase.CreateOrUpdateUserProfile] error when updating user profile: " + err.Error())
+	}
+
+	return uc.DTO.ConvertEntityToResponseWithoutUser(updatedProfile)
 }

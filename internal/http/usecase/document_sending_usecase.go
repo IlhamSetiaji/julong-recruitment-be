@@ -66,6 +66,7 @@ type DocumentSendingUseCase struct {
 	OrganizationMessage              messaging.IOrganizationMessage
 	DocumentSendingHelper            helper.IDocumentSendingHelper
 	JobPlafonMessage                 messaging.IJobPlafonMessage
+	MidsuitService                   service.IMidsuitService
 }
 
 func NewDocumentSendingUseCase(
@@ -89,6 +90,7 @@ func NewDocumentSendingUseCase(
 	organizationMessage messaging.IOrganizationMessage,
 	documentSendingHelper helper.IDocumentSendingHelper,
 	jobPlafonMessage messaging.IJobPlafonMessage,
+	midsuitService service.IMidsuitService,
 ) IDocumentSendingUseCase {
 	return &DocumentSendingUseCase{
 		Log:                              log,
@@ -111,6 +113,7 @@ func NewDocumentSendingUseCase(
 		OrganizationMessage:              organizationMessage,
 		DocumentSendingHelper:            documentSendingHelper,
 		JobPlafonMessage:                 jobPlafonMessage,
+		MidsuitService:                   midsuitService,
 	}
 }
 
@@ -133,6 +136,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 	organizationMessage := messaging.OrganizationMessageFactory(log)
 	documentSendingHelper := helper.DocumentSendingHelperFactory(log, viper)
 	jobPlafonMesage := messaging.JobPlafonMessageFactory(log)
+	midsuitService := service.MidsuitServiceFactory(viper, log)
 	return NewDocumentSendingUseCase(
 		log,
 		repo,
@@ -154,6 +158,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 		organizationMessage,
 		documentSendingHelper,
 		jobPlafonMesage,
+		midsuitService,
 	)
 }
 
@@ -1689,9 +1694,60 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 			return err
 		}
-	}
 
-	// if req.SyncMidsuit == entity.SYNC_MIDSUIT_YES
+		// sync to midsuit
+		if uc.Viper.GetString("midsuit.sync") == "ACTIVE" {
+			midsuitPayload := &request.SyncEmployeeMidsuitRequest{
+				AdOrgId: request.AdOrgId{
+					Identifier: organizationResp.Name,
+				},
+				Name:     applicant.UserProfile.Name,
+				Birthday: applicant.UserProfile.BirthDate.Format("2006-01-02"),
+				City:     applicant.UserProfile.BirthPlace,
+				Email:    userEmail,
+				HcGender: func() request.HcGender {
+					if applicant.UserProfile.Gender == entity.MALE {
+						return request.HcGender{
+							ID: "M",
+						}
+					} else {
+						return request.HcGender{
+							ID: "F",
+						}
+					}
+				}(),
+				HcMaritalStatus: request.HcMaritalStatus{
+					Identifier: strings.Title(string(applicant.UserProfile.MaritalStatus)),
+				},
+				HcNationalID1: applicant.UserProfile.Ktp,
+				HcReligionID: request.HcReligionId{
+					Identifier: strings.Title(string(applicant.UserProfile.Religion)),
+				},
+				HcStatus: request.HcStatus{
+					ID: "P",
+				},
+				HcBasicAcceptance: request.HcBasicAcceptance{
+					Identifier: applicant.UserProfile.Educations[0].Major,
+				},
+				HcRecruitmentType: request.HcRecruitmentTypeId{
+					Identifier: string(documentSending.RecruitmentType),
+				},
+				HCWorkStartDate: documentSending.JoinedDate.Format("2006-01-02"),
+			}
+
+			authResp, err := uc.MidsuitService.AuthOneStep()
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			err = uc.MidsuitService.SyncEmployeeMidsuit(*midsuitPayload, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+		}
+	}
 
 	return nil
 }

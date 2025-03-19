@@ -15,5 +15,5 @@ type UploadDocumentVerificationLine struct {
 }
 
 type UpdateAnswer struct {
-	Answer string `json:"answer" validate:"required"`
+	Answer string `json:"answer" validate:"omitempty"`
 }

@@ -18,6 +18,7 @@ type IDocumentVerificationLineUsecase interface {
 	FindByID(id string) (*response.DocumentVerificationLineResponse, error)
 	FindAllByDocumentVerificationHeaderID(documentVerificationHeaderID string) (*[]response.DocumentVerificationLineResponse, error)
 	UploadDocumentVerificationLine(req *request.UploadDocumentVerificationLine) (*response.DocumentVerificationLineResponse, error)
+	UpdateAnswer(id uuid.UUID, payload *request.UpdateAnswer) (*response.DocumentVerificationLineResponse, error)
 }
 
 type DocumentVerificationLineUsecase struct {
@@ -28,6 +29,20 @@ type DocumentVerificationLineUsecase struct {
 	DocumentVerificationHeaderRepository repository.IDocumentVerificationHeaderRepository
 	DocumentVerificationRepository       repository.IDocumentVerificationRepository
 	Viper                                *viper.Viper
+}
+
+func (u *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *request.UpdateAnswer) (*response.DocumentVerificationLineResponse, error) {
+	// Implement the logic to update the answer here
+	// Example:
+	err := u.Repository.UpdateAnswer(id, payload.Answer)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response.DocumentVerificationLineResponse{
+		ID:     id,
+		Answer: payload.Answer,
+	}, nil
 }
 
 func NewDocumentVerificationLineUsecase(log *logrus.Logger, repository repository.IDocumentVerificationLineRepository, dto dto.IDocumentVerificationLineDTO, documentVerificationHeaderDTO dto.IDocumentVerificationHeaderDTO, documentVerificationHeaderRepository repository.IDocumentVerificationHeaderRepository, documentVerificationRepository repository.IDocumentVerificationRepository, viper *viper.Viper) IDocumentVerificationLineUsecase {

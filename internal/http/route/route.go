@@ -397,6 +397,8 @@ func (c *RouteConfig) SetupAPIRoutes() {
 				documentVerificationLineRoute.GET("/:id", c.DocumentVerificationLineHandler.FindByID)
 				documentVerificationLineRoute.POST("", c.DocumentVerificationLineHandler.CreateOrUpdateDocumentVerificationLine)
 				documentVerificationLineRoute.POST("/upload", c.DocumentVerificationLineHandler.UploadDocumentVerificationLine)
+				documentVerificationLineRoute.PUT("/:id/answer", c.DocumentVerificationLineHandler.UpdateAnswer)
+
 			}
 			// dashboard
 			dashboardRoute := apiRoute.Group("/dashboard")

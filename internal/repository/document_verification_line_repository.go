@@ -14,6 +14,7 @@ type IDocumentVerificationLineRepository interface {
 	DeleteDocumentVerificationLine(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.DocumentVerificationLine, error)
 	FindAllByDocumentVerificationHeaderID(documentVerificationHeaderID uuid.UUID) (*[]entity.DocumentVerificationLine, error)
+	UpdateAnswer(id uuid.UUID, answer string) error
 }
 
 type DocumentVerificationLineRepository struct {
@@ -30,7 +31,13 @@ func NewDocumentVerificationLineRepository(
 		DB:  db,
 	}
 }
-
+func (r *DocumentVerificationLineRepository) UpdateAnswer(id uuid.UUID, answer string) error {
+	query := "UPDATE document_verification_lines SET answer = ? WHERE id = ?"
+	if err := r.DB.Exec(query, answer, id).Error; err != nil {
+		return err
+	}
+	return nil
+}
 func DocumentVerificationLineRepositoryFactory(
 	log *logrus.Logger,
 ) IDocumentVerificationLineRepository {

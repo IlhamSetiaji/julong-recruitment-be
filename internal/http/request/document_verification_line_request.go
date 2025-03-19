@@ -13,3 +13,7 @@ type UploadDocumentVerificationLine struct {
 	ID   string `form:"id" validate:"required,uuid"`
 	Path string `form:"path" validate:"omitempty"`
 }
+
+type UpdateAnswer struct {
+	Answer string `json:"answer" validate:"required"`
+}

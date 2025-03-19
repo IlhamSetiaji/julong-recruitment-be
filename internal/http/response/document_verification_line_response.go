@@ -11,6 +11,7 @@ type DocumentVerificationLineResponse struct {
 	DocumentVerificationHeaderID uuid.UUID `json:"document_verification_header_id"`
 	DocumentVerificationID       uuid.UUID `json:"document_verification_id"`
 	Path                         string    `json:"path"`
+	Answer                       string    `json:"answer"`
 	CreatedAt                    time.Time `json:"created_at"`
 	UpdatedAt                    time.Time `json:"updated_at"`
 

@@ -11,6 +11,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -20,6 +21,7 @@ type IDocumentVerificationLineHandler interface {
 	FindByID(ctx *gin.Context)
 	FindAllByDocumentVerificationHeaderID(ctx *gin.Context)
 	UploadDocumentVerificationLine(ctx *gin.Context)
+	UpdateAnswer(ctx *gin.Context)
 }
 
 type DocumentVerificationLineHandler struct {
@@ -184,6 +186,51 @@ func (h *DocumentVerificationLineHandler) UploadDocumentVerificationLine(ctx *gi
 		ID:   id,
 		Path: filePath,
 	})
+	if err != nil {
+		h.Log.Error(err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Internal Server Error", err.Error())
+		return
+	}
+
+	utils.SuccessResponse(ctx, http.StatusOK, "Success", res)
+}
+
+// Update Answer
+//
+// @Summary Update Answer
+// @Description Update Answer
+// @Tags Document Verification Lines
+// @Accept json
+// @Produce json
+// @Param id path string true "Document Verification Line ID"
+// @Param payload body request.UpdateAnswer true "Update Answer"
+// @Success 200 {object} response.DocumentVerificationLineResponse
+// @Security BearerAuth
+// @Router /document-verification-lines/{id}/answer [put]
+func (h *DocumentVerificationLineHandler) UpdateAnswer(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		h.Log.Error("Invalid UUID: ", err)
+		utils.BadRequestResponse(ctx, "bad request", "Invalid UUID format")
+		return
+	}
+
+	var payload request.UpdateAnswer
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		return
+	}
+
+	if err := h.Validate.Struct(payload); err != nil {
+		h.Log.Error(err)
+		utils.BadRequestResponse(ctx, err.Error(), err.Error())
+		return
+	}
+
+	res, err := h.UseCase.UpdateAnswer(parsedID, &payload)
 	if err != nil {
 		h.Log.Error(err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Internal Server Error", err.Error())

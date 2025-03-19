@@ -13,7 +13,7 @@ type DocumentVerificationLine struct {
 	DocumentVerificationHeaderID uuid.UUID                   `json:"document_verification_header_id" gorm:"type:char(36);not null"`
 	DocumentVerificationID       uuid.UUID                   `json:"document_verification_id" gorm:"type:char(36);not null"`
 	Path                         string                      `json:"path" gorm:"type:text;not null"`
-	Answer                       string                      `json:"answer" gorm:"type:text;not null"`
+	Answer                       string                      `json:"answer" gorm:"type:text;default:null"`
 	DocumentVerificationHeader   *DocumentVerificationHeader `json:"document_verification_header" gorm:"foreignKey:DocumentVerificationHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DocumentVerification         *DocumentVerification       `json:"document_verification" gorm:"foreignKey:DocumentVerificationID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }

@@ -969,7 +969,9 @@ func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.Docu
 		MaritalStatus:  string(maritalStatus),
 	}
 
-	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersCoverLetter(documentSending.DetailContent, replacedData)
+	safeHtmlContent := template.HTMLEscapeString(documentSending.DetailContent)
+
+	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersCoverLetter(safeHtmlContent, replacedData)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
 		return nil, err
@@ -1173,7 +1175,9 @@ func (uc *DocumentSendingUseCase) replaceOfferLetter(documentSending entity.Docu
 		BasicWage:    int(documentSending.BasicWage),
 	}
 
-	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersOfferLetter(documentSending.DetailContent, replacedData)
+	safeHtmlContent := template.HTMLEscapeString(documentSending.DetailContent)
+
+	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersOfferLetter(safeHtmlContent, replacedData)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] " + err.Error())
 		return nil, err

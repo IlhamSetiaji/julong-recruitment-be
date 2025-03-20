@@ -45,6 +45,7 @@ func (dto *DocumentVerificationLineDTO) ConvertEntityToResponse(ent *entity.Docu
 			}
 			return ""
 		}(),
+		Answer:    ent.Answer,
 		CreatedAt: ent.CreatedAt,
 		UpdatedAt: ent.UpdatedAt,
 		DocumentVerification: func() *response.DocumentVerificationResponse {

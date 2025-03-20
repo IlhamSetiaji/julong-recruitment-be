@@ -89,7 +89,17 @@ type DataContent struct {
 }
 
 func (d *DocumentSendingHelper) ReplacePlaceHoldersCoverLetter(htmlTemplate string, data DocumentDataCoverLetter) (*string, error) {
-	tmpl, err := template.New("document").Parse(htmlTemplate)
+	fullHtml := fmt.Sprintf(`<!DOCTYPE html>
+	<html>
+	<head>
+			<title>Document</title>
+	</head>
+	<body>
+			%s
+	</body>
+	</html>`, template.HTML(htmlTemplate))
+
+	tmpl, err := template.New("document").Parse(fullHtml)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +139,17 @@ func (d *DocumentSendingHelper) ReplacePlaceHoldersContract(htmlTemplate string,
 }
 
 func (d *DocumentSendingHelper) ReplacePlaceHoldersOfferLetter(htmlTemplate string, data DocumentDataOfferLetter) (*string, error) {
-	tmpl, err := template.New("document").Parse(htmlTemplate)
+	fullHtml := fmt.Sprintf(`<!DOCTYPE html>
+	<html>
+	<head>
+			<title>Document</title>
+	</head>
+	<body>
+			%s
+	</body>
+	</html>`, template.HTML(htmlTemplate))
+
+	tmpl, err := template.New("document").Parse(fullHtml)
 	if err != nil {
 		return nil, err
 	}

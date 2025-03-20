@@ -2,6 +2,7 @@ package helper
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 
 	"github.com/sirupsen/logrus"
@@ -53,7 +54,7 @@ type DocumentDataContract struct {
 	PositionalAllowance  int    `json:"positional_allowance"`
 	OperationalAllowance int    `json:"operational_allowance"`
 	MealAllowance        int    `json:"meal_allowance"`
-	HomeTripTicket       string `json:"hometrip_ticket"`
+	HometripTicket       string `json:"hometrip_ticket"`
 	JoinedDate           string `json:"joined_date"`
 	HiredStatus          string `json:"hired_status"`
 	ApprovalBy           string `json:"approval_by"`
@@ -83,6 +84,10 @@ func DocumentSendingHelperFactory(log *logrus.Logger, viper *viper.Viper) IDocum
 	return NewDocumentSendingHelper(log, viper)
 }
 
+type DataContent struct {
+	Content template.HTML
+}
+
 func (d *DocumentSendingHelper) ReplacePlaceHoldersCoverLetter(htmlTemplate string, data DocumentDataCoverLetter) (*string, error) {
 	tmpl, err := template.New("document").Parse(htmlTemplate)
 	if err != nil {
@@ -99,7 +104,17 @@ func (d *DocumentSendingHelper) ReplacePlaceHoldersCoverLetter(htmlTemplate stri
 }
 
 func (d *DocumentSendingHelper) ReplacePlaceHoldersContract(htmlTemplate string, data DocumentDataContract) (*string, error) {
-	tmpl, err := template.New("document").Parse(htmlTemplate)
+	fullHtml := fmt.Sprintf(`<!DOCTYPE html>
+	<html>
+	<head>
+			<title>Document</title>
+	</head>
+	<body>
+			%s
+	</body>
+	</html>`, template.HTML(htmlTemplate))
+
+	tmpl, err := template.New("document").Parse(fullHtml)
 	if err != nil {
 		return nil, err
 	}

@@ -814,7 +814,7 @@ body {
 	}
 
 	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
-	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
+	htmlContent := `<!DOCTYPE html><html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
       <img src="` + logoURL + `" alt="Kop Surat" style="width: 100%;">
       <div style="width: 100%; border-bottom: 3px solid black; "></div>
       </div><div class="tiptap">` + *htmlText + `</div></body></html>`
@@ -881,7 +881,7 @@ func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.Docu
 		ID: documentSending.ForOrganizationID.String(),
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
 		return nil, err
 	}
 	company := organizationResp.Name
@@ -982,7 +982,7 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 		ID: documentSending.ForOrganizationID.String(),
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 		return nil, err
 	}
 	company := organizationResp.Name
@@ -991,11 +991,11 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 		"id": documentSending.ApplicantID,
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 		return nil, err
 	}
 	if applicant == nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] applicant not found")
+		uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] applicant not found")
 		return nil, errors.New("applicant not found")
 	}
 
@@ -1004,17 +1004,17 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 		ID: userID.String(),
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 		return nil, err
 	}
 	if userMessageResponse.User == nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] user not found")
+		uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] user not found")
 		return nil, errors.New("user not found")
 	}
 
 	name, err := uc.UserHelper.GetUserName(userMessageResponse.User)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 		return nil, err
 	}
 
@@ -1034,7 +1034,7 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 			ID: documentSending.JobLevelID.String(),
 		})
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 			return nil, err
 		}
 		jobLevel = jobLevelResp.Name
@@ -1046,7 +1046,7 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 			ID: documentSending.JobID.String(),
 		})
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 			return nil, err
 		}
 		jobName = jobResp.Name
@@ -1058,7 +1058,7 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 			ID: documentSending.OrganizationLocationID.String(),
 		})
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 			return nil, err
 		}
 		orgLocationName = orgLocationResp.Name
@@ -1086,7 +1086,7 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 		PositionalAllowance:  int(documentSending.PositionalAllowance),
 		OperationalAllowance: int(documentSending.OperationalAllowance),
 		MealAllowance:        int(documentSending.MealAllowance),
-		HomeTripTicket:       documentSending.HometripTicket,
+		HometripTicket:       documentSending.HometripTicket,
 		JoinedDate:           joinedDate,
 		HiredStatus:          string(hiredStatus),
 		ApprovalBy:           name,
@@ -1095,7 +1095,7 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 
 	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersContract(documentSending.DetailContent, replacedData)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 		return nil, err
 	}
 
@@ -1107,7 +1107,7 @@ func (uc *DocumentSendingUseCase) replaceOfferLetter(documentSending entity.Docu
 		ID: documentSending.ForOrganizationID.String(),
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] " + err.Error())
 		return nil, err
 	}
 	company := organizationResp.Name
@@ -1116,11 +1116,11 @@ func (uc *DocumentSendingUseCase) replaceOfferLetter(documentSending entity.Docu
 		"id": documentSending.ApplicantID,
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] " + err.Error())
 		return nil, err
 	}
 	if applicant == nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] applicant not found")
+		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] applicant not found")
 		return nil, errors.New("applicant not found")
 	}
 
@@ -1129,27 +1129,27 @@ func (uc *DocumentSendingUseCase) replaceOfferLetter(documentSending entity.Docu
 		ID: userID.String(),
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] " + err.Error())
 		return nil, err
 	}
 	if userMessageResponse.User == nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] user not found")
+		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] user not found")
 		return nil, errors.New("user not found")
 	}
 
 	name, err := uc.UserHelper.GetUserName(userMessageResponse.User)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] " + err.Error())
 		return nil, err
 	}
 
 	jobPosting, err := uc.JobPostingRepository.FindByID(documentSending.JobPostingID)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] " + err.Error())
 		return nil, err
 	}
 	if jobPosting == nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] job posting not found")
+		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] job posting not found")
 		return nil, errors.New("job posting not found")
 	}
 	position := jobPosting.Name
@@ -1167,7 +1167,7 @@ func (uc *DocumentSendingUseCase) replaceOfferLetter(documentSending entity.Docu
 
 	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersOfferLetter(documentSending.DetailContent, replacedData)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] " + err.Error())
 		return nil, err
 	}
 

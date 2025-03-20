@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -582,7 +583,7 @@ body {
 		ID: documentSending.ForOrganizationID.String(),
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.GeneratePdf] " + err.Error())
 		return nil, err
 	}
 
@@ -592,15 +593,15 @@ body {
 	// check if document sending is cover letter
 	htmlText, err := uc.checkCorrespondingPlaceHolders(documentSending)
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.GeneratePdfBuffer] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.GeneratePdf] " + err.Error())
 		return nil, err
 	}
 
 	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
-	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
+	htmlContent := `<!DOCTYPE html><html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
       <img src="` + logoURL + `" alt="Kop Surat" style="width: 100%;">
       <div style="width: 100%; border-bottom: 3px solid black; "></div>
-      </div><div class="tiptap">` + *htmlText + `</div></body></html>`
+      </div><div class="tiptap">` + string(*htmlText) + `</div></body></html>`
 	dataURL := "data:text/html," + url.PathEscape(htmlContent)
 
 	var pdfBuffer []byte
@@ -800,7 +801,7 @@ body {
 		ID: documentSending.ForOrganizationID.String(),
 	})
 	if err != nil {
-		uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+		uc.Log.Error("[DocumentSendingUseCase.generatePdfBuffer] " + err.Error())
 		return nil, err
 	}
 	// Use the organization logo URL
@@ -814,7 +815,7 @@ body {
 	}
 
 	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
-	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
+	htmlContent := `<!DOCTYPE html><html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
       <img src="` + logoURL + `" alt="Kop Surat" style="width: 100%;">
       <div style="width: 100%; border-bottom: 3px solid black; "></div>
       </div><div class="tiptap">` + *htmlText + `</div></body></html>`
@@ -852,7 +853,7 @@ func (uc *DocumentSendingUseCase) checkCorrespondingPlaceHolders(documentSending
 	if documentSending.DocumentSetup.DocumentType.Name == "FINAL_RESULT" {
 		htmlText, err = uc.replaceCoverLetter(*documentSending)
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.checkCorrespondingPlaceHolders] " + err.Error())
 			return nil, err
 		}
 	}
@@ -860,7 +861,7 @@ func (uc *DocumentSendingUseCase) checkCorrespondingPlaceHolders(documentSending
 	if documentSending.DocumentSetup.DocumentType.Name == "CONTRACT_DOCUMENT" {
 		htmlText, err = uc.replaceContractDocument(*documentSending)
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.checkCorrespondingPlaceHolders] " + err.Error())
 			return nil, err
 		}
 	}
@@ -868,7 +869,7 @@ func (uc *DocumentSendingUseCase) checkCorrespondingPlaceHolders(documentSending
 	if documentSending.DocumentSetup.DocumentType.Name == "OFFERING_LETTER" {
 		htmlText, err = uc.replaceOfferLetter(*documentSending)
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.generatePdf] " + err.Error())
+			uc.Log.Error("[DocumentSendingUseCase.checkCorrespondingPlaceHolders] " + err.Error())
 			return nil, err
 		}
 	}
@@ -1025,8 +1026,13 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 	religion := applicant.UserProfile.Religion
 	address := applicant.UserProfile.Address
 	educationLevel := applicant.UserProfile.Educations[0]
-	degreeName := strings.TrimSpace(strings.SplitN(string(educationLevel.EducationLevel), "-", 2)[1])
-	major := educationLevel.Major
+
+	var degreeName string
+	var major string
+	if applicant.UserProfile.Educations != nil {
+		degreeName = strings.TrimSpace(strings.SplitN(string(educationLevel.EducationLevel), "-", 2)[1])
+		major = educationLevel.Major
+	}
 
 	var jobLevel string
 	if documentSending.JobLevelID != nil {
@@ -1093,7 +1099,9 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 		DocumentDate:         documentDate,
 	}
 
-	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersContract(documentSending.DetailContent, replacedData)
+	safeHtmlContent := template.HTMLEscapeString(documentSending.DetailContent)
+
+	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersContract(safeHtmlContent, replacedData)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 		return nil, err

@@ -114,7 +114,20 @@ func (d *DocumentSendingHelper) ReplacePlaceHoldersCoverLetter(htmlTemplate stri
 }
 
 func (d *DocumentSendingHelper) ReplacePlaceHoldersContract(htmlTemplate string, data DocumentDataContract) (*string, error) {
-	fullHtml := fmt.Sprintf(`<!DOCTYPE html>
+	// Parse the HTML template with placeholders
+	tmpl, err := template.New("document").Parse(htmlTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse template: %v", err)
+	}
+
+	// Execute the template with the provided data
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		return nil, fmt.Errorf("failed to execute template: %v", err)
+	}
+
+	// Wrap the executed template in a full HTML document
+	fullHtml := fmt.Sprintf(`
 	<html>
 	<head>
 			<title>Document</title>
@@ -122,19 +135,9 @@ func (d *DocumentSendingHelper) ReplacePlaceHoldersContract(htmlTemplate string,
 	<body>
 			%s
 	</body>
-	</html>`, template.HTML(htmlTemplate))
+	</html>`, buf.String())
 
-	tmpl, err := template.New("document").Parse(fullHtml)
-	if err != nil {
-		return nil, err
-	}
-
-	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, data); err != nil {
-		return nil, err
-	}
-
-	result := buf.String()
+	result := fullHtml
 	return &result, nil
 }
 

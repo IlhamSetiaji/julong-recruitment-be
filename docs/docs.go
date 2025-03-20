@@ -5344,6 +5344,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/document-verification-lines/{id}/answer": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update Answer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Verification Lines"
+                ],
+                "summary": "Update Answer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document Verification Line ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Answer",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateAnswer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DocumentVerificationLineResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/document-verifications": {
             "get": {
                 "security": [
@@ -11030,6 +11076,14 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateAnswer": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                }
+            }
+        },
         "request.UpdateDocumentAgreementRequest": {
             "type": "object",
             "required": [
@@ -12207,6 +12261,9 @@ const docTemplate = `{
         "response.DocumentVerificationLineResponse": {
             "type": "object",
             "properties": {
+                "answer": {
+                    "type": "string"
+                },
                 "created_at": {
                     "type": "string"
                 },

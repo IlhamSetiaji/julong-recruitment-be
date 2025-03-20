@@ -814,7 +814,7 @@ body {
 	}
 
 	// Wrap the HTML content with proper HTML structure, UTF-8 meta tag, and CSS styles
-	htmlContent := `<!DOCTYPE html><html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
+	htmlContent := `<html><head><meta charset="UTF-8">` + cssStyles + `</head><body><div style="display: flex; flex-direction: column;">
       <img src="` + logoURL + `" alt="Kop Surat" style="width: 100%;">
       <div style="width: 100%; border-bottom: 3px solid black; "></div>
       </div><div class="tiptap">` + *htmlText + `</div></body></html>`

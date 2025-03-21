@@ -36,8 +36,8 @@ type TestApplicant struct {
 	EndTime              time.Time         `json:"end_time" gorm:"type:time;not null"`
 	AssessmentStatus     AssessmentStatus  `json:"assessment_status" gorm:"type:text;default:null"`
 	FinalResult          FinalResultStatus `json:"final_result" gorm:"type:text;default:null"`
-	StartedTime          *time.Time        `json:"started_time" gorm:"type:datetime;default:null"`
-	EndedTime            *time.Time        `json:"ended_time" gorm:"type:datetime;default:null"`
+	StartedTime          *time.Time        `json:"started_time" gorm:"type:time;default:null"`
+	EndedTime            *time.Time        `json:"ended_time" gorm:"type:time;default:null"`
 
 	TestScheduleHeader *TestScheduleHeader `json:"test_schedule_header" gorm:"foreignKey:TestScheduleHeaderID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	UserProfile        *UserProfile        `json:"user_profile" gorm:"foreignKey:UserProfileID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

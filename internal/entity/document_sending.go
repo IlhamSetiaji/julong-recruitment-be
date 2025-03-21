@@ -45,7 +45,7 @@ type DocumentSending struct {
 	DocumentDate             time.Time              `json:"document_date" gorm:"type:date;not null"`
 	DocumentNumber           string                 `json:"document_number" gorm:"type:varchar(255);not null;unique"`
 	Status                   DocumentSendingStatus  `json:"status" gorm:"default:'PENDING'"`
-	RecruitmentType          ProjectRecruitmentType `json:"recruitment_type" gorm:"type:enum('INTERNAL','EXTERNAL');default:'EXTERNAL'"`
+	RecruitmentType          ProjectRecruitmentType `json:"recruitment_type" gorm:"default:null"`
 	BasicWage                float64                `json:"basic_wage" gorm:"type:decimal(10,2);default:null"`
 	PositionalAllowance      float64                `json:"positional_allowance" gorm:"type:decimal(10,2);default:null"`
 	OperationalAllowance     float64                `json:"operational_allowance" gorm:"type:decimal(10,2);default:null"`

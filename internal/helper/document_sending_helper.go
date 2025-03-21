@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"strings"
 
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -114,7 +116,13 @@ func (d *DocumentSendingHelper) ReplacePlaceHoldersCoverLetter(htmlTemplate stri
 }
 
 func (d *DocumentSendingHelper) ReplacePlaceHoldersContract(htmlTemplate string, data DocumentDataContract) (*string, error) {
-	// Parse the HTML template with placeholders
+	// Use Bluemonday with an explicit policy to avoid stripping necessary placeholders
+	p := bluemonday.UGCPolicy() // Allow common safe HTML elements
+	htmlTemplate = p.Sanitize(htmlTemplate)
+	// htmlTemplate = strings.ReplaceAll(htmlTemplate, "<", "&lt;")
+	// htmlTemplate = strings.ReplaceAll(htmlTemplate, ">", "&gt;")
+
+	// Parse the sanitized HTML template
 	tmpl, err := template.New("document").Parse(htmlTemplate)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse template: %v", err)
@@ -138,6 +146,7 @@ func (d *DocumentSendingHelper) ReplacePlaceHoldersContract(htmlTemplate string,
 	</html>`, buf.String())
 
 	result := fullHtml
+	// result := buf.String()
 	return &result, nil
 }
 
@@ -164,4 +173,36 @@ func (d *DocumentSendingHelper) ReplacePlaceHoldersOfferLetter(htmlTemplate stri
 
 	result := buf.String()
 	return &result, nil
+}
+
+func escapeAmpersandsOutsideTemplates(htmlTemplate string) string {
+	var result strings.Builder
+	inTemplate := false
+
+	for i := 0; i < len(htmlTemplate); i++ {
+		char := htmlTemplate[i]
+
+		// Check if we're entering a Go template placeholder
+		if i+1 < len(htmlTemplate) && char == '{' && htmlTemplate[i+1] == '{' {
+			inTemplate = true
+			result.WriteByte(char)
+			continue
+		}
+
+		// Check if we're exiting a Go template placeholder
+		if i+1 < len(htmlTemplate) && char == '}' && htmlTemplate[i+1] == '}' {
+			inTemplate = false
+			result.WriteByte(char)
+			continue
+		}
+
+		// Escape & characters only outside of Go template placeholders
+		if char == '&' && !inTemplate {
+			result.WriteString("&amp;")
+		} else {
+			result.WriteByte(char)
+		}
+	}
+
+	return result.String()
 }

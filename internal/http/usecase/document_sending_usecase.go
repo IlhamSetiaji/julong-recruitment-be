@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -969,9 +968,9 @@ func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.Docu
 		MaritalStatus:  string(maritalStatus),
 	}
 
-	safeHtmlContent := template.HTMLEscapeString(documentSending.DetailContent)
+	// safeHtmlContent := template.HTMLEscapeString(documentSending.DetailContent)
 
-	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersCoverLetter(safeHtmlContent, replacedData)
+	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersCoverLetter(documentSending.DetailContent, replacedData)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.replaceCoverLetter] " + err.Error())
 		return nil, err
@@ -1101,9 +1100,9 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 		DocumentDate:         documentDate,
 	}
 
-	safeHtmlContent := template.HTMLEscapeString(documentSending.DetailContent)
+	// safeHtmlContent := template.HTMLEscapeString(documentSending.DetailContent)
 
-	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersContract(safeHtmlContent, replacedData)
+	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersContract(documentSending.DetailContent, replacedData)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.replaceContractDocument] " + err.Error())
 		return nil, err
@@ -1175,9 +1174,9 @@ func (uc *DocumentSendingUseCase) replaceOfferLetter(documentSending entity.Docu
 		BasicWage:    int(documentSending.BasicWage),
 	}
 
-	safeHtmlContent := template.HTMLEscapeString(documentSending.DetailContent)
+	// safeHtmlContent := template.HTMLEscapeString(documentSending.DetailContent)
 
-	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersOfferLetter(safeHtmlContent, replacedData)
+	htmlContent, err := uc.DocumentSendingHelper.ReplacePlaceHoldersOfferLetter(documentSending.DetailContent, replacedData)
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.replaceOfferLetter] " + err.Error())
 		return nil, err

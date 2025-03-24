@@ -131,6 +131,7 @@ func main() {
 	if err != nil {
 		log.Panicf("Failed to start server: %v", err)
 	}
+	// test
 
 	wg.Wait()
 }

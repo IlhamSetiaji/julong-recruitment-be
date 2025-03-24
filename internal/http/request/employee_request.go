@@ -121,3 +121,12 @@ type SyncEmployeeJobMidsuitRequest struct {
 	IsPrimary            bool                  `json:"IsPrimary" binding:"required"`
 	ModelName            string                `json:"model-name" binding:"required"`
 }
+
+type SyncEmployeeWorkExperienceMidsuitRequest struct {
+	AdOrgId        AdOrgId      `json:"AD_Org_ID" binding:"required"`
+	Name           string       `json:"Name" binding:"required"`
+	Description    string       `json:"Description" binding:"required"`
+	HCEmployeeID   HcEmployeeId `json:"HC_Employee_ID" binding:"required"`
+	YearExperience string       `json:"YearExperience" binding:"required"`
+	ModelName      string       `json:"model-name" binding:"required"`
+}

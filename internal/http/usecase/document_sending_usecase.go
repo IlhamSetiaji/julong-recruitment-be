@@ -1724,6 +1724,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 
 		// sync to midsuit
 		if uc.Viper.GetString("midsuit.sync") == "ACTIVE" {
+			// sync to midsuit employee
 			midsuitPayload := &request.SyncEmployeeMidsuitRequest{
 				AdOrgId: request.AdOrgId{
 					ID:         organizationResp.MidsuitID,
@@ -1799,6 +1800,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				return err
 			}
 
+			// sync to midsuit employee job
 			midsuitEmployeeJobPayload := &request.SyncEmployeeJobMidsuitRequest{
 				AdOrgId: request.AdOrgId{
 					ID: organizationResp.MidsuitID,
@@ -1842,6 +1844,30 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 				return err
+			}
+
+			// sync to midsuit employee work experiences
+			if len(applicant.UserProfile.WorkExperiences) > 0 {
+				for _, workExperience := range applicant.UserProfile.WorkExperiences {
+					workExperiencePayload := &request.SyncEmployeeWorkExperienceMidsuitRequest{
+						AdOrgId: request.AdOrgId{
+							ID: organizationResp.MidsuitID,
+						},
+						HCEmployeeID: request.HcEmployeeId{
+							ID: *midsuitEmpID,
+						},
+						Name:           workExperience.Name,
+						Description:    "Mwehehe",
+						YearExperience: string(workExperience.YearExperience),
+						ModelName:      "hc_workhistory",
+					}
+
+					_, err = uc.MidsuitService.SyncEmployeeWorkExperienceMidsuit(*workExperiencePayload, authResp.Token)
+					if err != nil {
+						uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+						return err
+					}
+				}
 			}
 		}
 	}

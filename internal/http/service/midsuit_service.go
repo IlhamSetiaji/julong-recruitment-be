@@ -17,7 +17,8 @@ import (
 
 type IMidsuitService interface {
 	AuthOneStep() (*AuthOneStepResponse, error)
-	SyncEmployeeMidsuit(payload request.SyncEmployeeMidsuitRequest, jwtToken string) error
+	SyncEmployeeMidsuit(payload request.SyncEmployeeMidsuitRequest, jwtToken string) (*string, error)
+	SyncEmployeeJobMidsuit(payload request.SyncEmployeeJobMidsuitRequest, jwtToken string) (*string, error)
 }
 
 type MidsuitService struct {
@@ -52,6 +53,14 @@ type AuthOneStepResponse struct {
 	MenuTreeID   int    `json:"menuTreeId"`
 	Token        string `json:"token"`
 	RefreshToken string `json:"refresh_token"`
+}
+
+type SyncEmployeeMidsuitResponse struct {
+	ID string `json:"id"`
+}
+
+type SyncEmployeeJobMidsuitResponse struct {
+	ID string `json:"id"`
 }
 
 func (s *MidsuitService) AuthOneStep() (*AuthOneStepResponse, error) {
@@ -112,14 +121,14 @@ func (s *MidsuitService) AuthOneStep() (*AuthOneStepResponse, error) {
 	return &authResponse, nil
 }
 
-func (s *MidsuitService) SyncEmployeeMidsuit(payload request.SyncEmployeeMidsuitRequest, jwtToken string) error {
+func (s *MidsuitService) SyncEmployeeMidsuit(payload request.SyncEmployeeMidsuitRequest, jwtToken string) (*string, error) {
 	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/hc_employee"
 	method := "POST"
 
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		s.Log.Error(err)
-		return errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when marshalling payload: " + err.Error())
+		return nil, errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when marshalling payload: " + err.Error())
 	}
 
 	client := &http.Client{
@@ -130,7 +139,7 @@ func (s *MidsuitService) SyncEmployeeMidsuit(payload request.SyncEmployeeMidsuit
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		s.Log.Error(err)
-		return errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when creating request: " + err.Error())
+		return nil, errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when creating request: " + err.Error())
 	}
 
 	req.Header.Add("Content-Type", "application/json")
@@ -140,15 +149,70 @@ func (s *MidsuitService) SyncEmployeeMidsuit(payload request.SyncEmployeeMidsuit
 	res, err := client.Do(req)
 	if err != nil {
 		s.Log.Error(err)
-		return errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when fetching response: " + err.Error())
+		return nil, errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when fetching response: " + err.Error())
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(res.Body)
 		s.Log.Error(err)
-		return errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when fetching response: " + string(bodyBytes))
+		return nil, errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when fetching response: " + string(bodyBytes))
 	}
 
-	return nil
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var syncResponse SyncEmployeeMidsuitResponse
+	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when unmarshalling response: " + err.Error())
+	}
+
+	return &syncResponse.ID, nil
+}
+
+func (s *MidsuitService) SyncEmployeeJobMidsuit(payload request.SyncEmployeeJobMidsuitRequest, jwtToken string) (*string, error) {
+	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/hc_job"
+	method := "POST"
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeJobMidsuit] Error when marshalling payload: " + err.Error())
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeJobMidsuit] Error when creating request: " + err.Error())
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+jwtToken)
+
+	res, err := client.Do(req)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeJobMidsuit] Error when fetching response: " + err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeJobMidsuit] Error when fetching response: " + string(bodyBytes))
+	}
+
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var syncResponse SyncEmployeeJobMidsuitResponse
+	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeJobMidsuit] Error when unmarshalling response: " + err.Error())
+	}
+
+	return &syncResponse.ID, nil
 }

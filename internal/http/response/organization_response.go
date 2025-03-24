@@ -10,16 +10,19 @@ type SendFindOrganizationByIDMessageResponse struct {
 	OrganizationCategory string `json:"organization_category"`
 	OrganizationType     string `json:"organization_type"`
 	Logo                 string `json:"logo"`
+	MidsuitID            string `json:"midsuit_id"`
 }
 
 type SendFindOrganizationLocationByIDMessageResponse struct {
 	OrganizationLocationID string `json:"organization_location_id"`
 	Name                   string `json:"name"`
+	MidsuitID              string `json:"midsuit_id"`
 }
 
 type SendFindOrganizationStructureByIDMessageResponse struct {
 	OrganizationStructureID string `json:"organization_structure_id"`
 	Name                    string `json:"name"`
+	MidsuitID               string `json:"midsuit_id"`
 }
 
 type OrganizationResponse struct {

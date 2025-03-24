@@ -1869,6 +1869,34 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					}
 				}
 			}
+
+			// sync to midsuit employee educations
+			if len(applicant.UserProfile.Educations) > 0 {
+				for i, education := range applicant.UserProfile.Educations {
+					educationPayload := &request.SyncEmployeeEducationMidsuitRequest{
+						AdOrgId: request.AdOrgId{
+							ID: organizationResp.MidsuitID,
+						},
+						HCEmployeeID: request.HcEmployeeId{
+							ID: *midsuitEmpID,
+						},
+						BidangPendidikanAkhir: education.Major,
+						HcEducationInstitute:  education.SchoolName,
+						HcGpaScore:            int(*education.Gpa),
+						SeqNo:                 10,
+						HCBasicAcceptance: request.HcBasicAcceptance{
+							Identifier: applicant.UserProfile.Educations[i].Major,
+						},
+						ModelName: "hc_employeeeducation",
+					}
+
+					_, err = uc.MidsuitService.SyncEmployeeEducationMidsuit(*educationPayload, authResp.Token)
+					if err != nil {
+						uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+						return err
+					}
+				}
+			}
 		}
 	}
 

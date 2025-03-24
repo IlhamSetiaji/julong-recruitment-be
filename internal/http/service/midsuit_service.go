@@ -20,6 +20,7 @@ type IMidsuitService interface {
 	SyncEmployeeMidsuit(payload request.SyncEmployeeMidsuitRequest, jwtToken string) (*string, error)
 	SyncEmployeeJobMidsuit(payload request.SyncEmployeeJobMidsuitRequest, jwtToken string) (*string, error)
 	SyncEmployeeWorkExperienceMidsuit(payload request.SyncEmployeeWorkExperienceMidsuitRequest, jwtToken string) (*string, error)
+	SyncEmployeeEducationMidsuit(payload request.SyncEmployeeEducationMidsuitRequest, jwtToken string) (*string, error)
 }
 
 type MidsuitService struct {
@@ -261,6 +262,54 @@ func (s *MidsuitService) SyncEmployeeWorkExperienceMidsuit(payload request.SyncE
 	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
 		s.Log.Error(err)
 		return nil, errors.New("[MidsuitService.SyncEmployeeWorkExperienceMidsuit] Error when unmarshalling response: " + err.Error())
+	}
+
+	return &syncResponse.ID, nil
+}
+
+func (s *MidsuitService) SyncEmployeeEducationMidsuit(payload request.SyncEmployeeEducationMidsuitRequest, jwtToken string) (*string, error) {
+	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/HC_EmployeeEducation"
+	method := "POST"
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeEducationMidsuit] Error when marshalling payload: " + err.Error())
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeEducationMidsuit] Error when creating request: " + err.Error())
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+jwtToken)
+
+	res, err := client.Do(req)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeEducationMidsuit] Error when fetching response: " + err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeEducationMidsuit] Error when fetching response: " + string(bodyBytes))
+	}
+
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var syncResponse SyncEmployeeMidsuitResponse
+	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncEmployeeEducationMidsuit] Error when unmarshalling response: " + err.Error())
 	}
 
 	return &syncResponse.ID, nil

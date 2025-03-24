@@ -130,3 +130,14 @@ type SyncEmployeeWorkExperienceMidsuitRequest struct {
 	YearExperience string       `json:"YearExperience" binding:"required"`
 	ModelName      string       `json:"model-name" binding:"required"`
 }
+
+type SyncEmployeeEducationMidsuitRequest struct {
+	AdOrgId               AdOrgId           `json:"AD_Org_ID" binding:"required"`
+	BidangPendidikanAkhir string            `json:"BidangPendidikanAkhir" binding:"required"`
+	HcEducationInstitute  string            `json:"hc_educationinstitute" binding:"required"`
+	HCEmployeeID          HcEmployeeId      `json:"HC_Employee_ID" binding:"required"`
+	HcGpaScore            int               `json:"hc_gpascore" binding:"required"`
+	SeqNo                 int               `json:"SeqNo" binding:"required"`
+	HCBasicAcceptance     HcBasicAcceptance `json:"HC_BasicAcceptance" binding:"required"`
+	ModelName             string            `json:"model-name" binding:"required"`
+}

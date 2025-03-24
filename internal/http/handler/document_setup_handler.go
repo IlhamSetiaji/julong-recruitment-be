@@ -128,7 +128,19 @@ func (h *DocumentSetupHandler) FindAllPaginated(ctx *gin.Context) {
 		"created_at": createdAt,
 	}
 
-	documentSetups, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	// filter title, document_types name
+	filter := map[string]interface{}{}
+	title := ctx.Query("title")
+	if title != "" {
+		filter["title"] = title
+	}
+
+	documentTypeName := ctx.Query("document_type.name")
+	if documentTypeName != "" {
+		filter["document_type.name"] = documentTypeName
+	}
+
+	documentSetups, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Errorf("[DocumentSetupHandler.FindAllPaginated] error when getting document setups: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error when getting document setups", err.Error())

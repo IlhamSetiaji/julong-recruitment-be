@@ -12,7 +12,7 @@ import (
 
 type IDocumentSetupRepository interface {
 	CreateDocumentSetup(ent *entity.DocumentSetup) (*entity.DocumentSetup, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.DocumentSetup, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.DocumentSetup, int64, error)
 	FindByID(id uuid.UUID) (*entity.DocumentSetup, error)
 	UpdateDocumentSetup(ent *entity.DocumentSetup) (*entity.DocumentSetup, error)
 	DeleteDocumentSetup(id uuid.UUID) error
@@ -69,7 +69,7 @@ func (r *DocumentSetupRepository) CreateDocumentSetup(ent *entity.DocumentSetup)
 	return ent, nil
 }
 
-func (r *DocumentSetupRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.DocumentSetup, int64, error) {
+func (r *DocumentSetupRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.DocumentSetup, int64, error) {
 	var documentSetups []entity.DocumentSetup
 	var total int64
 
@@ -82,7 +82,15 @@ func (r *DocumentSetupRepository) FindAllPaginated(page, pageSize int, search st
 	for key, value := range sort {
 		query = query.Order(key + " " + value.(string))
 	}
-
+	// filter title, document_types name
+	// filter title
+	if filter["title"] != nil {
+		query = query.Where("title ILIKE ?", "%"+filter["title"].(string)+"%")
+	}
+	// filter document_types name
+	if filter["document_type.name"] != nil {
+		query = query.Joins("JOIN document_types ON document_setups.document_type_id = document_types.id").Where("document_types.name ILIKE ?", "%"+filter["document_type.name"].(string)+"%")
+	}
 	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&documentSetups).Error; err != nil {
 		r.Log.Error("[DocumentSetupRepository.FindAllPaginated] " + err.Error())
 		return nil, 0, err

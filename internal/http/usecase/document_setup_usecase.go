@@ -12,7 +12,7 @@ import (
 
 type IDocumentSetupUseCase interface {
 	CreateDocumentSetup(req *request.CreateDocumentSetupRequest) (*response.DocumentSetupResponse, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.DocumentSetupResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.DocumentSetupResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.DocumentSetupResponse, error)
 	UpdateDocumentSetup(req *request.UpdateDocumentSetupRequest) (*response.DocumentSetupResponse, error)
 	DeleteDocumentSetup(id uuid.UUID) error
@@ -64,8 +64,8 @@ func (uc *DocumentSetupUseCase) CreateDocumentSetup(req *request.CreateDocumentS
 	return uc.DTO.ConvertEntityToResponse(documentSetup), nil
 }
 
-func (uc *DocumentSetupUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.DocumentSetupResponse, int64, error) {
-	documentSetups, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+func (uc *DocumentSetupUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.DocumentSetupResponse, int64, error) {
+	documentSetups, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[DocumentSetupUseCase.FindAllPaginated] " + err.Error())
 		return nil, 0, err

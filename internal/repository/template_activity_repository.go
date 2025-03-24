@@ -12,7 +12,7 @@ import (
 
 type ITemplateActivityRepository interface {
 	CreateTemplateActivity(ent *entity.TemplateActivity) (*entity.TemplateActivity, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateActivity, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.TemplateActivity, int64, error)
 	FindByID(id uuid.UUID) (*entity.TemplateActivity, error)
 	UpdateTemplateActivity(ent *entity.TemplateActivity) (*entity.TemplateActivity, error)
 	DeleteTemplateActivity(id uuid.UUID) error
@@ -67,7 +67,7 @@ func (r *TemplateActivityRepository) CreateTemplateActivity(ent *entity.Template
 	return ent, nil
 }
 
-func (r *TemplateActivityRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateActivity, int64, error) {
+func (r *TemplateActivityRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.TemplateActivity, int64, error) {
 	var templateActivities []entity.TemplateActivity
 	var total int64
 
@@ -75,6 +75,16 @@ func (r *TemplateActivityRepository) FindAllPaginated(page, pageSize int, search
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+	// filter by name, recruitment type, status
+	if filter["name"] != nil {
+		query = query.Where("name ILIKE ?", "%"+filter["name"].(string)+"%")
+	}
+	if filter["recruitment_type"] != nil {
+		query = query.Where("recruitment_type ILIKE ?", "%"+filter["recruitment_type"].(string)+"%")
+	}
+	if filter["status"] != nil {
+		query = query.Where("status ILIKE ?", "%"+filter["status"].(string)+"%")
 	}
 
 	for key, value := range sort {

@@ -70,7 +70,7 @@ func generateSwaggerDocs(mode string) {
 func main() {
 	viper := config.NewViper()
 	log := config.NewLogrus(viper)
-	generateSwaggerDocs(viper.GetString("app.env"))
+	// generateSwaggerDocs(viper.GetString("app.env"))
 
 	var wg sync.WaitGroup
 	wg.Add(2)

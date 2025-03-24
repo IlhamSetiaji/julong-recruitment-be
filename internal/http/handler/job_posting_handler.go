@@ -209,6 +209,20 @@ func (h *JobPostingHandler) FindAllPaginated(ctx *gin.Context) {
 	if status != "" {
 		filter["status"] = status
 	}
+	// filter by document number, name, recruitment type, status
+
+	documentNumber := ctx.Query("document_number")
+	if documentNumber != "" {
+		filter["document_number"] = documentNumber
+	}
+	name := ctx.Query("name")
+	if name != "" {
+		filter["name"] = name
+	}
+	recruitmentType := ctx.Query("recruitment_type")
+	if recruitmentType != "" {
+		filter["recruitment_type"] = recruitmentType
+	}
 
 	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter, userUUID)
 	if err != nil {

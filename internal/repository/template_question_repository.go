@@ -11,7 +11,7 @@ import (
 )
 
 type ITemplateQuestionRepository interface {
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateQuestion, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.TemplateQuestion, int64, error)
 	CreateTemplateQuestion(ent *entity.TemplateQuestion) (*entity.TemplateQuestion, error)
 	FindByID(id uuid.UUID) (*entity.TemplateQuestion, error)
 	GetAllFormTypes() ([]*entity.TemplateQuestionFormType, error)
@@ -44,7 +44,7 @@ func TemplateQuestionRepositoryFactory(
 	return NewTemplateQuestionRepository(log, db)
 }
 
-func (r *TemplateQuestionRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.TemplateQuestion, int64, error) {
+func (r *TemplateQuestionRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.TemplateQuestion, int64, error) {
 	var templateQuestions []entity.TemplateQuestion
 	var total int64
 
@@ -52,6 +52,11 @@ func (r *TemplateQuestionRepository) FindAllPaginated(page, pageSize int, search
 
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")
+	}
+	// filter DocumentSetup title
+	if filter["document_setup_title"] != nil {
+		query = query.Joins("JOIN document_setups ON document_setups.id = template_questions.document_setup_id").
+			Where("document_setups.title ILIKE ?", "%"+filter["document_setup_title"].(string)+"%")
 	}
 
 	for key, value := range sort {

@@ -74,11 +74,22 @@ func (r *JobPostingRepository) FindAllPaginated(page, pageSize int, search strin
 	if search != "" {
 		query = query.Where("document_number ILIKE ? OR name ILIKE ?", "%"+search+"%", "%"+search+"%")
 	}
+	// filter by document number, name, recruitment type, status
+	if filter["document_number"] != nil {
+		query = query.Where("document_number ILIKE ?", "%"+filter["document_number"].(string)+"%")
+	}
+
+	if filter["name"] != nil {
+		query = query.Where("name ILIKE ?", "%"+filter["name"].(string)+"%")
+	}
+
+	if filter["recruitment_type"] != nil {
+		query = query.Where("recruitment_type ILIKE ?", "%"+filter["recruitment_type"].(string)+"%")
+	}
 
 	if filter["status"] != nil {
 		query = query.Where("status = ?", filter["status"])
 	}
-
 	for key, value := range sort {
 		query = query.Order(key + " " + value.(string))
 	}

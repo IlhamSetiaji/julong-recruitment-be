@@ -11,7 +11,7 @@ import (
 )
 
 type ITemplateQuestionUseCase interface {
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TemplateQuestionResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.TemplateQuestionResponse, int64, error)
 	CreateTemplateQuestion(req *request.CreateTemplateQuestion) (*response.TemplateQuestionResponse, error)
 	FindAllFormTypes() ([]*response.FormTypeResponse, error)
 	FindByID(id uuid.UUID) (*response.TemplateQuestionResponse, error)
@@ -43,8 +43,8 @@ func TemplateQuestionUseCaseFactory(log *logrus.Logger) ITemplateQuestionUseCase
 	return NewTemplateQuestionUseCase(log, repo, tqDTO)
 }
 
-func (uc *TemplateQuestionUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TemplateQuestionResponse, int64, error) {
-	templateQuestions, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+func (uc *TemplateQuestionUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.TemplateQuestionResponse, int64, error) {
+	templateQuestions, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[GiftUseCase.FindAllPaginated] " + err.Error())
 		return nil, 0, err

@@ -54,6 +54,41 @@ type HcRecruitmentTypeId struct {
 	Identifier string `json:"identifier" binding:"required"`
 }
 
+type HcEmployeeId struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"omitempty"`
+}
+
+type HcEmployeeCategoryId struct {
+	ID         string `json:"id" binding:"omitempty"`
+	Identifier string `json:"identifier" binding:"required"`
+}
+
+type HcEmployeeGradeId struct {
+	ID         string `json:"id" binding:"omitempty"`
+	Identifier string `json:"identifier" binding:"required"`
+}
+
+type HcJobId struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"midsuit"`
+}
+
+type HcJobLevelId struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"omitempty"`
+}
+
+type HcOrgId struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"omitempty"`
+}
+
+type HcWorkSiteId struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"omitempty"`
+}
+
 type SyncEmployeeMidsuitRequest struct {
 	AdOrgId           AdOrgId             `json:"AD_Org_ID" binding:"required"`
 	Name              string              `json:"Name" binding:"required"`
@@ -68,4 +103,41 @@ type SyncEmployeeMidsuitRequest struct {
 	HcBasicAcceptance HcBasicAcceptance   `json:"HC_BasicAcceptance" binding:"required"`
 	HcRecruitmentType HcRecruitmentTypeId `json:"HC_RecruitmentType" binding:"required"`
 	HCWorkStartDate   string              `json:"HC_WorkStartDate" binding:"required"`
+}
+
+type SyncEmployeeJobMidsuitRequest struct {
+	AdOrgId              AdOrgId               `json:"AD_Org_ID" binding:"required"`
+	HCCompensation1      int                   `json:"HC_Compensation1" binding:"required"`
+	HCEmployeeID         HcEmployeeId          `json:"HC_Employee_ID" binding:"required"`
+	HCEmployeeCategoryID *HcEmployeeCategoryId `json:"HC_EmployeeCategory_ID" binding:"required"`
+	HCEmployeeGradeID    HcEmployeeGradeId     `json:"HC_EmployeeGrade_ID" binding:"required"`
+	HCJobID              HcJobId               `json:"HC_Job_ID" binding:"required"`
+	HCJobLevelID         HcJobLevelId          `json:"HC_JobLevel_ID" binding:"required"`
+	HCOrgID              HcOrgId               `json:"HC_Org_ID" binding:"required"`
+	HCWorkStartDate      string                `json:"HC_WorkStartDate" binding:"required"`
+	HCRecruitmentTypeID  HcRecruitmentTypeId   `json:"HC_RecruitmentType_ID" binding:"required"`
+	ADEmploymentOrgID    AdOrgId               `json:"AD_EmploymentOrg_ID" binding:"required"`
+	HCWorkSiteID         HcWorkSiteId          `json:"HC_WorkSite_ID" binding:"required"`
+	IsPrimary            bool                  `json:"IsPrimary" binding:"required"`
+	ModelName            string                `json:"model-name" binding:"required"`
+}
+
+type SyncEmployeeWorkExperienceMidsuitRequest struct {
+	AdOrgId        AdOrgId      `json:"AD_Org_ID" binding:"required"`
+	Name           string       `json:"Name" binding:"required"`
+	Description    string       `json:"Description" binding:"required"`
+	HCEmployeeID   HcEmployeeId `json:"HC_Employee_ID" binding:"required"`
+	YearExperience string       `json:"YearExperience" binding:"required"`
+	ModelName      string       `json:"model-name" binding:"required"`
+}
+
+type SyncEmployeeEducationMidsuitRequest struct {
+	AdOrgId               AdOrgId           `json:"AD_Org_ID" binding:"required"`
+	BidangPendidikanAkhir string            `json:"BidangPendidikanAkhir" binding:"required"`
+	HcEducationInstitute  string            `json:"hc_educationinstitute" binding:"required"`
+	HCEmployeeID          HcEmployeeId      `json:"HC_Employee_ID" binding:"required"`
+	HcGpaScore            int               `json:"hc_gpascore" binding:"required"`
+	SeqNo                 int               `json:"SeqNo" binding:"required"`
+	HCBasicAcceptance     HcBasicAcceptance `json:"HC_BasicAcceptance" binding:"required"`
+	ModelName             string            `json:"model-name" binding:"required"`
 }

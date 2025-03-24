@@ -1706,10 +1706,28 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			return err
 		}
 
+		jobResp, err := uc.JobPlafonMessage.SendFindJobByIDMessage(request.SendFindJobByIDMessageRequest{
+			ID: jobPosting.JobID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+
+		jobLevelResp, err := uc.JobPlafonMessage.SendFindJobLevelByIDMessage(request.SendFindJobLevelByIDMessageRequest{
+			ID: documentSending.JobLevelID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+
 		// sync to midsuit
 		if uc.Viper.GetString("midsuit.sync") == "ACTIVE" {
+			// sync to midsuit employee
 			midsuitPayload := &request.SyncEmployeeMidsuitRequest{
 				AdOrgId: request.AdOrgId{
+					ID:         organizationResp.MidsuitID,
 					Identifier: organizationResp.Name,
 				},
 				Name:     applicant.UserProfile.Name,
@@ -1752,10 +1770,132 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				return err
 			}
 
-			err = uc.MidsuitService.SyncEmployeeMidsuit(*midsuitPayload, authResp.Token)
+			midsuitEmpID, err := uc.MidsuitService.SyncEmployeeMidsuit(*midsuitPayload, authResp.Token)
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 				return err
+			}
+
+			orgStructure, err := uc.OrganizationMessage.SendFindOrganizationStructureByIDMessage(request.SendFindOrganizationStructureByIDMessageRequest{
+				ID: convertedData.ForOrganizationStructureID.String(),
+			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			forOrganization, err := uc.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
+				ID: documentSending.ForOrganizationID.String(),
+			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			organizationLocation, err := uc.OrganizationMessage.SendFindOrganizationLocationByIDMessage(request.SendFindOrganizationLocationByIDMessageRequest{
+				ID: documentSending.OrganizationLocationID.String(),
+			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			// sync to midsuit employee job
+			midsuitEmployeeJobPayload := &request.SyncEmployeeJobMidsuitRequest{
+				AdOrgId: request.AdOrgId{
+					ID: organizationResp.MidsuitID,
+				},
+				HCCompensation1: int(documentSending.BasicWage),
+				HCEmployeeID: request.HcEmployeeId{
+					ID: *midsuitEmpID,
+				},
+				HCEmployeeCategoryID: func() *request.HcEmployeeCategoryId {
+					if documentSending.HiredStatus == "" {
+						return nil
+					}
+					return &request.HcEmployeeCategoryId{
+						Identifier: string(documentSending.HiredStatus),
+					}
+				}(),
+				HCJobID: request.HcJobId{
+					ID: jobResp.MidsuitID,
+				},
+				HCJobLevelID: request.HcJobLevelId{
+					ID: jobLevelResp.MidsuitID,
+				},
+				HCOrgID: request.HcOrgId{
+					ID: orgStructure.MidsuitID,
+				},
+				HCWorkStartDate: documentSending.JoinedDate.Format("2006-01-02"),
+				HCRecruitmentTypeID: request.HcRecruitmentTypeId{
+					Identifier: string(documentSending.RecruitmentType),
+				},
+				ADEmploymentOrgID: request.AdOrgId{
+					ID: forOrganization.MidsuitID,
+				},
+				HCWorkSiteID: request.HcWorkSiteId{
+					ID: organizationLocation.MidsuitID,
+				},
+				IsPrimary: true,
+				ModelName: "hc_employeejob",
+			}
+
+			_, err = uc.MidsuitService.SyncEmployeeJobMidsuit(*midsuitEmployeeJobPayload, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			// sync to midsuit employee work experiences
+			if len(applicant.UserProfile.WorkExperiences) > 0 {
+				for _, workExperience := range applicant.UserProfile.WorkExperiences {
+					workExperiencePayload := &request.SyncEmployeeWorkExperienceMidsuitRequest{
+						AdOrgId: request.AdOrgId{
+							ID: organizationResp.MidsuitID,
+						},
+						HCEmployeeID: request.HcEmployeeId{
+							ID: *midsuitEmpID,
+						},
+						Name:           workExperience.Name,
+						Description:    "Mwehehe",
+						YearExperience: string(workExperience.YearExperience),
+						ModelName:      "hc_workhistory",
+					}
+
+					_, err = uc.MidsuitService.SyncEmployeeWorkExperienceMidsuit(*workExperiencePayload, authResp.Token)
+					if err != nil {
+						uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+						return err
+					}
+				}
+			}
+
+			// sync to midsuit employee educations
+			if len(applicant.UserProfile.Educations) > 0 {
+				for i, education := range applicant.UserProfile.Educations {
+					educationPayload := &request.SyncEmployeeEducationMidsuitRequest{
+						AdOrgId: request.AdOrgId{
+							ID: organizationResp.MidsuitID,
+						},
+						HCEmployeeID: request.HcEmployeeId{
+							ID: *midsuitEmpID,
+						},
+						BidangPendidikanAkhir: education.Major,
+						HcEducationInstitute:  education.SchoolName,
+						HcGpaScore:            int(*education.Gpa),
+						SeqNo:                 10,
+						HCBasicAcceptance: request.HcBasicAcceptance{
+							Identifier: applicant.UserProfile.Educations[i].Major,
+						},
+						ModelName: "hc_employeeeducation",
+					}
+
+					_, err = uc.MidsuitService.SyncEmployeeEducationMidsuit(*educationPayload, authResp.Token)
+					if err != nil {
+						uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+						return err
+					}
+				}
 			}
 		}
 	}

@@ -123,12 +123,22 @@ func (h *DocumentVerificationHandler) FindAllPaginated(ctx *gin.Context) {
 	if createdAt == "" {
 		createdAt = "DESC"
 	}
+	// filter by name, format
+	filter := make(map[string]interface{})
+	name := ctx.Query("name")
+	if name != "" {
+		filter["name"] = name
+	}
+	format := ctx.Query("format")
+	if format != "" {
+		filter["format"] = format
+	}
 
 	sort := map[string]interface{}{
 		"created_at": createdAt,
 	}
 
-	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Errorf("[DocumentVerificationHandler.FindAllPaginated] error when finding all document verification: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when finding all document verification", err.Error())

@@ -11,7 +11,7 @@ import (
 )
 
 type IDocumentVerificationRepository interface {
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.DocumentVerification, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.DocumentVerification, int64, error)
 	CreateDocumentVerification(ent *entity.DocumentVerification) (*entity.DocumentVerification, error)
 	FindByID(id uuid.UUID) (*entity.DocumentVerification, error)
 	UpdateDocumentVerification(ent *entity.DocumentVerification) (*entity.DocumentVerification, error)
@@ -68,7 +68,7 @@ func (r *DocumentVerificationRepository) CreateDocumentVerification(ent *entity.
 	return ent, nil
 }
 
-func (r *DocumentVerificationRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.DocumentVerification, int64, error) {
+func (r *DocumentVerificationRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.DocumentVerification, int64, error) {
 	var documentVerifications []entity.DocumentVerification
 	var total int64
 
@@ -80,6 +80,24 @@ func (r *DocumentVerificationRepository) FindAllPaginated(page, pageSize int, se
 
 	for key, value := range sort {
 		query = query.Order(key + " " + value.(string))
+	}
+
+	// filter by name, format, template questions
+	name := filter["name"]
+	if name != nil {
+		query = query.Where("name ILIKE ?", "%"+name.(string)+"%")
+	}
+
+	format := filter["format"]
+	if format != nil {
+		query = query.Where("format ILIKE ?", "%"+format.(string)+"%")
+	}
+
+	templateName := filter["template_question.name"]
+
+	if templateName != nil {
+		query = query.Joins("JOIN template_questions ON template_questions.id = document_verifications.template_question_id").
+			Where("template_questions.name ILIKE ?", "%"+templateName.(string)+"%")
 	}
 
 	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Find(&documentVerifications).Error; err != nil {

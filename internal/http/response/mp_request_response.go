@@ -55,12 +55,14 @@ type MPRequestHeaderResponse struct {
 	EmpOrganizationID          *uuid.UUID `json:"emp_organization_id"`
 	JobLevelID                 *uuid.UUID `json:"job_level_id"`
 	IsReplacement              bool       `json:"is_replacement"`
+	GradeID                    *uuid.UUID `json:"grade_id"`
 	CreatedAt                  time.Time  `json:"created_at"`
 	UpdatedAt                  time.Time  `json:"updated_at"`
 
 	RequestCategory map[string]interface{}   `json:"request_category" gorm:"foreignKey:RequestCategoryID"`
 	RequestMajors   []map[string]interface{} `json:"request_majors" gorm:"foreignKey:MPRequestHeaderID"`
 
+	GradeName                 string                 `json:"grade_name" gorm:"-"`
 	OrganizationName          string                 `json:"organization_name" gorm:"-"`
 	OrganizationCategory      string                 `json:"organization_category" gorm:"-"`
 	OrganizationLocationName  string                 `json:"organization_location_name" gorm:"-"`

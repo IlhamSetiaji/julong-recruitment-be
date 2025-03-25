@@ -22,6 +22,7 @@ type DocumentSendingDTO struct {
 	ApplicantDTO              IApplicantDTO
 	JobPostingDTO             IJobPostingDTO
 	DocumentSetupDTO          IDocumentSetupDTO
+	GradeMessage              messaging.IGradeMessage
 }
 
 func NewDocumentSendingDTO(
@@ -33,6 +34,7 @@ func NewDocumentSendingDTO(
 	applicantDTO IApplicantDTO,
 	jobPostingDTO IJobPostingDTO,
 	documentSetupDTO IDocumentSetupDTO,
+	gradeMessage messaging.IGradeMessage,
 ) IDocumentSendingDTO {
 	return &DocumentSendingDTO{
 		Log:                       log,
@@ -43,6 +45,7 @@ func NewDocumentSendingDTO(
 		ApplicantDTO:              applicantDTO,
 		JobPostingDTO:             jobPostingDTO,
 		DocumentSetupDTO:          documentSetupDTO,
+		GradeMessage:              gradeMessage,
 	}
 }
 
@@ -53,7 +56,8 @@ func DocumentSendingDTOFactory(log *logrus.Logger, viper *viper.Viper) IDocument
 	applicantDTO := ApplicantDTOFactory(log, viper)
 	jobPostingDTO := JobPostingDTOFactory(log, viper)
 	documentSetupDTO := DocumentSetupDTOFactory(log)
-	return NewDocumentSendingDTO(log, orgMessage, jobMessage, prlDTO, viper, applicantDTO, jobPostingDTO, documentSetupDTO)
+	gradeNessage := messaging.GradeMessageFactory(log)
+	return NewDocumentSendingDTO(log, orgMessage, jobMessage, prlDTO, viper, applicantDTO, jobPostingDTO, documentSetupDTO, gradeNessage)
 }
 
 func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSending) *response.DocumentSendingResponse {
@@ -61,6 +65,7 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 	job := &response.SendFindJobByIDMessageResponse{}
 	var organizationName string
 	var organizationLocationName string
+	var gradeName string
 	var err error
 
 	if ent.JobLevelID != nil {
@@ -107,12 +112,24 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		}
 	}
 
+	if ent.GradeID != nil {
+		gradeData, err := dto.GradeMessage.SendFindByIDMessage(ent.GradeID.String())
+		if err != nil {
+			dto.Log.Errorf("[DocumentSendingDTO.ConvertEntityToResponse] " + err.Error())
+			gradeName = ""
+		}
+		if gradeData != nil {
+			gradeName = gradeData.Name
+		}
+	}
+
 	return &response.DocumentSendingResponse{
 		ID:                       ent.ID,
 		ProjectRecruitmentLineID: ent.ProjectRecruitmentLineID,
 		ApplicantID:              ent.ApplicantID,
 		DocumentSetupID:          ent.DocumentSetupID,
 		OrganizationLocationID:   ent.OrganizationLocationID,
+		GradeID:                  ent.GradeID,
 		DocumentDate:             ent.DocumentDate,
 		DocumentNumber:           ent.DocumentNumber,
 		JoinedDate:               ent.JoinedDate,
@@ -174,5 +191,6 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		Job:                      job,
 		ForOrganizationName:      &organizationName,
 		OrganizationLocationName: &organizationLocationName,
+		GradeName:                &gradeName,
 	}
 }

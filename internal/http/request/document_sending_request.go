@@ -4,6 +4,7 @@ type CreateDocumentSendingRequest struct {
 	ProjectRecruitmentLineID string  `json:"project_recruitment_line_id" validate:"required,uuid"`
 	ApplicantID              string  `json:"applicant_id" validate:"required,uuid"`
 	DocumentSetupID          string  `json:"document_setup_id" validate:"required,uuid"`
+	GradeID                  string  `json:"grade_id" validate:"omitempty"`
 	DocumentDate             string  `json:"document_date" validate:"required,datetime=2006-01-02"`
 	DocumentNumber           string  `json:"document_number" validate:"required"`
 	Status                   string  `json:"status" validate:"required,document_sending_status_validation"`
@@ -31,6 +32,7 @@ type UpdateDocumentSendingRequest struct {
 	ID                       string  `json:"id" validate:"required,uuid"`
 	ProjectRecruitmentLineID string  `json:"project_recruitment_line_id" validate:"required,uuid"`
 	ApplicantID              string  `json:"applicant_id" validate:"required,uuid"`
+	GradeID                  string  `json:"grade_id" validate:"omitempty"`
 	DocumentSetupID          string  `json:"document_setup_id" validate:"required,uuid"`
 	DocumentDate             string  `json:"document_date" validate:"required,datetime=2006-01-02"`
 	DocumentNumber           string  `json:"document_number" validate:"required"`

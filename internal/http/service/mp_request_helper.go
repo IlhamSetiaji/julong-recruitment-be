@@ -22,6 +22,7 @@ type MPRequestService struct {
 	JobPlafonMessage    messaging.IJobPlafonMessage
 	UserMessage         messaging.IUserMessage
 	EmpMessage          messaging.IEmployeeMessage
+	GradeMessage        messaging.IGradeMessage
 }
 
 func NewMPRequestService(
@@ -30,6 +31,7 @@ func NewMPRequestService(
 	jobPlafonMessage messaging.IJobPlafonMessage,
 	userMessage messaging.IUserMessage,
 	em messaging.IEmployeeMessage,
+	gradeMessage messaging.IGradeMessage,
 ) IMPRequestService {
 	return &MPRequestService{
 		Log:                 log,
@@ -37,6 +39,7 @@ func NewMPRequestService(
 		JobPlafonMessage:    jobPlafonMessage,
 		UserMessage:         userMessage,
 		EmpMessage:          em,
+		GradeMessage:        gradeMessage,
 	}
 }
 
@@ -45,7 +48,8 @@ func MPRequestServiceFactory(log *logrus.Logger) IMPRequestService {
 	jobPlafonMessage := messaging.JobPlafonMessageFactory(log)
 	userMessage := messaging.UserMessageFactory(log)
 	em := messaging.EmployeeMessageFactory(log)
-	return NewMPRequestService(log, organizationMessage, jobPlafonMessage, userMessage, em)
+	gradeMessage := messaging.GradeMessageFactory(log)
+	return NewMPRequestService(log, organizationMessage, jobPlafonMessage, userMessage, em, gradeMessage)
 }
 
 func (h *MPRequestService) CheckPortalData(req *response.MPRequestHeaderResponse) (*response.MPRequestHeaderResponse, error) {
@@ -66,6 +70,22 @@ func (h *MPRequestService) CheckPortalData(req *response.MPRequestHeaderResponse
 	if orgExist == nil {
 		h.Log.Errorf("[MPRequestService] organization with id %s is not exist", req.OrganizationID.String())
 		return nil, errors.New("organization is not exist")
+	}
+
+	var gradeName string
+	if req.GradeID != nil {
+		gradeExist, err := h.GradeMessage.SendFindByIDMessage(req.GradeID.String())
+		if err != nil {
+			h.Log.Errorf("[MPRequestService] error when send find grade by id message: %v", err)
+			return nil, err
+		}
+
+		if gradeExist == nil {
+			h.Log.Errorf("[MPRequestService] grade with id %s is not exist", req.GradeID.String())
+			return nil, errors.New("grade is not exist")
+		}
+
+		gradeName = gradeExist.Name
 	}
 
 	// check if organization location is exist
@@ -255,6 +275,7 @@ func (h *MPRequestService) CheckPortalData(req *response.MPRequestHeaderResponse
 		ForOrganizationLocationID:  uuid.MustParse(forOrgLocExist.OrganizationLocationID),
 		ForOrganizationStructureID: uuid.MustParse(forOrgStructExist.OrganizationStructureID),
 		JobID:                      jobExist.JobID,
+		GradeID:                    req.GradeID,
 		RequestCategoryID:          req.RequestCategoryID,
 		ExpectedDate:               req.ExpectedDate,
 		Experiences:                req.Experiences,
@@ -292,6 +313,7 @@ func (h *MPRequestService) CheckPortalData(req *response.MPRequestHeaderResponse
 		UpdatedAt:                  req.UpdatedAt,
 		RequestCategory:            req.RequestCategory,
 		RequestMajors:              req.RequestMajors,
+		GradeName:                  gradeName,
 		OrganizationName:           orgExist.Name,
 		OrganizationCategory:       orgExist.OrganizationCategory,
 		OrganizationLocationName:   orgLocExist.Name,
@@ -332,6 +354,22 @@ func (h *MPRequestService) CheckPortalDataMinimal(req *response.MPRequestHeaderR
 	if orgExist == nil {
 		h.Log.Errorf("[MPRequestService] organization with id %s is not exist", req.OrganizationID.String())
 		return nil, errors.New("organization is not exist")
+	}
+
+	var gradeName string
+	if req.GradeID != nil {
+		gradeExist, err := h.GradeMessage.SendFindByIDMessage(req.GradeID.String())
+		if err != nil {
+			h.Log.Errorf("[MPRequestService] error when send find grade by id message: %v", err)
+			return nil, err
+		}
+
+		if gradeExist == nil {
+			h.Log.Errorf("[MPRequestService] grade with id %s is not exist", req.GradeID.String())
+			return nil, errors.New("grade is not exist")
+		}
+
+		gradeName = gradeExist.Name
 	}
 
 	// check if organization location is exist
@@ -408,6 +446,7 @@ func (h *MPRequestService) CheckPortalDataMinimal(req *response.MPRequestHeaderR
 		ID:                       req.ID,
 		MPRCloneID:               req.MPRCloneID,
 		RequestCategoryID:        req.RequestCategoryID,
+		GradeID:                  req.GradeID,
 		ExpectedDate:             req.ExpectedDate,
 		Experiences:              req.Experiences,
 		DocumentNumber:           req.DocumentNumber,
@@ -451,6 +490,7 @@ func (h *MPRequestService) CheckPortalDataMinimal(req *response.MPRequestHeaderR
 		ForOrganizationLocation:  forOrgLocExist.Name,
 		ForOrganizationStructure: forOrgStructExist.Name,
 		JobName:                  jobExist.Name,
+		GradeName:                gradeName,
 	}, nil
 }
 

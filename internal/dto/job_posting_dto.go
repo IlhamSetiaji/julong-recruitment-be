@@ -56,7 +56,9 @@ func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *respo
 		dto.Log.Errorf("[JobPostingDTO.ConvertEntityToResponse] " + err.Error())
 		organizationName = ""
 	}
-	organizationName = organization.Name
+	if organization != nil {
+		organizationName = organization.Name
+	}
 
 	organizationLocation, err := dto.OrganizationMessage.SendFindOrganizationLocationByIDMessage(request.SendFindOrganizationLocationByIDMessageRequest{
 		ID: ent.ForOrganizationLocationID.String(),
@@ -65,7 +67,9 @@ func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *respo
 		dto.Log.Errorf("[JobPostingDTO.ConvertEntityToResponse] " + err.Error())
 		organizationLocationName = ""
 	}
-	organizationLocationName = organizationLocation.Name
+	if organizationLocation != nil {
+		organizationLocationName = organizationLocation.Name
+	}
 
 	job, err := dto.JobMessage.SendFindJobByIDMessage(request.SendFindJobByIDMessageRequest{
 		ID: ent.JobID.String(),

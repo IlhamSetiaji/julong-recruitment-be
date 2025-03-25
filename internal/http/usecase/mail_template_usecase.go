@@ -12,7 +12,7 @@ import (
 
 type IMailTemplateUseCase interface {
 	CreateMailTemplate(req *request.CreateMailTemplateRequest) (*response.MailTemplateResponse, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.MailTemplateResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.MailTemplateResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.MailTemplateResponse, error)
 	UpdateMailTemplate(req *request.UpdateMailTemplateRequest) (*response.MailTemplateResponse, error)
 	DeleteMailTemplate(id uuid.UUID) error
@@ -73,8 +73,8 @@ func (uc *MailTemplateUseCase) CreateMailTemplate(req *request.CreateMailTemplat
 	return uc.DTO.ConvertEntityToResponse(mt), nil
 }
 
-func (uc *MailTemplateUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.MailTemplateResponse, int64, error) {
-	mts, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+func (uc *MailTemplateUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.MailTemplateResponse, int64, error) {
+	mts, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[MailTemplateUseCase.FindAllPaginated] " + err.Error())
 		return nil, 0, err

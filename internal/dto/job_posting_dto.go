@@ -49,34 +49,49 @@ func JobPostingDTOFactory(log *logrus.Logger, viper *viper.Viper) IJobPostingDTO
 func (dto *JobPostingDTO) ConvertEntityToResponse(ent *entity.JobPosting) *response.JobPostingResponse {
 	var organizationName, organizationLocationName, jobName string
 
+	organizationId := ent.ForOrganizationID.String()
+	dto.Log.Infof("[JobPostingDTO.ConvertEntityToResponse] organizationId: %s", organizationId)
+
+	// Validasi untuk organization
 	organization, err := dto.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
 		ID: ent.ForOrganizationID.String(),
 	})
 	if err != nil {
-		dto.Log.Errorf("[JobPostingDTO.ConvertEntityToResponse] " + err.Error())
-		organizationName = ""
+		dto.Log.Errorf("[JobPostingDTO.ConvertEntityToResponse] Failed to find organization: %s", err.Error())
+		organizationName = "Unknown" // Nilai default jika terjadi error
+	} else if organization != nil {
+		organizationName = organization.Name
+	} else {
+		organizationName = "Unknown" // Nilai default jika organization nil
 	}
-	organizationName = organization.Name
 
+	// Validasi untuk organizationLocation
 	organizationLocation, err := dto.OrganizationMessage.SendFindOrganizationLocationByIDMessage(request.SendFindOrganizationLocationByIDMessageRequest{
 		ID: ent.ForOrganizationLocationID.String(),
 	})
 	if err != nil {
-		dto.Log.Errorf("[JobPostingDTO.ConvertEntityToResponse] " + err.Error())
-		organizationLocationName = ""
+		dto.Log.Errorf("[JobPostingDTO.ConvertEntityToResponse] Failed to find organization location: %s", err.Error())
+		organizationLocationName = "Unknown" // Nilai default jika terjadi error
+	} else if organizationLocation != nil {
+		organizationLocationName = organizationLocation.Name
+	} else {
+		organizationLocationName = "Unknown" // Nilai default jika organizationLocation nil
 	}
-	organizationLocationName = organizationLocation.Name
 
+	// Validasi untuk job
 	job, err := dto.JobMessage.SendFindJobByIDMessage(request.SendFindJobByIDMessageRequest{
 		ID: ent.JobID.String(),
 	})
 	if err != nil {
-		dto.Log.Errorf("[JobPostingDTO.ConvertEntityToResponse] " + err.Error())
-		jobName = ""
-	} else {
+		dto.Log.Errorf("[JobPostingDTO.ConvertEntityToResponse] Failed to find job: %s", err.Error())
+		jobName = "Unknown" // Nilai default jika terjadi error
+	} else if job != nil {
 		jobName = job.Name
+	} else {
+		jobName = "Unknown" // Nilai default jika job nil
 	}
 
+	// Potong jobName jika ada " - "
 	if idx := strings.Index(jobName, " - "); idx != -1 {
 		jobName = jobName[:idx]
 	}

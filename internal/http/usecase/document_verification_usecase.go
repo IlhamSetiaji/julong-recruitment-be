@@ -13,7 +13,7 @@ import (
 type IDocumentVerificationUseCase interface {
 	CreateDocumentVerification(req *request.CreateDocumentVerificationRequest) (*response.DocumentVerificationResponse, error)
 	FindByID(id uuid.UUID) (*response.DocumentVerificationResponse, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.DocumentVerificationResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.DocumentVerificationResponse, int64, error)
 	UpdateDocumentVerification(req *request.UpdateDocumentVerificationRequest) (*response.DocumentVerificationResponse, error)
 	DeleteDocumentVerification(id uuid.UUID) error
 	FindByTemplateQuestionID(templateQuestionID uuid.UUID) ([]*response.DocumentVerificationResponse, error)
@@ -82,8 +82,8 @@ func (uc *DocumentVerificationUseCase) FindByID(id uuid.UUID) (*response.Documen
 	return uc.DTO.ConvertEntityToResponse(documentVerification), nil
 }
 
-func (uc *DocumentVerificationUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.DocumentVerificationResponse, int64, error) {
-	documentVerifications, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+func (uc *DocumentVerificationUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.DocumentVerificationResponse, int64, error) {
+	documentVerifications, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[DocumentVerificationUseCase.FindAllPaginated] " + err.Error())
 		return nil, 0, err

@@ -54,9 +54,19 @@ func (r *TemplateQuestionRepository) FindAllPaginated(page, pageSize int, search
 		query = query.Where("name ILIKE ?", "%"+search+"%")
 	}
 	// filter DocumentSetup title
-	if filter["document_setup_title"] != nil {
+	if filter["document_setup.title"] != nil {
 		query = query.Joins("JOIN document_setups ON document_setups.id = template_questions.document_setup_id").
-			Where("document_setups.title ILIKE ?", "%"+filter["document_setup_title"].(string)+"%")
+			Where("document_setups.title ILIKE ?", "%"+filter["document_setup.title"].(string)+"%")
+	}
+	// filter by form type
+	if filter["form_type"] != nil {
+		query = query.Where("form_type ILIKE ?", "%"+filter["form_type"].(string)+"%")
+	}
+	if filter["status"] != nil {
+		query = query.Where("status ILIKE ?", "%"+filter["status"].(string)+"%")
+	}
+	if filter["name"] != nil {
+		query = query.Where("name ILIKE ?", "%"+filter["name"].(string)+"%")
 	}
 
 	for key, value := range sort {

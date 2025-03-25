@@ -126,8 +126,24 @@ func (h *TemplateActivityHandler) FindAllPaginated(ctx *gin.Context) {
 	sort := map[string]interface{}{
 		"created_at": createdAt,
 	}
+	// filter by name, recruitment type, status
+	filter := make(map[string]interface{})
+	name := ctx.Query("name")
+	if name != "" {
+		filter["name"] = name
+	}
 
-	templateActivities, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	recruitmentType := ctx.Query("recruitment_type")
+	if recruitmentType != "" {
+		filter["recruitment_type"] = recruitmentType
+	}
+
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+
+	templateActivities, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("[TemplateActivityHandler.FindAllPaginated] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "error", err.Error())

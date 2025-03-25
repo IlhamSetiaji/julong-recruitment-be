@@ -14,7 +14,7 @@ import (
 
 type ITemplateActivityUseCase interface {
 	CreateTemplateActivity(req *request.CreateTemplateActivityRequest) (*response.TemplateActivityResponse, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TemplateActivityResponse, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.TemplateActivityResponse, int64, error)
 	FindByID(id uuid.UUID) (*response.TemplateActivityResponse, error)
 	UpdateTemplateActivity(req *request.UpdateTemplateActivityRequest) (*response.TemplateActivityResponse, error)
 	DeleteTemplateActivity(id uuid.UUID) error
@@ -64,8 +64,8 @@ func (uc *TemplateActivityUseCase) CreateTemplateActivity(req *request.CreateTem
 	return uc.DTO.ConvertEntityToResponse(ta), nil
 }
 
-func (uc *TemplateActivityUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]response.TemplateActivityResponse, int64, error) {
-	templateActivities, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort)
+func (uc *TemplateActivityUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.TemplateActivityResponse, int64, error) {
+	templateActivities, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		uc.Log.Error("[TemplateActivityUseCase.FindAllPaginated] " + err.Error())
 		return nil, 0, err

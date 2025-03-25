@@ -12,7 +12,7 @@ import (
 
 type IMailTemplateRepository interface {
 	CreateMailTemplate(ent *entity.MailTemplate) (*entity.MailTemplate, error)
-	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.MailTemplate, int64, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.MailTemplate, int64, error)
 	FindByID(id uuid.UUID) (*entity.MailTemplate, error)
 	UpdateMailTemplate(ent *entity.MailTemplate) (*entity.MailTemplate, error)
 	DeleteMailTemplate(id uuid.UUID) error
@@ -69,7 +69,7 @@ func (r *MailTemplateRepository) CreateMailTemplate(ent *entity.MailTemplate) (*
 	return ent, nil
 }
 
-func (r *MailTemplateRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}) (*[]entity.MailTemplate, int64, error) {
+func (r *MailTemplateRepository) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]entity.MailTemplate, int64, error) {
 	var res []entity.MailTemplate
 	var total int64
 
@@ -83,6 +83,19 @@ func (r *MailTemplateRepository) FindAllPaginated(page, pageSize int, search str
 		query = query.Order(key + " " + value.(string))
 	}
 
+	// filter by name, left join document_types document_type.name, status
+	name := filter["name"].(string)
+	if name != "" {
+		query = query.Where("name ILIKE ?", "%"+name+"%")
+	}
+	documentTypeName := filter["document_type.name"].(string)
+	if documentTypeName != "" {
+		query = query.Joins("LEFT JOIN document_types ON mail_templates.document_type_id = document_types.id").Where("document_types.name ILIKE ?", "%"+documentTypeName+"%")
+	}
+	status := filter["status"].(string)
+	if status != "" {
+		query = query.Where("status ILIKE ?", "%"+status+"%")
+	}
 	if err := query.Offset((page - 1) * pageSize).Limit(pageSize).Preload("DocumentType").Find(&res).Error; err != nil {
 		r.Log.Error("[MailTemplateRepository.FindAllPaginated] " + err.Error())
 		return nil, 0, err

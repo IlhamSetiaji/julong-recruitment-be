@@ -93,13 +93,21 @@ func (h *TemplateQuestionHandler) FindAllPaginated(ctx *gin.Context) {
 	sort := map[string]interface{}{
 		"created_at": createdAt,
 	}
-	// Filter DocumentSetup name
+	// Filter DocumentSetup name, name, form type, status
 	filter := map[string]interface{}{}
 	// Filter DocumentSetup name
-	if ctx.Query("document_setup_title") != "" {
-		filter["document_setup_title"] = ctx.Query("document_setup_title")
+	if ctx.Query("document_setup.title") != "" {
+		filter["document_setup.title"] = ctx.Query("document_setup.title")
 	}
-
+	if ctx.Query("name") != "" {
+		filter["name"] = ctx.Query("name")
+	}
+	if ctx.Query("form_type") != "" {
+		filter["form_type"] = ctx.Query("form_type")
+	}
+	if ctx.Query("status") != "" {
+		filter["status"] = ctx.Query("status")
+	}
 	templateQuestions, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("[TemplateQuestionHandler.FindAllPaginated] " + err.Error())

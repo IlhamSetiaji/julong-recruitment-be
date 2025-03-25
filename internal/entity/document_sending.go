@@ -64,6 +64,7 @@ type DocumentSending struct {
 	Path                     string                 `json:"path" gorm:"type:text;default:null"`
 	SyncMidsuit              SyncMidsuitEnum        `json:"sync_midsuit" gorm:"type:text;default:null"`
 	HiredStatus              HiredStatusEnum        `json:"hired_status" gorm:"type:text;default:null"`
+	GradeID                  *uuid.UUID             `json:"grade_id" gorm:"type:char(36);default:null"`
 
 	ProjectRecruitmentLine *ProjectRecruitmentLine `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Applicant              *Applicant              `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
@@ -73,6 +74,7 @@ type DocumentSending struct {
 	JobLevelName        *string `json:"job_level_name" gorm:"-"`
 	JobName             *string `json:"job_name" gorm:"-"`
 	ForOrganizationName *string `json:"for_organization_name" gorm:"-"`
+	GradeName           *string `json:"grade_name" gorm:"-"`
 }
 
 func (ds *DocumentSending) BeforeCreate(tx *gorm.DB) (err error) {

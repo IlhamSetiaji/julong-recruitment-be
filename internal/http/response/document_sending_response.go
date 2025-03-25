@@ -34,6 +34,7 @@ type DocumentSendingResponse struct {
 	Path                     string                        `json:"path"`
 	SyncMidsuit              entity.SyncMidsuitEnum        `json:"sync_midsuit"`
 	HiredStatus              entity.HiredStatusEnum        `json:"hired_status"`
+	GradeID                  *uuid.UUID                    `json:"grade_id"`
 	CreatedAt                time.Time                     `json:"created_at"`
 	UpdatedAt                time.Time                     `json:"updated_at"`
 
@@ -44,6 +45,7 @@ type DocumentSendingResponse struct {
 	ProjectRecruitmentLine *ProjectRecruitmentLineResponse `json:"project_recruitment_line"`
 	Applicant              *ApplicantResponse              `json:"applicant"`
 
+	GradeName                *string                              `json:"grade_name"`
 	ForOrganizationName      *string                              `json:"for_organization_name"`
 	OrganizationLocationName *string                              `json:"organization_location_name"`
 	JobLevel                 *SendFindJobLevelByIDMessageResponse `json:"job_level"`

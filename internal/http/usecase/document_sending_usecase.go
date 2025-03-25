@@ -295,10 +295,21 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		parsedJobID = &parsedJobUUID
 	}
 
+	var gradeID *uuid.UUID
+	if req.GradeID != "" {
+		parsedGradeID, err := uuid.Parse(req.GradeID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		gradeID = &parsedGradeID
+	}
+
 	documentSending, err := uc.Repository.CreateDocumentSending(&entity.DocumentSending{
 		DocumentSetupID:          parsedDocumentSetupID,
 		ProjectRecruitmentLineID: parsedProjectRecruitmentLineID,
 		ApplicantID:              parsedApplicantID,
+		GradeID:                  gradeID,
 		JobPostingID:             parsedJobPostingID,
 		RecruitmentType:          entity.ProjectRecruitmentType(req.RecruitmentType),
 		BasicWage:                req.BasicWage,
@@ -1320,12 +1331,23 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		parsedJobID = &parsedJobUUID
 	}
 
+	var gradeID *uuid.UUID
+	if req.GradeID != "" {
+		parsedGradeID, err := uuid.Parse(req.GradeID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		gradeID = &parsedGradeID
+	}
+
 	documentSending, err := uc.Repository.UpdateDocumentSending(&entity.DocumentSending{
 		ID:                       parsedID,
 		DocumentSetupID:          parsedDocumentSetupID,
 		ProjectRecruitmentLineID: parsedProjectRecruitmentLineID,
 		ApplicantID:              parsedApplicantID,
 		JobPostingID:             parsedJobPostingID,
+		GradeID:                  gradeID,
 		RecruitmentType:          entity.ProjectRecruitmentType(req.RecruitmentType),
 		OrganizationLocationID:   parsedOrganizationLocationID,
 		BasicWage:                req.BasicWage,

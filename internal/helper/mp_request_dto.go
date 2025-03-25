@@ -51,6 +51,25 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		return nil, errors.New("Organization ID is missing or invalid")
 	}
 
+	gradeID, ok := mprData["grade_id"].(string)
+	if !ok {
+		d.Log.Errorf("Grade ID is missing or invalid")
+		return nil, errors.New("Grade ID is missing or invalid")
+	}
+
+	var parsedGradeID *uuid.UUID
+	if gradeID != "" {
+		gradeUUID, err := uuid.Parse(gradeID)
+		if err != nil {
+			d.Log.Errorf("Invalid grade ID format: %v", err)
+			parsedGradeID = nil
+		} else {
+			parsedGradeID = &gradeUUID
+		}
+	} else {
+		parsedGradeID = nil
+	}
+
 	organizationLocationID, ok := mprData["organization_location_id"].(string)
 	if !ok {
 		d.Log.Errorf("Organization Location ID is missing or invalid")
@@ -329,6 +348,12 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		}
 	}
 
+	gradeName, ok := mprData["grade_name"].(string)
+	if !ok {
+		d.Log.Errorf("Grade Name is missing or invalid")
+		return nil, errors.New("Grade Name is missing or invalid")
+	}
+
 	organizationName, ok := mprData["organization_name"].(string)
 	if !ok {
 		d.Log.Errorf("Organization Name is missing or invalid")
@@ -517,6 +542,7 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		ForOrganizationStructureID: uuid.MustParse(forOrganizationStructureID),
 		JobID:                      uuid.MustParse(jobID),
 		RequestCategoryID:          uuid.MustParse(requestCategoryID),
+		GradeID:                    parsedGradeID,
 		ExpectedDate:               parsedExpectedDate,
 		Experiences:                experiences,
 		DocumentNumber:             documentNumber,
@@ -553,6 +579,7 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		UpdatedAt:                  parsedUpdatedAt,
 		RequestCategory:            requestCategory,
 		RequestMajors:              requestMajors,
+		GradeName:                  gradeName,
 		OrganizationName:           organizationName,
 		OrganizationCategory:       organizationCategory,
 		OrganizationLocationName:   organizationLocationName,
@@ -586,6 +613,25 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponseMinimal(mprMap map[string
 	if !ok {
 		d.Log.Errorf("MPRequestHeader ID is missing or invalid")
 		return nil, errors.New("MPRequestHeader ID is missing or invalid")
+	}
+
+	gradeID, ok := mprData["grade_id"].(string)
+	if !ok {
+		d.Log.Errorf("Grade ID is missing or invalid")
+		return nil, errors.New("Grade ID is missing or invalid")
+	}
+
+	var parsedGradeID *uuid.UUID
+	if gradeID != "" {
+		gradeUUID, err := uuid.Parse(gradeID)
+		if err != nil {
+			d.Log.Errorf("Invalid grade ID format: %v", err)
+			parsedGradeID = nil
+		} else {
+			parsedGradeID = &gradeUUID
+		}
+	} else {
+		parsedGradeID = nil
 	}
 
 	organizationID, ok := mprData["organization_id"].(string)
@@ -837,6 +883,7 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponseMinimal(mprMap map[string
 		ForOrganizationLocationID:  uuid.MustParse(forOrganizationLocationID),
 		ForOrganizationStructureID: uuid.MustParse(forOrganizationStructureID),
 		JobID:                      uuid.MustParse(jobID),
+		GradeID:                    parsedGradeID,
 		RequestCategoryID:          uuid.MustParse(requestCategoryID),
 		ExpectedDate:               parsedExpectedDate,
 		Experiences:                experiences,

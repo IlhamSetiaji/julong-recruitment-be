@@ -94,9 +94,25 @@ func (r *ProjectRecruitmentHeaderRepository) FindAllPaginated(page, pageSize int
 	if search != "" {
 		query = query.Where("name ILIKE ?", "%"+search+"%")
 	}
-
+	// filter document_number, name, start_date, end_date, status
 	if filter["status"] != nil {
 		query = query.Where("status = ?", filter["status"])
+	}
+	if filter["document_number"] != nil {
+		query = query.Where("document_number = ?", filter["document_number"])
+	}
+	if filter["name"] != nil {
+		query = query.Where("name ILIKE ?", "%"+filter["name"].(string)+"%")
+	}
+	// kolom start_date, end_date jika start date diisi dan end date tidak diisi maka filter berdasarkan start date, jika start date dan end date diisi maka filter berdasarkan range start date dan end date
+	if filter["start_date"] != nil && filter["end_date"] == nil {
+		query = query.Where("start_date = ?", filter["start_date"])
+	}
+	if filter["start_date"] != nil && filter["end_date"] != nil {
+		query = query.Where("start_date >= ? AND end_date <= ?", filter["start_date"], filter["end_date"])
+	}
+	if filter["end_date"] != nil && filter["start_date"] == nil {
+		query = query.Where("end_date = ?", filter["end_date"])
 	}
 
 	for key, value := range sort {

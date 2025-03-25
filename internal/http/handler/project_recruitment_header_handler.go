@@ -157,6 +157,7 @@ func (h *ProjectRecruitmentHeaderHandler) FindAllPaginated(ctx *gin.Context) {
 	if createdAt == "" {
 		createdAt = "DESC"
 	}
+	// filter document_number, name, start_date, end_date, status
 
 	filter := make(map[string]interface{})
 	status := ctx.Query("status")
@@ -167,7 +168,34 @@ func (h *ProjectRecruitmentHeaderHandler) FindAllPaginated(ctx *gin.Context) {
 	sort := map[string]interface{}{
 		"created_at": createdAt,
 	}
-
+	documentNumber := ctx.Query("document_number")
+	if documentNumber != "" {
+		filter["document_number"] = documentNumber
+	}
+	name := ctx.Query("name")
+	if name != "" {
+		filter["name"] = name
+	}
+	startDate := ctx.Query("start_date")
+	if startDate != "" {
+		startDate, err := time.Parse("2006-01-02", startDate)
+		if err != nil {
+			h.Log.Error("[ProjectRecruitmentHeaderHandler.FindAllPaginated] " + err.Error())
+			utils.BadRequestResponse(ctx, "bad request", err.Error())
+			return
+		}
+		filter["start_date"] = startDate
+	}
+	endDate := ctx.Query("end_date")
+	if endDate != "" {
+		endDate, err := time.Parse("2006-01-02", endDate)
+		if err != nil {
+			h.Log.Error("[ProjectRecruitmentHeaderHandler.FindAllPaginated] " + err.Error())
+			utils.BadRequestResponse(ctx, "bad request", err.Error())
+			return
+		}
+		filter["end_date"] = endDate
+	}
 	responses, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Error("[ProjectRecruitmentHeaderHandler.FindAllPaginated] " + err.Error())

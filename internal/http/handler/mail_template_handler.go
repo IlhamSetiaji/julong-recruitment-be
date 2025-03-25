@@ -130,8 +130,22 @@ func (h *MailTemplateHandler) FindAllPaginated(ctx *gin.Context) {
 	sort := map[string]interface{}{
 		"created_at": createdAt,
 	}
+	filter := make(map[string]interface{})
+	// filter by name, document_type.name, status
+	name := ctx.Query("name")
+	if name != "" {
+		filter["name"] = name
+	}
+	documentTypeName := ctx.Query("document_type.name")
+	if documentTypeName != "" {
+		filter["document_type.name"] = documentTypeName
+	}
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
 
-	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort)
+	res, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Errorf("[MailTemplateHandler.FindAllPaginated] error when getting mail templates: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get mail templates", err.Error())

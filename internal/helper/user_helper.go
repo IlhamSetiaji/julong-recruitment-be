@@ -10,6 +10,7 @@ import (
 type IUserHelper interface {
 	CheckOrganizationLocation(user map[string]interface{}) (uuid.UUID, error)
 	GetEmployeeId(user map[string]interface{}) (uuid.UUID, error)
+	GetEmployeeNIK(user map[string]interface{}) (string, error)
 	GetOrganizationStructureID(user map[string]interface{}) (uuid.UUID, error)
 	GetOrganizationID(user map[string]interface{}) (uuid.UUID, error)
 	GetUserId(user map[string]interface{}) (uuid.UUID, error)
@@ -100,6 +101,32 @@ func (h *UserHelper) GetEmployeeId(user map[string]interface{}) (uuid.UUID, erro
 
 	h.Log.Infof("Employee ID: %s", employeeID)
 	return employeeID, nil
+}
+
+func (h *UserHelper) GetEmployeeNIK(user map[string]interface{}) (string, error) {
+	// Check if the "user" key exists and is a map
+	userData, ok := user["user"].(map[string]interface{})
+	if !ok {
+		h.Log.Errorf("User information is missing or invalid")
+		return "", errors.New("User information is missing or invalid")
+	}
+
+	// Check if the "employee" key exists and is a map
+	employee, ok := userData["employee"].(map[string]interface{})
+	if !ok {
+		h.Log.Errorf("Employee information is missing or invalid")
+		return "", errors.New("Employee information is missing or invalid")
+	}
+
+	// Check if the "NIK" key exists and is a string
+	employeeNIK, ok := employee["nik"].(string)
+	if !ok {
+		h.Log.Errorf("Employee NIK is missing or invalid")
+		return "", errors.New("Employee NIK is missing or invalid")
+	}
+
+	h.Log.Infof("Employee NIK: %s", employeeNIK)
+	return employeeNIK, nil
 }
 
 func (h *UserHelper) GetOrganizationStructureID(user map[string]interface{}) (uuid.UUID, error) {

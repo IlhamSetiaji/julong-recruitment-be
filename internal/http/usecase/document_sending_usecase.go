@@ -1919,6 +1919,43 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					}
 				}
 			}
+
+			// sync to midsuit employee allowance
+			allowanceOperationPayload := &request.SyncEmployeeAllowanceMidsuitRequest{
+				AdOrgId: request.AdOrgId{
+					ID: organizationResp.MidsuitID,
+				},
+				DateDoc: documentSending.JoinedDate.Format("2006-01-02"),
+				HCEmployeeID: request.HcEmployeeId{
+					ID: *midsuitEmpID,
+				},
+				HCNIK: "",
+				HCJobID: request.HcJobId{
+					ID: jobResp.MidsuitID,
+				},
+				HCOrgID: request.HcOrgId{
+					ID: orgStructure.MidsuitID,
+				},
+				HCAllowanceType: request.HCAllowanceType{
+					ID: "OPR",
+				},
+				Distance: 1,
+				Amount:   int(documentSending.OperationalAllowance),
+				HCUOM: request.HCUOM{
+					ID: "MO",
+				},
+				IsUseDate: false,
+				HCProvisionType: request.HCProvisionType{
+					ID: "GRA",
+				},
+				IsGenerated: true,
+			}
+
+			_, err = uc.MidsuitService.SyncEmployeeAllowanceMidsuit(*allowanceOperationPayload, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
 		}
 	}
 

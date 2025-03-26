@@ -89,6 +89,39 @@ type HcWorkSiteId struct {
 	Identifier string `json:"identifier" binding:"omitempty"`
 }
 
+type CDocTypeID struct {
+	ID string `json:"id" binding:"required"`
+}
+
+type CPeriodID struct {
+	Identifier string `json:"identifier" binding:"required"`
+	ModelName  string `json:"model-name" binding:"required"`
+}
+
+type HCAllowanceType struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"omitempty"`
+	ModelName  string `json:"model-name" binding:"omitempty"`
+}
+
+type JobLevelCategory struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"required"`
+	ModelName  string `json:"model-name" binding:"required"`
+}
+
+type HCUOM struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"omitempty"`
+	ModelName  string `json:"model-name" binding:"omitempty"`
+}
+
+type HCProvisionType struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"omitempty"`
+	ModelName  string `json:"model-name" binding:"omitempty"`
+}
+
 type SyncEmployeeMidsuitRequest struct {
 	AdOrgId           AdOrgId             `json:"AD_Org_ID" binding:"required"`
 	Name              string              `json:"Name" binding:"required"`
@@ -140,4 +173,30 @@ type SyncEmployeeEducationMidsuitRequest struct {
 	SeqNo                 int               `json:"SeqNo" binding:"required"`
 	HCBasicAcceptance     HcBasicAcceptance `json:"HC_BasicAcceptance" binding:"required"`
 	ModelName             string            `json:"model-name" binding:"required"`
+}
+
+type SyncEmployeeAllowanceMidsuitRequest struct {
+	AdOrgId          AdOrgId          `json:"AD_Org_ID" binding:"required"`
+	CDocTypeID       CDocTypeID       `json:"C_DocType_ID" binding:"omitempty"`
+	DateDoc          string           `json:"DateDoc" binding:"required"`
+	HCEmployeeID     HcEmployeeId     `json:"HC_Employee_ID" binding:"required"`
+	HCNIK            string           `json:"HC_NIK" binding:"required"`
+	HCJobID          HcJobId          `json:"HC_Job_ID" binding:"required"`
+	HCOrgID          HcOrgId          `json:"HC_Org_ID" binding:"required"`
+	CPeriodID        CPeriodID        `json:"C_Period_ID" binding:"omitempty"`
+	HCAllowanceType  HCAllowanceType  `json:"HC_AllowanceType" binding:"required"`
+	HCEmployee2ID    HcEmployeeId     `json:"HC_Employee2_ID" binding:"omitempty"`
+	HCNIK2           string           `json:"HC_NIK2" binding:"omitempty"`
+	HCJob2ID         HcJobId          `json:"HC_Job2_ID" binding:"omitempty"`
+	HCOrg2ID         HcOrgId          `json:"HC_Org2_ID" binding:"omitempty"`
+	HCJobLevel2ID    HcJobLevelId     `json:"HC_JobLevel2_ID" binding:"omitempty"`
+	JobLevelCategory JobLevelCategory `json:"JobLevelCategory" binding:"omitempty"`
+	Distance         int              `json:"Distance" binding:"required"`
+	Amount           int              `json:"Amount" binding:"required"`
+	HCUOM            HCUOM            `json:"HC_UOM" binding:"required"`
+	CPeriod2ID       CPeriodID        `json:"C_Period2_ID" binding:"required"`
+	IsUseDate        bool             `json:"IsUseDate" binding:"required"`
+	HCProvisionType  HCProvisionType  `json:"HC_ProvisionType" binding:"required"`
+	IsGenerated      bool             `json:"IsGenerated" binding:"required"`
+	ModelName        string           `json:"model-name" binding:"required"`
 }

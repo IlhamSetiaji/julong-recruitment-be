@@ -14,6 +14,7 @@ import (
 
 type ITestTypeUseCase interface {
 	CreateTestType(req *request.CreateTestTypeRequest) (*response.TestTypeResponse, error)
+	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.TestTypeResponse, int64, error)
 	FindAll() ([]*response.TestTypeResponse, error)
 	FindByID(id uuid.UUID) (*response.TestTypeResponse, error)
 	UpdateTestType(req *request.UpdateTestTypeRequest) (*response.TestTypeResponse, error)
@@ -57,6 +58,21 @@ func (uc *TestTypeUseCase) CreateTestType(req *request.CreateTestTypeRequest) (*
 
 	res := uc.DTO.ConvertEntityToResponse(ent)
 	return res, nil
+}
+
+func (uc *TestTypeUseCase) FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.TestTypeResponse, int64, error) {
+	testTypes, total, err := uc.Repository.FindAllPaginated(page, pageSize, search, sort, filter)
+	if err != nil {
+		uc.Log.Error("[TestTypeUseCase.FindAllPaginated] " + err.Error())
+		return nil, 0, err
+	}
+
+	testTypeResponses := make([]response.TestTypeResponse, 0)
+	for _, testType := range *testTypes {
+		testTypeResponses = append(testTypeResponses, *uc.DTO.ConvertEntityToResponse(&testType))
+	}
+
+	return &testTypeResponses, total, nil
 }
 
 func (uc *TestTypeUseCase) FindAll() ([]*response.TestTypeResponse, error) {

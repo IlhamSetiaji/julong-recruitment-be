@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -17,6 +18,7 @@ import (
 type ITestTypeHandler interface {
 	CreateTestType(ctx *gin.Context)
 	FindAll(ctx *gin.Context)
+	FindAllPaginated(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	UpdateTestType(ctx *gin.Context)
 	DeleteTestType(ctx *gin.Context)
@@ -74,6 +76,46 @@ func (h *TestTypeHandler) CreateTestType(ctx *gin.Context) {
 	}
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "test type created", res)
+}
+
+// FindAllPaginated find all test types paginated
+func (h *TestTypeHandler) FindAllPaginated(ctx *gin.Context) {
+	page, err := strconv.Atoi(ctx.Query("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+	pageSize, err := strconv.Atoi(ctx.Query("page_size"))
+	if err != nil || pageSize < 1 {
+		pageSize = 10
+	}
+
+	search := ctx.Query("search")
+	if search == "" {
+		search = ""
+	}
+	createdAt := ctx.Query("created_at")
+	if createdAt == "" {
+		createdAt = "DESC"
+	}
+	sort := map[string]interface{}{
+		"created_at": createdAt,
+	}
+
+	filter := make(map[string]interface{})
+	name := ctx.Query("name")
+	if name != "" {
+		filter["name"] = name
+	}
+	testTypes, total, err := h.UseCase.FindAllPaginated(page, pageSize, search, sort, filter)
+	if err != nil {
+		h.Log.Errorf("[TestTypeHandler.FindAllPaginated] error when finding all test types paginated: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all test types paginated", err.Error())
+		return
+	}
+	utils.SuccessResponse(ctx, http.StatusOK, "test types found", gin.H{
+		"test_types": testTypes,
+		"total":      total,
+	})
 }
 
 func (h *TestTypeHandler) FindAll(ctx *gin.Context) {

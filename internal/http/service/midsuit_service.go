@@ -156,7 +156,7 @@ func (s *MidsuitService) SyncEmployeeMidsuit(payload request.SyncEmployeeMidsuit
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
 		bodyBytes, _ := io.ReadAll(res.Body)
 		s.Log.Error(err)
 		return nil, errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when fetching response: " + string(bodyBytes))
@@ -204,7 +204,7 @@ func (s *MidsuitService) SyncEmployeeJobMidsuit(payload request.SyncEmployeeJobM
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
 		bodyBytes, _ := io.ReadAll(res.Body)
 		s.Log.Error(err)
 		return nil, errors.New("[MidsuitService.SyncEmployeeJobMidsuit] Error when fetching response: " + string(bodyBytes))
@@ -252,7 +252,7 @@ func (s *MidsuitService) SyncEmployeeWorkExperienceMidsuit(payload request.SyncE
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
 		bodyBytes, _ := io.ReadAll(res.Body)
 		s.Log.Error(err)
 		return nil, errors.New("[MidsuitService.SyncEmployeeWorkExperienceMidsuit] Error when fetching response: " + string(bodyBytes))
@@ -300,7 +300,7 @@ func (s *MidsuitService) SyncEmployeeEducationMidsuit(payload request.SyncEmploy
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
 		bodyBytes, _ := io.ReadAll(res.Body)
 		s.Log.Error(err)
 		return nil, errors.New("[MidsuitService.SyncEmployeeEducationMidsuit] Error when fetching response: " + string(bodyBytes))
@@ -348,7 +348,7 @@ func (s *MidsuitService) SyncEmployeeAllowanceMidsuit(payload request.SyncEmploy
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
 		bodyBytes, _ := io.ReadAll(res.Body)
 		s.Log.Error(err)
 		return nil, errors.New("[MidsuitService.SyncEmployeeAllowanceMidsuit] Error when fetching response: " + string(bodyBytes))

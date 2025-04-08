@@ -21,7 +21,7 @@ type SendCreateEmployeeTaskMessageRequest struct {
 }
 
 type AdOrgId struct {
-	ID         string `json:"id" binding:"omitempty"`
+	ID         int    `json:"id" binding:"omitempty"`
 	Identifier string `json:"identifier" binding:"required"`
 }
 
@@ -30,12 +30,12 @@ type HcGender struct {
 }
 
 type HcMaritalStatus struct {
-	ID         string `json:"id" binding:"omitempty"`
+	ID         int    `json:"id" binding:"omitempty"`
 	Identifier string `json:"identifier" binding:"required"`
 }
 
 type HcReligionId struct {
-	ID         string `json:"id" binding:"omitempty"`
+	ID         int    `json:"id" binding:"omitempty"`
 	Identifier string `json:"identifier" binding:"required"`
 }
 
@@ -45,52 +45,52 @@ type HcStatus struct {
 }
 
 type HcBasicAcceptance struct {
-	ID         string `json:"id" binding:"omitempty"`
+	ID         int    `json:"id" binding:"omitempty"`
 	Identifier string `json:"identifier" binding:"required"`
 }
 
 type HcRecruitmentTypeId struct {
-	ID         string `json:"id" binding:"omitempty"`
+	ID         int    `json:"id" binding:"omitempty"`
 	Identifier string `json:"identifier" binding:"required"`
 }
 
 type HcEmployeeId struct {
-	ID         string `json:"id" binding:"required"`
+	ID         int    `json:"id" binding:"required"`
 	Identifier string `json:"identifier" binding:"omitempty"`
 }
 
 type HcEmployeeCategoryId struct {
-	ID         string `json:"id" binding:"omitempty"`
+	ID         int    `json:"id" binding:"omitempty"`
 	Identifier string `json:"identifier" binding:"required"`
 }
 
 type HcEmployeeGradeId struct {
-	ID         string `json:"id" binding:"omitempty"`
+	ID         int    `json:"id" binding:"omitempty"`
 	Identifier string `json:"identifier" binding:"required"`
 }
 
 type HcJobId struct {
-	ID         string `json:"id" binding:"required"`
+	ID         int    `json:"id" binding:"required"`
 	Identifier string `json:"identifier" binding:"midsuit"`
 }
 
 type HcJobLevelId struct {
-	ID         string `json:"id" binding:"required"`
+	ID         int    `json:"id" binding:"required"`
 	Identifier string `json:"identifier" binding:"omitempty"`
 }
 
 type HcOrgId struct {
-	ID         string `json:"id" binding:"required"`
+	ID         int    `json:"id" binding:"required"`
 	Identifier string `json:"identifier" binding:"omitempty"`
 }
 
 type HcWorkSiteId struct {
-	ID         string `json:"id" binding:"required"`
+	ID         int    `json:"id" binding:"required"`
 	Identifier string `json:"identifier" binding:"omitempty"`
 }
 
 type CDocTypeID struct {
-	ID string `json:"id" binding:"required"`
+	ID int `json:"id" binding:"required"`
 }
 
 type CPeriodID struct {
@@ -105,7 +105,7 @@ type HCAllowanceType struct {
 }
 
 type JobLevelCategory struct {
-	ID         string `json:"id" binding:"required"`
+	ID         int    `json:"id" binding:"required"`
 	Identifier string `json:"identifier" binding:"required"`
 	ModelName  string `json:"model-name" binding:"required"`
 }

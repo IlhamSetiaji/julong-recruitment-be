@@ -51,24 +51,24 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		return nil, errors.New("Organization ID is missing or invalid")
 	}
 
-	gradeID, ok := mprData["grade_id"].(string)
-	if !ok {
-		d.Log.Errorf("Grade ID is missing or invalid")
-		return nil, errors.New("Grade ID is missing or invalid")
-	}
+	// gradeID, ok := mprData["grade_id"].(string)
+	// if !ok {
+	// 	d.Log.Errorf("Grade ID is missing or invalid")
+	// 	return nil, errors.New("Grade ID is missing or invalid")
+	// }
 
-	var parsedGradeID *uuid.UUID
-	if gradeID != "" {
-		gradeUUID, err := uuid.Parse(gradeID)
-		if err != nil {
-			d.Log.Errorf("Invalid grade ID format: %v", err)
-			parsedGradeID = nil
-		} else {
-			parsedGradeID = &gradeUUID
-		}
-	} else {
-		parsedGradeID = nil
-	}
+	// var parsedGradeID *uuid.UUID
+	// if gradeID != "" {
+	// 	gradeUUID, err := uuid.Parse(gradeID)
+	// 	if err != nil {
+	// 		d.Log.Errorf("Invalid grade ID format: %v", err)
+	// 		parsedGradeID = nil
+	// 	} else {
+	// 		parsedGradeID = &gradeUUID
+	// 	}
+	// } else {
+	// 	parsedGradeID = nil
+	// }
 
 	organizationLocationID, ok := mprData["organization_location_id"].(string)
 	if !ok {
@@ -542,63 +542,63 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interf
 		ForOrganizationStructureID: uuid.MustParse(forOrganizationStructureID),
 		JobID:                      uuid.MustParse(jobID),
 		RequestCategoryID:          uuid.MustParse(requestCategoryID),
-		GradeID:                    parsedGradeID,
-		ExpectedDate:               parsedExpectedDate,
-		Experiences:                experiences,
-		DocumentNumber:             documentNumber,
-		DocumentDate:               parsedDocumentDate,
-		MaleNeeds:                  maleNeeds,
-		FemaleNeeds:                femaleNeeds,
-		MinimumAge:                 minimumAge,
-		MaximumAge:                 maximumAge,
-		MinimumExperience:          minimumExperienceInt,
-		MaritalStatus:              maritalStatus,
-		MinimumEducation:           minimumEducation,
-		RequiredQualification:      requiredQualification,
-		Certificate:                certificate,
-		ComputerSkill:              computerSkill,
-		LanguageSkill:              languageSkill,
-		OtherSkill:                 otherSkill,
-		Jobdesc:                    jobdesc,
-		SalaryMin:                  salaryMin,
-		SalaryMax:                  salaryMax,
-		RequestorID:                &parsedRequestorID,
-		DepartmentHead:             departmentHeadUUID,
-		VpGmDirector:               vpGmDirectorUUID,
-		CEO:                        ceoUUID,
-		HrdHoUnit:                  hrdHoUnitUUID,
-		MPPlanningHeaderID:         mpPlanningHeaderUUID,
-		Status:                     status,
-		MPRequestType:              mpRequestType,
-		RecruitmentType:            recruitmentType,
-		MPPPeriodID:                &parsedMppPeriodID,
-		EmpOrganizationID:          &parsedEmpOrganizationID,
-		JobLevelID:                 &parsedJobLevelID,
-		IsReplacement:              isReplacement,
-		CreatedAt:                  parsedCreatedAt,
-		UpdatedAt:                  parsedUpdatedAt,
-		RequestCategory:            requestCategory,
-		RequestMajors:              requestMajors,
-		GradeName:                  gradeName,
-		OrganizationName:           organizationName,
-		OrganizationCategory:       organizationCategory,
-		OrganizationLocationName:   organizationLocationName,
-		ForOrganizationName:        forOrganizationName,
-		ForOrganizationLocation:    forOrganizationLocation,
-		ForOrganizationStructure:   forOrganizationStructure,
-		JobName:                    jobName,
-		RequestorName:              requestorName,
-		DepartmentHeadName:         departmentHeadName,
-		HrdHoUnitName:              hrdHoUnitName,
-		VpGmDirectorName:           vpGmDirectorName,
-		CeoName:                    ceoName,
-		EmpOrganizationName:        empOrganizationName,
-		JobLevelName:               jobLevelName,
-		JobLevel:                   jobLevel,
-		ApprovedByDepartmentHead:   approvedByDepartmentHead,
-		ApprovedByVpGmDirector:     approvedByVpGmDirector,
-		ApprovedByCEO:              approvedByCEO,
-		ApprovedByHrdHoUnit:        approvedByHrdHoUnit,
+		// GradeID:                    parsedGradeID,
+		ExpectedDate:             parsedExpectedDate,
+		Experiences:              experiences,
+		DocumentNumber:           documentNumber,
+		DocumentDate:             parsedDocumentDate,
+		MaleNeeds:                maleNeeds,
+		FemaleNeeds:              femaleNeeds,
+		MinimumAge:               minimumAge,
+		MaximumAge:               maximumAge,
+		MinimumExperience:        minimumExperienceInt,
+		MaritalStatus:            maritalStatus,
+		MinimumEducation:         minimumEducation,
+		RequiredQualification:    requiredQualification,
+		Certificate:              certificate,
+		ComputerSkill:            computerSkill,
+		LanguageSkill:            languageSkill,
+		OtherSkill:               otherSkill,
+		Jobdesc:                  jobdesc,
+		SalaryMin:                salaryMin,
+		SalaryMax:                salaryMax,
+		RequestorID:              &parsedRequestorID,
+		DepartmentHead:           departmentHeadUUID,
+		VpGmDirector:             vpGmDirectorUUID,
+		CEO:                      ceoUUID,
+		HrdHoUnit:                hrdHoUnitUUID,
+		MPPlanningHeaderID:       mpPlanningHeaderUUID,
+		Status:                   status,
+		MPRequestType:            mpRequestType,
+		RecruitmentType:          recruitmentType,
+		MPPPeriodID:              &parsedMppPeriodID,
+		EmpOrganizationID:        &parsedEmpOrganizationID,
+		JobLevelID:               &parsedJobLevelID,
+		IsReplacement:            isReplacement,
+		CreatedAt:                parsedCreatedAt,
+		UpdatedAt:                parsedUpdatedAt,
+		RequestCategory:          requestCategory,
+		RequestMajors:            requestMajors,
+		GradeName:                gradeName,
+		OrganizationName:         organizationName,
+		OrganizationCategory:     organizationCategory,
+		OrganizationLocationName: organizationLocationName,
+		ForOrganizationName:      forOrganizationName,
+		ForOrganizationLocation:  forOrganizationLocation,
+		ForOrganizationStructure: forOrganizationStructure,
+		JobName:                  jobName,
+		RequestorName:            requestorName,
+		DepartmentHeadName:       departmentHeadName,
+		HrdHoUnitName:            hrdHoUnitName,
+		VpGmDirectorName:         vpGmDirectorName,
+		CeoName:                  ceoName,
+		EmpOrganizationName:      empOrganizationName,
+		JobLevelName:             jobLevelName,
+		JobLevel:                 jobLevel,
+		ApprovedByDepartmentHead: approvedByDepartmentHead,
+		ApprovedByVpGmDirector:   approvedByVpGmDirector,
+		ApprovedByCEO:            approvedByCEO,
+		ApprovedByHrdHoUnit:      approvedByHrdHoUnit,
 	}, nil
 }
 
@@ -615,24 +615,24 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponseMinimal(mprMap map[string
 		return nil, errors.New("MPRequestHeader ID is missing or invalid")
 	}
 
-	gradeID, ok := mprData["grade_id"].(string)
-	if !ok {
-		d.Log.Errorf("Grade ID is missing or invalid")
-		return nil, errors.New("Grade ID is missing or invalid")
-	}
+	// gradeID, ok := mprData["grade_id"].(string)
+	// if !ok {
+	// 	d.Log.Errorf("Grade ID is missing or invalid")
+	// 	return nil, errors.New("Grade ID is missing or invalid")
+	// }
 
-	var parsedGradeID *uuid.UUID
-	if gradeID != "" {
-		gradeUUID, err := uuid.Parse(gradeID)
-		if err != nil {
-			d.Log.Errorf("Invalid grade ID format: %v", err)
-			parsedGradeID = nil
-		} else {
-			parsedGradeID = &gradeUUID
-		}
-	} else {
-		parsedGradeID = nil
-	}
+	// var parsedGradeID *uuid.UUID
+	// if gradeID != "" {
+	// 	gradeUUID, err := uuid.Parse(gradeID)
+	// 	if err != nil {
+	// 		d.Log.Errorf("Invalid grade ID format: %v", err)
+	// 		parsedGradeID = nil
+	// 	} else {
+	// 		parsedGradeID = &gradeUUID
+	// 	}
+	// } else {
+	// 	parsedGradeID = nil
+	// }
 
 	organizationID, ok := mprData["organization_id"].(string)
 	if !ok {
@@ -883,35 +883,35 @@ func (d *MPRequestHelper) ConvertMapInterfaceToResponseMinimal(mprMap map[string
 		ForOrganizationLocationID:  uuid.MustParse(forOrganizationLocationID),
 		ForOrganizationStructureID: uuid.MustParse(forOrganizationStructureID),
 		JobID:                      uuid.MustParse(jobID),
-		GradeID:                    parsedGradeID,
-		RequestCategoryID:          uuid.MustParse(requestCategoryID),
-		ExpectedDate:               parsedExpectedDate,
-		Experiences:                experiences,
-		DocumentNumber:             documentNumber,
-		DocumentDate:               parsedDocumentDate,
-		MaleNeeds:                  maleNeeds,
-		FemaleNeeds:                femaleNeeds,
-		MinimumAge:                 minimumAge,
-		MaximumAge:                 maximumAge,
-		MinimumExperience:          minimumExperienceInt,
-		MaritalStatus:              maritalStatus,
-		MinimumEducation:           minimumEducation,
-		RequiredQualification:      requiredQualification,
-		Certificate:                certificate,
-		ComputerSkill:              computerSkill,
-		LanguageSkill:              languageSkill,
-		OtherSkill:                 otherSkill,
-		Jobdesc:                    jobdesc,
-		SalaryMin:                  salaryMin,
-		SalaryMax:                  salaryMax,
-		Status:                     status,
-		MPRequestType:              mpRequestType,
-		RecruitmentType:            recruitmentType,
-		MPPPeriodID:                &parsedMppPeriodID,
-		EmpOrganizationID:          &parsedEmpOrganizationID,
-		JobLevelID:                 &parsedJobLevelID,
-		IsReplacement:              isReplacement,
-		CreatedAt:                  parsedCreatedAt,
-		UpdatedAt:                  parsedUpdatedAt,
+		// GradeID:                    parsedGradeID,
+		RequestCategoryID:     uuid.MustParse(requestCategoryID),
+		ExpectedDate:          parsedExpectedDate,
+		Experiences:           experiences,
+		DocumentNumber:        documentNumber,
+		DocumentDate:          parsedDocumentDate,
+		MaleNeeds:             maleNeeds,
+		FemaleNeeds:           femaleNeeds,
+		MinimumAge:            minimumAge,
+		MaximumAge:            maximumAge,
+		MinimumExperience:     minimumExperienceInt,
+		MaritalStatus:         maritalStatus,
+		MinimumEducation:      minimumEducation,
+		RequiredQualification: requiredQualification,
+		Certificate:           certificate,
+		ComputerSkill:         computerSkill,
+		LanguageSkill:         languageSkill,
+		OtherSkill:            otherSkill,
+		Jobdesc:               jobdesc,
+		SalaryMin:             salaryMin,
+		SalaryMax:             salaryMax,
+		Status:                status,
+		MPRequestType:         mpRequestType,
+		RecruitmentType:       recruitmentType,
+		MPPPeriodID:           &parsedMppPeriodID,
+		EmpOrganizationID:     &parsedEmpOrganizationID,
+		JobLevelID:            &parsedJobLevelID,
+		IsReplacement:         isReplacement,
+		CreatedAt:             parsedCreatedAt,
+		UpdatedAt:             parsedUpdatedAt,
 	}, nil
 }

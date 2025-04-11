@@ -283,6 +283,7 @@ func (h *JobPostingHandler) FindAllPaginatedShowOnly(ctx *gin.Context) {
 		} else {
 			h.Log.Errorf("User profile not found")
 			utils.ErrorResponse(ctx, 404, "error", "User profile not found")
+			return
 		}
 	}
 

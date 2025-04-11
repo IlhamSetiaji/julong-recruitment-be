@@ -337,14 +337,28 @@ func (uc *JobPostingUseCase) FindAllPaginatedShowOnly(page, pageSize int, search
 		return nil, 0, err
 	}
 
-	if userProfile == nil {
-		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + "User Profile not found")
-		return nil, 0, err
-	}
-
 	jobPostingResponses := make([]response.JobPostingResponse, 0)
 	var jumlah int64
+	if userProfile == nil {
+		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + "User Profile not found")
+		// return nil, 0, err
+		jobPostings, total, err := uc.Repository.FindAllPaginatedShowOnly(page, pageSize, search, sort, filter)
+		if err != nil {
+			uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
+			return nil, 0, err
+		}
+
+		jumlah = total
+
+		uc.Log.Info("Jumlah: ", jumlah)
+		for _, jobPosting := range *jobPostings {
+			jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
+		}
+		return &jobPostingResponses, jumlah, nil
+	}
+
 	if len(userMajors) > 0 {
+		uc.Log.Info("Masuk ke user majors")
 		mprCloneIds, err := uc.MPRequestMessage.SendFindIdsByMajorsMessage(userMajors)
 		if err != nil {
 			uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
@@ -406,6 +420,7 @@ func (uc *JobPostingUseCase) FindAllPaginatedShowOnly(page, pageSize int, search
 			jobPostingResponses = append(jobPostingResponses, *uc.DTO.ConvertEntityToResponse(&jobPosting))
 		}
 	} else {
+		uc.Log.Info("Tidak masuk ke user majors")
 		jobPostings, total, err := uc.Repository.FindAllPaginatedShowOnly(page, pageSize, search, sort, filter)
 		if err != nil {
 			uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
@@ -413,6 +428,8 @@ func (uc *JobPostingUseCase) FindAllPaginatedShowOnly(page, pageSize int, search
 		}
 
 		jumlah = total
+
+		uc.Log.Info("Jumlah: ", jumlah)
 
 		for _, jobPosting := range *jobPostings {
 			applicant, err := uc.ApplicantRepository.FindByKeys(map[string]interface{}{

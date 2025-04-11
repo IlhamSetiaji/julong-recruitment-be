@@ -15,7 +15,7 @@ import (
 type IMPRequestMessage interface {
 	SendFindByIdMessage(id string) (*response.MPRequestHeaderResponse, error)
 	SendFindByIdTidakLengkapMessage(id string) (*response.MPRequestHeaderResponse, error)
-	SendFindIdsByMajorsMessage(majors []string) ([]*string, error)
+	SendFindIdsByMajorsMessage(majors []string, educationLevels []string) ([]*string, error)
 }
 
 type MPRequestMessage struct {
@@ -132,9 +132,10 @@ func (m *MPRequestMessage) SendFindByIdTidakLengkapMessage(id string) (*response
 	return mprData, nil
 }
 
-func (m *MPRequestMessage) SendFindIdsByMajorsMessage(majors []string) ([]*string, error) {
+func (m *MPRequestMessage) SendFindIdsByMajorsMessage(majors []string, educationLevels []string) ([]*string, error) {
 	payload := map[string]interface{}{
-		"majors": majors,
+		"majors":           majors,
+		"education_levels": educationLevels,
 	}
 
 	docMsg := &request.RabbitMQRequest{

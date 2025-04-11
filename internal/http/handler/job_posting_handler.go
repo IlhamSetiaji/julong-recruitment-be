@@ -273,11 +273,15 @@ func (h *JobPostingHandler) FindAllPaginatedShowOnly(ctx *gin.Context) {
 	}
 
 	var majors []string
+	var educationLevels []string
 	if relevant == "YES" {
 		if userProfile != nil {
 			for _, education := range *userProfile.Educations {
 				if education.Major != "" {
 					majors = append(majors, education.Major)
+				}
+				if education.EducationLevel != "" {
+					educationLevels = append(educationLevels, string(education.EducationLevel))
 				}
 			}
 		} else {
@@ -317,7 +321,7 @@ func (h *JobPostingHandler) FindAllPaginatedShowOnly(ctx *gin.Context) {
 		filter["status"] = status
 	}
 
-	res, total, err := h.UseCase.FindAllPaginatedShowOnly(page, pageSize, search, sort, filter, userUUID, majors)
+	res, total, err := h.UseCase.FindAllPaginatedShowOnly(page, pageSize, search, sort, filter, userUUID, majors, educationLevels)
 	if err != nil {
 		h.Log.Error("failed to find all paginated job postings: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings", err.Error())

@@ -22,7 +22,7 @@ type IJobPostingUseCase interface {
 	FindAllPaginatedWithoutUserID(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	FindAllPaginatedWithoutUserIDShowOnly(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.JobPostingResponse, int64, error)
 	FindAllPaginated(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID) (*[]response.JobPostingResponse, int64, error)
-	FindAllPaginatedShowOnly(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID, userMajors []string) (*[]response.JobPostingResponse, int64, error)
+	FindAllPaginatedShowOnly(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID, userMajors []string, educationLevels []string) (*[]response.JobPostingResponse, int64, error)
 	FindByID(id uuid.UUID, userID uuid.UUID) (*response.JobPostingResponse, error)
 	UpdateJobPosting(req *request.UpdateJobPostingRequest) (*response.JobPostingResponse, error)
 	DeleteJobPosting(id uuid.UUID) error
@@ -330,7 +330,7 @@ func (uc *JobPostingUseCase) FindAllPaginated(page, pageSize int, search string,
 	return &jobPostingResponses, total, nil
 }
 
-func (uc *JobPostingUseCase) FindAllPaginatedShowOnly(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID, userMajors []string) (*[]response.JobPostingResponse, int64, error) {
+func (uc *JobPostingUseCase) FindAllPaginatedShowOnly(page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}, userID uuid.UUID, userMajors []string, educationLevels []string) (*[]response.JobPostingResponse, int64, error) {
 	userProfile, err := uc.UserProfileRepository.FindByUserID(userID)
 	if err != nil {
 		uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
@@ -357,9 +357,9 @@ func (uc *JobPostingUseCase) FindAllPaginatedShowOnly(page, pageSize int, search
 		return &jobPostingResponses, jumlah, nil
 	}
 
-	if len(userMajors) > 0 {
+	if len(userMajors) > 0 && len(educationLevels) > 0 {
 		uc.Log.Info("Masuk ke user majors")
-		mprCloneIds, err := uc.MPRequestMessage.SendFindIdsByMajorsMessage(userMajors)
+		mprCloneIds, err := uc.MPRequestMessage.SendFindIdsByMajorsMessage(userMajors, educationLevels)
 		if err != nil {
 			uc.Log.Error("[JobPostingUseCase.FindAllPaginated] " + err.Error())
 			return nil, 0, err

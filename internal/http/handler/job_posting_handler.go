@@ -36,11 +36,12 @@ type IJobPostingHandler interface {
 }
 
 type JobPostingHandler struct {
-	Log        *logrus.Logger
-	Viper      *viper.Viper
-	Validate   *validator.Validate
-	UseCase    usecase.IJobPostingUseCase
-	UserHelper helper.IUserHelper
+	Log                *logrus.Logger
+	Viper              *viper.Viper
+	Validate           *validator.Validate
+	UseCase            usecase.IJobPostingUseCase
+	UserHelper         helper.IUserHelper
+	UserProfileUseCase usecase.IUserProfileUseCase
 }
 
 func NewJobPostingHandler(
@@ -49,13 +50,15 @@ func NewJobPostingHandler(
 	validate *validator.Validate,
 	useCase usecase.IJobPostingUseCase,
 	userHelper helper.IUserHelper,
+	userProfileUseCase usecase.IUserProfileUseCase,
 ) IJobPostingHandler {
 	return &JobPostingHandler{
-		Log:        log,
-		Viper:      viper,
-		Validate:   validate,
-		UseCase:    useCase,
-		UserHelper: userHelper,
+		Log:                log,
+		Viper:              viper,
+		Validate:           validate,
+		UseCase:            useCase,
+		UserHelper:         userHelper,
+		UserProfileUseCase: userProfileUseCase,
 	}
 }
 
@@ -66,7 +69,8 @@ func JobPostingHandlerFactory(
 	useCase := usecase.JobPostingUseCaseFactory(log, viper)
 	validate := config.NewValidator(viper)
 	userHelper := helper.UserHelperFactory(log)
-	return NewJobPostingHandler(log, viper, validate, useCase, userHelper)
+	userProfileUseCase := usecase.UserProfileUseCaseFactory(log, viper)
+	return NewJobPostingHandler(log, viper, validate, useCase, userHelper, userProfileUseCase)
 }
 
 // CreateJobPosting create job posting
@@ -256,6 +260,32 @@ func (h *JobPostingHandler) FindAllPaginatedShowOnly(ctx *gin.Context) {
 		return
 	}
 
+	userProfile, err := h.UserProfileUseCase.FindByUserID(userUUID)
+	if err != nil {
+		h.Log.Errorf("Error when getting user profile: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	relevant := ctx.Query("relevant")
+	if relevant == "" {
+		relevant = "NO"
+	}
+
+	var majors []string
+	if relevant == "YES" {
+		if userProfile != nil {
+			for _, education := range *userProfile.Educations {
+				if education.Major != "" {
+					majors = append(majors, education.Major)
+				}
+			}
+		} else {
+			h.Log.Errorf("User profile not found")
+			utils.ErrorResponse(ctx, 404, "error", "User profile not found")
+		}
+	}
+
 	page, err := strconv.Atoi(ctx.Query("page"))
 	if err != nil || page < 1 {
 		page = 1
@@ -286,7 +316,7 @@ func (h *JobPostingHandler) FindAllPaginatedShowOnly(ctx *gin.Context) {
 		filter["status"] = status
 	}
 
-	res, total, err := h.UseCase.FindAllPaginatedShowOnly(page, pageSize, search, sort, filter, userUUID)
+	res, total, err := h.UseCase.FindAllPaginatedShowOnly(page, pageSize, search, sort, filter, userUUID, majors)
 	if err != nil {
 		h.Log.Error("failed to find all paginated job postings: ", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "failed to find all paginated job postings", err.Error())

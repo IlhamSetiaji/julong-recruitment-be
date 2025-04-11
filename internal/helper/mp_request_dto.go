@@ -12,6 +12,7 @@ import (
 type IMPRequestHelper interface {
 	ConvertMapInterfaceToResponse(mprMap map[string]interface{}) (*response.MPRequestHeaderResponse, error)
 	ConvertMapInterfaceToResponseMinimal(mprMap map[string]interface{}) (*response.MPRequestHeaderResponse, error)
+	ConvertMapInterfaceToResponseIDs(mprMap map[string]interface{}) ([]*string, error)
 }
 
 type MPRequestHelper struct {
@@ -30,6 +31,33 @@ func MPRequestHelperFactory(
 	log *logrus.Logger,
 ) IMPRequestHelper {
 	return NewMPRequestHelper(log)
+}
+
+func (d *MPRequestHelper) ConvertMapInterfaceToResponseIDs(mprMap map[string]interface{}) ([]*string, error) {
+	mprHeaders, ok := mprMap["mp_request_headers"].([]interface{})
+	if !ok {
+		d.Log.Errorf("MPRequestHeaders information is missing or invalid")
+		return nil, errors.New("MPRequestHeaders information is missing or invalid")
+	}
+
+	var mprIDs []*string
+	for _, header := range mprHeaders {
+		headerMap, ok := header.(map[string]interface{})
+		if !ok {
+			d.Log.Errorf("Invalid MPRequestHeader format")
+			return nil, errors.New("Invalid MPRequestHeader format")
+		}
+
+		id, ok := headerMap["id"].(string)
+		if !ok {
+			d.Log.Errorf("MPRequestHeader ID is missing or invalid")
+			return nil, errors.New("MPRequestHeader ID is missing or invalid")
+		}
+
+		mprIDs = append(mprIDs, &id)
+	}
+
+	return mprIDs, nil
 }
 
 func (d *MPRequestHelper) ConvertMapInterfaceToResponse(mprMap map[string]interface{}) (*response.MPRequestHeaderResponse, error) {

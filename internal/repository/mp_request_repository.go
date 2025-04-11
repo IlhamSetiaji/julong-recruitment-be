@@ -17,6 +17,7 @@ type IMPRequestRepository interface {
 	FindByID(id uuid.UUID) (*entity.MPRequest, error)
 	FindAll() (*[]entity.MPRequest, error)
 	Update(ent *entity.MPRequest) (*entity.MPRequest, error)
+	FindAllByMPRCloneIDs(mprCloneIDs []*string) (*[]entity.MPRequest, error)
 }
 
 type MPRequestRepository struct {
@@ -149,4 +150,15 @@ func (r *MPRequestRepository) Update(ent *entity.MPRequest) (*entity.MPRequest, 
 	}
 
 	return ent, nil
+}
+
+func (r *MPRequestRepository) FindAllByMPRCloneIDs(mprCloneIDs []*string) (*[]entity.MPRequest, error) {
+	var mpRequests []entity.MPRequest
+
+	if err := r.DB.Where("mpr_clone_id IN ?", mprCloneIDs).Find(&mpRequests).Error; err != nil {
+		r.Log.Errorf("[MPRequestRepository.FindAllByMPRCloneIDs] error when find all mp request headers: %v", err)
+		return nil, errors.New("[MPRequestRepository.FindAllByMPRCloneIDs] error when find all mp request headers " + err.Error())
+	}
+
+	return &mpRequests, nil
 }

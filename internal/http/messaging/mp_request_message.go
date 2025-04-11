@@ -15,6 +15,7 @@ import (
 type IMPRequestMessage interface {
 	SendFindByIdMessage(id string) (*response.MPRequestHeaderResponse, error)
 	SendFindByIdTidakLengkapMessage(id string) (*response.MPRequestHeaderResponse, error)
+	SendFindIdsByMajorsMessage(majors []string) ([]*string, error)
 }
 
 type MPRequestMessage struct {
@@ -129,4 +130,49 @@ func (m *MPRequestMessage) SendFindByIdTidakLengkapMessage(id string) (*response
 	mprData.ID = uuid.MustParse(id)
 
 	return mprData, nil
+}
+
+func (m *MPRequestMessage) SendFindIdsByMajorsMessage(majors []string) ([]*string, error) {
+	payload := map[string]interface{}{
+		"majors": majors,
+	}
+
+	docMsg := &request.RabbitMQRequest{
+		ID:          uuid.New().String(),
+		MessageType: "find_mp_request_headers_by_majors",
+		MessageData: payload,
+		ReplyTo:     "julong_recruitment",
+	}
+
+	log.Printf("INFO: document message: %v", docMsg)
+
+	// create channel and add to rchans with uid
+	rchan := make(chan response.RabbitMQResponse)
+	utils.Rchans[docMsg.ID] = rchan
+
+	// publish rabbit message
+	msg := utils.RabbitMsgPublisher{
+		QueueName: "julong_manpower",
+		Message:   *docMsg,
+	}
+	utils.Pchan <- msg
+
+	// wait for reply
+	resp, err := waitReply(docMsg.ID, rchan)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("INFO: response: %v", resp)
+
+	if errMsg, ok := resp.MessageData["error"].(string); ok && errMsg != "" {
+		return nil, errors.New("[MPRequestMessage.SendFindByIDMessage] " + errMsg)
+	}
+
+	mpRequestIDs, err := m.Helper.ConvertMapInterfaceToResponseIDs(resp.MessageData)
+	if err != nil {
+		return nil, err
+	}
+
+	return mpRequestIDs, nil
 }

@@ -16,6 +16,7 @@ type IUserHelper interface {
 	GetUserId(user map[string]interface{}) (uuid.UUID, error)
 	GetUserName(user map[string]interface{}) (string, error)
 	GetUserEmail(user map[string]interface{}) (string, error)
+	GetUserProfileEducationMajors(user map[string]interface{}) ([]string, error)
 }
 
 type UserHelper struct {
@@ -278,4 +279,39 @@ func (h *UserHelper) GetUserEmail(user map[string]interface{}) (string, error) {
 
 	h.Log.Infof("User Email: %s", userEmail)
 	return userEmail, nil
+}
+
+func (h *UserHelper) GetUserProfileEducationMajors(user map[string]interface{}) ([]string, error) {
+	// Check if the "user" key exists and is a map
+	userData, ok := user["user"].(map[string]interface{})
+	if !ok {
+		h.Log.Errorf("User information is missing or invalid")
+		return nil, errors.New("User information is missing or invalid")
+	}
+
+	// Check if the "profile" key exists and is a map
+	profile, ok := userData["user_profile"].(map[string]interface{})
+	if !ok {
+		h.Log.Errorf("Profile information is missing or invalid")
+		return nil, errors.New("Profile information is missing or invalid")
+	}
+
+	// Check if the "education" key exists and is a slice of maps
+	education, ok := profile["educations"].([]interface{})
+	if !ok {
+		h.Log.Errorf("Education information is missing or invalid")
+		return nil, errors.New("Education information is missing or invalid")
+	}
+
+	var majors []string
+	for _, edu := range education {
+		if eduMap, ok := edu.(map[string]interface{}); ok {
+			if major, ok := eduMap["major"].(string); ok {
+				majors = append(majors, major)
+			}
+		}
+	}
+
+	h.Log.Infof("User Profile Education Majors: %v", majors)
+	return majors, nil
 }

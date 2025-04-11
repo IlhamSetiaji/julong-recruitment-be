@@ -180,6 +180,58 @@ func (m *UserMessage) FindUserProfileByUserIDMessage(userId string) (*response.U
 			}
 			return nil
 		}(),
+		WorkExperiences: func() *[]response.WorkExperienceResponse {
+			var workExperienceResponses []response.WorkExperienceResponse
+			if len(ent.WorkExperiences) == 0 || ent.WorkExperiences == nil {
+				return nil
+			}
+			for _, workExperience := range ent.WorkExperiences {
+				workExpResp := response.WorkExperienceResponse{
+					ID:             workExperience.ID,
+					UserProfileID:  workExperience.UserProfileID,
+					Name:           workExperience.Name,
+					CompanyName:    workExperience.CompanyName,
+					YearExperience: workExperience.YearExperience,
+					JobDescription: workExperience.JobDescription,
+				}
+				workExperienceResponses = append(workExperienceResponses, workExpResp)
+			}
+			return &workExperienceResponses
+		}(),
+		Educations: func() *[]response.EducationResponse {
+			var educationResponses []response.EducationResponse
+			if len(ent.Educations) == 0 || ent.Educations == nil {
+				return nil
+			}
+			for _, education := range ent.Educations {
+				eduResp := response.EducationResponse{
+					ID:             education.ID,
+					EducationLevel: education.EducationLevel,
+					Major:          education.Major,
+					SchoolName:     education.SchoolName,
+					GraduateYear:   education.GraduateYear,
+					EndDate:        education.EndDate,
+				}
+				educationResponses = append(educationResponses, eduResp)
+			}
+			return &educationResponses
+		}(),
+		Skills: func() *[]response.SkillResponse {
+			var skillResponses []response.SkillResponse
+			if len(ent.Skills) == 0 || ent.Skills == nil {
+				return nil
+			}
+			for _, skill := range ent.Skills {
+				skillResp := response.SkillResponse{
+					ID:            skill.ID,
+					UserProfileID: skill.UserProfileID,
+					Name:          skill.Name,
+					Description:   skill.Description,
+				}
+				skillResponses = append(skillResponses, skillResp)
+			}
+			return &skillResponses
+		}(),
 		Status:    ent.Status,
 		CreatedAt: ent.CreatedAt,
 		UpdatedAt: ent.UpdatedAt,

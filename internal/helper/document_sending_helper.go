@@ -64,12 +64,13 @@ type DocumentDataContract struct {
 }
 
 type DocumentDataOfferLetter struct {
-	DocumentDate string `json:"document_date"`
-	Name         string `json:"name"`
-	Position     string `json:"position"`
-	Company      string `json:"company"`
-	ApprovalBy   string `json:"approval_by"`
-	BasicWage    int    `json:"basic_wage"`
+	DocumentDate   string `json:"document_date"`
+	DocumentNumber string `json:"document_number"`
+	Name           string `json:"name"`
+	Position       string `json:"position"`
+	Company        string `json:"company"`
+	ApprovalBy     string `json:"approval_by"`
+	BasicWage      int    `json:"basic_wage"`
 }
 
 func NewDocumentSendingHelper(

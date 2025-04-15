@@ -67,6 +67,7 @@ func (m *GradeMessage) SendFindByIDMessage(id string) (*response.GradeResponse, 
 		Name:         resp.MessageData["name"].(string),
 		JobLevelID:   resp.MessageData["job_level_id"].(string),
 		JobLevelName: resp.MessageData["job_level_name"].(string),
+		MidsuitID:    resp.MessageData["midsuit_id"].(string),
 	}
 
 	return grade, nil

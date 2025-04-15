@@ -36,7 +36,7 @@ type HcMaritalStatus struct {
 
 type HcReligionId struct {
 	ID         int    `json:"id" binding:"omitempty"`
-	Identifier string `json:"identifier" binding:"required"`
+	Identifier string `json:"identifier" binding:"omitempty"`
 }
 
 type HcStatus struct {
@@ -134,7 +134,7 @@ type SyncEmployeeMidsuitRequest struct {
 	HcReligionID      HcReligionId        `json:"HC_Religion_ID" binding:"required"`
 	HcStatus          HcStatus            `json:"HC_Status" binding:"required"`
 	HcBasicAcceptance HcBasicAcceptance   `json:"HC_BasicAcceptance" binding:"required"`
-	HcRecruitmentType HcRecruitmentTypeId `json:"HC_RecruitmentType" binding:"required"`
+	HcRecruitmentType HcRecruitmentTypeId `json:"HC_RecruitmentType_ID" binding:"required"`
 	HCWorkStartDate   string              `json:"HC_WorkStartDate" binding:"required"`
 }
 

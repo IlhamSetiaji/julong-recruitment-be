@@ -67,6 +67,7 @@ type DocumentSendingUseCase struct {
 	DocumentSendingHelper            helper.IDocumentSendingHelper
 	JobPlafonMessage                 messaging.IJobPlafonMessage
 	MidsuitService                   service.IMidsuitService
+	GradeMessage                     messaging.IGradeMessage
 }
 
 func NewDocumentSendingUseCase(
@@ -91,6 +92,7 @@ func NewDocumentSendingUseCase(
 	documentSendingHelper helper.IDocumentSendingHelper,
 	jobPlafonMessage messaging.IJobPlafonMessage,
 	midsuitService service.IMidsuitService,
+	gradeMessage messaging.IGradeMessage,
 ) IDocumentSendingUseCase {
 	return &DocumentSendingUseCase{
 		Log:                              log,
@@ -114,6 +116,7 @@ func NewDocumentSendingUseCase(
 		DocumentSendingHelper:            documentSendingHelper,
 		JobPlafonMessage:                 jobPlafonMessage,
 		MidsuitService:                   midsuitService,
+		GradeMessage:                     gradeMessage,
 	}
 }
 
@@ -137,6 +140,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 	documentSendingHelper := helper.DocumentSendingHelperFactory(log, viper)
 	jobPlafonMesage := messaging.JobPlafonMessageFactory(log)
 	midsuitService := service.MidsuitServiceFactory(viper, log)
+	gradeMessage := messaging.GradeMessageFactory(log)
 	return NewDocumentSendingUseCase(
 		log,
 		repo,
@@ -159,6 +163,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 		documentSendingHelper,
 		jobPlafonMesage,
 		midsuitService,
+		gradeMessage,
 	)
 }
 
@@ -1779,7 +1784,8 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				},
 				HcNationalID1: applicant.UserProfile.Ktp,
 				HcReligionID: request.HcReligionId{
-					Identifier: strings.Title(string(applicant.UserProfile.Religion)),
+					ID: 1000002,
+					// Identifier: string(applicant.UserProfile.Religion),
 				},
 				HcStatus: request.HcStatus{
 					ID: "P",
@@ -1827,6 +1833,22 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 				return err
+			}
+
+			var gradeMidsuitID *string
+			if documentSending.GradeID != nil {
+				gradeResp, err := uc.GradeMessage.SendFindByIDMessage(documentSending.GradeID.String())
+				if err != nil {
+					uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+					return err
+				}
+
+				if gradeResp == nil {
+					uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] grade not found")
+					return errors.New("grade not found")
+				}
+
+				gradeMidsuitID = &gradeResp.MidsuitID
 			}
 
 			// sync to midsuit employee job
@@ -1915,6 +1937,19 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					}(),
 				},
 				IsPrimary: true,
+				HCEmployeeGradeID: request.HcEmployeeGradeId{
+					ID: func() int {
+						if gradeMidsuitID == nil {
+							return 0
+						}
+						id, err := strconv.Atoi(*gradeMidsuitID)
+						if err != nil {
+							uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert MidsuitID to int: " + err.Error())
+							return 0
+						}
+						return id
+					}(),
+				},
 				ModelName: "hc_employeejob",
 			}
 
@@ -2005,69 +2040,69 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			}
 
 			// sync to midsuit employee allowance
-			allowanceOperationPayload := &request.SyncEmployeeAllowanceMidsuitRequest{
-				AdOrgId: request.AdOrgId{
-					ID: func() int {
-						id, err := strconv.Atoi(organizationResp.MidsuitID)
-						if err != nil {
-							uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert MidsuitID to int: " + err.Error())
-							return 0
-						}
-						return id
-					}(),
-				},
-				DateDoc: documentSending.JoinedDate.Format("2006-01-02"),
-				HCEmployeeID: request.HcEmployeeId{
-					ID: func() int {
-						id, err := strconv.Atoi(*midsuitEmpID)
-						if err != nil {
-							uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert midsuitEmpID to int: " + err.Error())
-							return 0
-						}
-						return id
-					}(),
-				},
-				HCNIK: "",
-				HCJobID: request.HcJobId{
-					ID: func() int {
-						id, err := strconv.Atoi(jobResp.MidsuitID)
-						if err != nil {
-							uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert MidsuitID to int: " + err.Error())
-							return 0
-						}
-						return id
-					}(),
-				},
-				HCOrgID: request.HcOrgId{
-					ID: func() int {
-						id, err := strconv.Atoi(orgStructure.MidsuitID)
-						if err != nil {
-							uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert MidsuitID to int: " + err.Error())
-							return 0
-						}
-						return id
-					}(),
-				},
-				HCAllowanceType: request.HCAllowanceType{
-					ID: "OPR",
-				},
-				Distance: 1,
-				Amount:   int(documentSending.OperationalAllowance),
-				HCUOM: request.HCUOM{
-					ID: "MO",
-				},
-				IsUseDate: false,
-				HCProvisionType: request.HCProvisionType{
-					ID: "GRA",
-				},
-				IsGenerated: true,
-			}
+			// allowanceOperationPayload := &request.SyncEmployeeAllowanceMidsuitRequest{
+			// 	AdOrgId: request.AdOrgId{
+			// 		ID: func() int {
+			// 			id, err := strconv.Atoi(organizationResp.MidsuitID)
+			// 			if err != nil {
+			// 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert MidsuitID to int: " + err.Error())
+			// 				return 0
+			// 			}
+			// 			return id
+			// 		}(),
+			// 	},
+			// 	DateDoc: documentSending.JoinedDate.Format("2006-01-02"),
+			// 	HCEmployeeID: request.HcEmployeeId{
+			// 		ID: func() int {
+			// 			id, err := strconv.Atoi(*midsuitEmpID)
+			// 			if err != nil {
+			// 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert midsuitEmpID to int: " + err.Error())
+			// 				return 0
+			// 			}
+			// 			return id
+			// 		}(),
+			// 	},
+			// 	HCNIK: "",
+			// 	HCJobID: request.HcJobId{
+			// 		ID: func() int {
+			// 			id, err := strconv.Atoi(jobResp.MidsuitID)
+			// 			if err != nil {
+			// 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert MidsuitID to int: " + err.Error())
+			// 				return 0
+			// 			}
+			// 			return id
+			// 		}(),
+			// 	},
+			// 	HCOrgID: request.HcOrgId{
+			// 		ID: func() int {
+			// 			id, err := strconv.Atoi(orgStructure.MidsuitID)
+			// 			if err != nil {
+			// 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert MidsuitID to int: " + err.Error())
+			// 				return 0
+			// 			}
+			// 			return id
+			// 		}(),
+			// 	},
+			// 	HCAllowanceType: request.HCAllowanceType{
+			// 		ID: "OPR",
+			// 	},
+			// 	Distance: 1,
+			// 	Amount:   int(documentSending.OperationalAllowance),
+			// 	HCUOM: request.HCUOM{
+			// 		ID: "MO",
+			// 	},
+			// 	IsUseDate: false,
+			// 	HCProvisionType: request.HCProvisionType{
+			// 		ID: "GRA",
+			// 	},
+			// 	IsGenerated: true,
+			// }
 
-			_, err = uc.MidsuitService.SyncEmployeeAllowanceMidsuit(*allowanceOperationPayload, authResp.Token)
-			if err != nil {
-				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
-				return err
-			}
+			// _, err = uc.MidsuitService.SyncEmployeeAllowanceMidsuit(*allowanceOperationPayload, authResp.Token)
+			// if err != nil {
+			// 	uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			// 	return err
+			// }
 		}
 	}
 

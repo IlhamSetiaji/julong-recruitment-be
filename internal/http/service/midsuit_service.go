@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -59,11 +60,11 @@ type AuthOneStepResponse struct {
 }
 
 type SyncEmployeeMidsuitResponse struct {
-	ID string `json:"id"`
+	ID int `json:"id"`
 }
 
 type SyncEmployeeJobMidsuitResponse struct {
-	ID string `json:"id"`
+	ID int `json:"id"`
 }
 
 func (s *MidsuitService) AuthOneStep() (*AuthOneStepResponse, error) {
@@ -169,7 +170,8 @@ func (s *MidsuitService) SyncEmployeeMidsuit(payload request.SyncEmployeeMidsuit
 		return nil, errors.New("[MidsuitService.SyncEmployeeMidsuit] Error when unmarshalling response: " + err.Error())
 	}
 
-	return &syncResponse.ID, nil
+	idStr := strconv.Itoa(syncResponse.ID)
+	return &idStr, nil
 }
 
 func (s *MidsuitService) SyncEmployeeJobMidsuit(payload request.SyncEmployeeJobMidsuitRequest, jwtToken string) (*string, error) {
@@ -217,7 +219,8 @@ func (s *MidsuitService) SyncEmployeeJobMidsuit(payload request.SyncEmployeeJobM
 		return nil, errors.New("[MidsuitService.SyncEmployeeJobMidsuit] Error when unmarshalling response: " + err.Error())
 	}
 
-	return &syncResponse.ID, nil
+	idStr := strconv.Itoa(syncResponse.ID)
+	return &idStr, nil
 }
 
 func (s *MidsuitService) SyncEmployeeWorkExperienceMidsuit(payload request.SyncEmployeeWorkExperienceMidsuitRequest, jwtToken string) (*string, error) {
@@ -265,7 +268,8 @@ func (s *MidsuitService) SyncEmployeeWorkExperienceMidsuit(payload request.SyncE
 		return nil, errors.New("[MidsuitService.SyncEmployeeWorkExperienceMidsuit] Error when unmarshalling response: " + err.Error())
 	}
 
-	return &syncResponse.ID, nil
+	idStr := strconv.Itoa(syncResponse.ID)
+	return &idStr, nil
 }
 
 func (s *MidsuitService) SyncEmployeeEducationMidsuit(payload request.SyncEmployeeEducationMidsuitRequest, jwtToken string) (*string, error) {
@@ -313,7 +317,8 @@ func (s *MidsuitService) SyncEmployeeEducationMidsuit(payload request.SyncEmploy
 		return nil, errors.New("[MidsuitService.SyncEmployeeEducationMidsuit] Error when unmarshalling response: " + err.Error())
 	}
 
-	return &syncResponse.ID, nil
+	idStr := strconv.Itoa(syncResponse.ID)
+	return &idStr, nil
 }
 
 func (s *MidsuitService) SyncEmployeeAllowanceMidsuit(payload request.SyncEmployeeAllowanceMidsuitRequest, jwtToken string) (*string, error) {
@@ -361,5 +366,6 @@ func (s *MidsuitService) SyncEmployeeAllowanceMidsuit(payload request.SyncEmploy
 		return nil, errors.New("[MidsuitService.SyncEmployeeAllowanceMidsuit] Error when unmarshalling response: " + err.Error())
 	}
 
-	return &syncResponse.ID, nil
+	idStr := strconv.Itoa(syncResponse.ID)
+	return &idStr, nil
 }

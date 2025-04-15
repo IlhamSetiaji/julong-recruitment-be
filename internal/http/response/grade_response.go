@@ -5,4 +5,5 @@ type GradeResponse struct {
 	JobLevelID   string `json:"job_level_id"`
 	Name         string `json:"name"`
 	JobLevelName string `json:"job_level_name"`
+	MidsuitID    string `json:"midsuit_id"`
 }

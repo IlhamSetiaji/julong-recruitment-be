@@ -210,6 +210,7 @@ func (uc *AdministrativeResultUseCase) CreateOrUpdateAdministrativeResults(req *
 						return nil, err
 					}
 					if applicant != nil {
+						uc.Log.Infof("Masuk sini bos")
 						_, err = uc.ApplicantRepository.UpdateApplicantWhenRejected(&entity.Applicant{
 							ID:            applicant.ID,
 							UserProfileID: parsedUserProfileID,

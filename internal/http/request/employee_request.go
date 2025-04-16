@@ -9,6 +9,7 @@ type SendCreateEmployeeMessageRequest struct {
 	Name                    string `json:"name" validate:"required"`
 	Email                   string `json:"email" validate:"required,email"`
 	JobID                   string `json:"job_id" validate:"required,uuid"`
+	JobLevelID              string `json:"job_level_id" validate:"required,uuid"`
 	OrganizationID          string `json:"organization_id" validate:"required,uuid"`
 	OrganizationLocationID  string `json:"organization_location_id" validate:"required,uuid"`
 	OrganizationStructureID string `json:"organization_structure_id" validate:"required,uuid"`

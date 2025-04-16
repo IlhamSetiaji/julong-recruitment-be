@@ -1673,6 +1673,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			Name:                    applicant.UserProfile.Name,
 			Email:                   userEmail,
 			JobID:                   jobPosting.JobID.String(),
+			JobLevelID:              documentSending.JobLevelID.String(),
 			OrganizationID:          convertedData.OrganizationID.String(),
 			OrganizationLocationID:  convertedData.OrganizationLocationID.String(),
 			OrganizationStructureID: convertedData.ForOrganizationStructureID.String(),
@@ -1810,6 +1811,13 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 				return err
 			}
+
+			_, err = uc.EmployeeMessage.SendUpdateEmployeeMidsuitMessage(employeeID.String(), *midsuitEmpID)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+			uc.Log.Info("Midsuit Employee ID: ", *midsuitEmpID)
 
 			orgStructure, err := uc.OrganizationMessage.SendFindOrganizationStructureByIDMessage(request.SendFindOrganizationStructureByIDMessageRequest{
 				ID: convertedData.ForOrganizationStructureID.String(),

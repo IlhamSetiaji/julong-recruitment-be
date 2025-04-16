@@ -17,6 +17,7 @@ type IEmployeeMessage interface {
 	SendCreateEmployeeMessage(req request.SendCreateEmployeeMessageRequest) (*string, error)
 	SendCreateEmployeeTaskMessage(req request.SendCreateEmployeeTaskMessageRequest) (*string, error)
 	SendGetChartEmployeeOrganizationStructureMessage() (*response.ChartDepartmentResponse, error)
+	SendUpdateEmployeeMidsuitMessage(id string, midsuidID string) (*string, error)
 }
 
 type EmployeeMessage struct {
@@ -277,4 +278,51 @@ func (m *EmployeeMessage) SendGetChartEmployeeOrganizationStructureMessage() (*r
 	}
 
 	return chart, nil
+}
+
+func (m *EmployeeMessage) SendUpdateEmployeeMidsuitMessage(id string, midsuitID string) (*string, error) {
+	payload := map[string]interface{}{
+		"employee_id": id,
+		"midsuit_id":  midsuitID,
+	}
+
+	docMsg := &request.RabbitMQRequest{
+		ID:          uuid.New().String(),
+		MessageType: "update_employee_midsuit",
+		MessageData: payload,
+		ReplyTo:     "julong_recruitment",
+	}
+
+	log.Printf("INFO: document message: %v", docMsg)
+
+	// create channel and add to rchans with uid
+	rchan := make(chan response.RabbitMQResponse)
+	utils.Rchans[docMsg.ID] = rchan
+
+	// publish rabbit message
+	msg := utils.RabbitMsgPublisher{
+		QueueName: "julong_sso",
+		Message:   *docMsg,
+	}
+	utils.Pchan <- msg
+
+	// wait for reply
+	resp, err := waitReply(docMsg.ID, rchan)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("INFO: response: %v", resp)
+
+	if errMsg, ok := resp.MessageData["error"]; ok {
+		return nil, errors.New("[EmployeeMessage.SendUpdateEmployeeMidsuitMessage] " + errMsg.(string))
+	}
+
+	midsuitData, ok := resp.MessageData["message"].(string)
+	if !ok {
+		return nil, errors.New("[EmployeeMessage.SendUpdateEmployeeMidsuitMessage] " + "Failed to update employee midsuit")
+	}
+	midsuit := midsuitData
+
+	return &midsuit, nil
 }

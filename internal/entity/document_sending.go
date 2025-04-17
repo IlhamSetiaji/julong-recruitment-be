@@ -65,16 +65,18 @@ type DocumentSending struct {
 	SyncMidsuit              SyncMidsuitEnum        `json:"sync_midsuit" gorm:"type:text;default:null"`
 	HiredStatus              HiredStatusEnum        `json:"hired_status" gorm:"type:text;default:null"`
 	GradeID                  *uuid.UUID             `json:"grade_id" gorm:"type:char(36);default:null"`
+	AllowanceApproval        *uuid.UUID             `json:"allowance_approval" gorm:"type:char(36);default:null"`
 
 	ProjectRecruitmentLine *ProjectRecruitmentLine `json:"project_recruitment_line" gorm:"foreignKey:ProjectRecruitmentLineID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Applicant              *Applicant              `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DocumentSetup          *DocumentSetup          `json:"document_setup" gorm:"foreignKey:DocumentSetupID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	JobPosting             *JobPosting             `json:"job_posting" gorm:"foreignKey:JobPostingID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
-	JobLevelName        *string `json:"job_level_name" gorm:"-"`
-	JobName             *string `json:"job_name" gorm:"-"`
-	ForOrganizationName *string `json:"for_organization_name" gorm:"-"`
-	GradeName           *string `json:"grade_name" gorm:"-"`
+	JobLevelName          *string `json:"job_level_name" gorm:"-"`
+	JobName               *string `json:"job_name" gorm:"-"`
+	ForOrganizationName   *string `json:"for_organization_name" gorm:"-"`
+	GradeName             *string `json:"grade_name" gorm:"-"`
+	AllowanceApprovalName *string `json:"allowance_approval_name" gorm:"-"`
 }
 
 func (ds *DocumentSending) BeforeCreate(tx *gorm.DB) (err error) {

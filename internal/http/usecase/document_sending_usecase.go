@@ -310,6 +310,16 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		gradeID = &parsedGradeID
 	}
 
+	var allowanceApproval *uuid.UUID
+	if req.AllowanceApproval != "" {
+		parsedAllowanceApprovalID, err := uuid.Parse(req.AllowanceApproval)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		allowanceApproval = &parsedAllowanceApprovalID
+	}
+
 	documentSending, err := uc.Repository.CreateDocumentSending(&entity.DocumentSending{
 		DocumentSetupID:          parsedDocumentSetupID,
 		ProjectRecruitmentLineID: parsedProjectRecruitmentLineID,
@@ -336,6 +346,7 @@ func (uc *DocumentSendingUseCase) CreateDocumentSending(req *request.CreateDocum
 		DetailContent:            req.DetailContent,
 		SyncMidsuit:              entity.SyncMidsuitEnum(req.SyncMidsuit),
 		HiredStatus:              entity.HiredStatusEnum(req.HiredStatus),
+		AllowanceApproval:        allowanceApproval,
 	})
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
@@ -1346,6 +1357,16 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		gradeID = &parsedGradeID
 	}
 
+	var allowanceApproval *uuid.UUID
+	if req.AllowanceApproval != "" {
+		parsedAllowanceApprovalID, err := uuid.Parse(req.AllowanceApproval)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.CreateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		allowanceApproval = &parsedAllowanceApprovalID
+	}
+
 	documentSending, err := uc.Repository.UpdateDocumentSending(&entity.DocumentSending{
 		ID:                       parsedID,
 		DocumentSetupID:          parsedDocumentSetupID,
@@ -1373,6 +1394,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 		DetailContent:            req.DetailContent,
 		SyncMidsuit:              entity.SyncMidsuitEnum(req.SyncMidsuit),
 		HiredStatus:              entity.HiredStatusEnum(req.HiredStatus),
+		AllowanceApproval:        allowanceApproval,
 	})
 	if err != nil {
 		uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())

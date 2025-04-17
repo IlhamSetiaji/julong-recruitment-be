@@ -23,6 +23,7 @@ type DocumentSendingDTO struct {
 	JobPostingDTO             IJobPostingDTO
 	DocumentSetupDTO          IDocumentSetupDTO
 	GradeMessage              messaging.IGradeMessage
+	EmployeeMessage           messaging.IEmployeeMessage
 }
 
 func NewDocumentSendingDTO(
@@ -35,6 +36,7 @@ func NewDocumentSendingDTO(
 	jobPostingDTO IJobPostingDTO,
 	documentSetupDTO IDocumentSetupDTO,
 	gradeMessage messaging.IGradeMessage,
+	employeeMessage messaging.IEmployeeMessage,
 ) IDocumentSendingDTO {
 	return &DocumentSendingDTO{
 		Log:                       log,
@@ -46,6 +48,7 @@ func NewDocumentSendingDTO(
 		JobPostingDTO:             jobPostingDTO,
 		DocumentSetupDTO:          documentSetupDTO,
 		GradeMessage:              gradeMessage,
+		EmployeeMessage:           employeeMessage,
 	}
 }
 
@@ -57,7 +60,8 @@ func DocumentSendingDTOFactory(log *logrus.Logger, viper *viper.Viper) IDocument
 	jobPostingDTO := JobPostingDTOFactory(log, viper)
 	documentSetupDTO := DocumentSetupDTOFactory(log)
 	gradeNessage := messaging.GradeMessageFactory(log)
-	return NewDocumentSendingDTO(log, orgMessage, jobMessage, prlDTO, viper, applicantDTO, jobPostingDTO, documentSetupDTO, gradeNessage)
+	employeeMessage := messaging.EmployeeMessageFactory(log)
+	return NewDocumentSendingDTO(log, orgMessage, jobMessage, prlDTO, viper, applicantDTO, jobPostingDTO, documentSetupDTO, gradeNessage, employeeMessage)
 }
 
 func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSending) *response.DocumentSendingResponse {
@@ -66,6 +70,7 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 	var organizationName string
 	var organizationLocationName string
 	var gradeName string
+	var allowanceApprovalName string
 	var err error
 
 	if ent.JobLevelID != nil {
@@ -123,6 +128,19 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		}
 	}
 
+	if ent.AllowanceApproval != nil {
+		allowanceApprovalData, err := dto.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
+			ID: ent.AllowanceApproval.String(),
+		})
+		if err != nil {
+			dto.Log.Errorf("[DocumentSendingDTO.ConvertEntityToResponse] " + err.Error())
+			allowanceApprovalName = ""
+		}
+		if allowanceApprovalData != nil {
+			allowanceApprovalName = allowanceApprovalData.Name
+		}
+	}
+
 	return &response.DocumentSendingResponse{
 		ID:                       ent.ID,
 		ProjectRecruitmentLineID: ent.ProjectRecruitmentLineID,
@@ -130,6 +148,7 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		DocumentSetupID:          ent.DocumentSetupID,
 		OrganizationLocationID:   ent.OrganizationLocationID,
 		GradeID:                  ent.GradeID,
+		AllowanceApproval:        ent.AllowanceApproval,
 		DocumentDate:             ent.DocumentDate,
 		DocumentNumber:           ent.DocumentNumber,
 		JoinedDate:               ent.JoinedDate,
@@ -192,5 +211,6 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		ForOrganizationName:      &organizationName,
 		OrganizationLocationName: &organizationLocationName,
 		GradeName:                &gradeName,
+		AllowanceApprovalName:    &allowanceApprovalName,
 	}
 }

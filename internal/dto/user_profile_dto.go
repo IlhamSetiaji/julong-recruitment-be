@@ -85,6 +85,7 @@ func (dto *UserProfileDTO) ConvertEntityToResponse(ent *entity.UserProfile) (*re
 		ExpectedSalary: ent.ExpectedSalary,
 		CurrentSalary:  ent.CurrentSalary,
 		Religion:       ent.Religion,
+		MidsuitID:      ent.MidsuitID,
 		Avatar: func() *string {
 			if ent.Avatar != "" {
 				avatarURL := dto.Viper.GetString("app.url") + ent.Avatar

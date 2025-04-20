@@ -159,6 +159,7 @@ func (m *UserMessage) FindUserProfileByUserIDMessage(userId string) (*response.U
 		BirthPlace:    ent.BirthPlace,
 		Address:       ent.Address,
 		Bilingual:     ent.Bilingual,
+		MidsuitID:     ent.MidsuitID,
 		Avatar: func() *string {
 			if ent.Avatar != "" {
 				avatarURL := configData.GetString("app.url") + ent.Avatar

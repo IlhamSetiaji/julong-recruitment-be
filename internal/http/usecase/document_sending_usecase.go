@@ -1053,12 +1053,19 @@ func (uc *DocumentSendingUseCase) replaceContractDocument(documentSending entity
 	maritalStatus := applicant.UserProfile.MaritalStatus
 	religion := applicant.UserProfile.Religion
 	address := applicant.UserProfile.Address
-	educationLevel := applicant.UserProfile.Educations[0]
+	// educationLevel := applicant.UserProfile.Educations[0]
 
 	var degreeName string
 	var major string
 	if applicant.UserProfile.Educations != nil {
-		degreeName = strings.TrimSpace(strings.SplitN(string(educationLevel.EducationLevel), "-", 2)[1])
+		educationLevel := applicant.UserProfile.Educations[0]
+		parts := strings.SplitN(string(educationLevel.EducationLevel), "-", 2)
+		if len(parts) > 1 {
+			degreeName = strings.TrimSpace(parts[1])
+		} else {
+			uc.Log.Warn("[DocumentSendingUseCase.replaceContractDocument] EducationLevel does not contain '-' delimiter")
+			degreeName = strings.TrimSpace(parts[0]) // Use the first part as a fallback
+		}
 		major = educationLevel.Major
 	}
 

@@ -38,4 +38,5 @@ type CreateOrUpdateUserProfileRequest struct {
 	PhoneNumber   string `json:"phone_number" validate:"omitempty"`
 	BirthDate     string `json:"birth_date" validate:"required,datetime=2006-01-02"`
 	BirthPlace    string `json:"birth_place" validate:"required"`
+	MidsuitID     string `json:"midsuit_id" validate:"omitempty"`
 }

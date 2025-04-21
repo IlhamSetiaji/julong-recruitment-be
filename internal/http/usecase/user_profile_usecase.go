@@ -971,6 +971,11 @@ func (uc *UserProfileUseCase) CreateOrUpdateUserProfile(req *request.CreateOrUpd
 		}
 	}
 
+	var midsuitID string
+	if req.MidsuitID != "" {
+		midsuitID = req.MidsuitID
+	}
+
 	if exist == nil {
 		createdProfile, err := uc.Repository.CreateUserProfile(&entity.UserProfile{
 			UserID:        &parsedUserID,
@@ -980,6 +985,7 @@ func (uc *UserProfileUseCase) CreateOrUpdateUserProfile(req *request.CreateOrUpd
 			BirthPlace:    req.BirthPlace,
 			PhoneNumber:   req.PhoneNumber,
 			Age:           req.Age,
+			MidsuitID:     &midsuitID,
 		})
 		if err != nil {
 			uc.Log.Errorf("[UserProfileUseCase.CreateOrUpdateUserProfile] error when creating user profile: %s", err.Error())
@@ -998,6 +1004,7 @@ func (uc *UserProfileUseCase) CreateOrUpdateUserProfile(req *request.CreateOrUpd
 		BirthPlace:    req.BirthPlace,
 		PhoneNumber:   req.PhoneNumber,
 		Age:           req.Age,
+		MidsuitID:     &midsuitID,
 	})
 	if err != nil {
 		uc.Log.Errorf("[UserProfileUseCase.CreateOrUpdateUserProfile] error when updating user profile: %s", err.Error())

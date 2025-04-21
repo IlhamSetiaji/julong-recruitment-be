@@ -315,6 +315,14 @@ func handleMsg(docMsg *request.RabbitMQRequest, log *logrus.Logger, viper *viper
 			}
 			break
 		}
+		midsuitID, ok := docMsg.MessageData["midsuit_id"].(string)
+		if !ok {
+			log.Errorf("Invalid request format: missing 'midsuit_id'")
+			msgData = map[string]interface{}{
+				"error": errors.New("missing 'midsuit_id'").Error(),
+			}
+			break
+		}
 
 		upUseCaseFactory := usecase.UserProfileUseCaseFactory(log, viper)
 		_, err := upUseCaseFactory.CreateOrUpdateUserProfile(&request.CreateOrUpdateUserProfileRequest{
@@ -325,6 +333,7 @@ func handleMsg(docMsg *request.RabbitMQRequest, log *logrus.Logger, viper *viper
 			PhoneNumber:   phoneNumber,
 			BirthDate:     birthDate,
 			BirthPlace:    birthPlace,
+			MidsuitID:     midsuitID,
 		})
 		if err != nil {
 			log.Errorf("ERROR: fail create or update user profile: %s", err.Error())

@@ -9,18 +9,32 @@ import (
 
 type EducationLevelEnum string
 
+// const (
+// 	EDUCATION_LEVEL_ENUM_DOCTORAL EducationLevelEnum = "1 - Doctoral / Professor"
+// 	EDUCATION_LEVEL_ENUM_MASTER   EducationLevelEnum = "2 - Master Degree"
+// 	EDUCATION_LEVEL_ENUM_BACHELOR EducationLevelEnum = "3 - Bachelor"
+// 	EDUCATION_LEVEL_ENUM_D1       EducationLevelEnum = "4 - Diploma 1"
+// 	EDUCATION_LEVEL_ENUM_D2       EducationLevelEnum = "5 - Diploma 2"
+// 	EDUCATION_LEVEL_ENUM_D3       EducationLevelEnum = "6 - Diploma 3"
+// 	EDUCATION_LEVEL_ENUM_D4       EducationLevelEnum = "7 - Diploma 4"
+// 	EDUCATION_LEVEL_ENUM_SD       EducationLevelEnum = "8 - Elementary School"
+// 	EDUCATION_LEVEL_ENUM_SMA      EducationLevelEnum = "9 - Senior High School"
+// 	EDUCATION_LEVEL_ENUM_SMP      EducationLevelEnum = "10 - Junior High School"
+// 	EDUCATION_LEVEL_ENUM_TK       EducationLevelEnum = "11 - Unschooled"
+// )
+
 const (
-	EDUCATION_LEVEL_ENUM_DOCTORAL EducationLevelEnum = "1 - Doctoral / Professor"
-	EDUCATION_LEVEL_ENUM_MASTER   EducationLevelEnum = "2 - Master Degree"
-	EDUCATION_LEVEL_ENUM_BACHELOR EducationLevelEnum = "3 - Bachelor"
-	EDUCATION_LEVEL_ENUM_D1       EducationLevelEnum = "4 - Diploma 1"
-	EDUCATION_LEVEL_ENUM_D2       EducationLevelEnum = "5 - Diploma 2"
-	EDUCATION_LEVEL_ENUM_D3       EducationLevelEnum = "6 - Diploma 3"
-	EDUCATION_LEVEL_ENUM_D4       EducationLevelEnum = "7 - Diploma 4"
-	EDUCATION_LEVEL_ENUM_SD       EducationLevelEnum = "8 - Elementary School"
-	EDUCATION_LEVEL_ENUM_SMA      EducationLevelEnum = "9 - Senior High School"
-	EDUCATION_LEVEL_ENUM_SMP      EducationLevelEnum = "10 - Junior High School"
-	EDUCATION_LEVEL_ENUM_TK       EducationLevelEnum = "11 - Unschooled"
+	EDUCATION_LEVEL_ENUM_DOCTORAL EducationLevelEnum = "S3"
+	EDUCATION_LEVEL_ENUM_MASTER   EducationLevelEnum = "S2"
+	EDUCATION_LEVEL_ENUM_BACHELOR EducationLevelEnum = "S1"
+	EDUCATION_LEVEL_ENUM_D1       EducationLevelEnum = "D1"
+	EDUCATION_LEVEL_ENUM_D2       EducationLevelEnum = "D2"
+	EDUCATION_LEVEL_ENUM_D3       EducationLevelEnum = "D3"
+	EDUCATION_LEVEL_ENUM_D4       EducationLevelEnum = "D4"
+	EDUCATION_LEVEL_ENUM_SD       EducationLevelEnum = "SD"
+	EDUCATION_LEVEL_ENUM_SMA      EducationLevelEnum = "SMA"
+	EDUCATION_LEVEL_ENUM_SMP      EducationLevelEnum = "SMP"
+	EDUCATION_LEVEL_ENUM_TK       EducationLevelEnum = "TS"
 )
 
 type Education struct {

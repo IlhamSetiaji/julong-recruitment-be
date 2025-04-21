@@ -16,9 +16,14 @@ type SendCreateEmployeeMessageRequest struct {
 }
 
 type SendCreateEmployeeTaskMessageRequest struct {
-	EmployeeID       string `json:"employee_id" validate:"required,uuid"`
-	JoinedDate       string `json:"joined_date" validate:"required,datetime=2006-01-02"`
-	OrganizationType string `json:"organization_type" validate:"required"`
+	EmployeeID            string `json:"employee_id" validate:"required,uuid"`
+	JoinedDate            string `json:"joined_date" validate:"required,datetime=2006-01-02"`
+	OrganizationType      string `json:"organization_type" validate:"required"`
+	EmployeeMidsuitID     string `json:"employee_midsuit_id" validate:"omitempty"`
+	JobMidsuitID          string `json:"job_midsuit_id" validate:"omitempty"`
+	JobLevelMidsuitID     string `json:"job_level_midsuit_id" validate:"omitempty"`
+	OrgMidsuitID          string `json:"org_midsuit_id" validate:"omitempty"`
+	OrgStructureMidsuitID string `json:"org_structure_midsuit_id" validate:"omitempty"`
 }
 
 type AdOrgId struct {

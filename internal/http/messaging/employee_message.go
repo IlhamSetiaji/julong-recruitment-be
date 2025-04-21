@@ -83,6 +83,7 @@ func convertInterfaceToEmployeeResponse(data map[string]interface{}) *response.E
 	email := data["email"].(string)
 	mobilePhone := data["mobile_phone"].(string)
 	employeeJob := data["employee_job"].(map[string]interface{})
+	midsuitID := data["midsuit_id"].(string)
 
 	return &response.EmployeeResponse{
 		ID:             uuid.MustParse(id),
@@ -93,9 +94,9 @@ func convertInterfaceToEmployeeResponse(data map[string]interface{}) *response.E
 		Email:          email,
 		MobilePhone:    mobilePhone,
 		EmployeeJob:    employeeJob,
+		MidsuitID:      midsuitID,
 	}
 }
-
 func EmployeeMessageFactory(log *logrus.Logger) IEmployeeMessage {
 	return NewEmployeeMessage(log)
 }
@@ -155,9 +156,14 @@ func (m *EmployeeMessage) SendCreateEmployeeMessage(req request.SendCreateEmploy
 
 func (m *EmployeeMessage) SendCreateEmployeeTaskMessage(req request.SendCreateEmployeeTaskMessageRequest) (*string, error) {
 	payload := map[string]interface{}{
-		"employee_id":       req.EmployeeID,
-		"joined_date":       req.JoinedDate,
-		"organization_type": req.OrganizationType,
+		"employee_id":              req.EmployeeID,
+		"joined_date":              req.JoinedDate,
+		"organization_type":        req.OrganizationType,
+		"employee_midsuit_id":      req.EmployeeMidsuitID,
+		"job_midsuit_id":           req.JobMidsuitID,
+		"job_level_midsuit_id":     req.JobLevelMidsuitID,
+		"org_midsuit_id":           req.OrgMidsuitID,
+		"org_structure_midsuit_id": req.OrgStructureMidsuitID,
 	}
 
 	docMsg := &request.RabbitMQRequest{

@@ -1743,14 +1743,41 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			return err
 		}
 
-		_, err = uc.EmployeeMessage.SendCreateEmployeeTaskMessage(request.SendCreateEmployeeTaskMessageRequest{
-			EmployeeID:       employeeID.String(),
-			JoinedDate:       documentSending.JoinedDate.String(),
-			OrganizationType: organizationResp.OrganizationType,
+		empResp, err := uc.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
+			ID: employeeID.String(),
 		})
 		if err != nil {
-			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] error sending find employee by id message: ", err)
 			return err
+		}
+		if empResp == nil {
+			uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] employee not found in midsuit")
+			return errors.New("employee not found in midsuit")
+		}
+
+		orgResp, err := uc.OrganizationMessage.SendFindOrganizationByIDMessage(request.SendFindOrganizationByIDMessageRequest{
+			ID: empResp.OrganizationID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] error sending find organization by id message: ", err)
+			return err
+		}
+		if orgResp == nil {
+			uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] organization not found in midsuit")
+			return errors.New("organization not found in midsuit")
+		}
+
+		orgStructureId := empResp.EmployeeJob["organization_structure_id"].(string)
+		orgStructureResp, err := uc.OrganizationMessage.SendFindOrganizationStructureByIDMessage(request.SendFindOrganizationStructureByIDMessageRequest{
+			ID: orgStructureId,
+		})
+		if err != nil {
+			uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] error sending find organization structure by id message: ", err)
+			return err
+		}
+		if orgStructureResp == nil {
+			uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] organization structure not found in midsuit")
+			return errors.New("organization structure not found in midsuit")
 		}
 
 		_, err = uc.ApplicantRepository.UpdateApplicant(&entity.Applicant{
@@ -1773,6 +1800,21 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 
 		jobLevelResp, err := uc.JobPlafonMessage.SendFindJobLevelByIDMessage(request.SendFindJobLevelByIDMessageRequest{
 			ID: documentSending.JobLevelID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return err
+		}
+
+		_, err = uc.EmployeeMessage.SendCreateEmployeeTaskMessage(request.SendCreateEmployeeTaskMessageRequest{
+			EmployeeID:            employeeID.String(),
+			JoinedDate:            documentSending.JoinedDate.String(),
+			OrganizationType:      organizationResp.OrganizationType,
+			EmployeeMidsuitID:     empResp.MidsuitID,
+			JobMidsuitID:          jobResp.MidsuitID,
+			JobLevelMidsuitID:     jobLevelResp.MidsuitID,
+			OrgMidsuitID:          orgResp.MidsuitID,
+			OrgStructureMidsuitID: orgStructureResp.MidsuitID,
 		})
 		if err != nil {
 			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())

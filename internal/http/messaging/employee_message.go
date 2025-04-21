@@ -106,6 +106,7 @@ func (m *EmployeeMessage) SendCreateEmployeeMessage(req request.SendCreateEmploy
 		"name":                      req.Name,
 		"email":                     req.Email,
 		"job_id":                    req.JobID,
+		"job_level_id":              req.JobLevelID,
 		"organization_id":           req.OrganizationID,
 		"organization_location_id":  req.OrganizationLocationID,
 		"organization_structure_id": req.OrganizationStructureID,

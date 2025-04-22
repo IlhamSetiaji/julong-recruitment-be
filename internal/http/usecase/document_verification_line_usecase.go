@@ -156,6 +156,9 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 		}
 		switch exist.DocumentVerification.Name {
 		case "Nomor KTP":
+			if len(payload.Answer) < 16 || len(payload.Answer) > 16 {
+				return nil, errors.New("Nomor KTP tidak valid")
+			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] KTP - " + payload.Answer)
 			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
 				HcNationalID1: payload.Answer,
@@ -166,6 +169,9 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 				return nil, err
 			}
 		case "Nomor NPWP":
+			if len(payload.Answer) < 15 || len(payload.Answer) > 16 {
+				return nil, errors.New("Nomor NPWP tidak valid")
+			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] NPWP - " + payload.Answer)
 			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
 				HcNationalID3: payload.Answer,
@@ -176,6 +182,9 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 				return nil, err
 			}
 		case "Nomor Kartu BPJS TK":
+			if len(payload.Answer) < 11 || len(payload.Answer) > 11 {
+				return nil, errors.New("Nomor Kartu BPJS TK tidak valid")
+			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] BPJS TK - " + payload.Answer)
 			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
 				HcNationalID4: payload.Answer,
@@ -186,6 +195,9 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 				return nil, err
 			}
 		case "Nomor Kartu BPJS KS":
+			if len(payload.Answer) < 13 || len(payload.Answer) > 13 {
+				return nil, errors.New("Nomor Kartu BPJS KS tidak valid")
+			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] BPJS KS - " + payload.Answer)
 			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
 				HcNationalID5: payload.Answer,

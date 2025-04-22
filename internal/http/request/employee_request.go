@@ -144,6 +144,13 @@ type SyncEmployeeMidsuitRequest struct {
 	HCWorkStartDate   string              `json:"HC_WorkStartDate" binding:"required"`
 }
 
+type SyncUpdateEmployeeNationalDataMidsuitRequest struct {
+	HcNationalID1 string `json:"HC_NationalID1" binding:"omitempty"` // ktp
+	HcNationalID3 string `json:"HC_NationalID2" binding:"omitempty"` // npwp
+	HcNationalID4 string `json:"HC_NationalID3" binding:"omitempty"` // bpjs tk
+	HcNationalID5 string `json:"HC_NationalID4" binding:"omitempty"` // bpjs ks
+}
+
 type SyncEmployeeJobMidsuitRequest struct {
 	AdOrgId              AdOrgId               `json:"AD_Org_ID" binding:"required"`
 	HCCompensation1      int                   `json:"HC_Compensation1" binding:"required"`

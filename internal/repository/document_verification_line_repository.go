@@ -13,6 +13,7 @@ type IDocumentVerificationLineRepository interface {
 	UpdateDocumentVerificationLine(ent *entity.DocumentVerificationLine) (*entity.DocumentVerificationLine, error)
 	DeleteDocumentVerificationLine(id uuid.UUID) error
 	FindByID(id uuid.UUID) (*entity.DocumentVerificationLine, error)
+	FindByIDPreload(id uuid.UUID) (*entity.DocumentVerificationLine, error)
 	FindAllByDocumentVerificationHeaderID(documentVerificationHeaderID uuid.UUID) (*[]entity.DocumentVerificationLine, error)
 	UpdateAnswer(id uuid.UUID, answer string) error
 }
@@ -94,6 +95,16 @@ func (r *DocumentVerificationLineRepository) FindByID(id uuid.UUID) (*entity.Doc
 	var ent entity.DocumentVerificationLine
 
 	if err := r.DB.First(&ent, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &ent, nil
+}
+
+func (r *DocumentVerificationLineRepository) FindByIDPreload(id uuid.UUID) (*entity.DocumentVerificationLine, error) {
+	var ent entity.DocumentVerificationLine
+
+	if err := r.DB.Preload("DocumentVerification").Preload("DocumentVerificationHeader.Applicant.UserProfile").First(&ent, id).Error; err != nil {
 		return nil, err
 	}
 

@@ -2,11 +2,15 @@ package usecase
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/response"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/repository"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -29,23 +33,29 @@ type DocumentVerificationLineUsecase struct {
 	DocumentVerificationHeaderRepository repository.IDocumentVerificationHeaderRepository
 	DocumentVerificationRepository       repository.IDocumentVerificationRepository
 	Viper                                *viper.Viper
+	UserMessage                          messaging.IUserMessage
+	ApplicantRepository                  repository.IApplicantRepository
+	UserProfileRepository                repository.IUserProfileRepository
+	EmployeeMessage                      messaging.IEmployeeMessage
+	MidsuitService                       service.IMidsuitService
+	UserHelper                           helper.IUserHelper
 }
 
-func (u *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *request.UpdateAnswer) (*response.DocumentVerificationLineResponse, error) {
-	// Implement the logic to update the answer here
-	// Example:
-	err := u.Repository.UpdateAnswer(id, payload.Answer)
-	if err != nil {
-		return nil, err
-	}
-
-	return &response.DocumentVerificationLineResponse{
-		ID:     id,
-		Answer: payload.Answer,
-	}, nil
-}
-
-func NewDocumentVerificationLineUsecase(log *logrus.Logger, repository repository.IDocumentVerificationLineRepository, dto dto.IDocumentVerificationLineDTO, documentVerificationHeaderDTO dto.IDocumentVerificationHeaderDTO, documentVerificationHeaderRepository repository.IDocumentVerificationHeaderRepository, documentVerificationRepository repository.IDocumentVerificationRepository, viper *viper.Viper) IDocumentVerificationLineUsecase {
+func NewDocumentVerificationLineUsecase(
+	log *logrus.Logger,
+	repository repository.IDocumentVerificationLineRepository,
+	dto dto.IDocumentVerificationLineDTO,
+	documentVerificationHeaderDTO dto.IDocumentVerificationHeaderDTO,
+	documentVerificationHeaderRepository repository.IDocumentVerificationHeaderRepository,
+	documentVerificationRepository repository.IDocumentVerificationRepository,
+	viper *viper.Viper,
+	userMessage messaging.IUserMessage,
+	applicantRepository repository.IApplicantRepository,
+	userProfileRepository repository.IUserProfileRepository,
+	employeeMessage messaging.IEmployeeMessage,
+	midsuitService service.IMidsuitService,
+	userHelper helper.IUserHelper,
+) IDocumentVerificationLineUsecase {
 	return &DocumentVerificationLineUsecase{
 		Log:                                  log,
 		Repository:                           repository,
@@ -54,6 +64,12 @@ func NewDocumentVerificationLineUsecase(log *logrus.Logger, repository repositor
 		DocumentVerificationHeaderRepository: documentVerificationHeaderRepository,
 		DocumentVerificationRepository:       documentVerificationRepository,
 		Viper:                                viper,
+		UserMessage:                          userMessage,
+		ApplicantRepository:                  applicantRepository,
+		UserProfileRepository:                userProfileRepository,
+		EmployeeMessage:                      employeeMessage,
+		MidsuitService:                       midsuitService,
+		UserHelper:                           userHelper,
 	}
 }
 
@@ -63,7 +79,134 @@ func DocumentVerificationLineFactory(log *logrus.Logger, viper *viper.Viper) IDo
 	documentVerificationHeaderDTO := dto.DocumentVerificationHeaderDTOFactory(log, viper)
 	documentVerificationHeaderRepository := repository.DocumentVerificationHeaderRepositoryFactory(log)
 	documentVerificationRepository := repository.DocumentVerificationRepositoryFactory(log)
-	return NewDocumentVerificationLineUsecase(log, dvlRepo, dvlDTO, documentVerificationHeaderDTO, documentVerificationHeaderRepository, documentVerificationRepository, viper)
+	userMessage := messaging.UserMessageFactory(log)
+	applicantRepository := repository.ApplicantRepositoryFactory(log)
+	userProfileRepository := repository.UserProfileRepositoryFactory(log)
+	employeeMessage := messaging.EmployeeMessageFactory(log)
+	midsuitService := service.MidsuitServiceFactory(viper, log)
+	userHelper := helper.UserHelperFactory(log)
+	return NewDocumentVerificationLineUsecase(
+		log,
+		dvlRepo,
+		dvlDTO,
+		documentVerificationHeaderDTO,
+		documentVerificationHeaderRepository,
+		documentVerificationRepository,
+		viper,
+		userMessage,
+		applicantRepository,
+		userProfileRepository,
+		employeeMessage,
+		midsuitService,
+		userHelper,
+	)
+}
+
+func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *request.UpdateAnswer) (*response.DocumentVerificationLineResponse, error) {
+	exist, err := uc.Repository.FindByIDPreload(id)
+	if err != nil {
+		return nil, err
+	}
+	if exist == nil {
+		return nil, errors.New("Document Verification Line not found")
+	}
+
+	if uc.Viper.GetString("midsuit.sync") == "ACTIVE" {
+		umResponse, err := uc.UserMessage.SendGetUserMe(request.SendFindUserByIDMessageRequest{
+			ID: exist.DocumentVerificationHeader.Applicant.UserProfile.UserID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		if umResponse.User == nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] user not found")
+			return nil, errors.New("user not found")
+		}
+		employeeID, err := uc.UserHelper.GetEmployeeId(umResponse.User)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		empResp, err := uc.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
+			ID: employeeID.String(),
+		})
+		if err != nil {
+			uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] error sending find employee by id message: ", err)
+			return nil, err
+		}
+		if empResp == nil {
+			uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] employee not found in midsuit")
+			return nil, errors.New("employee not found in midsuit")
+		}
+
+		empMidsuitIdInt, err := strconv.Atoi(empResp.MidsuitID)
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+
+		authResp, err := uc.MidsuitService.AuthOneStep()
+		if err != nil {
+			uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+			return nil, err
+		}
+		switch exist.DocumentVerification.Name {
+		case "Nomor KTP":
+			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] KTP - " + payload.Answer)
+			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
+				HcNationalID1: payload.Answer,
+			}
+			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalDataMidsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending - KTP] " + err.Error())
+				return nil, err
+			}
+		case "Nomor NPWP":
+			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] NPWP - " + payload.Answer)
+			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
+				HcNationalID3: payload.Answer,
+			}
+			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalDataMidsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending - NPWP] " + err.Error())
+				return nil, err
+			}
+		case "Nomor Kartu BPJS TK":
+			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] BPJS TK - " + payload.Answer)
+			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
+				HcNationalID4: payload.Answer,
+			}
+			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalDataMidsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending - BPJS TK] " + err.Error())
+				return nil, err
+			}
+		case "Nomor Kartu BPJS KS":
+			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] BPJS KS - " + payload.Answer)
+			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
+				HcNationalID5: payload.Answer,
+			}
+
+			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalDataMidsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending - BPJS KS] " + err.Error())
+				return nil, err
+			}
+		default:
+			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] " + exist.DocumentVerification.Name + " - " + payload.Answer)
+		}
+	}
+
+	err = uc.Repository.UpdateAnswer(id, payload.Answer)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response.DocumentVerificationLineResponse{
+		ID:     id,
+		Answer: payload.Answer,
+	}, nil
 }
 
 func (uc *DocumentVerificationLineUsecase) CreateOrUpdateDocumentVerificationLine(req *request.CreateOrUpdateDocumentVerificationLine) (*response.DocumentVerificationHeaderResponse, error) {

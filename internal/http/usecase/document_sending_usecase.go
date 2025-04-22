@@ -1863,7 +1863,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					ID: "P",
 				},
 				HcBasicAcceptance: request.HcBasicAcceptance{
-					Identifier: applicant.UserProfile.Educations[0].Major,
+					Identifier: string(applicant.UserProfile.Educations[0].EducationLevel),
 				},
 				HcRecruitmentType: request.HcRecruitmentTypeId{
 					Identifier: string(documentSending.RecruitmentType),

@@ -446,11 +446,14 @@ func (uc *DocumentVerificationLineUsecase) UploadDocumentVerificationLine(req *r
 				},
 			}
 
-			_, err = uc.MidsuitService.SyncUpdateEmployeeImageMidsuit(empMidsuitIdInt, empMidsuitPayload, authResp.Token)
+			empMidsuitResp, err := uc.MidsuitService.SyncUpdateEmployeeImageMidsuit(empMidsuitIdInt, empMidsuitPayload, authResp.Token)
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 				return nil, err
 			}
+
+			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] midsuit response: ", *midsuitResp)
+			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] empMidsuit response: ", *empMidsuitResp)
 		}
 	}
 

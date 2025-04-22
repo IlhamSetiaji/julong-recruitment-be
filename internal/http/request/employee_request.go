@@ -146,7 +146,8 @@ type SyncEmployeeMidsuitRequest struct {
 }
 
 type LogoID struct {
-	ID int `json:"id" binding:"required"`
+	Data     string `json:"data" binding:"omitempty"`
+	FileName string `json:"file_name" binding:"omitempty"`
 }
 
 type SyncUpdateEmployeeImageMidsuitRequest struct {

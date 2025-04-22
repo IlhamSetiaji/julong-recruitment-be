@@ -435,14 +435,8 @@ func (uc *DocumentVerificationLineUsecase) UploadDocumentVerificationLine(req *r
 
 			empMidsuitPayload := request.SyncUpdateEmployeeImageMidsuitRequest{
 				LogoID: request.LogoID{
-					ID: func() int {
-						id, err := strconv.Atoi(*midsuitResp)
-						if err != nil {
-							uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] error converting midsuitResp to int: ", err)
-							return 0 // or handle the error appropriately
-						}
-						return id
-					}(),
+					Data:     encodedData,
+					FileName: fileName,
 				},
 			}
 

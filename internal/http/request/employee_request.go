@@ -129,19 +129,28 @@ type HCProvisionType struct {
 }
 
 type SyncEmployeeMidsuitRequest struct {
-	AdOrgId           AdOrgId             `json:"AD_Org_ID" binding:"required"`
-	Name              string              `json:"Name" binding:"required"`
-	Birthday          string              `json:"Birthday" binding:"required"`
-	City              string              `json:"City" binding:"required"`
-	Email             string              `json:"EMail" binding:"required"`
-	HcGender          HcGender            `json:"HC_Gender" binding:"required"`
-	HcMaritalStatus   HcMaritalStatus     `json:"HC_MaritalStatus" binding:"required"`
-	HcNationalID1     string              `json:"HC_NationalID1" binding:"required"`
-	HcReligionID      HcReligionId        `json:"HC_Religion_ID" binding:"required"`
-	HcStatus          HcStatus            `json:"HC_Status" binding:"required"`
-	HcBasicAcceptance HcBasicAcceptance   `json:"HC_BasicAcceptance" binding:"required"`
-	HcRecruitmentType HcRecruitmentTypeId `json:"HC_RecruitmentType_ID" binding:"required"`
-	HCWorkStartDate   string              `json:"HC_WorkStartDate" binding:"required"`
+	AdOrgId           AdOrgId             `json:"AD_Org_ID" binding:"omitempty"`
+	Name              string              `json:"Name" binding:"omitempty"`
+	Birthday          string              `json:"Birthday" binding:"omitempty"`
+	City              string              `json:"City" binding:"omitempty"`
+	Email             string              `json:"EMail" binding:"omitempty"`
+	HcGender          HcGender            `json:"HC_Gender" binding:"omitempty"`
+	HcMaritalStatus   HcMaritalStatus     `json:"HC_MaritalStatus" binding:"omitempty"`
+	HcNationalID1     string              `json:"HC_NationalID1" binding:"omitempty"`
+	HcReligionID      HcReligionId        `json:"HC_Religion_ID" binding:"omitempty"`
+	HcStatus          HcStatus            `json:"HC_Status" binding:"omitempty"`
+	HcBasicAcceptance HcBasicAcceptance   `json:"HC_BasicAcceptance" binding:"omitempty"`
+	HcRecruitmentType HcRecruitmentTypeId `json:"HC_RecruitmentType_ID" binding:"omitempty"`
+	HCWorkStartDate   string              `json:"HC_WorkStartDate" binding:"omitempty"`
+	LogoID            LogoID              `json:"Logo_ID" binding:"omitempty"`
+}
+
+type LogoID struct {
+	ID int `json:"id" binding:"required"`
+}
+
+type SyncUpdateEmployeeImageMidsuitRequest struct {
+	LogoID LogoID `json:"Logo_ID" binding:"omitempty"`
 }
 
 type SyncUpdateEmployeeNationalDataMidsuitRequest struct {
@@ -212,4 +221,23 @@ type SyncEmployeeAllowanceMidsuitRequest struct {
 	HCProvisionType  HCProvisionType  `json:"HC_ProvisionType" binding:"required"`
 	IsGenerated      bool             `json:"IsGenerated" binding:"required"`
 	ModelName        string           `json:"model-name" binding:"required"`
+}
+
+type ADClientID struct {
+	ID         int    `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"required"`
+}
+
+type EntityType struct {
+	ID         string `json:"id" binding:"required"`
+	Identifier string `json:"identifier" binding:"required"`
+}
+
+type SyncEmployeeImageMidsuitRequest struct {
+	ADClientID ADClientID `json:"AD_Client_ID" binding:"required"`
+	AdOrgId    AdOrgId    `json:"AD_Org_ID" binding:"required"`
+	Name       string     `json:"Name" binding:"required"`
+	BinaryData string     `json:"BinaryData" binding:"required"`
+	ImageURL   string     `json:"ImageURL" binding:"required"`
+	EntityType EntityType `json:"EntityType" binding:"required"`
 }

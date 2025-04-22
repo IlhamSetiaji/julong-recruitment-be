@@ -1,7 +1,10 @@
 package usecase
 
 import (
+	"encoding/base64"
 	"errors"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/dto"
@@ -340,12 +343,115 @@ func (uc *DocumentVerificationLineUsecase) UploadDocumentVerificationLine(req *r
 	if err != nil {
 		return nil, err
 	}
-	documentVerificationLine, err := uc.Repository.FindByID(parsedID)
+	documentVerificationLine, err := uc.Repository.FindByIDPreload(parsedID)
 	if err != nil {
 		return nil, err
 	}
 	if documentVerificationLine == nil {
 		return nil, errors.New("Document Verification Line not found")
+	}
+
+	if uc.Viper.GetString("midsuit.sync") == "ACTIVE" {
+		if documentVerificationLine.DocumentVerification.Name == "Foto Formal" {
+			fileContent, err := os.ReadFile(req.Path)
+			if err != nil {
+				uc.Log.Error("[EmployeeTaskUseCase.CreateEmployeeTaskUseCase] error reading file: ", err)
+				return nil, err
+			}
+
+			// Extract the file name from the path
+			fileName := filepath.Base(req.Path)
+
+			// Encode the file content to base64
+			encodedData := base64.StdEncoding.EncodeToString(fileContent)
+
+			umResponse, err := uc.UserMessage.SendGetUserMe(request.SendFindUserByIDMessageRequest{
+				ID: documentVerificationLine.DocumentVerificationHeader.Applicant.UserProfile.UserID.String(),
+			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
+			if umResponse.User == nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] user not found")
+				return nil, errors.New("user not found")
+			}
+			employeeID, err := uc.UserHelper.GetEmployeeId(umResponse.User)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
+			empResp, err := uc.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
+				ID: employeeID.String(),
+			})
+			if err != nil {
+				uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] error sending find employee by id message: ", err)
+				return nil, err
+			}
+			if empResp == nil {
+				uc.Log.Error("[EmployeeTaskUseCase.UpdateEmployeeTaskUseCase] employee not found in midsuit")
+				return nil, errors.New("employee not found in midsuit")
+			}
+
+			empMidsuitIdInt, err := strconv.Atoi(empResp.MidsuitID)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
+
+			authResp, err := uc.MidsuitService.AuthOneStep()
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
+
+			midsuitImagePayload := request.SyncEmployeeImageMidsuitRequest{
+				ADClientID: request.ADClientID{
+					ID:         1000000,
+					Identifier: "Julong Group Indonesia",
+				},
+				AdOrgId: request.AdOrgId{
+					ID:         0,
+					Identifier: "*",
+				},
+				Name:       fileName,
+				BinaryData: encodedData,
+				ImageURL:   fileName,
+				EntityType: request.EntityType{
+					ID:         "U",
+					Identifier: "User maintained",
+				},
+			}
+
+			midsuitResp, err := uc.MidsuitService.SyncEmployeeImageMidsuit(midsuitImagePayload, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
+			if midsuitResp == nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] midsuit response is nil")
+				return nil, errors.New("midsuit response is nil")
+			}
+
+			empMidsuitPayload := request.SyncUpdateEmployeeImageMidsuitRequest{
+				LogoID: request.LogoID{
+					ID: func() int {
+						id, err := strconv.Atoi(*midsuitResp)
+						if err != nil {
+							uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] error converting midsuitResp to int: ", err)
+							return 0 // or handle the error appropriately
+						}
+						return id
+					}(),
+				},
+			}
+
+			_, err = uc.MidsuitService.SyncUpdateEmployeeImageMidsuit(empMidsuitIdInt, empMidsuitPayload, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return nil, err
+			}
+		}
 	}
 
 	// update document verification line

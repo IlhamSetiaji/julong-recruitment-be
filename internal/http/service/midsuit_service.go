@@ -423,8 +423,8 @@ func (s *MidsuitService) SyncUpdateEmployeeNationalDataMidsuit(midsuitId int, pa
 }
 
 func (s *MidsuitService) SyncEmployeeImageMidsuit(payload request.SyncEmployeeImageMidsuitRequest, jwtToken string) (*string, error) {
-	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "//models/AD_Image"
-	method := "PUT"
+	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/AD_Image"
+	method := "POST"
 
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
@@ -454,10 +454,10 @@ func (s *MidsuitService) SyncEmployeeImageMidsuit(payload request.SyncEmployeeIm
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+	if res.StatusCode != http.StatusCreated {
 		bodyBytes, _ := io.ReadAll(res.Body)
 		s.Log.Error(err)
-		return nil, errors.New("[MidsuitService.SyncEmployeeImageMidsuit] Error when fetching response: " + string(bodyBytes))
+		return nil, errors.New("[MidsuitService.SyncEmployeeImageMidsuit] Error when fetching response cok: " + string(bodyBytes))
 	}
 
 	bodyBytes, _ := io.ReadAll(res.Body)

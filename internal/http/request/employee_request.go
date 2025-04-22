@@ -156,9 +156,9 @@ type SyncUpdateEmployeeImageMidsuitRequest struct {
 
 type SyncUpdateEmployeeNationalDataMidsuitRequest struct {
 	HcNationalID1 string `json:"HC_NationalID1" binding:"omitempty"` // ktp
-	HcNationalID3 string `json:"HC_NationalID2" binding:"omitempty"` // npwp
-	HcNationalID4 string `json:"HC_NationalID3" binding:"omitempty"` // bpjs tk
-	HcNationalID5 string `json:"HC_NationalID4" binding:"omitempty"` // bpjs ks
+	HcNationalID3 string `json:"HC_NationalID3" binding:"omitempty"` // npwp
+	HcNationalID4 string `json:"HC_NationalID4" binding:"omitempty"` // bpjs tk
+	HcNationalID5 string `json:"HC_NationalID5" binding:"omitempty"` // bpjs ks
 }
 
 type SyncEmployeeJobMidsuitRequest struct {

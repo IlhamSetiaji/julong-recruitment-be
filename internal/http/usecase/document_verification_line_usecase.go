@@ -170,7 +170,7 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 			}
 		case "Nomor NPWP":
 			if len(payload.Answer) < 15 || len(payload.Answer) > 16 {
-				return nil, errors.New("Nomor NPWP tidak valid")
+				return nil, errors.New("Nomor NPWP tidak valid, jumlah npwp saat ini: " + strconv.Itoa(len(payload.Answer)))
 			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] NPWP - " + payload.Answer)
 			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
@@ -183,7 +183,7 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 			}
 		case "Nomor Kartu BPJS TK":
 			if len(payload.Answer) < 11 || len(payload.Answer) > 11 {
-				return nil, errors.New("Nomor Kartu BPJS TK tidak valid")
+				return nil, errors.New("Nomor Kartu BPJS TK tidak valid, jumlah bpjs tk saat ini: " + strconv.Itoa(len(payload.Answer)))
 			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] BPJS TK - " + payload.Answer)
 			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
@@ -196,7 +196,7 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 			}
 		case "Nomor Kartu BPJS KS":
 			if len(payload.Answer) < 13 || len(payload.Answer) > 13 {
-				return nil, errors.New("Nomor Kartu BPJS KS tidak valid")
+				return nil, errors.New("Nomor Kartu BPJS KS tidak valid, jumlah bpjs ks saat ini: " + strconv.Itoa(len(payload.Answer)))
 			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] BPJS KS - " + payload.Answer)
 			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{

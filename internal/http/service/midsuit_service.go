@@ -5,9 +5,12 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
@@ -30,6 +33,7 @@ type IMidsuitService interface {
 	SyncUpdateEmployeeNationalData5Midsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalData5MidsuitRequest, jwtToken string) (*string, error)
 	SyncEmployeeImageMidsuit(payload request.SyncEmployeeImageMidsuitRequest, jwtToken string) (*string, error)
 	SyncUpdateEmployeeImageMidsuit(midsuitId int, payload request.SyncUpdateEmployeeImageMidsuitRequest, jwtToken string) (*string, error)
+	RecruitmentTypeMidsuitAPIWithoutFilter(jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error)
 	RecruitmentTypeMidsuitAPI(filter string, jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error)
 }
 
@@ -736,8 +740,14 @@ func (s *MidsuitService) SyncUpdateEmployeeImageMidsuit(midsuitId int, payload r
 	return &idStr, nil
 }
 
-func (s *MidsuitService) RecruitmentTypeMidsuitAPI(filter string, jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error) {
-	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/HC_RecruitmentType?$filter=Value eq '" + filter + "'"
+func (s *MidsuitService) RecruitmentTypeMidsuitAPIWithoutFilter(jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error) {
+	baseURL := strings.TrimRight(s.Viper.GetString("midsuit.url"), "/")
+	endpoint := strings.TrimLeft(s.Viper.GetString("midsuit.api_endpoint"), "/")
+
+	urlStr := fmt.Sprintf("%s/%s/models/HC_RecruitmentType",
+		baseURL,
+		endpoint)
+
 	method := "GET"
 
 	client := &http.Client{
@@ -745,38 +755,104 @@ func (s *MidsuitService) RecruitmentTypeMidsuitAPI(filter string, jwtToken strin
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
-	req, err := http.NewRequest(method, url, nil)
+
+	req, err := http.NewRequest(method, urlStr, nil)
 	if err != nil {
 		s.Log.Error(err)
-		return nil, errors.New("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when creating request: " + err.Error())
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter] Error when creating request: %w", err)
 	}
 
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", "Bearer "+jwtToken)
 
-	// q := req.URL.Query()
-	// q.Add("filter", filter)
-	// req.URL.RawQuery = q.Encode()
+	res, err := client.Do(req)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter] Error when fetching response: %w", err)
+	}
+	defer res.Body.Close()
+
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter] Error reading response body: %w", err)
+	}
+
+	s.Log.Info("[MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter] Response Status Code: ", res.StatusCode)
+	s.Log.Info("[MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter] Response Header: ", res.Header)
+	s.Log.Info("[MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter] Response Body: ", string(bodyBytes))
+
+	if res.StatusCode != http.StatusOK {
+		s.Log.Error(string(bodyBytes))
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter] Error response from API: %s", string(bodyBytes))
+	}
+
+	var recruitmentTypeResponse RecruitmentTypeMidsuitAPIResponse
+	if err := json.Unmarshal(bodyBytes, &recruitmentTypeResponse); err != nil {
+		s.Log.Error(err)
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter] Error when unmarshalling response: %w", err)
+	}
+
+	return &recruitmentTypeResponse, nil
+}
+
+func (s *MidsuitService) RecruitmentTypeMidsuitAPI(filter string, jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error) {
+	// Properly encode the filter value to handle special characters
+	encodedFilter := url.QueryEscape(filter)
+
+	baseURL := strings.TrimRight(s.Viper.GetString("midsuit.url"), "/")
+	endpoint := strings.TrimLeft(s.Viper.GetString("midsuit.api_endpoint"), "/")
+
+	urlStr := fmt.Sprintf("%s/%s/models/HC_RecruitmentType?$filter=Value eq '%s'",
+		baseURL,
+		endpoint,
+		encodedFilter)
+
+	method := "GET"
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+
+	req, err := http.NewRequest(method, urlStr, nil)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when creating request: %w", err)
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+jwtToken)
 
 	res, err := client.Do(req)
 	if err != nil {
 		s.Log.Error(err)
-		return nil, errors.New("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when fetching response: " + err.Error())
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when fetching response: %w", err)
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(res.Body)
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
 		s.Log.Error(err)
-		return nil, errors.New("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when fetching response: " + string(bodyBytes))
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPI] Error reading response body: %w", err)
 	}
 
-	bodyBytes, _ := io.ReadAll(res.Body)
+	s.Log.Info("[MidsuitService.RecruitmentTypeMidsuitAPI] Response Status Code: ", res.StatusCode)
+	s.Log.Info("[MidsuitService.RecruitmentTypeMidsuitAPI] Response Header: ", res.Header)
+	s.Log.Info("[MidsuitService.RecruitmentTypeMidsuitAPI] Response Body: ", string(bodyBytes))
+
+	if res.StatusCode != http.StatusOK {
+		s.Log.Error(string(bodyBytes))
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPI] Error response from API: %s", string(bodyBytes))
+	}
+
 	var recruitmentTypeResponse RecruitmentTypeMidsuitAPIResponse
 	if err := json.Unmarshal(bodyBytes, &recruitmentTypeResponse); err != nil {
 		s.Log.Error(err)
-		return nil, errors.New("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when unmarshalling response: " + err.Error())
+		return nil, fmt.Errorf("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when unmarshalling response: %w", err)
 	}
 
 	return &recruitmentTypeResponse, nil

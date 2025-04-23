@@ -1940,7 +1940,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				filter = "NS"
 			}
 
-			recTypeResp, err := uc.MidsuitService.RecruitmentTypeMidsuitAPI(filter, authResp.Token)
+			recTypeResp, err := uc.MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter(authResp.Token)
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 				return err
@@ -1951,7 +1951,13 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				return errors.New("recruitment type not found")
 			}
 
-			recTypeID := recTypeResp.Records[0].ID
+			var recTypeID int
+			for _, recType := range recTypeResp.Records {
+				if recType.Value == filter {
+					recTypeID = recType.ID
+					break
+				}
+			}
 
 			// sync to midsuit employee job
 			midsuitEmployeeJobPayload := &request.SyncEmployeeJobMidsuitRequest{

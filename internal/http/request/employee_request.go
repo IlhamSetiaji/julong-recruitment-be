@@ -57,7 +57,7 @@ type HcBasicAcceptance struct {
 
 type HcRecruitmentTypeId struct {
 	ID         int    `json:"id" binding:"omitempty"`
-	Identifier string `json:"identifier" binding:"required"`
+	Identifier string `json:"identifier" binding:"omitempty"`
 }
 
 type HcEmployeeId struct {

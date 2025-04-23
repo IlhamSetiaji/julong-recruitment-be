@@ -1930,6 +1930,28 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				gradeMidsuitID = &gradeResp.MidsuitID
 			}
 
+			var filter string
+			if documentSending.RecruitmentType == entity.PROJECT_RECRUITMENT_TYPE_MT {
+				filter = "MT"
+			} else if documentSending.RecruitmentType == entity.PROJECT_RECRUITMENT_TYPE_PH {
+				filter = "PH"
+			} else if documentSending.RecruitmentType == entity.PROJECT_RECRUITMENT_TYPE_NS {
+				filter = "NS"
+			}
+
+			recTypeResp, err := uc.MidsuitService.RecruitmentTypeMidsuitAPI(filter, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			if recTypeResp == nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] recruitment type not found")
+				return errors.New("recruitment type not found")
+			}
+
+			recTypeID := recTypeResp.Records[0].ID
+
 			// sync to midsuit employee job
 			midsuitEmployeeJobPayload := &request.SyncEmployeeJobMidsuitRequest{
 				AdOrgId: request.AdOrgId{
@@ -1993,7 +2015,8 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				},
 				HCWorkStartDate: documentSending.JoinedDate.Format("2006-01-02"),
 				HCRecruitmentTypeID: request.HcRecruitmentTypeId{
-					Identifier: string(documentSending.RecruitmentType),
+					// Identifier: string(documentSending.RecruitmentType),
+					ID: recTypeID,
 				},
 				ADEmploymentOrgID: request.AdOrgId{
 					ID: func() int {

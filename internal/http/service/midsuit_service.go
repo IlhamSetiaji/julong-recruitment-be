@@ -26,6 +26,7 @@ type IMidsuitService interface {
 	SyncUpdateEmployeeNationalDataMidsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalDataMidsuitRequest, jwtToken string) (*string, error)
 	SyncEmployeeImageMidsuit(payload request.SyncEmployeeImageMidsuitRequest, jwtToken string) (*string, error)
 	SyncUpdateEmployeeImageMidsuit(midsuitId int, payload request.SyncUpdateEmployeeImageMidsuitRequest, jwtToken string) (*string, error)
+	RecruitmentTypeMidsuitAPI(filter string, jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error)
 }
 
 type MidsuitService struct {
@@ -68,6 +69,21 @@ type SyncEmployeeMidsuitResponse struct {
 
 type SyncEmployeeJobMidsuitResponse struct {
 	ID int `json:"id"`
+}
+
+type RecruitmentTypeMidsuitResponse struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type RecruitmentTypeMidsuitAPIResponse struct {
+	PageCount   int                              `json:"page-count"`
+	RecordsSize int                              `json:"records-size"`
+	SkipRecords int                              `json:"skip-records"`
+	RowCount    int                              `json:"row-count"`
+	ArrayCount  int                              `json:"array-count"`
+	Records     []RecruitmentTypeMidsuitResponse `json:"records"`
 }
 
 func (s *MidsuitService) AuthOneStep() (*AuthOneStepResponse, error) {
@@ -518,4 +534,50 @@ func (s *MidsuitService) SyncUpdateEmployeeImageMidsuit(midsuitId int, payload r
 
 	idStr := strconv.Itoa(syncResponse.ID)
 	return &idStr, nil
+}
+
+func (s *MidsuitService) RecruitmentTypeMidsuitAPI(filter string, jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error) {
+	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/HC_RecruitmentType?$filter=Value eq '" + filter + "'"
+	method := "GET"
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when creating request: " + err.Error())
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+jwtToken)
+
+	// q := req.URL.Query()
+	// q.Add("filter", filter)
+	// req.URL.RawQuery = q.Encode()
+
+	res, err := client.Do(req)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when fetching response: " + err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when fetching response: " + string(bodyBytes))
+	}
+
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var recruitmentTypeResponse RecruitmentTypeMidsuitAPIResponse
+	if err := json.Unmarshal(bodyBytes, &recruitmentTypeResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.RecruitmentTypeMidsuitAPI] Error when unmarshalling response: " + err.Error())
+	}
+
+	return &recruitmentTypeResponse, nil
 }

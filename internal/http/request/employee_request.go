@@ -142,7 +142,7 @@ type SyncEmployeeMidsuitRequest struct {
 	HcBasicAcceptance HcBasicAcceptance   `json:"HC_BasicAcceptance" binding:"omitempty"`
 	HcRecruitmentType HcRecruitmentTypeId `json:"HC_RecruitmentType_ID" binding:"omitempty"`
 	HCWorkStartDate   string              `json:"HC_WorkStartDate" binding:"omitempty"`
-	LogoID            LogoID              `json:"Logo_ID" binding:"omitempty"`
+	// LogoID            LogoID              `json:"Logo_ID" binding:"omitempty"`
 }
 
 type LogoID struct {

@@ -51,8 +51,8 @@ type HcStatus struct {
 }
 
 type HcBasicAcceptance struct {
-	ID         int    `json:"id" binding:"omitempty"`
-	Identifier string `json:"identifier" binding:"required"`
+	ID         string `json:"id" binding:"omitempty"`
+	Identifier string `json:"identifier" binding:"omitempty"`
 }
 
 type HcRecruitmentTypeId struct {
@@ -129,19 +129,20 @@ type HCProvisionType struct {
 }
 
 type SyncEmployeeMidsuitRequest struct {
-	AdOrgId           AdOrgId             `json:"AD_Org_ID" binding:"omitempty"`
-	Name              string              `json:"Name" binding:"omitempty"`
-	Birthday          string              `json:"Birthday" binding:"omitempty"`
-	City              string              `json:"City" binding:"omitempty"`
-	Email             string              `json:"EMail" binding:"omitempty"`
-	HcGender          HcGender            `json:"HC_Gender" binding:"omitempty"`
-	HcMaritalStatus   HcMaritalStatus     `json:"HC_MaritalStatus" binding:"omitempty"`
-	HcNationalID1     string              `json:"HC_NationalID1" binding:"omitempty"`
-	HcReligionID      HcReligionId        `json:"HC_Religion_ID" binding:"omitempty"`
-	HcStatus          HcStatus            `json:"HC_Status" binding:"omitempty"`
-	HcBasicAcceptance HcBasicAcceptance   `json:"HC_BasicAcceptance" binding:"omitempty"`
-	HcRecruitmentType HcRecruitmentTypeId `json:"HC_RecruitmentType_ID" binding:"omitempty"`
-	HCWorkStartDate   string              `json:"HC_WorkStartDate" binding:"omitempty"`
+	AdOrgId           AdOrgId           `json:"AD_Org_ID" binding:"omitempty"`
+	Name              string            `json:"Name" binding:"omitempty"`
+	Birthday          string            `json:"Birthday" binding:"omitempty"`
+	City              string            `json:"City" binding:"omitempty"`
+	Email             string            `json:"EMail" binding:"omitempty"`
+	HcGender          HcGender          `json:"HC_Gender" binding:"omitempty"`
+	HcMaritalStatus   HcMaritalStatus   `json:"HC_MaritalStatus" binding:"omitempty"`
+	HcNationalID1     string            `json:"HC_NationalID1" binding:"omitempty"`
+	HcReligionID      HcReligionId      `json:"HC_Religion_ID" binding:"omitempty"`
+	HcStatus          HcStatus          `json:"HC_Status" binding:"omitempty"`
+	HcBasicAcceptance HcBasicAcceptance `json:"HC_BasicAcceptance" binding:"omitempty"`
+	// HcRecruitmentType   HcRecruitmentTypeId `json:"HC_RecruitmentType_ID" binding:"omitempty"`
+	HCWorkStartDate     string              `json:"HC_WorkStartDate" binding:"omitempty"`
+	HcRecruitmentTypeId HcRecruitmentTypeId `json:"HC_RecruitmentType_ID" binding:"omitempty"`
 	// LogoID            LogoID              `json:"Logo_ID" binding:"omitempty"`
 }
 

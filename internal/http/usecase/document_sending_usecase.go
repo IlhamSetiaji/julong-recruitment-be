@@ -1824,6 +1824,49 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 
 		// sync to midsuit
 		if uc.Viper.GetString("midsuit.sync") == "ACTIVE" {
+			authResp, err := uc.MidsuitService.AuthOneStep()
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			var filter string
+			if documentSending.RecruitmentType == entity.PROJECT_RECRUITMENT_TYPE_MT {
+				filter = "MT"
+			} else if documentSending.RecruitmentType == entity.PROJECT_RECRUITMENT_TYPE_PH {
+				filter = "PH"
+			} else if documentSending.RecruitmentType == entity.PROJECT_RECRUITMENT_TYPE_NS {
+				filter = "NS"
+			}
+
+			recTypeResp, err := uc.MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter(authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			if recTypeResp == nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] recruitment type not found")
+				return errors.New("recruitment type not found")
+			}
+
+			var recTypeID int
+			for _, recType := range recTypeResp.Records {
+				if recType.Value == filter {
+					recTypeID = recType.ID
+					break
+				}
+			}
+
+			uc.Log.Info("Recruitment Type ID cok: ", recTypeID)
+			uc.Log.Info("Education Level cok:", strings.TrimSpace(string(applicant.UserProfile.Educations[0].EducationLevel)))
+
+			eduLevel := strings.TrimSpace(string(applicant.UserProfile.Educations[0].EducationLevel))
+			if eduLevel != "S3" && eduLevel != "S2" && eduLevel != "S1" && eduLevel != "D4" && eduLevel != "D3" && eduLevel != "D2" && eduLevel != "D1" && eduLevel != "SMA" && eduLevel != "SMP" && eduLevel != "SD" && eduLevel != "TS" {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] education level not found")
+				return errors.New("education level not found")
+			}
+
 			// sync to midsuit employee
 			midsuitPayload := &request.SyncEmployeeMidsuitRequest{
 				AdOrgId: request.AdOrgId{
@@ -1864,18 +1907,13 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					ID: "P",
 				},
 				HcBasicAcceptance: request.HcBasicAcceptance{
-					Identifier: string(applicant.UserProfile.Educations[0].EducationLevel),
-				},
-				HcRecruitmentType: request.HcRecruitmentTypeId{
-					Identifier: string(documentSending.RecruitmentType),
+					ID:         strings.TrimSpace(string(applicant.UserProfile.Educations[0].EducationLevel)),
+					Identifier: strings.TrimSpace(string(applicant.UserProfile.Educations[0].EducationLevel)),
 				},
 				HCWorkStartDate: documentSending.JoinedDate.Format("2006-01-02"),
-			}
-
-			authResp, err := uc.MidsuitService.AuthOneStep()
-			if err != nil {
-				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
-				return err
+				HcRecruitmentTypeId: request.HcRecruitmentTypeId{
+					ID: recTypeID,
+				},
 			}
 
 			midsuitEmpID, err := uc.MidsuitService.SyncEmployeeMidsuit(*midsuitPayload, authResp.Token)
@@ -1929,34 +1967,6 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				}
 
 				gradeMidsuitID = &gradeResp.MidsuitID
-			}
-
-			var filter string
-			if documentSending.RecruitmentType == entity.PROJECT_RECRUITMENT_TYPE_MT {
-				filter = "MT"
-			} else if documentSending.RecruitmentType == entity.PROJECT_RECRUITMENT_TYPE_PH {
-				filter = "PH"
-			} else if documentSending.RecruitmentType == entity.PROJECT_RECRUITMENT_TYPE_NS {
-				filter = "NS"
-			}
-
-			recTypeResp, err := uc.MidsuitService.RecruitmentTypeMidsuitAPIWithoutFilter(authResp.Token)
-			if err != nil {
-				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
-				return err
-			}
-
-			if recTypeResp == nil {
-				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] recruitment type not found")
-				return errors.New("recruitment type not found")
-			}
-
-			var recTypeID int
-			for _, recType := range recTypeResp.Records {
-				if recType.Value == filter {
-					recTypeID = recType.ID
-					break
-				}
 			}
 
 			// sync to midsuit employee job
@@ -2021,10 +2031,10 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					}(),
 				},
 				HCWorkStartDate: documentSending.JoinedDate.Format("2006-01-02"),
-				HCRecruitmentTypeID: request.HcRecruitmentTypeId{
-					// Identifier: string(documentSending.RecruitmentType),
-					ID: recTypeID,
-				},
+				// HCRecruitmentTypeID: request.HcRecruitmentTypeId{
+				// 	// Identifier: string(documentSending.RecruitmentType),
+				// 	ID: recTypeID,
+				// },
 				ADEmploymentOrgID: request.AdOrgId{
 					ID: func() int {
 						id, err := strconv.Atoi(forOrganization.MidsuitID)
@@ -2061,6 +2071,8 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				},
 				ModelName: "hc_employeejob",
 			}
+
+			uc.Log.Info("Midsuit Employee Job Payload cok: ", *midsuitEmployeeJobPayload)
 
 			_, err = uc.MidsuitService.SyncEmployeeJobMidsuit(*midsuitEmployeeJobPayload, authResp.Token)
 			if err != nil {
@@ -2135,7 +2147,8 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						HcGpaScore:            int(*education.Gpa),
 						SeqNo:                 10,
 						HCBasicAcceptance: request.HcBasicAcceptance{
-							Identifier: applicant.UserProfile.Educations[i].Major,
+							// Identifier: applicant.UserProfile.Educations[i].Major,
+							ID: strings.TrimSpace(string(applicant.UserProfile.Educations[i].EducationLevel)),
 						},
 						ModelName: "hc_employeeeducation",
 					}

@@ -949,7 +949,8 @@ func (uc *DocumentSendingUseCase) replaceCoverLetter(documentSending entity.Docu
 	birthDate := applicant.UserProfile.BirthDate.Format("2006-01-02")
 	maritalStatus := applicant.UserProfile.MaritalStatus
 	educationLevel := applicant.UserProfile.Educations[0]
-	degreeName := strings.TrimSpace(strings.SplitN(string(educationLevel.EducationLevel), "-", 2)[1])
+	// degreeName := strings.TrimSpace(strings.SplitN(string(educationLevel.EducationLevel), "-", 2)[1])
+	degreeName := string(educationLevel.EducationLevel)
 	major := educationLevel.Major
 
 	jobPosting, err := uc.JobPostingRepository.FindByID(documentSending.JobPostingID)

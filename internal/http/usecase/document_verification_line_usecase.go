@@ -160,10 +160,10 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 				return nil, errors.New("Nomor KTP tidak valid")
 			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] KTP - " + payload.Answer)
-			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
+			midsuitPayload := request.SyncUpdateEmployeeNationalData1MidsuitRequest{
 				HcNationalID1: payload.Answer,
 			}
-			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalDataMidsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
+			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalData1Midsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending - KTP] " + err.Error())
 				return nil, err
@@ -173,10 +173,10 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 				return nil, errors.New("Nomor NPWP tidak valid, jumlah npwp saat ini: " + strconv.Itoa(len(payload.Answer)))
 			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] NPWP - " + payload.Answer)
-			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
+			midsuitPayload := request.SyncUpdateEmployeeNationalData3MidsuitRequest{
 				HcNationalID3: payload.Answer,
 			}
-			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalDataMidsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
+			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalData3Midsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending - NPWP] " + err.Error())
 				return nil, err
@@ -186,10 +186,10 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 				return nil, errors.New("Nomor Kartu BPJS TK tidak valid, jumlah bpjs tk saat ini: " + strconv.Itoa(len(payload.Answer)))
 			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] BPJS TK - " + payload.Answer)
-			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
+			midsuitPayload := request.SyncUpdateEmployeeNationalData4MidsuitRequest{
 				HcNationalID4: payload.Answer,
 			}
-			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalDataMidsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
+			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalData4Midsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending - BPJS TK] " + err.Error())
 				return nil, err
@@ -199,11 +199,11 @@ func (uc *DocumentVerificationLineUsecase) UpdateAnswer(id uuid.UUID, payload *r
 				return nil, errors.New("Nomor Kartu BPJS KS tidak valid, jumlah bpjs ks saat ini: " + strconv.Itoa(len(payload.Answer)))
 			}
 			uc.Log.Info("[DocumentSendingUseCase.UpdateDocumentSending] BPJS KS - " + payload.Answer)
-			midsuitPayload := request.SyncUpdateEmployeeNationalDataMidsuitRequest{
+			midsuitPayload := request.SyncUpdateEmployeeNationalData5MidsuitRequest{
 				HcNationalID5: payload.Answer,
 			}
 
-			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalDataMidsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
+			_, err = uc.MidsuitService.SyncUpdateEmployeeNationalData5Midsuit(empMidsuitIdInt, midsuitPayload, authResp.Token)
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending - BPJS KS] " + err.Error())
 				return nil, err

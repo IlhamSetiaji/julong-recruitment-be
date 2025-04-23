@@ -161,6 +161,22 @@ type SyncUpdateEmployeeNationalDataMidsuitRequest struct {
 	HcNationalID5 string `json:"HC_NationalID5" binding:"omitempty"` // bpjs ks
 }
 
+type SyncUpdateEmployeeNationalData1MidsuitRequest struct {
+	HcNationalID1 string `json:"HC_NationalID1" binding:"omitempty"` // ktp
+}
+
+type SyncUpdateEmployeeNationalData3MidsuitRequest struct {
+	HcNationalID3 string `json:"HC_NationalID3" binding:"omitempty"` // npwp
+}
+
+type SyncUpdateEmployeeNationalData4MidsuitRequest struct {
+	HcNationalID4 string `json:"HC_NationalID4" binding:"omitempty"` // bpjs tk
+}
+
+type SyncUpdateEmployeeNationalData5MidsuitRequest struct {
+	HcNationalID5 string `json:"HC_NationalID5" binding:"omitempty"` // bpjs ks
+}
+
 type SyncEmployeeJobMidsuitRequest struct {
 	AdOrgId              AdOrgId               `json:"AD_Org_ID" binding:"required"`
 	HCCompensation1      int                   `json:"HC_Compensation1" binding:"required"`

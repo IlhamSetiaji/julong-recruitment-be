@@ -24,6 +24,10 @@ type IMidsuitService interface {
 	SyncEmployeeEducationMidsuit(payload request.SyncEmployeeEducationMidsuitRequest, jwtToken string) (*string, error)
 	SyncEmployeeAllowanceMidsuit(payload request.SyncEmployeeAllowanceMidsuitRequest, jwtToken string) (*string, error)
 	SyncUpdateEmployeeNationalDataMidsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalDataMidsuitRequest, jwtToken string) (*string, error)
+	SyncUpdateEmployeeNationalData1Midsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalData1MidsuitRequest, jwtToken string) (*string, error)
+	SyncUpdateEmployeeNationalData3Midsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalData3MidsuitRequest, jwtToken string) (*string, error)
+	SyncUpdateEmployeeNationalData4Midsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalData4MidsuitRequest, jwtToken string) (*string, error)
+	SyncUpdateEmployeeNationalData5Midsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalData5MidsuitRequest, jwtToken string) (*string, error)
 	SyncEmployeeImageMidsuit(payload request.SyncEmployeeImageMidsuitRequest, jwtToken string) (*string, error)
 	SyncUpdateEmployeeImageMidsuit(midsuitId int, payload request.SyncUpdateEmployeeImageMidsuitRequest, jwtToken string) (*string, error)
 	RecruitmentTypeMidsuitAPI(filter string, jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error)
@@ -432,6 +436,202 @@ func (s *MidsuitService) SyncUpdateEmployeeNationalDataMidsuit(midsuitId int, pa
 	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
 		s.Log.Error(err)
 		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalDataMidsuit] Error when unmarshalling response: " + err.Error())
+	}
+
+	idStr := strconv.Itoa(syncResponse.ID)
+	return &idStr, nil
+}
+
+func (s *MidsuitService) SyncUpdateEmployeeNationalData1Midsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalData1MidsuitRequest, jwtToken string) (*string, error) {
+	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/hc_employee/" + strconv.Itoa(midsuitId)
+	method := "PUT"
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData1Midsuit] Error when marshalling payload: " + err.Error())
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData1Midsuit] Error when creating request: " + err.Error())
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+jwtToken)
+
+	res, err := client.Do(req)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData1Midsuit] Error when fetching response: " + err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData1Midsuit] Error when fetching response: " + string(bodyBytes))
+	}
+
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var syncResponse SyncEmployeeMidsuitResponse
+	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData1Midsuit] Error when unmarshalling response: " + err.Error())
+	}
+
+	idStr := strconv.Itoa(syncResponse.ID)
+	return &idStr, nil
+}
+
+func (s *MidsuitService) SyncUpdateEmployeeNationalData3Midsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalData3MidsuitRequest, jwtToken string) (*string, error) {
+	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/hc_employee/" + strconv.Itoa(midsuitId)
+	method := "PUT"
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData3Midsuit] Error when marshalling payload: " + err.Error())
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData3Midsuit] Error when creating request: " + err.Error())
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+jwtToken)
+
+	res, err := client.Do(req)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData3Midsuit] Error when fetching response: " + err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData3Midsuit] Error when fetching response: " + string(bodyBytes))
+	}
+
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var syncResponse SyncEmployeeMidsuitResponse
+	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData3Midsuit] Error when unmarshalling response: " + err.Error())
+	}
+
+	idStr := strconv.Itoa(syncResponse.ID)
+	return &idStr, nil
+}
+
+func (s *MidsuitService) SyncUpdateEmployeeNationalData4Midsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalData4MidsuitRequest, jwtToken string) (*string, error) {
+	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/hc_employee/" + strconv.Itoa(midsuitId)
+	method := "PUT"
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData4Midsuit] Error when marshalling payload: " + err.Error())
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData4Midsuit] Error when creating request: " + err.Error())
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+jwtToken)
+
+	res, err := client.Do(req)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData4Midsuit] Error when fetching response: " + err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData4Midsuit] Error when fetching response: " + string(bodyBytes))
+	}
+
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var syncResponse SyncEmployeeMidsuitResponse
+	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData4Midsuit] Error when unmarshalling response: " + err.Error())
+	}
+
+	idStr := strconv.Itoa(syncResponse.ID)
+	return &idStr, nil
+}
+
+func (s *MidsuitService) SyncUpdateEmployeeNationalData5Midsuit(midsuitId int, payload request.SyncUpdateEmployeeNationalData5MidsuitRequest, jwtToken string) (*string, error) {
+	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/models/hc_employee/" + strconv.Itoa(midsuitId)
+	method := "PUT"
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData5Midsuit] Error when marshalling payload: " + err.Error())
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData5Midsuit] Error when creating request: " + err.Error())
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+jwtToken)
+
+	res, err := client.Do(req)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData5Midsuit] Error when fetching response: " + err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData5Midsuit] Error when fetching response: " + string(bodyBytes))
+	}
+
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var syncResponse SyncEmployeeMidsuitResponse
+	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncUpdateEmployeeNationalData5Midsuit] Error when unmarshalling response: " + err.Error())
 	}
 
 	idStr := strconv.Itoa(syncResponse.ID)

@@ -1954,21 +1954,6 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				gradeMidsuitID = &gradeResp.MidsuitID
 			}
 
-			_, err = uc.EmployeeMessage.SendCreateEmployeeTaskMessage(request.SendCreateEmployeeTaskMessageRequest{
-				EmployeeID:            employeeID.String(),
-				JoinedDate:            documentSending.JoinedDate.String(),
-				OrganizationType:      organizationResp.OrganizationType,
-				EmployeeMidsuitID:     *midsuitEmpID,
-				JobMidsuitID:          jobResp.MidsuitID,
-				JobLevelMidsuitID:     jobLevelResp.MidsuitID,
-				OrgMidsuitID:          orgResp.MidsuitID,
-				OrgStructureMidsuitID: orgStructureResp.MidsuitID,
-			})
-			if err != nil {
-				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
-				return err
-			}
-
 			// sync to midsuit employee job
 			midsuitEmployeeJobPayload := &request.SyncEmployeeJobMidsuitRequest{
 				AdOrgId: request.AdOrgId{
@@ -2159,6 +2144,21 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return err
 					}
 				}
+			}
+
+			_, err = uc.EmployeeMessage.SendCreateEmployeeTaskMessage(request.SendCreateEmployeeTaskMessageRequest{
+				EmployeeID:            employeeID.String(),
+				JoinedDate:            documentSending.JoinedDate.String(),
+				OrganizationType:      organizationResp.OrganizationType,
+				EmployeeMidsuitID:     *midsuitEmpID,
+				JobMidsuitID:          jobResp.MidsuitID,
+				JobLevelMidsuitID:     jobLevelResp.MidsuitID,
+				OrgMidsuitID:          orgResp.MidsuitID,
+				OrgStructureMidsuitID: orgStructureResp.MidsuitID,
+			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
 			}
 
 			// sync to midsuit employee allowance

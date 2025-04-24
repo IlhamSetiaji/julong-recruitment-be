@@ -868,6 +868,16 @@ type SyncGenerateUserMidsuitResponse struct {
 	Summary       SummaryResponse `json:"summary"`
 }
 
+type CheckErrorGenerateUserMidsuitResponse struct {
+	AdPinstanceID int  `json:"AD_PInstance_ID"`
+	IsError       bool `json:"isError"`
+}
+
+type SyncGenerateUserMidsuitResponseError struct {
+	AdPinstanceID int    `json:"AD_PInstance_ID"`
+	Summary       string `json:"summary"`
+}
+
 func (s *MidsuitService) SyncGenerateUserMidsuit(empMidsuitID int, jwtToken string) (*string, error) {
 	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/processes/hcm_generateuser"
 	method := "POST"
@@ -911,12 +921,27 @@ func (s *MidsuitService) SyncGenerateUserMidsuit(empMidsuitID int, jwtToken stri
 	}
 
 	bodyBytes, _ := io.ReadAll(res.Body)
-	var syncResponse SyncGenerateUserMidsuitResponse
+	var syncResponse CheckErrorGenerateUserMidsuitResponse
 	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
 		s.Log.Error(err)
 		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when unmarshalling response: " + err.Error())
 	}
 
-	idStr := strconv.Itoa(syncResponse.Summary.HcEmployeeID)
+	if syncResponse.IsError {
+		var errorData SyncGenerateUserMidsuitResponseError
+		if err := json.Unmarshal(bodyBytes, &errorData); err != nil {
+			s.Log.Error(err)
+			return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when unmarshalling error response: " + err.Error())
+		}
+		s.Log.Error("[MidsuitService.SyncGenerateUserMidsuit] Error response: " + errorData.Summary)
+		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error response: " + errorData.Summary)
+	}
+	var successResponse SyncGenerateUserMidsuitResponse
+	if err := json.Unmarshal(bodyBytes, &successResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when unmarshalling success response: " + err.Error())
+	}
+
+	idStr := strconv.Itoa(successResponse.Summary.HcEmployeeID)
 	return &idStr, nil
 }

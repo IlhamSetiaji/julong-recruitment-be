@@ -68,6 +68,7 @@ type DocumentSendingUseCase struct {
 	JobPlafonMessage                 messaging.IJobPlafonMessage
 	MidsuitService                   service.IMidsuitService
 	GradeMessage                     messaging.IGradeMessage
+	UserProfileRepository            repository.IUserProfileRepository
 }
 
 func NewDocumentSendingUseCase(
@@ -93,6 +94,7 @@ func NewDocumentSendingUseCase(
 	jobPlafonMessage messaging.IJobPlafonMessage,
 	midsuitService service.IMidsuitService,
 	gradeMessage messaging.IGradeMessage,
+	userProfileRepository repository.IUserProfileRepository,
 ) IDocumentSendingUseCase {
 	return &DocumentSendingUseCase{
 		Log:                              log,
@@ -117,6 +119,7 @@ func NewDocumentSendingUseCase(
 		JobPlafonMessage:                 jobPlafonMessage,
 		MidsuitService:                   midsuitService,
 		GradeMessage:                     gradeMessage,
+		UserProfileRepository:            userProfileRepository,
 	}
 }
 
@@ -141,6 +144,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 	jobPlafonMesage := messaging.JobPlafonMessageFactory(log)
 	midsuitService := service.MidsuitServiceFactory(viper, log)
 	gradeMessage := messaging.GradeMessageFactory(log)
+	userProfileRepository := repository.UserProfileRepositoryFactory(log)
 	return NewDocumentSendingUseCase(
 		log,
 		repo,
@@ -164,6 +168,7 @@ func DocumentSendingUseCaseFactory(log *logrus.Logger, viper *viper.Viper) IDocu
 		jobPlafonMesage,
 		midsuitService,
 		gradeMessage,
+		userProfileRepository,
 	)
 }
 
@@ -2147,6 +2152,27 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return err
 					}
 				}
+			}
+
+			midsuitEmpIDInt, err := strconv.Atoi(*midsuitEmpID)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert midsuitEmpID to int: " + err.Error())
+				return err
+			}
+			userProfileMidsuitID, err := uc.MidsuitService.SyncGenerateUserMidsuit(midsuitEmpIDInt, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			// update user profile
+			_, err = uc.UserProfileRepository.UpdateUserProfile(&entity.UserProfile{
+				ID:        applicant.UserProfile.ID,
+				MidsuitID: userProfileMidsuitID,
+			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
 			}
 
 			_, err = uc.EmployeeMessage.SendCreateEmployeeTaskMessage(request.SendCreateEmployeeTaskMessageRequest{

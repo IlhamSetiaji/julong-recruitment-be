@@ -35,6 +35,7 @@ type IMidsuitService interface {
 	SyncUpdateEmployeeImageMidsuit(midsuitId int, payload request.SyncUpdateEmployeeImageMidsuitRequest, jwtToken string) (*string, error)
 	RecruitmentTypeMidsuitAPIWithoutFilter(jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error)
 	RecruitmentTypeMidsuitAPI(filter string, jwtToken string) (*RecruitmentTypeMidsuitAPIResponse, error)
+	SyncGenerateUserMidsuit(empMidsuitID int, jwtToken string) (*string, error)
 }
 
 type MidsuitService struct {
@@ -856,4 +857,66 @@ func (s *MidsuitService) RecruitmentTypeMidsuitAPI(filter string, jwtToken strin
 	}
 
 	return &recruitmentTypeResponse, nil
+}
+
+type SummaryResponse struct {
+	HcEmployeeID int `json:"HC_Employee_ID"`
+}
+
+type SyncGenerateUserMidsuitResponse struct {
+	AdPinstanceID int             `json:"AD_PInstance_ID"`
+	Summary       SummaryResponse `json:"summary"`
+}
+
+func (s *MidsuitService) SyncGenerateUserMidsuit(empMidsuitID int, jwtToken string) (*string, error) {
+	url := s.Viper.GetString("midsuit.url") + s.Viper.GetString("midsuit.api_endpoint") + "/processes/hcm_generateuser"
+	method := "POST"
+
+	payload := map[string]interface{}{
+		"HC_Employee_ID": empMidsuitID,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when marshalling payload: " + err.Error())
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when creating request: " + err.Error())
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Authorization", "Bearer "+jwtToken)
+
+	res, err := client.Do(req)
+	if err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when fetching response: " + err.Error())
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+		bodyBytes, _ := io.ReadAll(res.Body)
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when fetching response: " + string(bodyBytes))
+	}
+
+	bodyBytes, _ := io.ReadAll(res.Body)
+	var syncResponse SyncGenerateUserMidsuitResponse
+	if err := json.Unmarshal(bodyBytes, &syncResponse); err != nil {
+		s.Log.Error(err)
+		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when unmarshalling response: " + err.Error())
+	}
+
+	idStr := strconv.Itoa(syncResponse.Summary.HcEmployeeID)
+	return &idStr, nil
 }

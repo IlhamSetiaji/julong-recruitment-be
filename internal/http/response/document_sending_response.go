@@ -21,6 +21,7 @@ type DocumentSendingResponse struct {
 	PositionalAllowance      float64                       `json:"positional_allowance"`
 	OperationalAllowance     float64                       `json:"operational_allowance"`
 	MealAllowance            float64                       `json:"meal_allowance"`
+	HouseAllowance           float64                       `json:"house_allowance"`
 	JobLocation              string                        `json:"job_location"`
 	HometripTicket           string                        `json:"hometrip_ticket"`
 	PeriodAgreement          string                        `json:"period_agreement"`

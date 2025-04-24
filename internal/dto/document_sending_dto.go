@@ -158,6 +158,7 @@ func (dto *DocumentSendingDTO) ConvertEntityToResponse(ent *entity.DocumentSendi
 		PositionalAllowance:      ent.PositionalAllowance,
 		OperationalAllowance:     ent.OperationalAllowance,
 		MealAllowance:            ent.MealAllowance,
+		HouseAllowance:						ent.HouseAllowance,
 		JobLocation:              ent.JobLocation,
 		HometripTicket:           ent.HometripTicket,
 		PeriodAgreement:          ent.PeriodAgreement,

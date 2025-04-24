@@ -12,6 +12,7 @@ type CreateDocumentSendingRequest struct {
 	PositionalAllowance      float64 `json:"positional_allowance" validate:"omitempty"`
 	OperationalAllowance     float64 `json:"operational_allowance" validate:"omitempty"`
 	MealAllowance            float64 `json:"meal_allowance" validate:"omitempty"`
+	HouseAllowance           float64 `json:"house_allowance" validate:"omitempty"`
 	JobLocation              string  `json:"job_location" validate:"omitempty"`
 	HometripTicket           string  `json:"hometrip_ticket" validate:"omitempty"`
 	PeriodAgreement          string  `json:"period_agreement" validate:"omitempty"`
@@ -42,6 +43,7 @@ type UpdateDocumentSendingRequest struct {
 	PositionalAllowance      float64 `json:"positional_allowance" validate:"omitempty"`
 	OperationalAllowance     float64 `json:"operational_allowance" validate:"omitempty"`
 	MealAllowance            float64 `json:"meal_allowance" validate:"omitempty"`
+	HouseAllowance           float64 `json:"house_allowance" validate:"omitempty"`
 	JobLocation              string  `json:"job_location" validate:"omitempty"`
 	HometripTicket           string  `json:"hometrip_ticket" validate:"omitempty"`
 	PeriodAgreement          string  `json:"period_agreement" validate:"omitempty"`

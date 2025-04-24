@@ -56,6 +56,7 @@ type DocumentDataContract struct {
 	PositionalAllowance  int    `json:"positional_allowance"`
 	OperationalAllowance int    `json:"operational_allowance"`
 	MealAllowance        int    `json:"meal_allowance"`
+	HouseAllowance       int    `json:"house_allowance"`
 	HometripTicket       string `json:"hometrip_ticket"`
 	JoinedDate           string `json:"joined_date"`
 	HiredStatus          string `json:"hired_status"`

@@ -50,6 +50,7 @@ type DocumentSending struct {
 	PositionalAllowance      float64                `json:"positional_allowance" gorm:"type:decimal(10,2);default:null"`
 	OperationalAllowance     float64                `json:"operational_allowance" gorm:"type:decimal(10,2);default:null"`
 	MealAllowance            float64                `json:"meal_allowance" gorm:"type:decimal(10,2);default:null"`
+	HouseAllowance           float64                `json:"house_allowance" gorm:"type:decimal(10,2);default:null"`
 	JobLocation              string                 `json:"job_location" gorm:"type:text;default:null"`
 	HometripTicket           string                 `json:"hometrip_ticket" gorm:"type:text;default:null"`
 	PeriodAgreement          string                 `json:"period_agreement" gorm:"type:text;default:null"`

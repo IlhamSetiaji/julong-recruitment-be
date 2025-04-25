@@ -1897,7 +1897,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					// Identifier: string(applicant.UserProfile.Religion),
 				},
 				HcStatus: request.HcStatus{
-					ID: "P",
+					ID: "A",
 				},
 				HcBasicAcceptance: request.HcBasicAcceptance{
 					ID:         strings.TrimSpace(string(applicant.UserProfile.Educations[0].EducationLevel)),
@@ -2154,42 +2154,6 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				}
 			}
 
-			midsuitEmpIDInt, err := strconv.Atoi(*midsuitEmpID)
-			if err != nil {
-				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert midsuitEmpID to int: " + err.Error())
-				return err
-			}
-			userProfileMidsuitID, err := uc.MidsuitService.SyncGenerateUserMidsuit(midsuitEmpIDInt, authResp.Token)
-			if err != nil {
-				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
-				return err
-			}
-
-			// update user profile
-			_, err = uc.UserProfileRepository.UpdateUserProfile(&entity.UserProfile{
-				ID:        applicant.UserProfile.ID,
-				MidsuitID: userProfileMidsuitID,
-			})
-			if err != nil {
-				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
-				return err
-			}
-
-			_, err = uc.EmployeeMessage.SendCreateEmployeeTaskMessage(request.SendCreateEmployeeTaskMessageRequest{
-				EmployeeID:            employeeID.String(),
-				JoinedDate:            documentSending.JoinedDate.String(),
-				OrganizationType:      organizationResp.OrganizationType,
-				EmployeeMidsuitID:     *midsuitEmpID,
-				JobMidsuitID:          jobResp.MidsuitID,
-				JobLevelMidsuitID:     jobLevelResp.MidsuitID,
-				OrgMidsuitID:          orgResp.MidsuitID,
-				OrgStructureMidsuitID: orgStructureResp.MidsuitID,
-			})
-			if err != nil {
-				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
-				return err
-			}
-
 			// sync to midsuit employee operation
 			empRespVerifiedBy, err := uc.EmployeeMessage.SendFindEmployeeByIDMessage(request.SendFindEmployeeByIDMessageRequest{
 				ID: documentSending.AllowanceApproval.String(),
@@ -2203,6 +2167,8 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				return errors.New("employee not found in midsuit")
 			}
 
+			// cPeriodID := documentSending.JoinedDate.Format("Jan-06")
+
 			allowanceOperationPayload := &request.SyncEmployeeAllowanceMidsuitRequest{
 				AdOrgId: request.AdOrgId{
 					ID: func() int {
@@ -2215,11 +2181,15 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					}(),
 				},
 				CDocTypeID: request.CDocTypeID{
-					Identifier: "Allowance Operation",
+					Identifier: "Allowance Provision",
 					ModelName:  "c_doctype",
 				},
+				CPeriodID: request.CPeriodID{
+					Identifier: "Apr-25",
+					ModelName:  "c_period",
+				},
 				DateDoc: documentSending.JoinedDate.Format("2006-01-02"),
-				HCEmployeeID: request.HcEmployeeId{
+				HCEmployee2ID: request.HcEmployeeId{
 					ID: func() int {
 						id, err := strconv.Atoi(*midsuitEmpID)
 						if err != nil {
@@ -2229,7 +2199,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return id
 					}(),
 				},
-				HCJobID: request.HcJobId{
+				HCJob2ID: request.HcJobId{
 					ID: func() int {
 						id, err := strconv.Atoi(jobResp.MidsuitID)
 						if err != nil {
@@ -2239,7 +2209,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return id
 					}(),
 				},
-				HCEmployee2ID: request.HcEmployeeId{
+				HCEmployeeID: request.HcEmployeeId{
 					ID: func() int {
 						id, err := strconv.Atoi(empRespVerifiedBy.MidsuitID)
 						if err != nil {
@@ -2249,7 +2219,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return id
 					}(),
 				},
-				HCOrgID: request.HcOrgId{
+				HCOrg2ID: request.HcOrgId{
 					ID: func() int {
 						id, err := strconv.Atoi(orgStructure.MidsuitID)
 						if err != nil {
@@ -2295,11 +2265,15 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					}(),
 				},
 				CDocTypeID: request.CDocTypeID{
-					Identifier: "Allowance Meal",
+					Identifier: "Allowance Provision",
 					ModelName:  "c_doctype",
 				},
+				CPeriodID: request.CPeriodID{
+					Identifier: "Apr-25",
+					ModelName:  "c_period",
+				},
 				DateDoc: documentSending.JoinedDate.Format("2006-01-02"),
-				HCEmployeeID: request.HcEmployeeId{
+				HCEmployee2ID: request.HcEmployeeId{
 					ID: func() int {
 						id, err := strconv.Atoi(*midsuitEmpID)
 						if err != nil {
@@ -2309,7 +2283,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return id
 					}(),
 				},
-				HCJobID: request.HcJobId{
+				HCJob2ID: request.HcJobId{
 					ID: func() int {
 						id, err := strconv.Atoi(jobResp.MidsuitID)
 						if err != nil {
@@ -2319,7 +2293,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return id
 					}(),
 				},
-				HCEmployee2ID: request.HcEmployeeId{
+				HCEmployeeID: request.HcEmployeeId{
 					ID: func() int {
 						id, err := strconv.Atoi(empRespVerifiedBy.MidsuitID)
 						if err != nil {
@@ -2329,7 +2303,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return id
 					}(),
 				},
-				HCOrgID: request.HcOrgId{
+				HCOrg2ID: request.HcOrgId{
 					ID: func() int {
 						id, err := strconv.Atoi(orgStructure.MidsuitID)
 						if err != nil {
@@ -2375,11 +2349,15 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					}(),
 				},
 				CDocTypeID: request.CDocTypeID{
-					Identifier: "Allowance House",
+					Identifier: "Allowance Provision",
 					ModelName:  "c_doctype",
 				},
+				CPeriodID: request.CPeriodID{
+					Identifier: "Apr-25",
+					ModelName:  "c_period",
+				},
 				DateDoc: documentSending.JoinedDate.Format("2006-01-02"),
-				HCEmployeeID: request.HcEmployeeId{
+				HCEmployee2ID: request.HcEmployeeId{
 					ID: func() int {
 						id, err := strconv.Atoi(*midsuitEmpID)
 						if err != nil {
@@ -2389,7 +2367,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return id
 					}(),
 				},
-				HCJobID: request.HcJobId{
+				HCJob2ID: request.HcJobId{
 					ID: func() int {
 						id, err := strconv.Atoi(jobResp.MidsuitID)
 						if err != nil {
@@ -2399,7 +2377,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return id
 					}(),
 				},
-				HCEmployee2ID: request.HcEmployeeId{
+				HCEmployeeID: request.HcEmployeeId{
 					ID: func() int {
 						id, err := strconv.Atoi(empRespVerifiedBy.MidsuitID)
 						if err != nil {
@@ -2409,7 +2387,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 						return id
 					}(),
 				},
-				HCOrgID: request.HcOrgId{
+				HCOrg2ID: request.HcOrgId{
 					ID: func() int {
 						id, err := strconv.Atoi(orgStructure.MidsuitID)
 						if err != nil {
@@ -2439,6 +2417,42 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 			_, err = uc.MidsuitService.SyncEmployeeAllowanceMidsuit(*allowanceHousePayload, authResp.Token)
 			if err != nil {
 				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending Allowance House] " + err.Error())
+				return err
+			}
+
+			midsuitEmpIDInt, err := strconv.Atoi(*midsuitEmpID)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] failed to convert midsuitEmpID to int: " + err.Error())
+				return err
+			}
+			userProfileMidsuitID, err := uc.MidsuitService.SyncGenerateUserMidsuit(midsuitEmpIDInt, authResp.Token)
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			// update user profile
+			_, err = uc.UserProfileRepository.UpdateUserProfile(&entity.UserProfile{
+				ID:        applicant.UserProfile.ID,
+				MidsuitID: userProfileMidsuitID,
+			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
+				return err
+			}
+
+			_, err = uc.EmployeeMessage.SendCreateEmployeeTaskMessage(request.SendCreateEmployeeTaskMessageRequest{
+				EmployeeID:            employeeID.String(),
+				JoinedDate:            documentSending.JoinedDate.String(),
+				OrganizationType:      organizationResp.OrganizationType,
+				EmployeeMidsuitID:     *midsuitEmpID,
+				JobMidsuitID:          jobResp.MidsuitID,
+				JobLevelMidsuitID:     jobLevelResp.MidsuitID,
+				OrgMidsuitID:          orgResp.MidsuitID,
+				OrgStructureMidsuitID: orgStructureResp.MidsuitID,
+			})
+			if err != nil {
+				uc.Log.Error("[DocumentSendingUseCase.UpdateDocumentSending] " + err.Error())
 				return err
 			}
 		}

@@ -377,7 +377,7 @@ func (s *MidsuitService) SyncEmployeeAllowanceMidsuit(payload request.SyncEmploy
 	res, err := client.Do(req)
 	if err != nil {
 		s.Log.Error(err)
-		return nil, errors.New("[MidsuitService.SyncEmployeeAllowanceMidsuit] Error when fetching response: " + err.Error())
+		return nil, errors.New("[MidsuitService.SyncEmployeeAllowanceMidsuit] Error when fetching response from server: " + err.Error())
 	}
 	defer res.Body.Close()
 
@@ -864,8 +864,9 @@ type SummaryResponse struct {
 }
 
 type SyncGenerateUserMidsuitResponse struct {
-	AdPinstanceID int             `json:"AD_PInstance_ID"`
-	Summary       SummaryResponse `json:"summary"`
+	AdPinstanceID int `json:"AD_PInstance_ID"`
+	// Summary       SummaryResponse `json:"summary"`
+	Summary string `json:"summary"`
 }
 
 type CheckErrorGenerateUserMidsuitResponse struct {
@@ -916,7 +917,7 @@ func (s *MidsuitService) SyncGenerateUserMidsuit(empMidsuitID int, jwtToken stri
 
 	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
 		bodyBytes, _ := io.ReadAll(res.Body)
-		s.Log.Error(err)
+		s.Log.Error(string(bodyBytes))
 		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when fetching response: " + string(bodyBytes))
 	}
 
@@ -936,12 +937,28 @@ func (s *MidsuitService) SyncGenerateUserMidsuit(empMidsuitID int, jwtToken stri
 		s.Log.Error("[MidsuitService.SyncGenerateUserMidsuit] Error response: " + errorData.Summary)
 		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error response: " + errorData.Summary)
 	}
+
+	// Extract HC_Employee_ID from the summary string
 	var successResponse SyncGenerateUserMidsuitResponse
 	if err := json.Unmarshal(bodyBytes, &successResponse); err != nil {
 		s.Log.Error(err)
 		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Error when unmarshalling success response: " + err.Error())
 	}
 
-	idStr := strconv.Itoa(successResponse.Summary.HcEmployeeID)
-	return &idStr, nil
+	// Parse the summary string to extract HC_Employee_ID
+	summary := successResponse.Summary
+	hcEmployeeID := ""
+	if strings.Contains(summary, "HC_Employee_ID") {
+		start := strings.Index(summary, "HC_Employee_ID:") + len("HC_Employee_ID:")
+		end := strings.Index(summary[start:], "}")
+		if end != -1 {
+			hcEmployeeID = strings.TrimSpace(summary[start : start+end])
+		}
+	}
+
+	if hcEmployeeID == "" {
+		return nil, errors.New("[MidsuitService.SyncGenerateUserMidsuit] Failed to extract HC_Employee_ID from summary")
+	}
+
+	return &hcEmployeeID, nil
 }

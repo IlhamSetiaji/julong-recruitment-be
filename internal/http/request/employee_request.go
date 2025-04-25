@@ -101,11 +101,6 @@ type CDocTypeID struct {
 	ModelName  string `json:"model-name" binding:"required"`
 }
 
-type CPeriodID struct {
-	Identifier string `json:"identifier" binding:"required"`
-	ModelName  string `json:"model-name" binding:"required"`
-}
-
 type HCAllowanceType struct {
 	ID         string `json:"id" binding:"required"`
 	Identifier string `json:"identifier" binding:"omitempty"`
@@ -217,6 +212,11 @@ type SyncEmployeeEducationMidsuitRequest struct {
 	ModelName             string            `json:"model-name" binding:"required"`
 }
 
+type CPeriodID struct {
+	Identifier string `json:"identifier" binding:"omitempty"`
+	ModelName  string `json:"model-name" binding:"omitempty"`
+}
+
 type SyncEmployeeAllowanceMidsuitRequest struct {
 	AdOrgId          AdOrgId          `json:"AD_Org_ID" binding:"omitempty"`
 	CDocTypeID       CDocTypeID       `json:"C_DocType_ID" binding:"omitempty"`
@@ -236,12 +236,12 @@ type SyncEmployeeAllowanceMidsuitRequest struct {
 	Distance         int              `json:"Distance" binding:"omitempty"`
 	Amount           int              `json:"Amount" binding:"omitempty"`
 	HCUOM            HCUOM            `json:"HC_UOM" binding:"omitempty"`
-	CPeriod2ID       CPeriodID        `json:"C_Period2_ID" binding:"omitempty"`
-	IsUseDate        bool             `json:"IsUseDate" binding:"omitempty"`
-	HCProvisionType  HCProvisionType  `json:"HC_ProvisionType" binding:"omitempty"`
-	IsGenerated      bool             `json:"IsGenerated" binding:"omitempty"`
-	ModelName        string           `json:"model-name" binding:"omitempty"`
-	DocAction        string           `json:"doc-action" binding:"omitempty"`
+	// CPeriod2ID       CPeriodID        `json:"C_Period2_ID" binding:"omitempty"`
+	IsUseDate       bool            `json:"IsUseDate" binding:"omitempty"`
+	HCProvisionType HCProvisionType `json:"HC_ProvisionType" binding:"omitempty"`
+	IsGenerated     bool            `json:"IsGenerated" binding:"omitempty"`
+	ModelName       string          `json:"model-name" binding:"omitempty"`
+	DocAction       string          `json:"doc-action" binding:"omitempty"`
 }
 
 type ADClientID struct {

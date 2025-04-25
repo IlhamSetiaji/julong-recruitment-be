@@ -2167,7 +2167,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				return errors.New("employee not found in midsuit")
 			}
 
-			// cPeriodID := documentSending.JoinedDate.Format("Jan-06")
+			cPeriodID := documentSending.JoinedDate.Format("Jan-06")
 
 			allowanceOperationPayload := &request.SyncEmployeeAllowanceMidsuitRequest{
 				AdOrgId: request.AdOrgId{
@@ -2185,7 +2185,8 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					ModelName:  "c_doctype",
 				},
 				CPeriodID: request.CPeriodID{
-					Identifier: "Apr-25",
+					// Identifier: "Apr-25",
+					Identifier: cPeriodID,
 					ModelName:  "c_period",
 				},
 				DateDoc: documentSending.JoinedDate.Format("2006-01-02"),
@@ -2269,7 +2270,8 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					ModelName:  "c_doctype",
 				},
 				CPeriodID: request.CPeriodID{
-					Identifier: "Apr-25",
+					// Identifier: "Apr-25",
+					Identifier: cPeriodID,
 					ModelName:  "c_period",
 				},
 				DateDoc: documentSending.JoinedDate.Format("2006-01-02"),
@@ -2353,7 +2355,8 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 					ModelName:  "c_doctype",
 				},
 				CPeriodID: request.CPeriodID{
-					Identifier: "Apr-25",
+					// Identifier: "Apr-25",
+					Identifier: cPeriodID,
 					ModelName:  "c_period",
 				},
 				DateDoc: documentSending.JoinedDate.Format("2006-01-02"),
@@ -2411,7 +2414,7 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				},
 				IsGenerated: true,
 				ModelName:   "hc_allowanceprovision",
-				// DocAction:   "CO",
+				DocAction:   "CO",
 			}
 
 			_, err = uc.MidsuitService.SyncEmployeeAllowanceMidsuit(*allowanceHousePayload, authResp.Token)

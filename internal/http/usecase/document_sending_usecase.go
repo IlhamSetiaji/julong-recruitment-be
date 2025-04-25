@@ -2167,7 +2167,14 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 				return errors.New("employee not found in midsuit")
 			}
 
-			cPeriodID := documentSending.JoinedDate.Format("Jan-06")
+			var joinedDate time.Time
+			if documentSending.JoinedDate.Day() == 25 {
+				// Add one month to the date
+				joinedDate = documentSending.JoinedDate.AddDate(0, 1, 0)
+			}
+
+			// cPeriodID := documentSending.JoinedDate.Format("Jan-06")
+			cPeriodID := joinedDate.Format("Jan-06")
 
 			allowanceOperationPayload := &request.SyncEmployeeAllowanceMidsuitRequest{
 				AdOrgId: request.AdOrgId{

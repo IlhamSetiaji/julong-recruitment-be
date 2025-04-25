@@ -2169,12 +2169,14 @@ func (uc *DocumentSendingUseCase) employeeHired(applicant entity.Applicant, temp
 
 			var joinedDate time.Time
 			if documentSending.JoinedDate.Day() == 25 {
-				// Add one month to the date
 				joinedDate = documentSending.JoinedDate.AddDate(0, 1, 0)
+			} else {
+				joinedDate = *documentSending.JoinedDate
 			}
 
-			// cPeriodID := documentSending.JoinedDate.Format("Jan-06")
 			cPeriodID := joinedDate.Format("Jan-06")
+			fmt.Println("Formatted cPeriodID:", cPeriodID)
+			// cPeriodID := documentSending.JoinedDate.Format("Jan-06")
 
 			allowanceOperationPayload := &request.SyncEmployeeAllowanceMidsuitRequest{
 				AdOrgId: request.AdOrgId{

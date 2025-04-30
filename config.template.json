@@ -9,7 +9,7 @@
   },
   "web": {
     "prefork": false,
-    "port": 8000,
+    "port": 8020,
     "cookie": {
       "name": "julong-recruitment",
       "secure": false,

@@ -12,6 +12,7 @@ import (
 type INotificationService interface {
 	ApplicantAppliedNotification(createdBy string) error
 	CreateAdministrativeSelectionNotification(createdBy, userID string) error
+	CreateDocumentAgreementNotification(createdBy string, userIDs []string, documentName string) error
 }
 
 type NotificationService struct {
@@ -76,6 +77,25 @@ func (s *NotificationService) CreateAdministrativeSelectionNotification(createdB
 		URL:         "/d/administrative/selection-setup",
 		Message:     "Please review and verify the applicant's profile information at your earliest convenience.",
 		UserIDs:     []string{userID},
+		CreatedBy:   createdBy,
+	}
+
+	err := s.JulongService.CreateJulongNotification(payload)
+	if err != nil {
+		s.Log.Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *NotificationService) CreateDocumentAgreementNotification(createdBy string, userIDs []string, documentName string) error {
+	payload := &request.CreateNotificationRequest{
+		Application: "RECRUITMENT",
+		Name:        "Document Agreement",
+		URL:         "/d/administrative/selection-setup",
+		Message:     "The candidate has successfully uploaded the signed " + documentName + ". Please review the document and proceed with the next steps accordingly.",
+		UserIDs:     userIDs,
 		CreatedBy:   createdBy,
 	}
 

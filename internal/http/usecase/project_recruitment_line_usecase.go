@@ -26,6 +26,7 @@ type IProjectRecruitmentLineUseCase interface {
 	FindAllByHeaderID(headerID uuid.UUID) (*[]response.ProjectRecruitmentLineResponse, error)
 	FindAllByHeaderIDAndFormType(headerID uuid.UUID, formType entity.TemplateQuestionFormType) ([]*response.ProjectRecruitmentLineResponse, error)
 	FindAllByMonthAndYear(month, year int, employeeID uuid.UUID) ([]*response.ProjectRecruitmentLineResponse, error)
+	FindByID(id uuid.UUID) (*response.ProjectRecruitmentLineResponse, error)
 }
 
 type ProjectRecruitmentLineUseCase struct {
@@ -499,4 +500,18 @@ func (uc *ProjectRecruitmentLineUseCase) FindAllByMonthAndYear(month, year int, 
 	}
 
 	return responses, nil
+}
+
+func (uc *ProjectRecruitmentLineUseCase) FindByID(id uuid.UUID) (*response.ProjectRecruitmentLineResponse, error) {
+	data, err := uc.Repository.FindByID(id)
+	if err != nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindByID] error when finding project recruitment line by id: %s", err.Error())
+		return nil, err
+	}
+	if data == nil {
+		uc.Log.Errorf("[ProjectRecruitmentLineUseCase.FindByID] project recruitment line with id %s not found", id)
+		return nil, errors.New("project recruitment line not found")
+	}
+
+	return uc.DTO.ConvertEntityToResponse(data), nil
 }

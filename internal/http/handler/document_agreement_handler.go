@@ -7,7 +7,9 @@ import (
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
@@ -27,10 +29,13 @@ type IDocumentAgreementHandler interface {
 }
 
 type DocumentAgreementHandler struct {
-	Log      *logrus.Logger
-	Viper    *viper.Viper
-	Validate *validator.Validate
-	UseCase  usecase.IDocumentAgreementUseCase
+	Log                           *logrus.Logger
+	Viper                         *viper.Viper
+	Validate                      *validator.Validate
+	UseCase                       usecase.IDocumentAgreementUseCase
+	ProjectRecruitmentLineUseCase usecase.IProjectRecruitmentLineUseCase
+	UserMessage                   messaging.IUserMessage
+	NotificationService           service.INotificationService
 }
 
 func NewDocumentAgreementHandler(
@@ -38,19 +43,36 @@ func NewDocumentAgreementHandler(
 	viper *viper.Viper,
 	validate *validator.Validate,
 	useCase usecase.IDocumentAgreementUseCase,
+	projectRecruitmentLineUseCase usecase.IProjectRecruitmentLineUseCase,
+	userMessage messaging.IUserMessage,
+	notificationService service.INotificationService,
 ) IDocumentAgreementHandler {
 	return &DocumentAgreementHandler{
-		Log:      log,
-		Viper:    viper,
-		Validate: validate,
-		UseCase:  useCase,
+		Log:                           log,
+		Viper:                         viper,
+		Validate:                      validate,
+		UseCase:                       useCase,
+		ProjectRecruitmentLineUseCase: projectRecruitmentLineUseCase,
+		UserMessage:                   userMessage,
+		NotificationService:           notificationService,
 	}
 }
 
 func DocumentAgreementHandlerFactory(log *logrus.Logger, viper *viper.Viper) IDocumentAgreementHandler {
 	useCase := usecase.DocumentAgreementUseCaseFactory(log, viper)
 	validate := config.NewValidator(viper)
-	return NewDocumentAgreementHandler(log, viper, validate, useCase)
+	projectRecruitmentLineUseCase := usecase.ProjectRecruitmentLineUseCaseFactory(log)
+	userMessage := messaging.UserMessageFactory(log)
+	notificationService := service.NotificationServiceFactory(viper, log)
+	return NewDocumentAgreementHandler(
+		log,
+		viper,
+		validate,
+		useCase,
+		projectRecruitmentLineUseCase,
+		userMessage,
+		notificationService,
+	)
 }
 
 // CreateDocumentAgreement create document agreement
@@ -95,6 +117,44 @@ func (h *DocumentAgreementHandler) CreateDocumentAgreement(ctx *gin.Context) {
 		h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to create document agreement", err.Error())
 		return
+	}
+
+	prl, err := h.ProjectRecruitmentLineUseCase.FindByID(res.DocumentSending.ProjectRecruitmentLineID)
+	if err != nil {
+		h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find project recruitment line", err.Error())
+		return
+	}
+
+	if prl == nil {
+		h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Project recruitment line not found", err.Error())
+		return
+	}
+
+	var userIDs []string
+	for _, pp := range prl.ProjectPics {
+		userResp, err := h.UserMessage.SendFindUserByEmployeeIDMessage(pp.EmployeeID.String())
+		if err != nil {
+			h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
+			continue
+			// utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find user by employee id", err.Error())
+			// return
+		}
+		if userResp != nil {
+			userIDs = append(userIDs, userResp.ID)
+			h.Log.Infof("[DocumentAgreementHandler.CreateDocumentAgreement] Appended user ID: %s", userIDs)
+		}
+	}
+
+	if len(userIDs) > 0 {
+		err = h.NotificationService.CreateDocumentAgreementNotification(res.Applicant.UserProfile.UserID.String(), userIDs, res.DocumentSending.DocumentSetup.Title)
+		if err != nil {
+			h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
+			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to create document agreement notification", err.Error())
+			return
+		}
+		h.Log.Infof("[DocumentAgreementHandler.CreateDocumentAgreement] Document agreement notification created successfully")
 	}
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "Document agreement created", res)

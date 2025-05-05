@@ -1450,31 +1450,7 @@ func (uc *DocumentSendingUseCase) UpdateDocumentSending(req *request.UpdateDocum
 
 		// Update the email body with a proper message and a button
 		emailBody := fmt.Sprintf(`
-    <html>
-    <head>
-        <style>
-            .button {
-                display: inline-block;
-                padding: 10px 20px;
-                font-size: 16px;
-                color: #ffffff;
-                background-color: #007BFF;
-                text-decoration: none;
-                border-radius: 5px;
-                text-align: center;
-            }
-            .button:hover {
-                background-color: #0056b3;
-            }
-        </style>
-    </head>
-    <body>
-        <p>Halo,</p>
-        <p>Berikut merupakan dokumen Anda, silahkan klik tombol di bawah ini untuk membuka dokumen Anda:</p>
-        <p><a href="%s" class="button">Buka Dokumen</a></p>
-        <p>Terima kasih,<br>Tim Kami</p>
-    </body>
-    </html>
+  g
 `, documentURL)
 
 		if _, err := uc.MailMessage.SendMail(&request.MailRequest{

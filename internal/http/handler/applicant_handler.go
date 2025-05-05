@@ -9,6 +9,7 @@ import (
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
@@ -29,12 +30,13 @@ type IApplicantHandler interface {
 }
 
 type ApplicantHandler struct {
-	Log                *logrus.Logger
-	Viper              *viper.Viper
-	Validate           *validator.Validate
-	UseCase            usecase.IApplicantUseCase
-	UserProfileUseCase usecase.IUserProfileUseCase
-	UserHelper         helper.IUserHelper
+	Log                 *logrus.Logger
+	Viper               *viper.Viper
+	Validate            *validator.Validate
+	UseCase             usecase.IApplicantUseCase
+	UserProfileUseCase  usecase.IUserProfileUseCase
+	UserHelper          helper.IUserHelper
+	NotificationService service.INotificationService
 }
 
 func NewApplicantHandler(
@@ -44,14 +46,16 @@ func NewApplicantHandler(
 	useCase usecase.IApplicantUseCase,
 	upUseCase usecase.IUserProfileUseCase,
 	userHelper helper.IUserHelper,
+	notificationService service.INotificationService,
 ) IApplicantHandler {
 	return &ApplicantHandler{
-		Log:                log,
-		Viper:              viper,
-		Validate:           validate,
-		UseCase:            useCase,
-		UserProfileUseCase: upUseCase,
-		UserHelper:         userHelper,
+		Log:                 log,
+		Viper:               viper,
+		Validate:            validate,
+		UseCase:             useCase,
+		UserProfileUseCase:  upUseCase,
+		UserHelper:          userHelper,
+		NotificationService: notificationService,
 	}
 }
 
@@ -63,7 +67,8 @@ func ApplicantHandlerFactory(
 	validate := config.NewValidator(viper)
 	upUseCase := usecase.UserProfileUseCaseFactory(log, viper)
 	userHelper := helper.UserHelperFactory(log)
-	return NewApplicantHandler(log, viper, validate, useCase, upUseCase, userHelper)
+	notificationService := service.NotificationServiceFactory(viper, log)
+	return NewApplicantHandler(log, viper, validate, useCase, upUseCase, userHelper, notificationService)
 }
 
 // ApplyJobPosting apply job posting
@@ -126,6 +131,12 @@ func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 	if err != nil {
 		h.Log.Errorf("[ApplicantHandler.ApplyJobPosting] error when applying job posting: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to apply job posting", err.Error())
+		return
+	}
+
+	if err := h.NotificationService.ApplicantAppliedNotification(userUUID.String()); err != nil {
+		h.Log.Errorf("[ApplicantHandler.ApplyJobPosting] error when sending notification: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to send notification", err.Error())
 		return
 	}
 

@@ -11,6 +11,7 @@ import (
 
 type INotificationService interface {
 	ApplicantAppliedNotification(createdBy string) error
+	CreateAdministrativeSelectionNotification(createdBy, userID string) error
 }
 
 type NotificationService struct {
@@ -27,6 +28,12 @@ func NewNotificationService(viper *viper.Viper, log *logrus.Logger, userMessage 
 		UserMessage:   userMessage,
 		JulongService: julongService,
 	}
+}
+
+func NotificationServiceFactory(viper *viper.Viper, log *logrus.Logger) INotificationService {
+	userMessage := messaging.UserMessageFactory(log)
+	julongService := JulongServiceFactory(viper, log)
+	return NewNotificationService(viper, log, userMessage, julongService)
 }
 
 func (s *NotificationService) ApplicantAppliedNotification(createdBy string) error {
@@ -62,8 +69,21 @@ func (s *NotificationService) ApplicantAppliedNotification(createdBy string) err
 	return nil
 }
 
-func NotificationServiceFactory(viper *viper.Viper, log *logrus.Logger) INotificationService {
-	userMessage := messaging.UserMessageFactory(log)
-	julongService := JulongServiceFactory(viper, log)
-	return NewNotificationService(viper, log, userMessage, julongService)
+func (s *NotificationService) CreateAdministrativeSelectionNotification(createdBy, userID string) error {
+	payload := &request.CreateNotificationRequest{
+		Application: "RECRUITMENT",
+		Name:        "Administrative Selection",
+		URL:         "/d/administrative/selection-setup",
+		Message:     "Please review and verify the applicant's profile information at your earliest convenience.",
+		UserIDs:     []string{userID},
+		CreatedBy:   createdBy,
+	}
+
+	err := s.JulongService.CreateJulongNotification(payload)
+	if err != nil {
+		s.Log.Error(err)
+		return err
+	}
+
+	return nil
 }

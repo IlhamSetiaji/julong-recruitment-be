@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -127,7 +128,7 @@ func (h *DocumentAgreementHandler) CreateDocumentAgreement(ctx *gin.Context) {
 	}
 
 	if prl == nil {
-		h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
+		h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + errors.New("project recruitment line not found").Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Project recruitment line not found", err.Error())
 		return
 	}

@@ -15,7 +15,7 @@ import (
 
 type IApplicantUseCase interface {
 	ApplyJobPosting(applicantID, jobPostingID uuid.UUID) (*response.ApplicantResponse, error)
-	GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order string, total int, page, pageSize int, search string, sort map[string]interface{}) (*[]response.ApplicantResponse, int64, error)
+	GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order string, total int, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.ApplicantResponse, int64, error)
 	GetApplicantsByJobPostingIDForExport(jobPostingID uuid.UUID) (*[]response.ApplicantResponse, error)
 	FindApplicantByJobPostingIDAndUserID(jobPostingID, userID uuid.UUID) (*response.ApplicantResponse, error)
 	FindByID(id uuid.UUID) (*entity.Applicant, error)
@@ -203,7 +203,7 @@ func (uc *ApplicantUseCase) ApplyJobPosting(applicantID, jobPostingID uuid.UUID)
 	return applicantResponse, nil
 }
 
-func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order string, total int, page, pageSize int, search string, sort map[string]interface{}) (*[]response.ApplicantResponse, int64, error) {
+func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, order string, total int, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) (*[]response.ApplicantResponse, int64, error) {
 	// find job posting
 	jobPosting, err := uc.JobPostingRepository.FindByID(jobPostingID)
 	if err != nil {
@@ -221,7 +221,7 @@ func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, 
 	if order == "" {
 		applicants, totalData, err = uc.Repository.GetAllByKeysPaginated(map[string]interface{}{
 			"job_posting_id": jobPostingID,
-		}, page, pageSize, search, sort)
+		}, page, pageSize, search, sort, filter)
 		if err != nil {
 			uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
 			return nil, 0, err
@@ -230,7 +230,7 @@ func (uc *ApplicantUseCase) GetApplicantsByJobPostingID(jobPostingID uuid.UUID, 
 		applicants, totalData, err = uc.Repository.GetAllByKeysPaginated(map[string]interface{}{
 			"job_posting_id": jobPostingID,
 			"order":          order,
-		}, page, pageSize, search, sort)
+		}, page, pageSize, search, sort, filter)
 		if err != nil {
 			uc.Log.Error("[ApplicantUseCase.GetApplicantsByJobPostingID] " + err.Error())
 			return nil, 0, err

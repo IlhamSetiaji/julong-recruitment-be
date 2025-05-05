@@ -15,7 +15,7 @@ type IApplicantRepository interface {
 	UpdateApplicant(applicant *entity.Applicant) (*entity.Applicant, error)
 	FindByKeys(keys map[string]interface{}) (*entity.Applicant, error)
 	GetAllByKeys(keys map[string]interface{}) ([]entity.Applicant, error)
-	GetAllByKeysPaginated(keys map[string]interface{}, page, pageSize int, search string, sort map[string]interface{}) ([]entity.Applicant, int64, error)
+	GetAllByKeysPaginated(keys map[string]interface{}, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.Applicant, int64, error)
 	UpdateApplicantWhenRejected(applicant *entity.Applicant) (*entity.Applicant, error)
 	FindAllByIDs(ids []uuid.UUID) ([]entity.Applicant, error)
 }
@@ -123,7 +123,7 @@ func (r *ApplicantRepository) UpdateApplicantWhenRejected(applicant *entity.Appl
 	return applicant, nil
 }
 
-func (r *ApplicantRepository) GetAllByKeysPaginated(keys map[string]interface{}, page, pageSize int, search string, sort map[string]interface{}) ([]entity.Applicant, int64, error) {
+func (r *ApplicantRepository) GetAllByKeysPaginated(keys map[string]interface{}, page, pageSize int, search string, sort map[string]interface{}, filter map[string]interface{}) ([]entity.Applicant, int64, error) {
 	var applicants []entity.Applicant
 	var total int64
 
@@ -134,6 +134,30 @@ func (r *ApplicantRepository) GetAllByKeysPaginated(keys map[string]interface{},
 
 	for key, value := range sort {
 		db = db.Order(key + " " + value.(string))
+	}
+
+	// filter by user_profile.name, job_posting.name, status, start_date, end date
+	// filter by user_profile.name
+	if filter["user_profile.name"] != nil {
+		db = db.Joins("JOIN user_profiles ON user_profiles.id = applicants.user_profile_id").Where("user_profiles.name ILIKE ?", "%"+filter["user_profile.name"].(string)+"%")
+	}
+
+	// filter by job_posting.name
+	if filter["job_posting.name"] != nil {
+		db = db.Joins("JOIN job_postings ON job_postings.id = applicants.job_posting_id").Where("job_postings.name ILIKE ?", "%"+filter["job_posting.name"].(string)+"%")
+	}
+
+	// filter by status
+	if filter["status"] != nil {
+		db = db.Where("status ILIKE ?", "%"+filter["status"].(string)+"%")
+	}
+	// kolom created_at jika start date diisi dan end date tidak diisi maka filter berdasarkan start date, jika start date dan end date diisi maka filter berdasarkan range start date dan end date
+	if filter["start_date"] != nil && filter["end_date"] == nil {
+		db = db.Where("created_at >= ?", filter["start_date"].(string))
+	} else if filter["start_date"] != nil && filter["end_date"] != nil {
+		db = db.Where("created_at >= ? AND created_at <= ?", filter["start_date"].(string), filter["end_date"].(string))
+	} else if filter["start_date"] == nil && filter["end_date"] != nil {
+		db = db.Where("created_at <= ?", filter["end_date"].(string))
 	}
 
 	if err := db.Offset((page - 1) * pageSize).Limit(pageSize).Find(&applicants).Error; err != nil {

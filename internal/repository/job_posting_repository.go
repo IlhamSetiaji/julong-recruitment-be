@@ -117,7 +117,7 @@ func (r *JobPostingRepository) FindAllPaginatedShowOnly(page, pageSize int, sear
 	if search != "" {
 		query = query.Where("document_number ILIKE ? OR name ILIKE ?", "%"+search+"%", "%"+search+"%")
 	}
-
+	// fitur search dari kolom name
 	if filter["status"] != nil {
 		query = query.Where("status = ?", filter["status"])
 	}

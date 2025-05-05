@@ -288,7 +288,7 @@ func (h *JobPostingHandler) FindAllPaginatedShowOnly(ctx *gin.Context) {
 			h.Log.Errorf("User profile not found")
 			utils.ErrorResponse(ctx, 404, "error", "User profile not found")
 			return
-		}	
+		}
 	}
 
 	page, err := strconv.Atoi(ctx.Query("page"))
@@ -428,11 +428,7 @@ func (h *JobPostingHandler) FindAllPaginatedWithoutUserIDShowOnly(ctx *gin.Conte
 		"created_at": createdAt,
 	}
 
-	filter := make(map[string]interface{})
-	status := ctx.Query("status")
-	if status != "" {
-		filter["status"] = status
-	}
+	filter := utils.BuildFilterFromQuery(ctx)
 
 	logged := middleware.CheckLoggedIn(ctx, h.Log)
 

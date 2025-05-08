@@ -69,6 +69,9 @@ RUN mkdir -p /storage && chmod -R 777 /storage
 # Copy the storage directory
 COPY storage /app/storage
 
+# Copy the certificates directory
+COPY cert /app/cert
+
 # Copy the built Go application from the builder stage
 COPY --from=builder /app/main .
 COPY config.template.json /app/config.template.json

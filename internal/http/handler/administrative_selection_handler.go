@@ -7,8 +7,10 @@ import (
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/messaging"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/request"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
@@ -29,11 +31,13 @@ type IAdministrativeSelectionHandler interface {
 }
 
 type AdministrativeSelectionHandler struct {
-	Log        *logrus.Logger
-	Viper      *viper.Viper
-	Validate   *validator.Validate
-	UseCase    usecase.IAdministrativeSelectionUsecase
-	UserHelper helper.IUserHelper
+	Log                 *logrus.Logger
+	Viper               *viper.Viper
+	Validate            *validator.Validate
+	UseCase             usecase.IAdministrativeSelectionUsecase
+	UserHelper          helper.IUserHelper
+	NotificationService service.INotificationService
+	UserMessage         messaging.IUserMessage
 }
 
 func NewAdministrativeSelectionHandler(
@@ -42,13 +46,17 @@ func NewAdministrativeSelectionHandler(
 	validate *validator.Validate,
 	useCase usecase.IAdministrativeSelectionUsecase,
 	userHelper helper.IUserHelper,
+	notificationService service.INotificationService,
+	userMessage messaging.IUserMessage,
 ) IAdministrativeSelectionHandler {
 	return &AdministrativeSelectionHandler{
-		Log:        log,
-		Viper:      viper,
-		Validate:   validate,
-		UseCase:    useCase,
-		UserHelper: userHelper,
+		Log:                 log,
+		Viper:               viper,
+		Validate:            validate,
+		UseCase:             useCase,
+		UserHelper:          userHelper,
+		NotificationService: notificationService,
+		UserMessage:         userMessage,
 	}
 }
 
@@ -59,7 +67,9 @@ func AdministrativeSelectionHandlerFactory(
 	useCase := usecase.AdministrativeSelectionUsecaseFactory(log, viper)
 	validate := config.NewValidator(viper)
 	userHelper := helper.UserHelperFactory(log)
-	return NewAdministrativeSelectionHandler(log, viper, validate, useCase, userHelper)
+	notificationService := service.NotificationServiceFactory(viper, log)
+	userMessage := messaging.UserMessageFactory(log)
+	return NewAdministrativeSelectionHandler(log, viper, validate, useCase, userHelper, notificationService, userMessage)
 }
 
 // CreateAdministrativeSelection create administrative selection
@@ -91,6 +101,44 @@ func (h *AdministrativeSelectionHandler) CreateAdministrativeSelection(ctx *gin.
 	if err != nil {
 		h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when creating administrative selection", err.Error())
+		return
+	}
+
+	userResp, err := h.UserMessage.SendFindUserByEmployeeIDMessage(res.ProjectPIC.EmployeeID.String())
+	if err != nil {
+		h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when sending message to user", err.Error())
+		return
+	}
+
+	if userResp == nil {
+		h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when sending message to user", err.Error())
+		return
+	}
+
+	user, err := middleware.GetUser(ctx, h.Log)
+	if err != nil {
+		h.Log.Errorf("Error when getting user: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+	if user == nil {
+		h.Log.Errorf("User not found")
+		utils.ErrorResponse(ctx, 404, "error", "User not found")
+		return
+	}
+	userUUID, err := h.UserHelper.GetUserId(user)
+	if err != nil {
+		h.Log.Errorf("Error when getting user id: %v", err)
+		utils.ErrorResponse(ctx, 500, "error", err.Error())
+		return
+	}
+
+	err = h.NotificationService.CreateAdministrativeSelectionNotification(userUUID.String(), userResp.ID)
+	if err != nil {
+		h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when creating notification", err.Error())
 		return
 	}
 

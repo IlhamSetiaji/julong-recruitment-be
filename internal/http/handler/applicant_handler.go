@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/config"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/entity"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/helper"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/middleware"
+	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/service"
 	"github.com/IlhamSetiaji/julong-recruitment-be/internal/http/usecase"
 	"github.com/IlhamSetiaji/julong-recruitment-be/utils"
 	"github.com/gin-gonic/gin"
@@ -29,12 +31,13 @@ type IApplicantHandler interface {
 }
 
 type ApplicantHandler struct {
-	Log                *logrus.Logger
-	Viper              *viper.Viper
-	Validate           *validator.Validate
-	UseCase            usecase.IApplicantUseCase
-	UserProfileUseCase usecase.IUserProfileUseCase
-	UserHelper         helper.IUserHelper
+	Log                 *logrus.Logger
+	Viper               *viper.Viper
+	Validate            *validator.Validate
+	UseCase             usecase.IApplicantUseCase
+	UserProfileUseCase  usecase.IUserProfileUseCase
+	UserHelper          helper.IUserHelper
+	NotificationService service.INotificationService
 }
 
 func NewApplicantHandler(
@@ -44,14 +47,16 @@ func NewApplicantHandler(
 	useCase usecase.IApplicantUseCase,
 	upUseCase usecase.IUserProfileUseCase,
 	userHelper helper.IUserHelper,
+	notificationService service.INotificationService,
 ) IApplicantHandler {
 	return &ApplicantHandler{
-		Log:                log,
-		Viper:              viper,
-		Validate:           validate,
-		UseCase:            useCase,
-		UserProfileUseCase: upUseCase,
-		UserHelper:         userHelper,
+		Log:                 log,
+		Viper:               viper,
+		Validate:            validate,
+		UseCase:             useCase,
+		UserProfileUseCase:  upUseCase,
+		UserHelper:          userHelper,
+		NotificationService: notificationService,
 	}
 }
 
@@ -63,7 +68,8 @@ func ApplicantHandlerFactory(
 	validate := config.NewValidator(viper)
 	upUseCase := usecase.UserProfileUseCaseFactory(log, viper)
 	userHelper := helper.UserHelperFactory(log)
-	return NewApplicantHandler(log, viper, validate, useCase, upUseCase, userHelper)
+	notificationService := service.NotificationServiceFactory(viper, log)
+	return NewApplicantHandler(log, viper, validate, useCase, upUseCase, userHelper, notificationService)
 }
 
 // ApplyJobPosting apply job posting
@@ -129,6 +135,12 @@ func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 		return
 	}
 
+	if err := h.NotificationService.ApplicantAppliedNotification(userUUID.String()); err != nil {
+		h.Log.Errorf("[ApplicantHandler.ApplyJobPosting] error when sending notification: %v", err)
+		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to send notification", err.Error())
+		return
+	}
+
 	utils.SuccessResponse(ctx, http.StatusOK, "Successfully applied job posting", applicant)
 }
 
@@ -190,7 +202,43 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 	sort := map[string]interface{}{
 		"created_at": createdAt,
 	}
-
+	filter := make(map[string]interface{})
+	// filter by user_profile.name, job_posting.name, status, start_date, end_date
+	userProfileName := ctx.Query("user_profile.name")
+	if userProfileName != "" {
+		filter["user_profile.name"] = userProfileName
+	}
+	jobPostingName := ctx.Query("job_posting.name")
+	if jobPostingName != "" {
+		filter["job_posting.name"] = jobPostingName
+	}
+	// status
+	status := ctx.Query("status")
+	if status != "" {
+		filter["status"] = status
+	}
+	// start_date
+	startDate := ctx.Query("start_date")
+	if startDate != "" {
+		startDate, err := time.Parse("2006-01-02", startDate)
+		if err != nil {
+			h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when parsing start_date: %v", err)
+			utils.BadRequestResponse(ctx, "start_date is not a valid date", err)
+			return
+		}
+		filter["start_date"] = startDate
+	}
+	// end date
+	endDate := ctx.Query("end_date")
+	if endDate != "" {
+		endDate, err := time.Parse("2006-01-02", endDate)
+		if err != nil {
+			h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when parsing end_date: %v", err)
+			utils.BadRequestResponse(ctx, "end_date is not a valid date", err)
+			return
+		}
+		filter["end_date"] = endDate
+	}
 	// order, err := strconv.Atoi(orderStr)
 	// if err != nil {
 	// 	h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when converting order to int: %v", err)
@@ -205,7 +253,7 @@ func (h *ApplicantHandler) GetApplicantsByJobPostingID(ctx *gin.Context) {
 		return
 	}
 
-	applicants, totalData, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID, orderStr, total, page, pageSize, search, sort)
+	applicants, totalData, err := h.UseCase.GetApplicantsByJobPostingID(jobPostingID, orderStr, total, page, pageSize, search, sort, filter)
 	if err != nil {
 		h.Log.Errorf("[ApplicantHandler.GetApplicantsByJobPostingID] error when getting applicants: %v", err)
 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to get applicants", err.Error())

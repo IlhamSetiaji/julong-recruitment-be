@@ -55,7 +55,7 @@ func (r *DocumentAgreementRepository) CreateDocumentAgreement(ent *entity.Docume
 		return nil, err
 	}
 
-	if err := r.DB.Preload("DocumentSending").Preload("Applicant.UserProfile").First(ent, ent.ID).Error; err != nil {
+	if err := r.DB.Preload("DocumentSending.DocumentSetup").Preload("Applicant.UserProfile").First(ent, ent.ID).Error; err != nil {
 		r.Log.Error("[DocumentAgreementRepository.CreateDocumentAgreement] " + err.Error())
 		return nil, err
 	}

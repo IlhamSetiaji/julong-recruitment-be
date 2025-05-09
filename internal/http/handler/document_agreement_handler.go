@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -120,43 +119,43 @@ func (h *DocumentAgreementHandler) CreateDocumentAgreement(ctx *gin.Context) {
 		return
 	}
 
-	prl, err := h.ProjectRecruitmentLineUseCase.FindByID(res.DocumentSending.ProjectRecruitmentLineID)
-	if err != nil {
-		h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find project recruitment line", err.Error())
-		return
-	}
+	// prl, err := h.ProjectRecruitmentLineUseCase.FindByID(res.DocumentSending.ProjectRecruitmentLineID)
+	// if err != nil {
+	// 	h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
+	// 	utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find project recruitment line", err.Error())
+	// 	return
+	// }
 
-	if prl == nil {
-		h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + errors.New("project recruitment line not found").Error())
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Project recruitment line not found", err.Error())
-		return
-	}
+	// if prl == nil {
+	// 	h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + errors.New("project recruitment line not found").Error())
+	// 	utils.ErrorResponse(ctx, http.StatusInternalServerError, "Project recruitment line not found", err.Error())
+	// 	return
+	// }
 
-	var userIDs []string
-	for _, pp := range prl.ProjectPics {
-		userResp, err := h.UserMessage.SendFindUserByEmployeeIDMessage(pp.EmployeeID.String())
-		if err != nil {
-			h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
-			continue
-			// utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find user by employee id", err.Error())
-			// return
-		}
-		if userResp != nil {
-			userIDs = append(userIDs, userResp.ID)
-			h.Log.Infof("[DocumentAgreementHandler.CreateDocumentAgreement] Appended user ID: %s", userIDs)
-		}
-	}
+	// var userIDs []string
+	// for _, pp := range prl.ProjectPics {
+	// 	userResp, err := h.UserMessage.SendFindUserByEmployeeIDMessage(pp.EmployeeID.String())
+	// 	if err != nil {
+	// 		h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
+	// 		continue
+	// 		// utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to find user by employee id", err.Error())
+	// 		// return
+	// 	}
+	// 	if userResp != nil {
+	// 		userIDs = append(userIDs, userResp.ID)
+	// 		h.Log.Infof("[DocumentAgreementHandler.CreateDocumentAgreement] Appended user ID: %s", userIDs)
+	// 	}
+	// }
 
-	if len(userIDs) > 0 {
-		err = h.NotificationService.CreateDocumentAgreementNotification(res.Applicant.UserProfile.UserID.String(), userIDs, res.DocumentSending.DocumentSetup.Title)
-		if err != nil {
-			h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
-			utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to create document agreement notification", err.Error())
-			return
-		}
-		h.Log.Infof("[DocumentAgreementHandler.CreateDocumentAgreement] Document agreement notification created successfully")
-	}
+	// if len(userIDs) > 0 {
+	// 	err = h.NotificationService.CreateDocumentAgreementNotification(res.Applicant.UserProfile.UserID.String(), userIDs, res.DocumentSending.DocumentSetup.Title)
+	// 	if err != nil {
+	// 		h.Log.Error("[DocumentAgreementHandler.CreateDocumentAgreement] " + err.Error())
+	// 		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to create document agreement notification", err.Error())
+	// 		return
+	// 	}
+	// 	h.Log.Infof("[DocumentAgreementHandler.CreateDocumentAgreement] Document agreement notification created successfully")
+	// }
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "Document agreement created", res)
 }

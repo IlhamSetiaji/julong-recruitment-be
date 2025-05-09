@@ -104,43 +104,43 @@ func (h *AdministrativeSelectionHandler) CreateAdministrativeSelection(ctx *gin.
 		return
 	}
 
-	userResp, err := h.UserMessage.SendFindUserByEmployeeIDMessage(res.ProjectPIC.EmployeeID.String())
-	if err != nil {
-		h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when sending message to user", err.Error())
-		return
-	}
+	// userResp, err := h.UserMessage.SendFindUserByEmployeeIDMessage(res.ProjectPIC.EmployeeID.String())
+	// if err != nil {
+	// 	h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
+	// 	utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when sending message to user", err.Error())
+	// 	return
+	// }
 
-	if userResp == nil {
-		h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when sending message to user", err.Error())
-		return
-	}
+	// if userResp == nil {
+	// 	h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
+	// 	utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when sending message to user", err.Error())
+	// 	return
+	// }
 
-	user, err := middleware.GetUser(ctx, h.Log)
-	if err != nil {
-		h.Log.Errorf("Error when getting user: %v", err)
-		utils.ErrorResponse(ctx, 500, "error", err.Error())
-		return
-	}
-	if user == nil {
-		h.Log.Errorf("User not found")
-		utils.ErrorResponse(ctx, 404, "error", "User not found")
-		return
-	}
-	userUUID, err := h.UserHelper.GetUserId(user)
-	if err != nil {
-		h.Log.Errorf("Error when getting user id: %v", err)
-		utils.ErrorResponse(ctx, 500, "error", err.Error())
-		return
-	}
+	// user, err := middleware.GetUser(ctx, h.Log)
+	// if err != nil {
+	// 	h.Log.Errorf("Error when getting user: %v", err)
+	// 	utils.ErrorResponse(ctx, 500, "error", err.Error())
+	// 	return
+	// }
+	// if user == nil {
+	// 	h.Log.Errorf("User not found")
+	// 	utils.ErrorResponse(ctx, 404, "error", "User not found")
+	// 	return
+	// }
+	// userUUID, err := h.UserHelper.GetUserId(user)
+	// if err != nil {
+	// 	h.Log.Errorf("Error when getting user id: %v", err)
+	// 	utils.ErrorResponse(ctx, 500, "error", err.Error())
+	// 	return
+	// }
 
-	err = h.NotificationService.CreateAdministrativeSelectionNotification(userUUID.String(), userResp.ID)
-	if err != nil {
-		h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when creating notification", err.Error())
-		return
-	}
+	// err = h.NotificationService.CreateAdministrativeSelectionNotification(userUUID.String(), userResp.ID)
+	// if err != nil {
+	// 	h.Log.Error("[AdministrativeSelectionHandler.CreateAdministrativeSelection] " + err.Error())
+	// 	utils.ErrorResponse(ctx, http.StatusInternalServerError, "Error when creating notification", err.Error())
+	// 	return
+	// }
 
 	utils.SuccessResponse(ctx, http.StatusCreated, "Administrative selection created successfully", res)
 }

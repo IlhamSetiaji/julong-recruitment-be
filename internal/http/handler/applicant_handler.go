@@ -135,11 +135,11 @@ func (h *ApplicantHandler) ApplyJobPosting(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.NotificationService.ApplicantAppliedNotification(userUUID.String()); err != nil {
-		h.Log.Errorf("[ApplicantHandler.ApplyJobPosting] error when sending notification: %v", err)
-		utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to send notification", err.Error())
-		return
-	}
+	// if err := h.NotificationService.ApplicantAppliedNotification(userUUID.String()); err != nil {
+	// 	h.Log.Errorf("[ApplicantHandler.ApplyJobPosting] error when sending notification: %v", err)
+	// 	utils.ErrorResponse(ctx, http.StatusInternalServerError, "Failed to send notification", err.Error())
+	// 	return
+	// }
 
 	utils.SuccessResponse(ctx, http.StatusOK, "Successfully applied job posting", applicant)
 }
